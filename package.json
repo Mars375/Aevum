@@ -1,0 +1,33 @@
+{
+  "name": "ai-battle-simulator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Four LLM generals command four factions on a deterministic tactical grid. Watch the replay.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "battle": "tsx packages/cli/src/main.ts",
+    "probe": "tsx scripts/probe-providers.ts",
+    "player:dev": "npm run dev --workspace @abs/player",
+    "player:build": "npm run build --workspace @abs/player",
+    "healthcheck": "tsx scripts/healthcheck.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  }
+}

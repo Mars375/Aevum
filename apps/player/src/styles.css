@@ -1,0 +1,134 @@
+/*
+ * Data-Dense Dashboard, dark. High-contrast palette so 12px metadata still
+ * clears 4.5:1 against the card background.
+ *
+ * Fonts are a system stack rather than a webfont: the container serves replays
+ * offline behind nginx, and a Google Fonts request would either block or fail
+ * there. The monospace-forward look survives without the network round trip.
+ */
+:root {
+  --bg: #020617;
+  --card: #0e1223;
+  --card-raised: #161b30;
+  --border: #334155;
+  --border-soft: #1e2537;
+  --fg: #f8fafc;
+  --muted: #94a3b8;
+  --accent: #fbbf24;
+
+  --crimson: #f87171;
+  --azure: #60a5fa;
+  --verdant: #4ade80;
+  --amber: #fbbf24;
+
+  /* Density 8: dashboard spacing, 4-32px. */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Fira Code", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", "Fira Sans", Roboto, sans-serif;
+
+  --radius: 6px;
+  --t: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+/* Every interactive element keeps a visible focus ring; never removed. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--card-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s2) var(--s3);
+  /* 44px minimum touch target. */
+  min-height: 44px;
+  min-width: 44px;
+  transition: background var(--t), border-color var(--t);
+}
+
+button:hover:not(:disabled) {
+  background: #1f2740;
+  border-color: #4a5a75;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: var(--s4);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

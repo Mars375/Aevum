@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+
+# Real battle replays are build output, not source. The reference battle is
+# committed explicitly under replays/reference/ with `git add -f`.
+replays/*.json
+!replays/reference/

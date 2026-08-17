@@ -1,0 +1,21 @@
+services:
+  player:
+    build: .
+    image: ai-battle-simulator-player
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      # Replays are data, not image content. Drop a new JSON in ./replays and it
+      # is served immediately, no rebuild.
+      - ./replays:/usr/share/nginx/html/replays:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
