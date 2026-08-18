@@ -23,7 +23,7 @@ npm run player:dev               # open the replay in the browser
 | `@abs/engine` | resolves a turn, decides the outcome | make a single network call |
 | `@abs/agents` | talks to the three providers, drives the battle loop | decide who wins |
 | `@abs/cli` | runs a battle, writes the replay | — |
-| `@abs/player` | Vue 3 replay viewer | run the engine |
+| `@abs/player` | Vue 3 replay viewer, 2D grid and optional 3D | run the engine |
 
 The split that matters: **the model decides, the engine resolves.** An illegal
 order is rejected and recorded, never quietly rewritten into something workable.
@@ -133,6 +133,7 @@ single model again. That round trip is a test
 | `docs/spec/rules.md` | Ruleset v1 — the engine's source of truth, with 11 invariants |
 | `docs/spec/rules-v2.md` | Ruleset v2 — budget, fog, diplomacy, and 9 more invariants |
 | `docs/spec/reports.md` | Battle reports, and why the replay grades them instead of a model |
+| `docs/spec/visual-identity.md` | The 3D view, and why 2D stays the default |
 | `docs/architecture/data-contracts.md` | Why the schemas are shaped the way they are |
 | `docs/research/providers.md` | Model measurements and the roster they justify |
 | `docs/reports/reference-battle.md` | The delivered battle, and four runs of measurements |

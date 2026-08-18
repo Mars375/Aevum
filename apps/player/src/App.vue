@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from "vue";
 import { ReplaySchema, type Replay } from "@abs/contracts";
 import BattleGrid from "./components/BattleGrid.vue";
 import EventLog from "./components/EventLog.vue";
 import GeneralPanel from "./components/GeneralPanel.vue";
 import ReportPanel from "./components/ReportPanel.vue";
+// Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
+// reader who never opens the 3D view never downloads it.
+const Battle3D = defineAsyncComponent(() => import("./components/Battle3D.vue"));
+import { BattleAudio } from "./three/audio";
 
 const replay = ref<Replay | null>(null);
 const error = ref<string | null>(null);
@@ -16,6 +20,11 @@ const highlight = ref<string | null>(null);
 
 const SPEEDS = [0.5, 1, 2, 4];
 const BASE_MS = 1100;
+
+/** 2D stays the default and stays complete; 3D is an alternative view. */
+const view3d = ref(false);
+const audio = new BattleAudio();
+const soundOn = ref(false);
 
 const turnCount = computed(() => replay.value?.turns.length ?? 0);
 const current = computed(() => {
@@ -88,9 +97,17 @@ onMounted(() => {
   const requested = new URLSearchParams(location.search).get("replay");
   loadFromUrl(requested ?? "replays/reference.json");
 });
+// Sound follows the turn being displayed, so scrubbing backwards is silent
+// rather than replaying old noise.
+watch(index, (next, previous) => {
+  if (!soundOn.value || next <= previous || !replay.value) return;
+  audio.playTurn(replay.value.turns[next - 1]?.events ?? []);
+});
+
 onUnmounted(() => {
   window.removeEventListener("keydown", onKey);
   clearInterval(timer);
+  audio.dispose();
 });
 </script>
 
@@ -134,7 +151,28 @@ onUnmounted(() => {
 
     <main v-if="replay && current" class="layout">
       <section class="board">
+        <div class="viewswitch" role="group" aria-label="Mode d'affichage">
+          <button type="button" class="mono" :aria-pressed="!view3d" @click="view3d = false">Grille 2D</button>
+          <button type="button" class="mono" :aria-pressed="view3d" @click="view3d = true">Vue 3D</button>
+          <button
+            type="button"
+            class="mono"
+            :aria-pressed="soundOn"
+            :title="soundOn ? 'Couper le son' : 'Activer le son (synthétisé, aucun fichier)'"
+            @click="soundOn = !soundOn; audio.enabled = soundOn"
+          >
+            {{ soundOn ? "Son activé" : "Son coupé" }}
+          </button>
+        </div>
+
+        <Battle3D
+          v-if="view3d"
+          :state="current"
+          :grid-size="replay.manifest.config.gridSize"
+          :alliance-pairs="currentTurn?.alliances?.pairs ?? []"
+        />
         <BattleGrid
+          v-else
           :state="current"
           :grid-size="replay.manifest.config.gridSize"
           :highlight="highlight"
@@ -354,6 +392,16 @@ h1 {
 
 .speed {
   flex: 1;
+  font-size: 12px;
+}
+
+.viewswitch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.viewswitch button {
   font-size: 12px;
 }
 
