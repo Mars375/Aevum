@@ -195,3 +195,71 @@ describe("metrics come from the replay, never from the report", () => {
     expect(audit.fidelity).toBe(1); // it did attack on turn 1, so the claim checks out
   });
 });
+
+/**
+ * The verifier is bilingual because a report may be written in either language.
+ * A first pass matched English only, and a French report claiming a charge that
+ * never happened came back UNSUPPORTED — blind to the exact lie it exists for.
+ */
+describe("the verifier understands French as well as English", () => {
+  it("confirms a truthful French claim", () => {
+    expect(verifyClaim(REPLAY, "crimson", claim(1, "J'ai avancé mon escouade de mêlée")).verdict).toBe("VERIFIED");
+    expect(verifyClaim(REPLAY, "azure", claim(1, "J'ai attaqué leur ligne")).verdict).toBe("VERIFIED");
+  });
+
+  it("catches a French claim that invents a charge", () => {
+    // Crimson only moved on turn 1. This is the case the English-only pass missed.
+    const v = verifyClaim(REPLAY, "crimson", claim(1, "J'ai chargé et détruit deux escouades ennemies"));
+    expect(v.verdict).toBe("CONTRADICTED");
+  });
+
+  it("catches a French claim that invents diplomacy", () => {
+    expect(verifyClaim(REPLAY, "azure", claim(2, "J'ai proposé une alliance à verdant")).verdict).toBe("CONTRADICTED");
+  });
+
+  it("recognises a French loss", () => {
+    const v = verifyClaim(REPLAY, "crimson", claim(2, "J'ai frappé leur ligne", "mais j'ai perdu une escouade"));
+    expect(v.verdict).toBe("VERIFIED");
+  });
+
+  it("still treats French prose with no action as unverifiable, not false", () => {
+    const v = verifyClaim(REPLAY, "crimson", claim(1, "J'ai pesé le rapport de force général"));
+    expect(v.verdict).toBe("UNSUPPORTED");
+  });
+});
+
+/**
+ * "Position gagnée sans perte" mentions a loss and claims the opposite.
+ * Reading that as a claimed loss marked an honest report as contradicted —
+ * the worst failure available to a check meant to separate honesty from
+ * embellishment.
+ */
+describe("a denial is not a claim", () => {
+  it("does not read 'sans perte' as claiming a loss", () => {
+    const v = verifyClaim(REPLAY, "crimson", claim(1, "J'ai avancé mes éclaireurs", "Position gagnée sans perte"));
+    expect(v.verdict).toBe("VERIFIED");
+  });
+
+  it("does not read 'without losses' as claiming a loss either", () => {
+    expect(verifyClaim(REPLAY, "crimson", claim(1, "I advanced", "ground taken without losses")).verdict).toBe("VERIFIED");
+  });
+
+  it("does not read 'aucune attaque' as claiming an attack", () => {
+    const v = verifyClaim(REPLAY, "crimson", claim(1, "Je me suis déplacé, aucune attaque n'était possible"));
+    expect(v.verdict).toBe("VERIFIED");
+  });
+
+  it("still catches a real loss claim in the same sentence shape", () => {
+    // The negator must not swallow a genuine admission further along.
+    const v = verifyClaim(REPLAY, "azure", claim(2, "Sans hésiter j'ai tenu, et j'ai perdu une escouade"));
+    expect(v.verdict).toBe("CONTRADICTED"); // azure lost nothing on turn 2
+  });
+
+  it("writes evidence in grammatical French, singular and plural", () => {
+    const one = verifyClaim(REPLAY, "crimson", claim(1, "J'ai chargé leur ligne"));
+    expect(one.evidence).toContain("ne contient pas une attaque pour crimson");
+
+    const many = verifyClaim(REPLAY, "azure", claim(2, "J'ai attaqué", "et j'ai perdu une escouade"));
+    expect(many.evidence).toContain("ni une attaque ni une perte");
+  });
+});

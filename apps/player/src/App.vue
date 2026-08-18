@@ -4,6 +4,7 @@ import { ReplaySchema, type Replay } from "@abs/contracts";
 import BattleGrid from "./components/BattleGrid.vue";
 import EventLog from "./components/EventLog.vue";
 import GeneralPanel from "./components/GeneralPanel.vue";
+import ReportPanel from "./components/ReportPanel.vue";
 
 const replay = ref<Replay | null>(null);
 const error = ref<string | null>(null);
@@ -208,6 +209,13 @@ onUnmounted(() => {
         <EventLog :events="currentTurn?.events ?? []" @focus-squad="highlight = $event" />
       </aside>
     </main>
+
+    <ReportPanel
+      v-if="replay?.reports?.length"
+      :reports="replay.reports"
+      :audits="replay.audits"
+      @go-to-turn="index = Math.min(turnCount, Math.max(0, $event))"
+    />
 
     <footer v-if="replay" class="foot mono">
       {{ replay.outcome.reason }} · replay {{ replay.manifest.battleId }} · contrats {{ replay.manifest.contractsVersion }}
