@@ -68,9 +68,17 @@ export function systemPromptV2(): string {
     "  and your ally is told immediately — a betrayal costs you a turn.",
     "- SURRENDER: withdraw from the battle. Your squads are removed.",
     "Allies cannot attack each other and share vision. If the only survivors are all allied,",
-    "they win JOINTLY. Your message is recorded and shown, but has no mechanical effect.",
+    "they win JOINTLY — a shared win beats losing alone. Your message is recorded and shown,",
+    "but has no mechanical effect.",
     "",
-    "Answer with JSON only. Set diplomacy to null when you have nothing to say.",
+    "WHEN TO USE IT. Diplomacy is not decoration, and null is not the safe answer:",
+    "- Someone has offered you an alliance: ANSWER IT. Ignoring an offer wastes it — it expires in 3 turns.",
+    "- You are outnumbered, or two enemies are converging on you: propose an alliance to the weaker of them.",
+    "- An ally has served its purpose and its squads are spent: consider breaking, remembering it costs a turn.",
+    "- You cannot win and want the battle recorded honestly: SURRENDER is a legitimate move, not a bug.",
+    "Use null only when none of the above applies.",
+    "",
+    "Answer with JSON only.",
   ].join("\n");
 }
 
@@ -127,7 +135,14 @@ export function userPromptV2(view: LocalView): string {
   }
 
   if (view.pendingProposals.length) {
-    lines.push("", `Alliance offers awaiting your answer: ${view.pendingProposals.join(", ")}.`);
+    // Surfaced as an explicit decision, not a note: the first v2 battle
+    // produced zero diplomatic actions across 48 decisions, and a passive
+    // mention was part of why.
+    lines.push(
+      "",
+      `>>> ALLIANCE OFFERED TO YOU by ${view.pendingProposals.join(" and ")}. <<<`,
+      `Answer this turn with ACCEPT_ALLIANCE targeting ${view.pendingProposals[0]}, or let it lapse.`,
+    );
   }
 
   if (view.memory.length) {

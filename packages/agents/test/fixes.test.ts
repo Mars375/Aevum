@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { FACTION_IDS, GRID_SIZE, ReplaySchema, type GeneralConfig, type Replay } from "@abs/contracts";
 import { createInitialState, localViewFor } from "@abs/engine";
-import { DEFAULT_GENERALS, RemoteProvider, ScriptedProvider, chargeNearest, isFreeRef, runBattle, userPrompt } from "@abs/agents";
+import { DEFAULT_GENERALS, RemoteProvider, ScriptedProvider, chargeNearest, isFreeRef, runBattle, systemPromptV2, userPrompt, userPromptV2 } from "@abs/agents";
 import { extractJson } from "../src/json.js";
 import { NATIVE_SCHEMA_MODELS, supportsNativeSchema } from "../src/roster.js";
 
@@ -212,3 +212,57 @@ describe("D2b · the legal move envelope is stated too", () => {
     expect(prompt).toContain("x in [14,15] and y in [14,15]");
   });
 });
+
+/**
+ * The first real v2 battle produced ZERO diplomatic actions across 48
+ * decisions. The mechanic was implemented and tested but never exercised, and
+ * the prompt was part of why: it offered diplomacy without ever telling a
+ * general when to reach for it.
+ */
+describe("v2 · diplomacy is prompted for, not merely permitted", () => {
+  it("gives concrete triggers rather than presenting null as the safe answer", () => {
+    const sys = systemPromptV2();
+    expect(sys).toContain("null is not the safe answer");
+    expect(sys).toContain("ANSWER IT");
+    expect(sys).toContain("SURRENDER is a legitimate move");
+  });
+
+  it("makes a pending offer impossible to skim past", () => {
+    const state = {
+      turn: 2,
+      squads: [
+        { id: "crimson-melee-1", factionId: "crimson" as const, archetype: "MELEE" as const, position: { x: 5, y: 5 }, hp: 10, maxHp: 10 },
+      ],
+    };
+    const view = { ...localViewForV2Stub(state), pendingProposals: ["azure" as const] };
+    const prompt = userPromptV2(view);
+    expect(prompt).toContain("ALLIANCE OFFERED TO YOU by azure");
+    expect(prompt).toContain("ACCEPT_ALLIANCE targeting azure");
+  });
+
+  it("says nothing about offers when there are none", () => {
+    const state = {
+      turn: 2,
+      squads: [
+        { id: "crimson-melee-1", factionId: "crimson" as const, archetype: "MELEE" as const, position: { x: 5, y: 5 }, hp: 10, maxHp: 10 },
+      ],
+    };
+    expect(userPromptV2(localViewForV2Stub(state))).not.toContain("ALLIANCE OFFERED");
+  });
+});
+
+function localViewForV2Stub(state: { turn: number; squads: any[] }) {
+  return {
+    turn: state.turn,
+    maxTurns: 12,
+    gridSize: GRID_SIZE,
+    you: "crimson" as const,
+    yourSquads: state.squads,
+    enemySquads: [],
+    rememberedEnemies: [],
+    allies: [],
+    pendingProposals: [] as ("crimson" | "azure" | "verdant" | "amber")[],
+    memory: [],
+    budget: { spent: 14, total: 20 },
+  };
+}

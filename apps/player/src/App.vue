@@ -108,7 +108,15 @@ onUnmounted(() => {
       <dl v-if="replay" class="summary mono">
         <div>
           <dt>issue</dt>
-          <dd>{{ replay.outcome.kind }}{{ replay.outcome.winner ? ` · ${replay.outcome.winner}` : "" }}</dd>
+          <dd>
+            {{ replay.outcome.kind }}{{
+              replay.outcome.winner
+                ? ` · ${replay.outcome.winner}`
+                : replay.outcome.winners?.length
+                  ? ` · ${replay.outcome.winners.join(" + ")}`
+                  : ""
+            }}
+          </dd>
         </div>
         <div><dt>tours</dt><dd>{{ turnCount }}</dd></div>
         <div><dt>règles</dt><dd>{{ replay.manifest.rulesetVersion }}</dd></div>
@@ -125,7 +133,20 @@ onUnmounted(() => {
 
     <main v-if="replay && current" class="layout">
       <section class="board">
-        <BattleGrid :state="current" :grid-size="replay.manifest.config.gridSize" :highlight="highlight" />
+        <BattleGrid
+          :state="current"
+          :grid-size="replay.manifest.config.gridSize"
+          :highlight="highlight"
+          :alliance-pairs="currentTurn?.alliances?.pairs ?? []"
+        />
+
+        <p v-if="currentTurn?.alliances?.pairs?.length" class="alliances mono">
+          Alliances en vigueur :
+          {{ currentTurn.alliances.pairs.map((p) => p.replace("|", " + ")).join(" · ") }}
+        </p>
+        <p v-if="currentTurn?.alliances?.surrendered?.length" class="alliances mono surrender">
+          Ont capitulé : {{ currentTurn.alliances.surrendered.join(", ") }}
+        </p>
 
         <div class="controls card">
           <div class="buttons">
@@ -326,6 +347,16 @@ h1 {
 .speed {
   flex: 1;
   font-size: 12px;
+}
+
+.alliances {
+  margin: 0;
+  font-size: 12px;
+  color: var(--verdant);
+}
+
+.alliances.surrender {
+  color: var(--amber);
 }
 
 .hint,

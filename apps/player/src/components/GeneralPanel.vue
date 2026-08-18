@@ -19,6 +19,14 @@ const shortModel = (m: string | null) => (m ? m.split("/").pop()!.replace(":free
       <p v-if="d.telemetry.error" class="error mono">Injoignable — {{ d.telemetry.error }}</p>
       <p v-else class="reasoning">{{ d.reasoning || "Aucune justification fournie." }}</p>
 
+      <!-- v2. The message is theatre and has no mechanical effect, so it is
+           shown as a quote rather than alongside the mechanical fields. -->
+      <p v-if="d.diplomacy" class="diplomacy mono">
+        <span class="verb">{{ d.diplomacy.action }}</span>
+        <span v-if="d.diplomacy.target"> → {{ d.diplomacy.target }}</span>
+        <q v-if="d.diplomacy.message">{{ d.diplomacy.message }}</q>
+      </p>
+
       <dl class="mono">
         <div>
           <dt>modèle</dt>
@@ -122,5 +130,25 @@ dd {
   margin: 0;
   font-size: 11px;
   color: var(--amber);
+}
+
+.diplomacy {
+  margin: 0;
+  font-size: 11px;
+  color: var(--azure);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  align-items: baseline;
+}
+
+.verb {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.diplomacy q {
+  color: var(--muted);
+  font-style: italic;
 }
 </style>

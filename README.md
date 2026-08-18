@@ -9,7 +9,8 @@ Nobody plays. You watch — and you read why each general gave the orders it did
 ```
 npm install
 npm run battle -- --scripted     # offline baseline, no key, no network
-npm run battle                   # four remote models, ~7 minutes
+npm run battle                   # ruleset v1: four remote models, ~7 minutes
+npm run battle -- --ruleset v2   # army budget, fog of war, bounded diplomacy
 npm run battle -- --resume       # continue an interrupted battle
 npm run player:dev               # open the replay in the browser
 ```
@@ -20,7 +21,7 @@ npm run player:dev               # open the replay in the browser
 | --- | --- | --- |
 | `@abs/contracts` | zod schemas shared by everything | import the engine, the network or Vue |
 | `@abs/engine` | resolves a turn, decides the outcome | make a single network call |
-| `@abs/agents` | talks to OpenRouter and Groq, drives the battle loop | decide who wins |
+| `@abs/agents` | talks to the three providers, drives the battle loop | decide who wins |
 | `@abs/cli` | runs a battle, writes the replay | — |
 | `@abs/player` | Vue 3 replay viewer | run the engine |
 
@@ -28,7 +29,7 @@ The split that matters: **the model decides, the engine resolves.** An illegal
 order is rejected and recorded, never quietly rewritten into something workable.
 That is what makes a replay auditable.
 
-## Four things the measurements forced
+## Five things the measurements forced
 
 Every one of these was a wrong first guess corrected by evidence
 (`docs/research/providers.md`, `docs/reports/qa-audit.md`):
@@ -49,23 +50,57 @@ Every one of these was a wrong first guess corrected by evidence
    produced 18 out-of-range attacks against 11 hits, and illegal moves, while
    knowing the rules perfectly well. Listing each squad's reachable targets and
    its legal move box took both counts to **zero**.
-4. **Use two providers.** OpenRouter and Groq rate-limit independently, so every
-   fallback chain spans both and one provider throttling strands nobody. Groq
-   also cuts median latency from 58 s to 3 s, which turns a 40-minute battle
-   into a 7-minute one — the difference between a tournament being affordable
-   and not.
+4. **Use three providers.** OpenRouter, Groq and NVIDIA rate-limit
+   independently, and every fallback chain spans all three. This is not
+   redundancy for its own sake: a 12-rotation tournament collapsed to **0%**
+   service after roughly 350 calls on a single tier. Groq also cuts median
+   latency from 58 s to 3 s, turning a 40-minute battle into a 7-minute one.
+5. **The free tier is a call budget, not a time budget.** Reasoning that 12
+   rotations cost 90 minutes and are therefore free was wrong — 183 calls pass,
+   558 do not. Any protocol that counts minutes yields clean data first and
+   noise afterwards.
 
 When a whole chain fails, the squads hold and the replay says
 `GENERAL_UNREACHABLE`. The client never invents an order to cover the gap.
+
+## Two rulesets
+
+`v1` is frozen. `v2` extends it, and both are playable — the engine picks from
+the manifest, so a replay recorded a month ago still resolves the same way. A
+test asserts it (`I20`): MELEE and RANGED keep their exact v1 numbers, v1
+deployment tiles are unchanged, and the alliance lookup is simply absent at v1.
+
+| | v1 | v2 |
+| --- | --- | --- |
+| Army | imposed, 1 MELEE + 1 RANGED | bought on a 20-point budget, up to 4 squads |
+| Units | MELEE, RANGED | + SCOUT (cheap, sees 9) and HEAVY (tanky, nearly blind) |
+| Visibility | total | fog of war, with remembered sightings |
+| Diplomacy | none | four verbs, at most one action per turn |
+| Victory | last faction standing | + joint alliance win, + surrender |
+
+Three v2 decisions worth knowing:
+
+- **Fog lives entirely in the view projection.** The v1 architecture note
+  promised phase 2 would only have to filter there, and it held — the engine,
+  the resolution rules and the replay format are untouched by v2 visibility. A
+  general acts on beliefs; orders still resolve against the real state, so
+  attacking a remembered tile can hit empty ground.
+- **A betrayal is never instant.** `BREAK_ALLIANCE` bites at the end of the
+  *following* turn and the ally is told immediately. That delay is the whole
+  reason an alliance means anything.
+- **Memory is built by the engine, from events it emitted.** Never by a model,
+  so it cannot hallucinate a past, and capped at 8 entries so token cost does
+  not grow with battle length.
 
 ## Budget
 
 Locked at **0 €** by the launch gate.
 
 On OpenRouter this is enforced in code: a model id without a `:free` suffix is
-refused *before* the request is made. On Groq it **cannot** be — the free tier
-is a property of the account, not of the model. An account with no payment
-method is rate-limited rather than billed, and that is where the guarantee
+refused *before* the request is made. On Groq and NVIDIA it **cannot** be —
+neither has a per-model free/paid marker, because on both the free tier is a
+property of the account, not of the model. An account with no payment method is
+rate- or credit-limited rather than billed, and that is where the guarantee
 actually comes from. Stated plainly rather than implied.
 
 ## Determinism
@@ -86,6 +121,7 @@ single model again. That round trip is a test
 | --- | --- |
 | `docs/spec/mvp.md` | Scope, audience, what is deliberately out |
 | `docs/spec/rules.md` | Ruleset v1 — the engine's source of truth, with 11 invariants |
+| `docs/spec/rules-v2.md` | Ruleset v2 — budget, fog, diplomacy, and 9 more invariants |
 | `docs/architecture/data-contracts.md` | Why the schemas are shaped the way they are |
 | `docs/research/providers.md` | Model measurements and the roster they justify |
 | `docs/reports/reference-battle.md` | The delivered battle, and four runs of measurements |
@@ -96,10 +132,11 @@ single model again. That round trip is a test
 
 | Command | Does |
 | --- | --- |
-| `npm test` | 76 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
+| `npm test` | 117 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
 | `npm run typecheck` | `tsc --noEmit` across the workspace |
 | `npm run battle -- --scripted` | Offline battle with the baseline AI |
 | `npm run battle` | Remote battle, four free models, ~7 minutes |
+| `npm run battle -- --ruleset v2` | Same, with army budget, fog of war and diplomacy |
 | `npm run battle -- --resume` | Continue the replay at `--out` instead of restarting |
 | `npm run probe` | Re-measure the free-model catalogue |
 | `npm run tournament` | 4 rotations ranking the four contenders, ~30 min |
@@ -109,12 +146,14 @@ single model again. That round trip is a test
 
 ## Configuration
 
-Copy `.env.example` to `.env`. Credentials are `OPENROUTER_API_KEY` and,
-optionally, `GROQ_API_KEY`; at least one is required. Neither ever leaves the
+Copy `.env.example` to `.env`. Credentials are `OPENROUTER_API_KEY`, `GROQ_API_KEY`
+and `NVIDIA_API_KEY`; at least one is required, and all three make the roster
+meaningfully more robust. Neither ever leaves the
 `Authorization` header — prompts carry public battlefield state and nothing
 else, and a test fails if a key pattern appears in a URL, a request body, or a
 replay.
 
 Models are referenced by provider: a bare id goes to OpenRouter
 (`google/gemma-4-26b-a4b-it:free`), a `groq:` prefix goes to Groq
-(`groq:openai/gpt-oss-120b`).
+(`groq:openai/gpt-oss-120b`), an `nvidia:` prefix goes to NVIDIA build
+(`nvidia:meta/llama-3.3-70b-instruct`).

@@ -2,7 +2,20 @@
 import { computed } from "vue";
 import type { FactionId, Squad, WorldState } from "@abs/contracts";
 
-const props = defineProps<{ state: WorldState; gridSize: number; highlight: string | null }>();
+const props = defineProps<{
+  state: WorldState;
+  gridSize: number;
+  highlight: string | null;
+  /** v2: "a|b" pairs. Allied factions get a shared marker on the grid. */
+  alliancePairs?: string[];
+}>();
+
+/** Factions that are allied with at least one other, for the grid marker. */
+const alliedFactions = computed(() => {
+  const set = new Set<string>();
+  for (const pair of props.alliancePairs ?? []) for (const f of pair.split("|")) set.add(f);
+  return set;
+});
 
 const cells = computed(() => {
   const byTile = new Map<string, Squad>();
@@ -16,6 +29,8 @@ const cells = computed(() => {
 });
 
 const initial: Record<FactionId, string> = { crimson: "C", azure: "A", verdant: "V", amber: "M" };
+
+const ARCHETYPE_SHAPE: Record<string, string> = { MELEE: "melee", RANGED: "ranged", SCOUT: "scout", HEAVY: "heavy" };
 
 /**
  * Faction is never carried by colour alone: each squad also shows its faction
@@ -45,7 +60,10 @@ function label(squad: Squad): string {
         <div
           v-if="cell.squad"
           class="squad"
-          :class="[cell.squad.archetype.toLowerCase(), { flash: highlight === cell.squad.id }]"
+          :class="[
+            ARCHETYPE_SHAPE[cell.squad.archetype],
+            { flash: highlight === cell.squad.id, allied: alliedFactions.has(cell.squad.factionId) },
+          ]"
           :style="{ '--faction': `var(--${cell.squad.factionId})` }"
           :title="label(cell.squad)"
         >
@@ -66,8 +84,13 @@ function label(squad: Squad): string {
         {{ faction }}
       </li>
       <li class="shapes">
-        <span class="chip" aria-hidden="true" />carré = mêlée
-        <span class="chip ranged" aria-hidden="true" />rond = distance
+        <span class="chip melee" aria-hidden="true" />mêlée
+        <span class="chip ranged" aria-hidden="true" />distance
+        <span class="chip scout" aria-hidden="true" />éclaireur
+        <span class="chip heavy" aria-hidden="true" />lourde
+      </li>
+      <li v-if="alliancePairs?.length" class="shapes">
+        <span class="chip allied" aria-hidden="true" />liseré = alliée
       </li>
     </ul>
   </div>
@@ -116,8 +139,30 @@ function label(squad: Squad): string {
   border-radius: 2px;
 }
 
-.squad.ranged {
+/* Archetype is carried by SHAPE as well as colour, so the grid stays readable
+   in greyscale and for readers who cannot separate the four faction hues. */
+.squad.ranged,
+.chip.ranged {
   border-radius: 50%;
+}
+
+.squad.scout,
+.chip.scout {
+  border-radius: 50%;
+  border-style: dashed;
+}
+
+.squad.heavy,
+.chip.heavy {
+  border-radius: 2px;
+  border-width: 3px;
+}
+
+/* Alliance is an outline, never a hue change: the faction must stay itself. */
+.squad.allied,
+.chip.allied {
+  outline: 2px dotted var(--fg);
+  outline-offset: 1px;
 }
 
 .initial {

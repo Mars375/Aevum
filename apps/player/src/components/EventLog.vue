@@ -18,6 +18,14 @@ const TONE: Record<string, { tone: "hit" | "miss" | "reject" | "fatal" | "info";
   SQUAD_DESTROYED: { tone: "fatal", prefix: "DETRUITE" },
   FACTION_ELIMINATED: { tone: "fatal", prefix: "FACTION ELIMINEE" },
   GENERAL_UNREACHABLE: { tone: "fatal", prefix: "GENERAL INJOIGNABLE" },
+  ATTACK_ALLY_BLOCKED: { tone: "reject", prefix: "TIR SUR ALLIE" },
+  COMPOSITION_REJECTED: { tone: "reject", prefix: "ARMEE REJETEE" },
+  DIPLOMACY_REJECTED: { tone: "reject", prefix: "DIPLOMATIE REJETEE" },
+  ALLIANCE_PROPOSED: { tone: "info", prefix: "ALLIANCE PROPOSEE" },
+  ALLIANCE_FORMED: { tone: "hit", prefix: "ALLIANCE FORMEE" },
+  ALLIANCE_BREAK_DECLARED: { tone: "reject", prefix: "RUPTURE ANNONCEE" },
+  ALLIANCE_BROKEN: { tone: "fatal", prefix: "ALLIANCE ROMPUE" },
+  FACTION_SURRENDERED: { tone: "fatal", prefix: "CAPITULATION" },
 };
 
 const rows = computed(() =>
@@ -50,6 +58,27 @@ const rows = computed(() =>
         break;
       case "FACTION_ELIMINATED":
         detail = any.factionId;
+        break;
+      case "ATTACK_ALLY_BLOCKED":
+        detail = `${any.squadId} vise (${any.at.x},${any.at.y})`;
+        break;
+      case "COMPOSITION_REJECTED":
+      case "DIPLOMACY_REJECTED":
+        detail = `${any.factionId} — ${any.reason}`;
+        break;
+      case "ALLIANCE_PROPOSED":
+        detail = `${any.from} → ${any.to}${any.message ? ` « ${any.message} »` : ""}`;
+        break;
+      case "ALLIANCE_FORMED":
+      case "ALLIANCE_BROKEN":
+        detail = `${any.a} + ${any.b}`;
+        break;
+      case "ALLIANCE_BREAK_DECLARED":
+        // Worth spelling out: the betrayal does not bite until effectiveTurn.
+        detail = `${any.from} → ${any.to}, effective au tour ${any.effectiveTurn}`;
+        break;
+      case "FACTION_SURRENDERED":
+        detail = `${any.factionId}${any.message ? ` « ${any.message} »` : ""}`;
         break;
       default:
         detail = any.squadId ?? "";
