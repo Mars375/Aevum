@@ -16,8 +16,10 @@ export interface OpenRouterOptions {
   apiKey: string;
   /**
    * Must cover reasoning tokens, which are billed against the completion budget
-   * before the model emits its first brace. Measured: 800 truncates most free
-   * models, 3000 does not. See docs/research/providers.md.
+   * before the model emits its first brace. 800 truncates most free models and
+   * 3000 clears a turn-1 prompt — but 3000 still truncated mid-battle in the
+   * reference run, where the position is richer and the reasoning longer, so
+   * the default is 6000. See docs/reports/qa-audit.md, defect D3.
    */
   maxTokens?: number;
   /** Free-tier latency spans 3.7s to 213s; without a ceiling one squad freezes a battle. */
@@ -40,7 +42,7 @@ export class OpenRouterProvider implements OrderProvider {
   constructor(options: OpenRouterOptions) {
     this.opts = {
       apiKey: options.apiKey,
-      maxTokens: options.maxTokens ?? 3000,
+      maxTokens: options.maxTokens ?? 6000,
       timeoutMs: options.timeoutMs ?? 60_000,
       attemptsPerModel: options.attemptsPerModel ?? 2,
       freeModelsOnly: options.freeModelsOnly ?? true,

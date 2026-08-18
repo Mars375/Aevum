@@ -57,7 +57,7 @@ if (values.scripted) {
   console.log();
   provider = new OpenRouterProvider({
     apiKey,
-    maxTokens: Number(process.env.ABS_MAX_TOKENS ?? 3000),
+    maxTokens: Number(process.env.ABS_MAX_TOKENS ?? 6000),
     timeoutMs: Number(process.env.ABS_REQUEST_TIMEOUT_MS ?? 60_000),
     freeModelsOnly: process.env.ABS_FREE_MODELS_ONLY !== "0",
   });

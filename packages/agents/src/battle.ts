@@ -50,6 +50,9 @@ export async function runBattle({ config, provider, onProgress, battleId, now }:
       // Every general sees the same snapshot, so ordering these calls does not
       // leak turn order into the battle.
       const view = localViewFor(state, general.factionId, config.maxTurns, config.gridSize);
+      // Announce before the call, not only after: a single request can take
+      // three minutes on the free tier, and silence reads as a hung process.
+      log(`  ${general.factionId}: asking ${general.model}...`);
       const { decision, telemetry } = await provider.decide(view, general);
 
       if (!decision) {
