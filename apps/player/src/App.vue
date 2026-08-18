@@ -23,6 +23,19 @@ const BASE_MS = 1100;
 
 /** 2D stays the default and stays complete; 3D is an alternative view. */
 const view3d = ref(false);
+
+/** Catalogue of replays this deployment serves, newest first. */
+interface CatalogueEntry {
+  path: string;
+  battleId: string;
+  ruleset: string;
+  turns: number;
+  outcome: string;
+  winner: string | null;
+  hasReports: boolean;
+}
+const catalogue = ref<CatalogueEntry[]>([]);
+const currentPath = ref<string>("");
 const audio = new BattleAudio();
 const soundOn = ref(false);
 
@@ -92,10 +105,39 @@ watch([playing, speed], () => {
   timer = window.setInterval(() => (atEnd.value ? (playing.value = false) : step(1)), BASE_MS / speed.value);
 });
 
-onMounted(() => {
+async function loadCatalogue() {
+  try {
+    const res = await fetch("replays/index.json");
+    if (res.ok) catalogue.value = await res.json();
+  } catch {
+    // No catalogue is fine: the picker simply does not appear.
+  }
+}
+
+function pick(path: string) {
+  currentPath.value = path;
+  // Keep the URL honest, so a chosen replay can be shared or reloaded.
+  const url = new URL(location.href);
+  url.searchParams.set("replay", `replays/${path}`);
+  history.replaceState(null, "", url);
+  loadFromUrl(`replays/${path}`);
+}
+
+onMounted(async () => {
   window.addEventListener("keydown", onKey);
+  await loadCatalogue();
+
   const requested = new URLSearchParams(location.search).get("replay");
-  loadFromUrl(requested ?? "replays/reference.json");
+  if (requested) {
+    currentPath.value = requested.replace(/^replays\//, "");
+    loadFromUrl(requested);
+    return;
+  }
+  // Default to the newest battle rather than a hardcoded filename, so adding a
+  // replay does not leave the landing page showing an old one.
+  const first = catalogue.value[0]?.path ?? "reference.json";
+  currentPath.value = first;
+  loadFromUrl(`replays/${first}`);
 });
 // Sound follows the turn being displayed, so scrubbing backwards is silent
 // rather than replaying old noise.
@@ -123,6 +165,17 @@ onUnmounted(() => {
         -->
         <p class="recorded mono">BATAILLE ENREGISTRÉE — lecture différée, pas un direct</p>
       </div>
+      <label v-if="catalogue.length > 1" class="picker-inline mono">
+        <span class="visually-hidden">Bataille affichée</span>
+        <select :value="currentPath" @change="pick(($event.target as HTMLSelectElement).value)">
+          <option v-for="entry in catalogue" :key="entry.path" :value="entry.path">
+            {{ entry.ruleset }} · {{ entry.turns }} tours · {{ entry.outcome }}{{ entry.winner ? ` ${entry.winner}` : "" }}{{
+              entry.hasReports ? " · rapports" : ""
+            }} — {{ entry.path }}
+          </option>
+        </select>
+      </label>
+
       <dl v-if="replay" class="summary mono">
         <div>
           <dt>issue</dt>
@@ -315,6 +368,19 @@ h1 {
   color: var(--crimson);
   border-color: var(--crimson);
   margin: 0;
+}
+
+.picker-inline select {
+  font: inherit;
+  font-size: 12px;
+  color: var(--fg);
+  background: var(--card-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s2);
+  min-height: 44px;
+  max-width: min(100%, 60ch);
+  cursor: pointer;
 }
 
 .picker {

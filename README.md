@@ -168,6 +168,7 @@ single model again. That round trip is a test
 | `npm run probe` | Re-measure the free-model catalogue |
 | `npm run tournament` | 4 rotations ranking the four contenders on wins, accuracy and report fidelity |
 | `npm run healthcheck` | Container and clone liveness |
+| `npm run index-replays` | Rebuild the catalogue the player's replay picker lists |
 | `npm run player:dev` | Replay viewer on :5173 |
 | `docker compose up -d --build` | Serve the player and `./replays` on :8088 |
 

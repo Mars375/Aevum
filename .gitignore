@@ -8,3 +8,6 @@ dist/
 # committed explicitly under replays/reference/ with `git add -f`.
 replays/*.json
 !replays/reference/
+# The catalogue is derived from whatever replays a deployment happens to hold,
+# so it is generated at deploy time rather than committed.
+replays/index.json
