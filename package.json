@@ -19,7 +19,8 @@
     "probe": "tsx scripts/probe-providers.ts",
     "player:dev": "npm run dev --workspace @abs/player",
     "player:build": "npm run build --workspace @abs/player",
-    "healthcheck": "tsx scripts/healthcheck.ts"
+    "healthcheck": "tsx scripts/healthcheck.ts",
+    "tournament": "tsx scripts/tournament.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

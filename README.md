@@ -90,6 +90,7 @@ single model again. That round trip is a test
 | `docs/research/providers.md` | Model measurements and the roster they justify |
 | `docs/reports/reference-battle.md` | The delivered battle, and four runs of measurements |
 | `docs/reports/qa-audit.md` | Defects found, what was fixed, what is still open |
+| `docs/reports/tournament.md` | Which model commands best, and what the ranking cannot say |
 
 ## Commands
 
@@ -101,6 +102,7 @@ single model again. That round trip is a test
 | `npm run battle` | Remote battle, four free models, ~7 minutes |
 | `npm run battle -- --resume` | Continue the replay at `--out` instead of restarting |
 | `npm run probe` | Re-measure the free-model catalogue |
+| `npm run tournament` | 4 rotations ranking the four contenders, ~30 min |
 | `npm run healthcheck` | Container and clone liveness |
 | `npm run player:dev` | Replay viewer on :5173 |
 | `docker compose up -d --build` | Serve the player and `./replays` on :8088 |

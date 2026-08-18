@@ -24,5 +24,8 @@ COPY apps/player/nginx.conf /etc/nginx/conf.d/default.conf
 VOLUME ["/usr/share/nginx/html/replays"]
 EXPOSE 80
 
+# 127.0.0.1, not localhost: /etc/hosts maps localhost to ::1 first and nginx
+# binds IPv4 only, so "localhost" is refused from inside the container even
+# while the site answers fine from outside.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget -qO- http://localhost/ >/dev/null || exit 1
+  CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1

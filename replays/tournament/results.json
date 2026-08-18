@@ -1,0 +1,208 @@
+{
+  "seed": 42,
+  "rows": [
+    {
+      "rotation": 0,
+      "faction": "crimson",
+      "model": "groq:openai/gpt-oss-120b",
+      "serviceRate": 1,
+      "calls": 12,
+      "finalHp": 5,
+      "won": true,
+      "survived": true
+    },
+    {
+      "rotation": 0,
+      "faction": "azure",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "serviceRate": 0.7272727272727273,
+      "calls": 11,
+      "finalHp": 0,
+      "won": false,
+      "survived": false
+    },
+    {
+      "rotation": 0,
+      "faction": "verdant",
+      "model": "groq:groq/compound-mini",
+      "serviceRate": 0.9090909090909091,
+      "calls": 11,
+      "finalHp": 0,
+      "won": false,
+      "survived": false
+    },
+    {
+      "rotation": 0,
+      "faction": "amber",
+      "model": "poolside/laguna-s-2.1:free",
+      "serviceRate": 0.8333333333333334,
+      "calls": 12,
+      "finalHp": 2,
+      "won": false,
+      "survived": true
+    },
+    {
+      "rotation": 1,
+      "faction": "crimson",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "serviceRate": 1,
+      "calls": 12,
+      "finalHp": 5,
+      "won": false,
+      "survived": true
+    },
+    {
+      "rotation": 1,
+      "faction": "azure",
+      "model": "groq:groq/compound-mini",
+      "serviceRate": 1,
+      "calls": 7,
+      "finalHp": 0,
+      "won": false,
+      "survived": false
+    },
+    {
+      "rotation": 1,
+      "faction": "verdant",
+      "model": "poolside/laguna-s-2.1:free",
+      "serviceRate": 0.75,
+      "calls": 12,
+      "finalHp": 2,
+      "won": false,
+      "survived": true
+    },
+    {
+      "rotation": 1,
+      "faction": "amber",
+      "model": "groq:openai/gpt-oss-120b",
+      "serviceRate": 1,
+      "calls": 12,
+      "finalHp": 8,
+      "won": true,
+      "survived": true
+    },
+    {
+      "rotation": 2,
+      "faction": "crimson",
+      "model": "groq:groq/compound-mini",
+      "serviceRate": 1,
+      "calls": 12,
+      "finalHp": 8,
+      "won": false,
+      "survived": true
+    },
+    {
+      "rotation": 2,
+      "faction": "azure",
+      "model": "poolside/laguna-s-2.1:free",
+      "serviceRate": 0.75,
+      "calls": 12,
+      "finalHp": 8,
+      "won": false,
+      "survived": true
+    },
+    {
+      "rotation": 2,
+      "faction": "verdant",
+      "model": "groq:openai/gpt-oss-120b",
+      "serviceRate": 1,
+      "calls": 12,
+      "finalHp": 18,
+      "won": true,
+      "survived": true
+    },
+    {
+      "rotation": 2,
+      "faction": "amber",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "serviceRate": 0.9166666666666666,
+      "calls": 12,
+      "finalHp": 15,
+      "won": false,
+      "survived": true
+    },
+    {
+      "rotation": 3,
+      "faction": "crimson",
+      "model": "poolside/laguna-s-2.1:free",
+      "serviceRate": 0.8333333333333334,
+      "calls": 12,
+      "finalHp": 5,
+      "won": false,
+      "survived": true
+    },
+    {
+      "rotation": 3,
+      "faction": "azure",
+      "model": "groq:openai/gpt-oss-120b",
+      "serviceRate": 1,
+      "calls": 10,
+      "finalHp": 0,
+      "won": false,
+      "survived": false
+    },
+    {
+      "rotation": 3,
+      "faction": "verdant",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "serviceRate": 0.8333333333333334,
+      "calls": 12,
+      "finalHp": 11,
+      "won": true,
+      "survived": true
+    },
+    {
+      "rotation": 3,
+      "faction": "amber",
+      "model": "groq:groq/compound-mini",
+      "serviceRate": 1,
+      "calls": 12,
+      "finalHp": 5,
+      "won": false,
+      "survived": true
+    }
+  ],
+  "table": [
+    {
+      "model": "groq:openai/gpt-oss-120b",
+      "rotations": 4,
+      "avgService": 1,
+      "cleanRotations": 4,
+      "wins": 3,
+      "survived": 3,
+      "hp": 31,
+      "rankable": true
+    },
+    {
+      "model": "groq:groq/compound-mini",
+      "rotations": 4,
+      "avgService": 0.9772727272727273,
+      "cleanRotations": 3,
+      "wins": 0,
+      "survived": 2,
+      "hp": 13,
+      "rankable": true
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "rotations": 4,
+      "avgService": 0.8693181818181819,
+      "cleanRotations": 1,
+      "wins": 0,
+      "survived": 1,
+      "hp": 5,
+      "rankable": true
+    },
+    {
+      "model": "poolside/laguna-s-2.1:free",
+      "rotations": 4,
+      "avgService": 0.7916666666666667,
+      "cleanRotations": 0,
+      "wins": 0,
+      "survived": 0,
+      "hp": 0,
+      "rankable": false
+    }
+  ],
+  "auditOk": true
+}

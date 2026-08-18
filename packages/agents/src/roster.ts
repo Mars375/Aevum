@@ -49,8 +49,13 @@ export const DEFAULT_GENERALS: GeneralConfig[] = [
   {
     factionId: "azure",
     displayName: "Azure",
-    model: "nvidia/nemotron-3-ultra-550b-a55b:free", // OpenRouter, 47.3s, largest free model
-    fallbacks: ["groq:groq/compound", "nvidia/nemotron-3-super-120b-a12b:free"],
+    // Was nemotron-3-ultra-550b, the largest free model — and the slowest at
+    // 47.3s, cut by the 60s timeout often enough that azure was served its own
+    // model only 5 times out of 12. A contender that only plays half the time
+    // cannot be ranked, so the flagship moves down the chain and a fast,
+    // reliable model of the same family takes the primary slot.
+    model: "nvidia/nemotron-3-super-120b-a12b:free", // OpenRouter, native, 13.2s
+    fallbacks: ["groq:groq/compound", "nvidia/nemotron-3-ultra-550b-a55b:free"],
   },
   {
     factionId: "verdant",
