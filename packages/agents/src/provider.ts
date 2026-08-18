@@ -1,5 +1,5 @@
 import { DecisionSchema, MAX_REASONING_CHARS, type Decision, type GeneralConfig, type LocalView, type Telemetry } from "@abs/contracts";
-import { ENDPOINTS, isFreeRef, parseModelRef, type ProviderName } from "./endpoints.js";
+import { ENDPOINTS, isFreeRef, parseModelRef, readRateLimit, type ProviderName, type RateLimit } from "./endpoints.js";
 import { extractJson } from "./json.js";
 import { jsonModeInstruction, systemPrompt, userPrompt } from "./prompt.js";
 import { systemPromptV2, userPromptV2 } from "./prompt-v2.js";
@@ -21,11 +21,9 @@ export interface RemoteProviderOptions {
   /** One key per endpoint actually used. A missing key skips that endpoint. */
   apiKeys: Partial<Record<ProviderName, string>>;
   /**
-   * Must cover reasoning tokens, which are billed against the completion budget
-   * before the model emits its first brace. 800 truncates most free models and
-   * 3000 clears a turn-1 prompt — but 3000 still truncated mid-battle in the
-   * reference run, where the position is richer and the reasoning longer, so
-   * the default is 6000. See docs/reports/qa-audit.md, defect D3.
+   * Overrides the per-provider ceiling from ENDPOINTS. Leave unset: the
+   * defaults are set per provider precisely because Groq reserves the whole
+   * allowance against its per-minute token budget and the others do not.
    */
   maxTokens?: number;
   /** Free-tier latency spans 3.7s to 213s; without a ceiling one squad freezes a battle. */
@@ -44,7 +42,23 @@ export interface RemoteProviderOptions {
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-class RetryableError extends Error {}
+class RetryableError extends Error {
+  /** Milliseconds the provider itself asked us to wait, when it said so. */
+  constructor(message: string, readonly retryAfterMs: number | null = null) {
+    super(message);
+  }
+}
+
+/** Longest we will ever sit on a single 429 before giving the next model a go. */
+const MAX_BACKOFF_MS = 75_000;
+
+/**
+ * How long we are willing to wait when a *different provider* is still
+ * untried. Fallback chains span three providers precisely so a drained token
+ * bucket costs a hop, not a minute of idling — waiting 90s for Groq while
+ * NVIDIA sits idle is the opposite of what the chain is for.
+ */
+const HOP_INSTEAD_OF_WAITING_MS = 3_000;
 
 export class RemoteProvider implements OrderProvider {
   private readonly opts: Required<Omit<RemoteProviderOptions, "apiKeys">> & {
@@ -54,7 +68,7 @@ export class RemoteProvider implements OrderProvider {
   constructor(options: RemoteProviderOptions) {
     this.opts = {
       apiKeys: options.apiKeys,
-      maxTokens: options.maxTokens ?? 6000,
+      maxTokens: options.maxTokens ?? 0, // 0 = use the per-provider default
       timeoutMs: options.timeoutMs ?? 60_000,
       attemptsPerModel: options.attemptsPerModel ?? 2,
       freeModelsOnly: options.freeModelsOnly ?? true,
@@ -64,13 +78,47 @@ export class RemoteProvider implements OrderProvider {
     };
   }
 
+  /** Last thing each provider told us about our allowance. */
+  private readonly limits = new Map<ProviderName, RateLimit>();
+
+  /** Provider-reported allowance, for callers that want to pace themselves. */
+  rateLimit(provider: ProviderName): RateLimit | undefined {
+    return this.limits.get(provider);
+  }
+
+  /**
+   * Wait out a token bucket we already know is empty, rather than firing a
+   * request that will certainly 429 and burn an attempt.
+   */
+  private async waitIfDrained(provider: ProviderName, needed: number, budgetMs: number): Promise<boolean> {
+    const limit = this.limits.get(provider);
+    if (!limit || limit.remainingTokens === null) return true;
+    if (limit.remainingTokens >= needed) return true;
+
+    const wait = limit.resetTokensMs ?? 0;
+    if (wait > budgetMs) return false; // not worth it: somebody else can serve
+    if (wait > 0) {
+      await this.opts.sleepImpl(wait);
+      this.limits.delete(provider); // the bucket has refilled; stop assuming
+    }
+    return true;
+  }
+
   async decide(view: LocalView, general: GeneralConfig): Promise<ProviderResult> {
     const chain = [general.model, ...general.fallbacks];
     const started = Date.now();
     let attempts = 0;
     let lastError = "no model attempted";
 
-    for (const model of chain) {
+    for (const [position, model] of chain.entries()) {
+      // Is a model on some other provider still untried? If so, hopping beats
+      // waiting; if not, patience is all we have left.
+      const thisProvider = parseModelRef(model).provider;
+      const hasAlternative = chain
+        .slice(position + 1)
+        .some((m) => parseModelRef(m).provider !== thisProvider && this.opts.apiKeys[parseModelRef(m).provider]);
+      const waitBudget = hasAlternative ? HOP_INSTEAD_OF_WAITING_MS : MAX_BACKOFF_MS;
+
       if (this.opts.freeModelsOnly && !isFreeRef(model)) {
         // Budget ceiling comes from the launch GATE, so this is a hard refusal
         // rather than a warning: a paid model must never be reached by accident.
@@ -85,6 +133,11 @@ export class RemoteProvider implements OrderProvider {
       for (let attempt = 1; attempt <= this.opts.attemptsPerModel; attempt += 1) {
         attempts += 1;
         try {
+          const ref = parseModelRef(model);
+          if (!(await this.waitIfDrained(ref.provider, this.tokensFor(ref.provider), waitBudget))) {
+            lastError = `${model}: token bucket drained, hopping to the next provider`;
+            break;
+          }
           const { decision, usage } = await this.call(model, view, general);
           return {
             decision,
@@ -105,7 +158,12 @@ export class RemoteProvider implements OrderProvider {
           lastError = `${model}: ${(err as Error).message}`;
           if (!(err instanceof RetryableError)) break; // permanent for this model, try the next
           if (attempt < this.opts.attemptsPerModel) {
-            await this.opts.sleepImpl(500 * 2 ** (attempt - 1)); // bounded exponential backoff
+            // Wait as long as the provider asked, not a flat 500ms. These
+            // limits reset on the minute; the old backoff was three orders of
+            // magnitude too short and simply burned both attempts instantly.
+            const asked = err.retryAfterMs ?? 500 * 2 ** (attempt - 1);
+            if (asked > waitBudget) break; // hop rather than idle
+            await this.opts.sleepImpl(Math.min(asked, MAX_BACKOFF_MS));
           }
         }
       }
@@ -138,6 +196,7 @@ export class RemoteProvider implements OrderProvider {
       if (this.opts.freeModelsOnly && !isFreeRef(model)) continue;
       const ref = parseModelRef(model);
       if (!this.opts.apiKeys[ref.provider]) continue;
+      if (!(await this.waitIfDrained(ref.provider, this.tokensFor(ref.provider), MAX_BACKOFF_MS))) continue;
 
       for (let attempt = 1; attempt <= this.opts.attemptsPerModel; attempt += 1) {
         try {
@@ -154,7 +213,7 @@ export class RemoteProvider implements OrderProvider {
                 { role: "system", content: supportsNativeSchema(model) ? sys : `${sys}\n\nReply with a single JSON object and nothing else.` },
                 { role: "user", content: usr },
               ],
-              max_tokens: this.opts.maxTokens,
+              max_tokens: this.tokensFor(ref.provider),
               temperature: 0.6,
               ...(supportsNativeSchema(model)
                 ? { response_format: { type: "json_schema", json_schema: { name: "answer", strict: true, schema } } }
@@ -162,7 +221,11 @@ export class RemoteProvider implements OrderProvider {
             }),
             signal: AbortSignal.timeout(this.opts.timeoutMs),
           });
-          if (res.status === 429 || res.status >= 500) throw new RetryableError(`HTTP ${res.status}`);
+          const limit = readRateLimit(res.headers);
+          this.limits.set(ref.provider, limit);
+          if (res.status === 429 || res.status >= 500) {
+            throw new RetryableError(`HTTP ${res.status}`, limit.resetTokensMs ?? limit.resetRequestsMs);
+          }
           if (!res.ok) break;
 
           const payload = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
@@ -171,11 +234,17 @@ export class RemoteProvider implements OrderProvider {
           throw new RetryableError("no JSON object found");
         } catch (err) {
           if (!(err instanceof RetryableError)) break;
-          if (attempt < this.opts.attemptsPerModel) await this.opts.sleepImpl(500 * 2 ** (attempt - 1));
+          if (attempt < this.opts.attemptsPerModel) {
+            await this.opts.sleepImpl(Math.min(err.retryAfterMs ?? 500 * 2 ** (attempt - 1), MAX_BACKOFF_MS));
+          }
         }
       }
     }
     return null;
+  }
+
+  private tokensFor(provider: ProviderName): number {
+    return this.opts.maxTokens || ENDPOINTS[provider].maxTokens;
   }
 
   private async call(model: string, view: LocalView, general: GeneralConfig) {
@@ -203,7 +272,8 @@ export class RemoteProvider implements OrderProvider {
           { role: "system", content: native ? sys : `${sys}\n\n${jsonModeInstruction(v2)}` },
           { role: "user", content: usr },
         ],
-        max_tokens: this.opts.maxTokens,
+        // Per-provider, because Groq reserves whatever we ask for.
+        max_tokens: this.tokensFor(ref.provider),
         temperature: 0.4,
         ...(native
           ? {
@@ -217,9 +287,13 @@ export class RemoteProvider implements OrderProvider {
       signal: AbortSignal.timeout(this.opts.timeoutMs),
     });
 
+    const limit = readRateLimit(res.headers);
+    this.limits.set(ref.provider, limit);
+
     if (res.status === 429 || res.status >= 500) {
-      // Rate limiting is the nominal regime on the free tier, not an incident.
-      throw new RetryableError(`HTTP ${res.status}`);
+      // Rate limiting is the nominal regime on a free tier, not an incident —
+      // and the provider usually tells us exactly how long to wait.
+      throw new RetryableError(`HTTP ${res.status}`, limit.resetTokensMs ?? limit.resetRequestsMs);
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 

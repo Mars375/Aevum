@@ -29,7 +29,7 @@ The split that matters: **the model decides, the engine resolves.** An illegal
 order is rejected and recorded, never quietly rewritten into something workable.
 That is what makes a replay auditable.
 
-## Five things the measurements forced
+## Six things the measurements forced
 
 Every one of these was a wrong first guess corrected by evidence
 (`docs/research/providers.md`, `docs/reports/qa-audit.md`):
@@ -59,6 +59,14 @@ Every one of these was a wrong first guess corrected by evidence
    rotations cost 90 minutes and are therefore free was wrong — 183 calls pass,
    558 do not. Any protocol that counts minutes yields clean data first and
    noise afterwards.
+6. **Read the rate-limit headers.** We were rationing ourselves: Groq reserves
+   the full `max_tokens` against an 8000-per-minute token budget, so asking for
+   6000 allowed exactly **one call a minute** and produced twelve HTTP 429s in
+   one battle. Groq now asks for 2000, every response's headers are parsed, a
+   429 waits as long as the provider actually said instead of a flat 500 ms,
+   and a drained bucket costs a hop to another provider rather than a minute of
+   idling. Measured: **8 calls in 21 s, 8 successes**, where the same chain
+   previously failed 40 % of the time.
 
 When a whole chain fails, the squads hold and the replay says
 `GENERAL_UNREACHABLE`. The client never invents an order to cover the gap.
@@ -132,7 +140,7 @@ single model again. That round trip is a test
 
 | Command | Does |
 | --- | --- |
-| `npm test` | 117 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
+| `npm test` | 126 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
 | `npm run typecheck` | `tsc --noEmit` across the workspace |
 | `npm run battle -- --scripted` | Offline battle with the baseline AI |
 | `npm run battle` | Remote battle, four free models, ~7 minutes |

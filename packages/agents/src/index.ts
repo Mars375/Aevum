@@ -1,5 +1,5 @@
 export { RemoteProvider, type RemoteProviderOptions, type OrderProvider, type ProviderResult } from "./provider.js";
-export { ENDPOINTS, isFreeRef, parseModelRef, type ModelRef, type ProviderName } from "./endpoints.js";
+export { ENDPOINTS, isFreeRef, parseModelRef, readRateLimit, type ModelRef, type ProviderName, type RateLimit } from "./endpoints.js";
 export { ScriptedProvider, chargeNearest } from "./scripted.js";
 export { ORDER_JSON_SCHEMA } from "./schema.js";
 export { systemPrompt, userPrompt } from "./prompt.js";

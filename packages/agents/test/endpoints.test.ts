@@ -144,3 +144,130 @@ describe("the mixed roster keeps its two structural promises", () => {
     for (const g of DEFAULT_GENERALS) for (const m of [g.model, ...g.fallbacks]) expect(isFreeRef(m), m).toBe(true);
   });
 });
+
+/**
+ * The first v2 battle ate twelve HTTP 429s from one Groq model. The cause was
+ * ours: Groq reserves the whole `max_tokens` against its 8000-token minute
+ * budget, so asking for 6000 allowed exactly one call per minute. And the
+ * backoff was a flat 500ms against limits that reset on the minute.
+ */
+describe("rate limits are read and obeyed, not guessed at", () => {
+  it("caps Groq well below the others, because Groq reserves what we ask for", async () => {
+    const { ENDPOINTS } = await import("@abs/agents");
+    expect(ENDPOINTS.groq.maxTokens).toBeLessThan(ENDPOINTS.openrouter.maxTokens);
+    // 8000 TPM must allow several calls a minute, not one.
+    expect(8000 / ENDPOINTS.groq.maxTokens).toBeGreaterThanOrEqual(3);
+  });
+
+  it("sends each provider its own ceiling", async () => {
+    const { ENDPOINTS, RemoteProvider } = await import("@abs/agents");
+    const fetchImpl = vi.fn().mockResolvedValue(ok());
+    const provider = new RemoteProvider({ apiKeys: { openrouter: "or", groq: "gq" }, fetchImpl, sleepImpl: async () => {} });
+
+    await provider.decide(VIEW, { factionId: "crimson", displayName: "C", model: "groq:openai/gpt-oss-120b", fallbacks: [] });
+    expect(JSON.parse(fetchImpl.mock.calls[0]![1].body).max_tokens).toBe(ENDPOINTS.groq.maxTokens);
+
+    fetchImpl.mockClear();
+    await provider.decide(VIEW, { factionId: "crimson", displayName: "C", model: "google/gemma-4-26b-a4b-it:free", fallbacks: [] });
+    expect(JSON.parse(fetchImpl.mock.calls[0]![1].body).max_tokens).toBe(ENDPOINTS.openrouter.maxTokens);
+  });
+
+  it("parses the duration formats each provider actually uses", async () => {
+    const { readRateLimit } = await import("@abs/agents");
+    const groq = readRateLimit(
+      new Headers({
+        "x-ratelimit-remaining-requests": "999",
+        "x-ratelimit-remaining-tokens": "1755",
+        "x-ratelimit-reset-tokens": "46.837s",
+        "x-ratelimit-reset-requests": "1m26.4s",
+      }),
+    );
+    expect(groq.remainingTokens).toBe(1755);
+    expect(groq.resetTokensMs).toBeCloseTo(46837, -1);
+    expect(groq.resetRequestsMs).toBeCloseTo(86400, -1);
+
+    // OpenRouter reports a plain daily counter and an absolute epoch reset.
+    const or = readRateLimit(
+      new Headers({ "x-ratelimit-remaining": "0", "x-ratelimit-reset": String(Date.now() + 3_600_000) }),
+    );
+    expect(or.remainingRequests).toBe(0);
+    expect(or.resetRequestsMs!).toBeGreaterThan(3_000_000);
+  });
+
+  it("waits as long as the provider asked, instead of a flat half second", async () => {
+    const { RemoteProvider } = await import("@abs/agents");
+    const slept: number[] = [];
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response("", { status: 429, headers: { "x-ratelimit-reset-tokens": "46.837s", "x-ratelimit-remaining-tokens": "0" } }),
+      )
+      .mockResolvedValueOnce(ok());
+    const provider = new RemoteProvider({
+      apiKeys: { groq: "gq" },
+      fetchImpl,
+      sleepImpl: async (ms: number) => void slept.push(ms),
+    });
+
+    const { decision } = await provider.decide(VIEW, {
+      factionId: "crimson",
+      displayName: "C",
+      model: "groq:openai/gpt-oss-120b",
+      fallbacks: [],
+    });
+    expect(decision).not.toBeNull();
+    expect(slept[0]).toBeGreaterThan(40_000);
+  });
+
+  it("gives up on an absurd wait rather than idling through it", async () => {
+    // "Come back in 24 hours" will still be true in 75 seconds. Sleeping the
+    // cap and retrying would only earn a second 429.
+    const { RemoteProvider } = await import("@abs/agents");
+    const slept: number[] = [];
+    const fetchImpl = vi.fn().mockResolvedValue(new Response("", { status: 429, headers: { "retry-after": "86400" } }));
+    const provider = new RemoteProvider({
+      apiKeys: { groq: "gq" },
+      fetchImpl,
+      sleepImpl: async (ms: number) => void slept.push(ms),
+    });
+    const { decision } = await provider.decide(VIEW, {
+      factionId: "crimson",
+      displayName: "C",
+      model: "groq:openai/gpt-oss-120b",
+      fallbacks: [],
+    });
+    expect(decision).toBeNull();
+    expect(slept).toEqual([]);
+  });
+
+  it("hops to another provider instead of waiting out a drained bucket", async () => {
+    const { ENDPOINTS, RemoteProvider } = await import("@abs/agents");
+    const slept: number[] = [];
+    const fetchImpl = vi
+      .fn()
+      // Groq says its token bucket needs a full minute...
+      .mockResolvedValueOnce(
+        new Response("", { status: 429, headers: { "x-ratelimit-reset-tokens": "58s", "x-ratelimit-remaining-tokens": "0" } }),
+      )
+      // ...so the NVIDIA fallback should serve immediately instead.
+      .mockResolvedValueOnce(ok());
+    const provider = new RemoteProvider({
+      apiKeys: { groq: "gq", nvidia: "nv" },
+      fetchImpl,
+      sleepImpl: async (ms: number) => void slept.push(ms),
+    });
+
+    const { decision, telemetry } = await provider.decide(VIEW, {
+      factionId: "crimson",
+      displayName: "C",
+      model: "groq:openai/gpt-oss-120b",
+      fallbacks: ["nvidia:meta/llama-3.3-70b-instruct"],
+    });
+
+    expect(decision).not.toBeNull();
+    expect(telemetry.servedModel).toBe("nvidia:meta/llama-3.3-70b-instruct");
+    expect(fetchImpl.mock.calls[1]![0]).toBe(ENDPOINTS.nvidia.url);
+    // The whole point: a drained bucket costs a hop, not a minute.
+    expect(slept.reduce((a, b) => a + b, 0)).toBeLessThan(3_000);
+  });
+});
