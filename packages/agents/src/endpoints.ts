@@ -7,7 +7,7 @@
  * second provider implementation.
  */
 
-export type ProviderName = "openrouter" | "groq";
+export type ProviderName = "openrouter" | "groq" | "nvidia";
 
 export interface Endpoint {
   url: string;
@@ -18,6 +18,7 @@ export interface Endpoint {
 export const ENDPOINTS: Record<ProviderName, Endpoint> = {
   openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", keyEnv: "OPENROUTER_API_KEY" },
   groq: { url: "https://api.groq.com/openai/v1/chat/completions", keyEnv: "GROQ_API_KEY" },
+  nvidia: { url: "https://integrate.api.nvidia.com/v1/chat/completions", keyEnv: "NVIDIA_API_KEY" },
 };
 
 export interface ModelRef {
@@ -28,6 +29,7 @@ export interface ModelRef {
 
 export function parseModelRef(ref: string): ModelRef {
   if (ref.startsWith("groq:")) return { provider: "groq", model: ref.slice(5) };
+  if (ref.startsWith("nvidia:")) return { provider: "nvidia", model: ref.slice(7) };
   return { provider: "openrouter", model: ref };
 }
 
@@ -35,13 +37,14 @@ export function parseModelRef(ref: string): ModelRef {
  * Whether a reference is free under the 0 EUR ceiling.
  *
  * OpenRouter marks free models with a `:free` suffix, so that is checkable.
- * **Groq cannot be checked this way**: its models have no free/paid marker
- * because the free tier is a property of the *account*, not of the model — an
- * account with no payment method is rate-limited rather than billed. The
- * guarantee there comes from the account having no card on file, which this
- * code cannot verify. Stated plainly rather than implied.
+ * **Groq and NVIDIA cannot be checked this way**: neither has a per-model
+ * free/paid marker, because on both the free tier is a property of the
+ * *account*, not of the model. An account with no payment method is
+ * rate-limited or credit-limited rather than billed, and that — not this
+ * function — is where the 0 EUR guarantee actually comes from. Stated plainly
+ * rather than implied.
  */
 export function isFreeRef(ref: string): boolean {
   const { provider, model } = parseModelRef(ref);
-  return provider === "groq" ? true : model.endsWith(":free");
+  return provider === "openrouter" ? model.endsWith(":free") : true;
 }

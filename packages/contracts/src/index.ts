@@ -162,10 +162,33 @@ export const DecisionSchema = z.object({
 });
 export type Decision = z.infer<typeof DecisionSchema>;
 
-/** What a general answers when asked to buy an army, before turn 1. */
+/**
+ * What a general answers when asked to buy an army, before turn 1.
+ *
+ * Two encodings are accepted for `squads`: a flat list of archetypes, and the
+ * `{type, quantity}` form models reach for unprompted. Both are *parsing*, not
+ * repair — the army expressed is the same one either way. An army that is
+ * genuinely illegal (over budget, empty, too large) is still rejected outright
+ * rather than trimmed to fit.
+ *
+ * `reasoning` is optional: a model should not lose its army for skipping the
+ * flavour text.
+ */
 export const CompositionChoiceSchema = z.object({
-  reasoning: z.string(),
-  squads: z.array(ArchetypeSchema),
+  reasoning: z.string().default(""),
+  squads: z.preprocess((raw) => {
+    if (!Array.isArray(raw)) return raw;
+    return raw.flatMap((item) => {
+      if (typeof item === "string") return [item];
+      if (item && typeof item === "object") {
+        const o = item as { type?: unknown; archetype?: unknown; quantity?: unknown; count?: unknown };
+        const type = typeof o.type === "string" ? o.type : typeof o.archetype === "string" ? o.archetype : null;
+        const n = Number(o.quantity ?? o.count ?? 1);
+        if (type && Number.isFinite(n) && n >= 1) return Array(Math.min(Math.floor(n), 8)).fill(type);
+      }
+      return [item];
+    });
+  }, z.array(ArchetypeSchema)),
 });
 export type CompositionChoice = z.infer<typeof CompositionChoiceSchema>;
 

@@ -11,6 +11,7 @@ import {
   type MemoryEntry,
   type RememberedSquad,
   type WorldState,
+  CompositionChoiceSchema,
 } from "@abs/contracts";
 import {
   appendMemory,
@@ -412,5 +413,43 @@ describe("I17 and I18 · memory is bounded and never invented", () => {
     expect(memory).toEqual([
       { turn: 3, lost: ["crimson-scout-1"], destroyed: ["azure-melee-1"], diplomacy: ["ALLIANCE_FORMED avec amber"] },
     ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe("army answers are parsed, not repaired", () => {
+  it("accepts the flat list the prompt asks for", () => {
+    const r = CompositionChoiceSchema.safeParse({ reasoning: "solide", squads: ["MELEE", "RANGED", "SCOUT"] });
+    expect(r.success && r.data.squads).toEqual(["MELEE", "RANGED", "SCOUT"]);
+  });
+
+  it("accepts the {type, quantity} form models reach for unprompted", () => {
+    // gpt-oss-120b answered exactly this, and lost its army to a parse error.
+    const r = CompositionChoiceSchema.safeParse({
+      squads: [
+        { type: "MELEE", quantity: 2 },
+        { type: "SCOUT", quantity: 2 },
+      ],
+    });
+    expect(r.success && r.data.squads).toEqual(["MELEE", "MELEE", "SCOUT", "SCOUT"]);
+  });
+
+  it("does not require the flavour text", () => {
+    // minimax-m3 answered a perfectly legal army with no `reasoning`.
+    const r = CompositionChoiceSchema.safeParse({ squads: ["RANGED", "RANGED", "SCOUT"] });
+    expect(r.success).toBe(true);
+    expect(r.success && r.data.reasoning).toBe("");
+  });
+
+  it("still refuses an unknown archetype rather than guessing", () => {
+    expect(CompositionChoiceSchema.safeParse({ squads: ["ARTILLERY"] }).success).toBe(false);
+  });
+
+  it("parses an illegal-but-well-formed army, and leaves rejecting it to the engine", () => {
+    // Parsing and legality are separate steps on purpose: the replay must be
+    // able to record that a general overspent.
+    const parsed = CompositionChoiceSchema.parse({ squads: [{ type: "HEAVY", quantity: 3 }] });
+    expect(parsed.squads).toEqual(["HEAVY", "HEAVY", "HEAVY"]);
+    expect(validateComposition(parsed.squads)).toBe("OVER_BUDGET");
   });
 });

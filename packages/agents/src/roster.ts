@@ -17,56 +17,56 @@ export const NATIVE_SCHEMA_MODELS = new Set([
 export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(model);
 
 /**
- * Four distinct primaries, four model families, spread across two providers.
+ * Four distinct primaries, four vendor families, three providers.
  *
- * Two rules hold this roster together, both earned from the first reference
- * battle where a single model decided 62.5% of the game and one general never
- * once played its own (QA defect D1):
+ * Two rules hold this roster together, both earned from measurement:
  *
  *  1. **No faction's first fallback is another faction's primary.** A model
- *     going down cannot turn one general into a copy of another.
- *  2. **Every chain spans both providers.** OpenRouter and Groq rate-limit
- *     independently, so one provider throttling completely still leaves every
- *     general a path to a model. This is the property that makes a battle
- *     finish on a free tier.
+ *     going down cannot turn one general into a copy of another — that is what
+ *     ruined the first reference battle (QA defect D1).
+ *  2. **Every chain spans all three providers.** OpenRouter, Groq and NVIDIA
+ *     rate-limit independently, so no single exhausted quota can strand a
+ *     general. This is the direct answer to the 12-rotation tournament, which
+ *     collapsed to 0% service after roughly 350 calls on one tier.
  *
- * Groq is 10-40x faster (0.4-4.9s against 4.5-60s) but rate-limits hard per
- * minute; OpenRouter is slower but steadier. Mixing them plays each to its
- * strength rather than betting the battle on either.
+ * Measured latencies, on a mid-battle position:
+ *   groq:openai/gpt-oss-120b            1.6s   won 3 of 4 tournament rotations
+ *   nvidia:minimaxai/minimax-m3         1.3s
+ *   nvidia:meta/llama-3.3-70b-instruct  27-34s
+ *   poolside/laguna-s-2.1:free          4.5s
+ *   nvidia:deepseek-ai/deepseek-v4      20-38s
+ *   groq:groq/compound-mini             0.4s
+ *   google/gemma-4-26b-a4b-it:free      4-8s
  *
  * Excluded on repeated measurement, not on capability flags:
- *   google/gemma-4-31b-it     HTTP 429 on 3/3          z-ai/glm-5.2       HTTP 429 on 3/3
- *   cohere/north-mini-code    60s timeout on 3/3       liquid/lfm-2.5     207-213s per order
- *   groq:qwen/qwen3.6-27b     HTTP 403, access-gated   dots-3-note        truncates every time
+ *   google/gemma-4-31b-it            HTTP 429 on 3/3   z-ai/glm-5.2      HTTP 429 on 3/3
+ *   cohere/north-mini-code           timeout on 3/3    liquid/lfm-2.5    207-213s per order
+ *   nvidia:mistralai/mistral-large-2 HTTP 404          nvidia:moonshotai/kimi-k2.6  HTTP 404
+ *   qwen/qwen3.6-27b                 403 / 404 on both providers
  */
 export const DEFAULT_GENERALS: GeneralConfig[] = [
   {
     factionId: "crimson",
     displayName: "Crimson",
-    model: "groq:openai/gpt-oss-120b", // Groq, 1.6s
-    fallbacks: ["google/gemma-4-26b-a4b-it:free", "nvidia/nemotron-3.5-lightning:free"],
+    model: "groq:openai/gpt-oss-120b",
+    fallbacks: ["nvidia:deepseek-ai/deepseek-v4-flash-0731", "google/gemma-4-26b-a4b-it:free"],
   },
   {
     factionId: "azure",
     displayName: "Azure",
-    // Was nemotron-3-ultra-550b, the largest free model — and the slowest at
-    // 47.3s, cut by the 60s timeout often enough that azure was served its own
-    // model only 5 times out of 12. A contender that only plays half the time
-    // cannot be ranked, so the flagship moves down the chain and a fast,
-    // reliable model of the same family takes the primary slot.
-    model: "nvidia/nemotron-3-super-120b-a12b:free", // OpenRouter, native, 13.2s
-    fallbacks: ["groq:groq/compound", "nvidia/nemotron-3-ultra-550b-a55b:free"],
+    model: "nvidia:minimaxai/minimax-m3",
+    fallbacks: ["google/gemma-4-26b-a4b-it:free", "groq:groq/compound-mini"],
   },
   {
     factionId: "verdant",
     displayName: "Verdant",
-    model: "groq:groq/compound-mini", // Groq, 0.4-1.5s
-    fallbacks: ["poolside/laguna-xs-2.1:free", "nvidia/nemotron-3-nano-30b-a3b:free"],
+    model: "nvidia:meta/llama-3.3-70b-instruct",
+    fallbacks: ["groq:groq/compound-mini", "nvidia/nemotron-3-super-120b-a12b:free"],
   },
   {
     factionId: "amber",
     displayName: "Amber",
-    model: "poolside/laguna-s-2.1:free", // OpenRouter, 4.5s
-    fallbacks: ["groq:openai/gpt-oss-20b", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"],
+    model: "poolside/laguna-s-2.1:free",
+    fallbacks: ["nvidia:deepseek-ai/deepseek-v4-flash-0731", "groq:openai/gpt-oss-20b"],
   },
 ];

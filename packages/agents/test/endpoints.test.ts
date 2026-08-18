@@ -24,6 +24,10 @@ describe("model references carry their provider", () => {
     });
     // The Groq id itself contains a slash, so the prefix must be stripped, not split on "/".
     expect(parseModelRef("groq:openai/gpt-oss-120b")).toEqual({ provider: "groq", model: "openai/gpt-oss-120b" });
+    expect(parseModelRef("nvidia:meta/llama-3.3-70b-instruct")).toEqual({
+      provider: "nvidia",
+      model: "meta/llama-3.3-70b-instruct",
+    });
   });
 
   it("checks free-ness the way each provider actually expresses it", () => {
@@ -31,6 +35,7 @@ describe("model references carry their provider", () => {
     expect(isFreeRef("anthropic/claude-opus")).toBe(false);
     // Groq has no per-model free marker: the free tier is an account property.
     expect(isFreeRef("groq:openai/gpt-oss-120b")).toBe(true);
+    expect(isFreeRef("nvidia:meta/llama-3.3-70b-instruct")).toBe(true);
   });
 });
 
@@ -116,12 +121,22 @@ describe("the mixed roster keeps its two structural promises", () => {
     }
   });
 
-  it("spans both providers in every chain, so one provider throttling strands nobody", async () => {
+  it("spans all three providers in every chain, so one exhausted quota strands nobody", async () => {
     const { DEFAULT_GENERALS } = await import("@abs/agents");
+    // The 12-rotation tournament collapsed to 0% service on a single tier.
+    // Three independent quotas per chain is the structural answer.
     for (const g of DEFAULT_GENERALS) {
       const providers = new Set([g.model, ...g.fallbacks].map((m) => parseModelRef(m).provider));
-      expect(providers, `${g.factionId} only reaches ${[...providers]}`).toEqual(new Set(["openrouter", "groq"]));
+      expect(providers, `${g.factionId} only reaches ${[...providers]}`).toEqual(
+        new Set(["openrouter", "groq", "nvidia"]),
+      );
     }
+  });
+
+  it("gives the four primaries four different vendors", async () => {
+    const { DEFAULT_GENERALS } = await import("@abs/agents");
+    const vendors = DEFAULT_GENERALS.map((g) => parseModelRef(g.model).model.split("/")[0]);
+    expect(new Set(vendors).size).toBe(4);
   });
 
   it("keeps the whole roster inside the 0 EUR ceiling", async () => {

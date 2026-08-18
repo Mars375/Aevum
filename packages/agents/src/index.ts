@@ -4,5 +4,8 @@ export { ScriptedProvider, chargeNearest } from "./scripted.js";
 export { ORDER_JSON_SCHEMA } from "./schema.js";
 export { systemPrompt, userPrompt } from "./prompt.js";
 export { runBattle, type RunBattleOptions } from "./battle.js";
+export { runBattleV2, makeArmyBuyer, type RunBattleV2Options } from "./battle-v2.js";
+export { ORDER_JSON_SCHEMA_V2, COMPOSITION_JSON_SCHEMA } from "./schema-v2.js";
+export { systemPromptV2, userPromptV2, compositionSystemPrompt, compositionUserPrompt } from "./prompt-v2.js";
 export { DEFAULT_GENERALS, NATIVE_SCHEMA_MODELS, supportsNativeSchema } from "./roster.js";
 export { extractJson } from "./json.js";

@@ -11,8 +11,8 @@ import { FACTION_IDS, GRID_SIZE, type GeneralConfig } from "@abs/contracts";
 import { createInitialState, localViewFor, resolveTurn } from "@abs/engine";
 import { DEFAULT_GENERALS, RemoteProvider, supportsNativeSchema } from "@abs/agents";
 
-const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY };
-if (!apiKeys.openrouter && !apiKeys.groq) {
+const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY, nvidia: process.env.NVIDIA_API_KEY };
+if (!apiKeys.openrouter && !apiKeys.groq && !apiKeys.nvidia) {
   console.error("Neither OPENROUTER_API_KEY nor GROQ_API_KEY is set.");
   process.exit(1);
 }

@@ -21,8 +21,8 @@ try {
   /* fall through to the real environment */
 }
 
-const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY };
-if (!apiKeys.openrouter && !apiKeys.groq) {
+const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY, nvidia: process.env.NVIDIA_API_KEY };
+if (!apiKeys.openrouter && !apiKeys.groq && !apiKeys.nvidia) {
   console.error("No provider key set. Copy .env.example to .env.");
   process.exit(1);
 }

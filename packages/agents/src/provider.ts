@@ -1,7 +1,9 @@
 import { DecisionSchema, MAX_REASONING_CHARS, type Decision, type GeneralConfig, type LocalView, type Telemetry } from "@abs/contracts";
-import { ENDPOINTS, isFreeRef, parseModelRef } from "./endpoints.js";
+import { ENDPOINTS, isFreeRef, parseModelRef, type ProviderName } from "./endpoints.js";
 import { extractJson } from "./json.js";
 import { jsonModeInstruction, systemPrompt, userPrompt } from "./prompt.js";
+import { systemPromptV2, userPromptV2 } from "./prompt-v2.js";
+import { ORDER_JSON_SCHEMA_V2 } from "./schema-v2.js";
 import { supportsNativeSchema } from "./roster.js";
 import { ORDER_JSON_SCHEMA } from "./schema.js";
 
@@ -17,7 +19,7 @@ export interface OrderProvider {
 
 export interface RemoteProviderOptions {
   /** One key per endpoint actually used. A missing key skips that endpoint. */
-  apiKeys: Partial<Record<"openrouter" | "groq", string>>;
+  apiKeys: Partial<Record<ProviderName, string>>;
   /**
    * Must cover reasoning tokens, which are billed against the completion budget
    * before the model emits its first brace. 800 truncates most free models and
@@ -31,6 +33,11 @@ export interface RemoteProviderOptions {
   /** Attempts per model before moving to the next link in the chain. */
   attemptsPerModel?: number;
   freeModelsOnly?: boolean;
+  /**
+   * Which ruleset the prompts and schema describe. v2 adds fog, remembered
+   * sightings and bounded diplomacy to what a general is told.
+   */
+  ruleset?: "v1" | "v2";
   fetchImpl?: typeof fetch;
   sleepImpl?: (ms: number) => Promise<void>;
 }
@@ -41,7 +48,7 @@ class RetryableError extends Error {}
 
 export class RemoteProvider implements OrderProvider {
   private readonly opts: Required<Omit<RemoteProviderOptions, "apiKeys">> & {
-    apiKeys: Partial<Record<"openrouter" | "groq", string>>;
+    apiKeys: Partial<Record<ProviderName, string>>;
   };
 
   constructor(options: RemoteProviderOptions) {
@@ -51,6 +58,7 @@ export class RemoteProvider implements OrderProvider {
       timeoutMs: options.timeoutMs ?? 60_000,
       attemptsPerModel: options.attemptsPerModel ?? 2,
       freeModelsOnly: options.freeModelsOnly ?? true,
+      ruleset: options.ruleset ?? "v1",
       fetchImpl: options.fetchImpl ?? fetch,
       sleepImpl: options.sleepImpl ?? sleep,
     };
@@ -120,11 +128,65 @@ export class RemoteProvider implements OrderProvider {
     };
   }
 
+  /**
+   * One-shot free-form request over the same fallback chain, used for the
+   * army-buying step. Reuses the retry, backoff, budget guard and JSON
+   * extraction rather than opening a second, less careful path to the network.
+   */
+  async ask(general: GeneralConfig, sys: string, usr: string, schema: unknown): Promise<string | null> {
+    for (const model of [general.model, ...general.fallbacks]) {
+      if (this.opts.freeModelsOnly && !isFreeRef(model)) continue;
+      const ref = parseModelRef(model);
+      if (!this.opts.apiKeys[ref.provider]) continue;
+
+      for (let attempt = 1; attempt <= this.opts.attemptsPerModel; attempt += 1) {
+        try {
+          const res = await this.opts.fetchImpl(ENDPOINTS[ref.provider].url, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${this.opts.apiKeys[ref.provider]}`,
+              "Content-Type": "application/json",
+              "X-Title": "ai-battle-simulator",
+            },
+            body: JSON.stringify({
+              model: ref.model,
+              messages: [
+                { role: "system", content: supportsNativeSchema(model) ? sys : `${sys}\n\nReply with a single JSON object and nothing else.` },
+                { role: "user", content: usr },
+              ],
+              max_tokens: this.opts.maxTokens,
+              temperature: 0.6,
+              ...(supportsNativeSchema(model)
+                ? { response_format: { type: "json_schema", json_schema: { name: "answer", strict: true, schema } } }
+                : {}),
+            }),
+            signal: AbortSignal.timeout(this.opts.timeoutMs),
+          });
+          if (res.status === 429 || res.status >= 500) throw new RetryableError(`HTTP ${res.status}`);
+          if (!res.ok) break;
+
+          const payload = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const parsed = extractJson(payload.choices?.[0]?.message?.content ?? "");
+          if (parsed !== null) return JSON.stringify(parsed);
+          throw new RetryableError("no JSON object found");
+        } catch (err) {
+          if (!(err instanceof RetryableError)) break;
+          if (attempt < this.opts.attemptsPerModel) await this.opts.sleepImpl(500 * 2 ** (attempt - 1));
+        }
+      }
+    }
+    return null;
+  }
+
   private async call(model: string, view: LocalView, general: GeneralConfig) {
     // Only six of the sixteen free models enforce a schema server-side. The
     // others are asked for JSON in the prompt and validated here instead —
     // demanding native support is what collapsed the roster onto one model.
     const native = supportsNativeSchema(model);
+    const v2 = this.opts.ruleset === "v2";
+    const sys = v2 ? systemPromptV2() : systemPrompt();
+    const usr = v2 ? userPromptV2(view) : userPrompt(view);
+    const schema = v2 ? ORDER_JSON_SCHEMA_V2 : ORDER_JSON_SCHEMA;
     const ref = parseModelRef(model);
     const endpoint = ENDPOINTS[ref.provider];
 
@@ -138,8 +200,8 @@ export class RemoteProvider implements OrderProvider {
       body: JSON.stringify({
         model: ref.model,
         messages: [
-          { role: "system", content: native ? systemPrompt() : `${systemPrompt()}\n\n${jsonModeInstruction()}` },
-          { role: "user", content: userPrompt(view) },
+          { role: "system", content: native ? sys : `${sys}\n\n${jsonModeInstruction(v2)}` },
+          { role: "user", content: usr },
         ],
         max_tokens: this.opts.maxTokens,
         temperature: 0.4,
@@ -147,7 +209,7 @@ export class RemoteProvider implements OrderProvider {
           ? {
               response_format: {
                 type: "json_schema",
-                json_schema: { name: "battle_orders", strict: true, schema: ORDER_JSON_SCHEMA },
+                json_schema: { name: "battle_orders", strict: true, schema },
               },
             }
           : {}),

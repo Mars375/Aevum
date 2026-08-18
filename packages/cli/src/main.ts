@@ -2,7 +2,18 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { BattleConfigSchema, GRID_SIZE, MAX_TURNS, ReplaySchema } from "@abs/contracts";
-import { DEFAULT_GENERALS, RemoteProvider, ScriptedProvider, chargeNearest, runBattle } from "@abs/agents";
+import {
+  COMPOSITION_JSON_SCHEMA,
+  DEFAULT_GENERALS,
+  RemoteProvider,
+  ScriptedProvider,
+  chargeNearest,
+  compositionSystemPrompt,
+  compositionUserPrompt,
+  runBattle,
+  runBattleV2,
+} from "@abs/agents";
+import { CompositionChoiceSchema, type Archetype } from "@abs/contracts";
 
 // .env is optional: the scripted provider needs no key at all.
 try {
@@ -18,6 +29,7 @@ const { values } = parseArgs({
     out: { type: "string" },
     scripted: { type: "boolean", default: false },
     resume: { type: "boolean", default: false },
+    ruleset: { type: "string", default: "v1" },
     help: { type: "boolean", default: false },
   },
 });
@@ -30,6 +42,7 @@ if (values.help) {
   --out <path>    Replay destination           (default replays/<battleId>.json)
   --scripted      Play offline with the baseline AI, no API calls, no key
   --resume        Continue the replay already at --out instead of restarting
+  --ruleset <v>   v1 (default) or v2: army budget, fog of war, bounded diplomacy
   --help          This message
 
 Remote battles need OPENROUTER_API_KEY. Only ":free" models are ever called;
@@ -37,7 +50,13 @@ the budget ceiling is 0 EUR and the orchestrator refuses paid models outright.`)
   process.exit(0);
 }
 
+if (values.ruleset !== "v1" && values.ruleset !== "v2") {
+  console.error(`--ruleset must be v1 or v2, got "${values.ruleset}".`);
+  process.exit(1);
+}
+
 const config = BattleConfigSchema.parse({
+  rulesetVersion: values.ruleset,
   seed: Number(values.seed),
   maxTurns: Number(values.turns),
   gridSize: GRID_SIZE,
@@ -49,8 +68,8 @@ if (values.scripted) {
   console.log("Scripted battle — no network, no key, fully reproducible.\n");
   provider = new ScriptedProvider(chargeNearest);
 } else {
-  const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY };
-  if (!apiKeys.openrouter && !apiKeys.groq) {
+  const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY, nvidia: process.env.NVIDIA_API_KEY };
+  if (!apiKeys.openrouter && !apiKeys.groq && !apiKeys.nvidia) {
     console.error("No provider key set. Copy .env.example to .env, or pass --scripted to play offline.");
     process.exit(1);
   }
@@ -59,6 +78,7 @@ if (values.scripted) {
   console.log();
   provider = new RemoteProvider({
     apiKeys,
+    ruleset: config.rulesetVersion,
     maxTokens: Number(process.env.ABS_MAX_TOKENS ?? 6000),
     timeoutMs: Number(process.env.ABS_REQUEST_TIMEOUT_MS ?? 60_000),
     freeModelsOnly: process.env.ABS_FREE_MODELS_ONLY !== "0",
@@ -78,15 +98,29 @@ if (values.resume) {
   console.log(`Resuming ${outPath} after turn ${resumeFrom.turns.length}.\n`);
 }
 
-const replay = await runBattle({
-  config,
-  provider,
-  resumeFrom,
-  onProgress: (m) => console.log(m),
-  // Checkpoint after every turn: a battle can run 40 minutes against a
-  // rate-limited free tier, and an interruption must not cost all of it.
-  onTurn: (partial) => writeFileSync(outPath, JSON.stringify(partial, null, 2)),
-});
+// Checkpoint after every turn: a battle can run 40 minutes against a
+// rate-limited free tier, and an interruption must not cost all of it.
+const onTurn = (partial: Parameters<NonNullable<Parameters<typeof runBattle>[0]["onTurn"]>>[0]) =>
+  writeFileSync(outPath, JSON.stringify(partial, null, 2));
+
+const replay =
+  config.rulesetVersion === "v2"
+    ? await runBattleV2({
+        config,
+        provider,
+        onProgress: (m) => console.log(m),
+        onTurn,
+        // Army buying goes through the same provider, so it inherits the
+        // retries, the fallback chain and the 0 EUR guard.
+        buyArmy: async (factionId, general) => {
+          if (!(provider instanceof RemoteProvider)) return null;
+          const raw = await provider.ask(general, compositionSystemPrompt(), compositionUserPrompt(factionId), COMPOSITION_JSON_SCHEMA);
+          if (!raw) return null;
+          const parsed = CompositionChoiceSchema.safeParse(JSON.parse(raw));
+          return parsed.success ? (parsed.data.squads as Archetype[]) : null;
+        },
+      })
+    : await runBattle({ config, provider, resumeFrom, onProgress: (m) => console.log(m), onTurn });
 
 // Validate before writing: a replay that fails its own schema must never land
 // on disk and be taken for a valid artefact.

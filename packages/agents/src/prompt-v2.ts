@@ -34,7 +34,8 @@ export function compositionSystemPrompt(): string {
     "An army over budget, empty, too large, or with no squad able to deal damage is REJECTED",
     "and replaced by a default one. The engine does not trim your list to make it fit.",
     "",
-    "Answer with JSON only.",
+    'Answer with JSON only, shaped {"reasoning": "<why>", "squads": ["MELEE", "SCOUT", "SCOUT"]}.',
+    "squads is a FLAT list of archetype names — repeat a name to field it twice.",
   ].join("\n");
 }
 

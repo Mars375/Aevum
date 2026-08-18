@@ -29,12 +29,16 @@ export function systemPrompt(): string {
 }
 
 /** Appended for models with no server-side schema enforcement. */
-export function jsonModeInstruction(): string {
+export function jsonModeInstruction(v2 = false): string {
+  const shape = v2
+    ? '{"reasoning": "<one or two sentences>", "orders": [{"squadId": "<id>", "action": "MOVE"|"ATTACK"|"HOLD", "target": {"x": <integer>, "y": <integer>}}], "diplomacy": null | {"action": "PROPOSE_ALLIANCE"|"ACCEPT_ALLIANCE"|"BREAK_ALLIANCE"|"SURRENDER", "target": "<faction>"|null, "message": "<short>"}}'
+    : '{"reasoning": "<one or two sentences>", "orders": [{"squadId": "<id>", "action": "MOVE"|"ATTACK"|"HOLD", "target": {"x": <integer>, "y": <integer>}}]}';
   return [
     "OUTPUT FORMAT — this is strict:",
-    'Reply with a single JSON object and nothing else. No prose, no markdown fence, no explanation around it.',
-    'Shape: {"reasoning": "<one or two sentences>", "orders": [{"squadId": "<id>", "action": "MOVE"|"ATTACK"|"HOLD", "target": {"x": <integer>, "y": <integer>}}]}',
+    "Reply with a single JSON object and nothing else. No prose, no markdown fence, no explanation around it.",
+    `Shape: ${shape}`,
     "Every squadId must be one you command. x and y must be integers, never decimals or strings.",
+    ...(v2 ? ['Use "diplomacy": null on any turn where you have nothing diplomatic to do.'] : []),
   ].join("\n");
 }
 
