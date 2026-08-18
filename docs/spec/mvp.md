@@ -61,28 +61,56 @@ Ces éléments sont écartés du MVP et non « reportés à plus tard sans date 
   protocole de tournoi est un livrable *écrit* de la tâche QA, pas du code.
 - **Modèles payants.** Budget verrouillé à 0 € par le GATE.
 
-## Différenciation
+## Différenciation — face à Project Napoleon
 
-> ⚠️ **À confirmer par Loïc.** La tâche demandait de situer le projet face à
-> « Project Napoleon », dont aucune trace n'existe sur cette machine (ni dans
-> les notes Hermes, ni dans les dépôts, ni dans la base kanban). Les axes
-> ci-dessous sont donc formulés comme des propriétés revendiquées du projet,
-> pas comme une comparaison vérifiée. À réviser dès que la référence est
-> fournie.
+Référence fournie par Loïc : <https://napole0n.ai/>. Le dépôt est privé ; ce qui
+suit est déduit du **bundle public** du site (noms de modules et schéma de son
+codec de replay), pas d'une documentation. C'est une lecture de surface, honnête
+sur sa méthode, à corriger si la source devient accessible.
 
-Trois propriétés que le projet tient pour non négociables :
+Ce que le bundle laisse voir : `Manager3D`, `IsometricControl`, `Formation`,
+`RVOSolver`, `ProjectileRenderer`, `SpriteAnimator`, `TurnCodec`. Le codec
+encode des `soldiers` avec `alive`, `angle`, `fromX`/`fromZ`, `targetId`,
+`damage`, `critical`, `died`, `projectileType: "arrow"`, le tout découpé en
+`ticksPerTurn` et compressé en gzip.
+
+Autrement dit : une **bataille de masse en 3D isométrique**, à l'échelle du
+soldat individuel, en formations, avec évitement de collisions en foule continu
+(RVO), projectiles et animation par sprites — un tour discret sous-jacent,
+interpolé en frames pour donner un rendu fluide.
+
+Les deux projets partagent donc l'idée « on regarde une bataille rejouée », et
+divergent sur à peu près tout le reste :
+
+| | Project Napoleon (déduit) | AI Battle Simulator |
+| --- | --- | --- |
+| Échelle | Soldats individuels, formations | 8 escouades |
+| Rendu | 3D isométrique, sprites, foule RVO | Grille 2D |
+| Replay | Flux de ticks gzippé, frames interpolées | JSON lisible, un état par tour, diffable avec `git diff` |
+| Ce que l'on regarde | Le spectacle de la bataille | **Pourquoi chaque général a donné cet ordre** |
+| Rôle du moteur | Servir le rendu | Arbitre vérifiable, rejouable hors ligne |
+
+Ce que je n'ai **pas** pu vérifier : quels modèles décident chez Napoléon, s'ils
+décident réellement, et selon quelle méthode. Rien dans le bundle public ne le
+dit. Aucune comparaison sur ce terrain n'est donc faite ici.
+
+Trois propriétés que ce projet tient pour non négociables, et qui expliquent
+pourquoi il reste en 2D :
 
 1. **Séparation stricte entre décision et résolution.** Le modèle choisit, le
-   moteur tranche. Le moteur n'émet aucun appel réseau et n'a aucune
-   connaissance des modèles. Un ordre illégal est rejeté par le moteur, jamais
-   « corrigé » silencieusement pour arranger le récit.
+   moteur tranche. Le moteur n'émet aucun appel réseau. Un ordre illégal est
+   rejeté, jamais « corrigé » silencieusement pour arranger le récit.
 2. **Reproductibilité du moteur.** À ordres identiques et graine identique, la
    résolution est bit-à-bit identique. Seule la couche LLM est stochastique, et
    elle est intégralement journalisée — modèle réellement servi, tokens,
-   latence, tentatives — pour que l'on puisse rejouer et auditer.
-3. **Aucune sortie fabriquée.** Un replay livré correspond toujours à une
-   exécution réelle. Les échecs d'appel, les 429 et les ordres invalides
-   apparaissent dans le replay au lieu d'être maquillés.
+   latence, tentatives.
+3. **Aucune sortie fabriquée.** Les échecs d'appel, les 429 et les ordres
+   invalides apparaissent dans le replay au lieu d'être maquillés.
+
+La 2D n'est pas une étape vers la 3D : c'est le format qui laisse lire une
+justification à côté de l'ordre qu'elle a produit. La direction artistique 3D
+existe en phase 3 (`t_dc654ba9`), après que la question de fond — quel modèle
+commande le mieux — soit devenue mesurable.
 
 ## Métriques de réussite
 

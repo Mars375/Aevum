@@ -1,17 +1,50 @@
 # Audit QA — expérience et méthodologie
 
-Statut : audité · Date : 2026-08-17 · Tâche kanban : `t_5aabd0f5`
-Porte sur le commit `d9763df` et le replay `replays/reference.json`.
+Statut : audité le 2026-08-17, **révisé le 2026-08-18 après correction** ·
+Tâche kanban : `t_5aabd0f5`
 
-## Verdict en une ligne
+## Verdict initial
 
-Le MVP est techniquement solide — moteur reproductible, échecs honnêtes, aucun
-secret — mais **le dispositif expérimental est cassé** : il ne mesure pas ce
-qu'il prétend mesurer. Un défaut de méthode, pas d'implémentation.
+Le MVP était techniquement solide — moteur reproductible, échecs honnêtes,
+aucun secret — mais **le dispositif expérimental était cassé** : il ne mesurait
+pas ce qu'il prétendait mesurer. Un défaut de méthode, pas d'implémentation.
+
+## État après correction
+
+| Défaut | Gravité | État | Preuve |
+| --- | --- | --- | --- |
+| D1 comparaison confondue avec disponibilité | critique | **corrigé** | concentration 62,5 % → 26,7 % ; 3 généraux sur 4 jouent leur propre modèle |
+| D2 attaques hors portée | majeur | **corrigé** | 18 → **0** |
+| D2b déplacements illégaux | majeur | **corrigé** | 4 `MOVE_TOO_FAR` → **0** |
+| D3 `max_tokens` trop bas | majeur | **corrigé** | plafond à 6000 |
+| D4 aucune reprise | moyen | **corrigé** | checkpoint par tour + `--resume`, 3 tests |
+| D5 exécution muette | moyen | **corrigé** | annonce avant l'appel |
+| D6 captures impossibles | mineur | **ouvert** | Chromium headless n'aboutit pas sur ce Pi |
+
+Détail des mesures dans `docs/reports/reference-battle.md`. Ce qui suit conserve
+l'analyse d'origine, qui reste la justification des correctifs.
+
+### Ce que la correction de D1 a réellement demandé
+
+La cause racine n'était pas le roster mais **le filtre qui l'avait construit** :
+n'accepter que les modèles annonçant `structured_outputs` ne laissait que six
+candidats sur seize. Deux changements l'ont levée :
+
+1. **Mode JSON par prompt** pour les modèles sans schéma natif, avec extraction
+   tolérante (clôture Markdown, prose autour) et validation zod. Le roster
+   fiable passe de 2 à 9 modèles. La preuve que le filtre était mauvais :
+   `openai/gpt-oss-20b` échoue **0/4 en mode natif** et réussit **2/2 en mode
+   prompt**, même prompt, même position.
+2. **Second fournisseur, Groq**, dont la limite de débit est indépendante de
+   celle d'OpenRouter. Chaque chaîne de repli traverse désormais les deux, donc
+   un fournisseur qui s'étrangle entièrement ne prive aucun général de modèle.
+
+Effet secondaire décisif : latence médiane de 58,1 s à 2,9 s, bataille de
+40 minutes à 7. Le protocole de tournoi ci-dessous devient exécutable.
 
 ## Défauts classés
 
-### D1 — CRITIQUE · La comparaison entre modèles est confondue avec leur disponibilité
+### D1 — CRITIQUE · La comparaison entre modèles est confondue avec leur disponibilité — **CORRIGÉ**
 
 Chaque faction est liée à un modèle fixe. Un modèle souvent limité en débit ne
 joue pas moins bien : **il ne joue pas du tout**, et sa faction est jouée par le
@@ -24,7 +57,7 @@ disponible », et les deux sont indissociables dans le résultat actuel.
 **Correctif — protocole de tournoi**, ci-dessous. Sans lui, aucune conclusion
 sur les modèles n'est défendable.
 
-### D2 — MAJEUR · Les généraux visent hors de portée en permanence
+### D2 — MAJEUR · Les généraux visent hors de portée en permanence — **CORRIGÉ**
 
 18 attaques hors portée pour 11 réussies. Les ordres sont formellement légaux,
 donc ni le schéma ni la validation ne les arrêtent — ils gaspillent simplement
@@ -37,7 +70,7 @@ Elle n'est pas rappelée **par escouade au moment de l'ordre**.
 explicite des cibles actuellement à portée. Coût : quelques lignes dans
 `userPrompt`. À re-mesurer sur une bataille complète.
 
-### D3 — MAJEUR · `max_tokens` calibré sur le mauvais moment de la partie
+### D3 — MAJEUR · `max_tokens` calibré sur le mauvais moment de la partie — **CORRIGÉ**
 
 3000 a été calibré sur des prompts de tour 1. En milieu de partie, la position
 est plus riche, les modèles à raisonnement dépensent davantage, et la troncature
@@ -48,7 +81,7 @@ pleine bataille.
 réessayable, lui, a bien fonctionné — c'est le plafond qui est trop bas, pas la
 logique.
 
-### D4 — MOYEN · Aucune reprise après interruption
+### D4 — MOYEN · Aucune reprise après interruption — **CORRIGÉ**
 
 Une bataille interrompue au tour 9 est intégralement perdue : `runBattle` garde
 tout en mémoire et n'écrit qu'à la fin. Avec des batailles de 30 à 40 minutes et
@@ -58,7 +91,7 @@ un palier gratuit instable, c'est une perte réelle.
 accepter un replay partiel en entrée pour reprendre au tour suivant. Le format
 n'a pas besoin de changer — un replay partiel est un replay avec moins de tours.
 
-### D5 — MOYEN · La latence n'est pas visible pendant l'exécution
+### D5 — MOYEN · La latence n'est pas visible pendant l'exécution — **CORRIGÉ**
 
 Latence médiane de 58 s, maximum 179 s. Le CLI n'affiche rien entre le début
 d'un appel et sa fin : pendant trois minutes, l'exécution paraît figée.
@@ -66,7 +99,7 @@ d'un appel et sa fin : pendant trois minutes, l'exécution paraît figée.
 **Correctif :** afficher le modèle et le tour en cours avant l'appel, pas
 seulement après.
 
-### D6 — MINEUR · Les captures d'écran du lecteur n'ont pas pu être produites
+### D6 — MINEUR · Les captures d'écran du lecteur n'ont pas pu être produites — **TOUJOURS OUVERT**
 
 Chromium headless n'aboutit pas sur ce Raspberry Pi (délai dépassé à 5 minutes),
 et le MCP Playwright réclame un binaire Chrome absent. **L'audit visuel du
@@ -120,7 +153,7 @@ passage en colonne unique sous 900 px, grille en `aspect-ratio: 1`.
 | **Ordre des factions** | Aucun | L'invariant `I6` vérifie que permuter les factions ne change ni l'état ni le journal. Les escouades sont parcourues en ordre canonique d'`id`. |
 | **Position de départ** | Aucun | Déploiement symétrique par réflexion. En distance de Chebyshev, **toutes les paires de factions sont à distance 11** — y compris les diagonales. Aucun coin n'est avantagé. |
 | **Prompts** | Aucun | Prompt système identique pour tous ; seule change l'identité de la faction. |
-| **Quotas et retries** | **BIAIS MAJEUR** | Voir D1. C'est le biais dominant, il écrase tous les autres. |
+| **Quotas et retries** | **Fortement réduit** | Voir D1, corrigé. La concentration tombe de 62,5 % à 26,7 % et trois généraux sur quatre jouent leur propre modèle. **Résidu :** azure n'obtient son 550B que 5 fois sur 12, sa lecture mélange donc deux modèles. |
 | **Asymétrie d'archétypes** | Aucun | Chaque faction aligne exactement une escouade de chaque archétype. |
 
 Cinq sources de biais sur six sont éliminées par construction et vérifiées par
@@ -149,10 +182,17 @@ projet peut répondre :
    tokens.** D2 et D3 modifieront les résultats ; mélanger les régimes rendrait
    le classement ininterprétable.
 
-Conséquence honnête à assumer : sur le palier gratuit actuel, la condition 2
-écarterait probablement la majorité des batailles. **Un tournoi défendable coûte
-vraisemblablement de l'argent** — ce qui est une décision humaine, pas une
-décision technique.
+Conséquence révisée : cette conclusion date d'avant la correction de D1. Avec le
+roster mixte, trois généraux sur quatre sont servis par leur propre modèle sur
+la quasi-totalité d'une partie, et une bataille dure 7 minutes au lieu de 40.
+**Un tournoi gratuit est désormais plausible** — quatre rotations tiennent en
+une demi-heure.
+
+Le seul obstacle restant est azure : son modèle principal, le plus gros du
+catalogue gratuit, est aussi le plus lent et se fait couper par le délai
+d'expiration une fois sur deux. Deux options, à trancher par un humain :
+remplacer le 550B par un modèle plus rapide et accepter de perdre le plus gros
+modèle du panel, ou relever le délai pour lui seul et allonger les batailles.
 
 ## Sécurité
 
@@ -169,12 +209,14 @@ décision technique.
 
 | Ordre | Défaut | Effort | Débloque |
 | --- | --- | --- | --- |
-| 1 | D3 — `ABS_MAX_TOKENS` à 6000 | une ligne | Fiabilité immédiate |
-| 2 | D2 — cibles à portée dans le prompt | quelques lignes | Qualité tactique |
-| 3 | D4 — replay écrit à chaque tour | modéré | Batailles longues |
-| 4 | D1 — protocole de tournoi | important | **La question de départ du projet** |
-| 5 | D5 — journal avant appel | trivial | Confort |
-| 6 | D6 — captures sur machine capable | externe | Communication |
+| ~~1~~ | ~~D3 — `ABS_MAX_TOKENS` à 6000~~ | fait | — |
+| ~~2~~ | ~~D2 — cibles à portée dans le prompt~~ | fait | — |
+| ~~3~~ | ~~D4 — replay écrit à chaque tour~~ | fait | — |
+| ~~4~~ | ~~D1 — roster élargi et second fournisseur~~ | fait | — |
+| ~~5~~ | ~~D5 — journal avant appel~~ | fait | — |
+| 1 | Modèle principal d'azure : trop lent une fois sur deux | petit | Lecture d'azure interprétable |
+| 2 | Protocole de tournoi automatisé | moyen | **La question de départ du projet** |
+| 3 | D6 — captures sur machine capable | externe | Communication |
 
-D3 et D5 sont assez petits pour être faits tout de suite. D1 demande une
-décision humaine sur le budget avant d'être codé.
+Il ne reste aucun correctif de code bloquant. Le protocole de tournoi est
+maintenant une affaire d'outillage, plus une affaire de budget.

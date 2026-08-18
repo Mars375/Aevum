@@ -1,108 +1,140 @@
 # Matrice de choix — fournisseurs LLM distants
 
-Statut : validé · Date des mesures : 2026-08-17 · Tâche kanban : `t_df6e739b`
+Statut : révisé · Mesures du 2026-08-18 · Tâches kanban : `t_df6e739b`, correctif D1
+
+> **Révision.** La première version de ce document ne retenait que les modèles
+> annonçant `structured_outputs`. C'était la cause racine du défaut D1 : six
+> candidats seulement, tous les replis concentrés sur deux modèles, et une
+> bataille de référence décidée à 62,5 % par un seul d'entre eux. Le filtre
+> était mauvais. Ce document le remplace.
 
 ## Contrainte de cadrage
 
-Le GATE fixe un budget maximal de **0 €**. Cela élimine d'office tout modèle
-payant et réduit le champ à un seul fournisseur exploitable aujourd'hui :
+Budget maximal **0 €**. Un seul fournisseur exploitable : **OpenRouter**, clé
+déjà provisionnée, 16 modèles `:free` au catalogue. Groq reste écarté faute de
+clé sur la machine, réévaluable en phase 2 sans toucher au code. Aucune
+inférence locale sur le Raspberry Pi.
 
-| Fournisseur | Retenu | Motif |
-| --- | --- | --- |
-| **OpenRouter** | ✅ | Clé déjà provisionnée dans l'environnement (`OPENROUTER_API_KEY`). 17 modèles portant le suffixe `:free` sur 414 au catalogue. Une seule intégration HTTP couvre tous les modèles. |
-| Groq | ❌ | Aucune clé disponible sur la machine. L'obtenir demanderait une inscription hors périmètre du lancement. Réévaluable en phase 2 sans changer le code : l'interface fournisseur est agnostique. |
-| Together, Fireworks, DeepInfra | ❌ | Pas d'offre gratuite pérenne, incompatible avec le budget 0 €. |
-| Ollama, llama.cpp, tout modèle local | ⛔ | **Interdit par contrainte ferme.** Le Raspberry Pi n'exécute aucune inférence. |
+## Le filtre à ne pas appliquer
 
-## Protocole de mesure
+Sur les 16 modèles gratuits, **6 seulement** déclarent `response_format` ou
+`structured_outputs`. Exiger cette capacité paraît prudent. C'est l'inverse.
 
-Chaque modèle candidat a reçu deux fois un prompt de décision tactique réaliste
-(une faction, deux escouades, deux ennemis visibles, tour 1 sur 12) avec un
-`response_format` de type `json_schema` en mode `strict`. Une réponse est
-comptée valide seulement si elle parse en JSON **et** contient exactement deux
-ordres dont l'`action` appartient à l'énumération et dont la cible porte des
-coordonnées entières. Script : `scripts/probe-providers.ts`.
+Les 10 autres répondent parfaitement en JSON quand on le leur demande dans le
+prompt — ils l'enveloppent simplement dans une clôture Markdown ou dans une
+phrase. Il suffit de savoir le déballer (`packages/agents/src/json.ts`) et de
+valider avec zod, ce que le moteur fait de toute façon.
 
-## Résultats mesurés
+Le **mode prompt est donc le défaut**, et le mode natif l'exception réservée aux
+modèles qui l'honorent vraiment.
 
-| Modèle (`:free`) | Valide | Latence observée | Tokens totaux | Verdict |
+### La preuve qui tranche
+
+`openai/gpt-oss-20b:free`, même prompt, même position, seul le mode change :
+
+| Mode | Résultat |
+| --- | --- |
+| natif (`response_format: json_schema`) | **0/4** — « schema mismatch: Required », puis deux expirations à 60 s |
+| prompt | **2/2** — 28,6 s et 42,8 s, deux ordres valides |
+
+L'imposition de schéma côté serveur ne se contente pas d'être inutile pour ce
+modèle : elle le casse. Le classer « incapable de JSON structuré » aurait été
+faux, exactement comme l'était le diagnostic de troncature de la première passe.
+
+## Résultats mesurés — 12 modèles, position de tour 5
+
+Sondés à travers le vrai `OpenRouterProvider`, avec les mêmes plafonds qu'en
+production, sur une position de **milieu de partie** et non de déploiement — le
+premier sondage sur un prompt de tour 1 avait sous-estimé le budget de tokens.
+
+| Modèle (`:free`) | Mode | Valide | Latence | Verdict |
 | --- | --- | --- | --- | --- |
-| `google/gemma-4-26b-a4b-it` | **2/2** | 3,7 – 5,0 s | 423 – 499 | **Primaire.** Le plus rapide et de loin le plus économe : pas de dépense en tokens de raisonnement. |
-| `nvidia/nemotron-3-super-120b-a12b` | **2/2** | 9,1 – 13,5 s | 897 – 990 | **Secondaire.** Fiable, raisonnement modéré, décisions tactiques plus étoffées. |
-| `openai/gpt-oss-20b` | 1/2 | 17,8 s | 1139 | Utilisable en repli. Le second appel a été refusé en HTTP 429. |
-| `nvidia/nemotron-nano-9b-v2` | 1/2 | 36 – 82 s | 1609 – 3156 | Marginal. Lent et irrégulier ; épuise parfois le budget de sortie. |
-| `dots-studio/dots-3-note-preview` | 0/2 | 22,1 – 22,5 s | 3149 | **Écarté.** Consomme la totalité du budget en raisonnement et tronque systématiquement le JSON. |
-| `google/gemma-4-31b-it` | 0/2 | — | 0 | **Écarté.** HTTP 429 sur les deux tentatives, jamais joignable. |
-| `liquid/lfm-2.5-2.6b` | 0/2 | 207 – 213 s | 3150 | **Écarté.** Latence rédhibitoire, plus de 3 minutes par ordre. |
+| `poolside/laguna-s-2.1` | prompt | 1/1 | 4,5 s | **Le plus rapide du catalogue.** |
+| `google/gemma-4-26b-a4b-it` | natif | 2/2 | 4,0 – 8,2 s | Fiable. Une expiration isolée, non reproduite. |
+| `nvidia/nemotron-3-nano-30b-a3b` | prompt | 1/1 | 7,1 s | Fiable. |
+| `nvidia/nemotron-3-super-120b-a12b` | natif | 1/1 | 13,2 s | Fiable. |
+| `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | prompt | 1/1 | 14,9 s | Fiable. |
+| `poolside/laguna-xs-2.1` | prompt | 1/1 | 22,2 s | Fiable. |
+| `nvidia/nemotron-3.5-lightning` | prompt | 1/1 | 22,6 s | Fiable. 1 M de contexte. |
+| `openai/gpt-oss-20b` | prompt | 2/2 | 28,6 – 42,8 s | Fiable **en mode prompt uniquement**. |
+| `nvidia/nemotron-3-ultra-550b-a55b` | prompt | 1/1 | 47,3 s | Fiable. Le plus gros modèle gratuit, 1 M de contexte. |
+| `google/gemma-4-31b-it` | natif | 0/3 | — | **Écarté.** HTTP 429 sur trois tentatives. |
+| `z-ai/glm-5.2` | prompt | 0/3 | — | **Écarté.** HTTP 429 sur trois tentatives, malgré un intérêt réel. |
+| `cohere/north-mini-code` | prompt | 0/3 | 60 s | **Écarté.** Expiration systématique. |
 
-## Trois conclusions qui contraignent l'implémentation
+Écartés sans nouveau sondage, sur les mesures précédentes :
+`liquid/lfm-2.5-2.6b` (207–213 s par ordre), `dots-studio/dots-3-note-preview`
+(tronque systématiquement), `nvidia/nemotron-3.5-content-safety` (pas un modèle
+généraliste), `nvidia/nemotron-nano-12b-v2-vl` (variante vision, sans intérêt
+ici).
+
+**Neuf modèles fiables sur quatre éditeurs** — contre deux auparavant.
+
+## Trois contraintes que les mesures imposent
 
 ### 1. Le budget de sortie doit couvrir les tokens de raisonnement
 
-Une première passe à `max_tokens: 800` donnait 0/2 sur presque tous les modèles.
-Le diagnostic initial « ces modèles ne savent pas produire du JSON structuré »
-était faux. La cause réelle est la troncature : ces modèles émettent des tokens
-de raisonnement facturés sur le budget de complétion avant d'écrire la moindre
-accolade. Un prompt trivial (`Reply with JSON: {"ok":true}`) consomme déjà
-77 tokens de raisonnement pour 4 tokens de contenu.
+Une première passe à `max_tokens: 800` donnait 0/2 presque partout, et le
+diagnostic « ces modèles ne savent pas produire du JSON » était faux : ces
+modèles émettent des tokens de raisonnement facturés sur le budget de complétion
+avant d'écrire la moindre accolade. 3000 a réglé le cas du tour 1 — puis la
+troncature est réapparue en milieu de bataille, où la position est plus riche.
 
-Porter `max_tokens` à 3000 a fait passer `nemotron-3-super` de 0/2 à 2/2 sans
-aucune autre modification.
+**Règle retenue :** `max_tokens` à **6000**. Un `finish_reason: length` est
+traité comme un échec réessayable, jamais comme une réponse invalide, sinon le
+diagnostic repart dans la mauvaise direction.
 
-**Règle retenue :** `max_tokens` minimum de 3000 par appel d'ordre. Le
-`finish_reason` doit être inspecté ; une valeur `length` est traitée comme un
-échec réessayable et non comme une réponse invalide, sans quoi le diagnostic
-repart dans la mauvaise direction.
+### 2. Le HTTP 429 est le régime nominal, pas l'exception
 
-### 2. Le HTTP 429 est le mode de défaillance nominal, pas l'exception
+Sur le palier gratuit, la limitation de débit est l'état normal, et elle se
+manifeste autant en expirations qu'en 429 explicites.
 
-Deux modèles sur sept ont été limités pendant une campagne de quatorze appels
-seulement. Sur le palier gratuit, la limitation de débit est le régime normal.
+**Règle retenue :** chaîne de repli ordonnée par général, backoff exponentiel
+borné, puis bascule. Si toute la chaîne échoue, l'escouade reçoit un `HOLD`
+étiqueté et journalisé — **jamais un ordre inventé côté client**.
 
-**Règle retenue :** chaque général déclare une chaîne de repli ordonnée, pas un
-modèle unique. Un 429 déclenche un backoff exponentiel borné puis une bascule
-vers le modèle suivant de la chaîne. Un ordre n'est jamais inventé côté client :
-si toute la chaîne échoue, l'escouade reçoit un ordre `HOLD` explicitement
-étiqueté comme repli, et l'événement est journalisé dans le replay.
+### 3. Un délai d'expiration par requête
 
-### 3. La dispersion de latence impose un délai d'expiration par requête
+Latences observées de 4,5 s à 60 s (plafond), et jusqu'à 213 s sur les modèles
+écartés. Sans plafond, une seule escouade fige une bataille entière.
 
-L'écart va de 3,7 s à 213 s, soit un facteur 57. Sans plafond, une seule
-escouade peut geler une bataille entière.
+**Règle retenue :** 60 s par requête, traité comme un 429.
 
-**Règle retenue :** délai d'expiration de 60 s par requête. Un dépassement est
-traité comme un 429 et bascule sur le repli suivant.
+## Affectation des quatre généraux
 
-## Affectation recommandée des quatre généraux
+Règle structurante, issue de D1 : **le premier repli d'une faction n'est jamais
+le modèle principal d'une autre.** Un modèle qui tombe ne peut donc pas
+transformer un général en copie d'un autre — ce qui est précisément ce qui avait
+ruiné la première bataille de référence.
 
-Chaque faction reçoit un modèle préféré distinct — la diversité des modèles est
-une propriété recherchée, elle rend les batailles intéressantes — et retombe sur
-les deux modèles éprouvés quand le quota se ferme.
+| Faction | Modèle principal | Mode | Replis |
+| --- | --- | --- | --- |
+| Crimson | `google/gemma-4-26b-a4b-it` | natif | `nemotron-3-nano-omni-reasoning`, `nemotron-3.5-lightning` |
+| Azure | `nvidia/nemotron-3-ultra-550b-a55b` | prompt | `nemotron-3-super`, `nemotron-3-nano-30b` |
+| Verdant | `openai/gpt-oss-20b` | prompt | `laguna-xs-2.1`, `nemotron-3.5-lightning` |
+| Amber | `poolside/laguna-s-2.1` | prompt | `nemotron-3-nano-30b`, `gemma-4-26b` |
 
-| Faction | Modèle préféré | Chaîne de repli |
-| --- | --- | --- |
-| Crimson | `google/gemma-4-26b-a4b-it:free` | `nvidia/nemotron-3-super-120b-a12b:free` |
-| Azure | `nvidia/nemotron-3-super-120b-a12b:free` | `google/gemma-4-26b-a4b-it:free` |
-| Verdant | `openai/gpt-oss-20b:free` | `google/gemma-4-26b-a4b-it:free`, puis `nvidia/nemotron-3-super-120b-a12b:free` |
-| Amber | `nvidia/nemotron-nano-9b-v2:free` | `nvidia/nemotron-3-super-120b-a12b:free`, puis `google/gemma-4-26b-a4b-it:free` |
+Quatre éditeurs distincts en tête de chaîne : Google, NVIDIA, OpenAI, Poolside.
 
-Les modèles écartés (`dots-3-note-preview`, `gemma-4-31b-it`, `lfm-2.5-2.6b`)
-sont exclus de toute chaîne.
+Neuf modèles fiables ne peuvent pas remplir douze emplacements de façon
+disjointe : `gemma-4-26b` apparaît une fois en dernier recours chez amber. Cet
+emplacement n'est atteint que si un principal **et** un premier repli ont tous
+deux échoué.
 
 ## Interface fournisseur
 
-L'orchestrateur ne connaît qu'un contrat, `OrderProvider`, qui reçoit une vue
-locale et un schéma et rend un ordre validé accompagné de sa télémétrie
-(modèle réellement servi, tokens, latence, nombre de tentatives). Deux
-implémentations existent : `OpenRouterProvider` pour les appels réels et
+L'orchestrateur ne connaît qu'un contrat, `OrderProvider`. Deux
+implémentations : `OpenRouterProvider` pour les appels réels et
 `ScriptedProvider` pour les tests déterministes, qui ne touche aucun réseau.
-Ajouter Groq en phase 2 revient à écrire une troisième implémentation sans
-modifier ni le moteur ni le lecteur de replay.
+Le choix entre mode natif et mode prompt est interne au provider et piloté par
+`NATIVE_SCHEMA_MODELS`. Ajouter Groq en phase 2 revient à écrire une troisième
+implémentation sans toucher au moteur ni au lecteur.
 
 ## Politique de données
 
 Les modèles `:free` d'OpenRouter sont servis sous une politique d'entraînement
-sur les invites. Aucun secret, aucune donnée personnelle et aucun contenu de
-`.env` ne transite dans les prompts : ceux-ci ne contiennent que l'état public
-du champ de bataille. La clé API circule uniquement dans l'en-tête
-`Authorization` et n'est jamais journalisée dans les replays.
+sur les invites. Les prompts ne contiennent que l'état public du champ de
+bataille — aucun secret, aucune donnée personnelle, aucun contenu de `.env`. La
+clé circule uniquement dans l'en-tête `Authorization` et n'est jamais
+journalisée dans les replays. Un test échoue si un prompt contient `sk-or-`,
+`OPENROUTER` ou un chemin `/home/`.

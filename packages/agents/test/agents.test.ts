@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { DecisionSchema, FACTION_IDS, GRID_SIZE, MAX_REASONING_CHARS, type GeneralConfig } from "@abs/contracts";
 import { createInitialState, localViewFor } from "@abs/engine";
-import { DEFAULT_GENERALS, ORDER_JSON_SCHEMA, OpenRouterProvider, ScriptedProvider, chargeNearest, runBattle, userPrompt } from "@abs/agents";
+import { DEFAULT_GENERALS, ORDER_JSON_SCHEMA, RemoteProvider, ScriptedProvider, chargeNearest, runBattle, userPrompt } from "@abs/agents";
 
 const VIEW = localViewFor(createInitialState(FACTION_IDS), "crimson", 12, GRID_SIZE);
 const GENERAL: GeneralConfig = { factionId: "crimson", displayName: "Crimson", model: "a:free", fallbacks: ["b:free"] };
@@ -79,9 +79,9 @@ describe("prompt", () => {
   });
 });
 
-describe("OpenRouterProvider", () => {
+describe("RemoteProvider", () => {
   const provider = (fetchImpl: any, extra = {}) =>
-    new OpenRouterProvider({ apiKey: "k", fetchImpl, sleepImpl: async () => {}, ...extra });
+    new RemoteProvider({ apiKeys: { openrouter: "k", groq: "k" }, fetchImpl, sleepImpl: async () => {}, ...extra });
 
   it("returns a decision and its telemetry on success", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(okResponse(SAMPLE));

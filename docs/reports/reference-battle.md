@@ -1,94 +1,91 @@
 # Rapport d'exécution — bataille de référence
 
-Statut : exécutée · Date : 2026-08-17 · Tâche kanban : `t_f4c79504`
+Statut : exécutée · Date : 2026-08-18 · Tâche kanban : `t_f4c79504`
 Replay : `replays/reference.json` · Graine 42 · Ruleset `v1`
+Roster mixte OpenRouter + Groq
 
 Aucune sortie de ce rapport n'est fabriquée : tous les chiffres proviennent du
-replay livré, et se recalculent en le relisant.
+replay livré et se recalculent en le relisant.
 
 ## Issue
 
-**Victoire de verdant** à la limite des 12 tours, avec 15 PV restants contre 14
-à azure. Un point d'écart. Deux escouades détruites sur huit.
+**Victoire de verdant** à la limite des 12 tours, 11 PV restants contre 5 à
+amber. Crimson et azure éliminées. 45 appels, **0,00 $**, 7 minutes.
 
-| Faction | PV finaux | Escouades | Modèle préféré | Modèle réellement servi |
-| --- | --- | --- | --- | --- |
-| verdant | **15** | 2 | `openai/gpt-oss-20b` | `gemma-4-26b` ×11, échec ×1 |
-| azure | 14 | 2 | `nemotron-3-super` | `nemotron-3-super` ×6, `gemma-4-26b` ×4, échec ×2 |
-| crimson | 5 | 1 | `gemma-4-26b` | `gemma-4-26b` ×11, échec ×1 |
-| amber | 5 | 1 | `nemotron-nano-9b-v2` | `nemotron-nano-9b-v2` ×6, `gemma-4-26b` ×4, `nemotron-3-super` ×2 |
+| Faction | PV finaux | Modèle préféré | Servi |
+| --- | --- | --- | --- |
+| verdant | **11** | `groq:groq/compound-mini` | 12/12 — son propre modèle, tous les tours |
+| amber | 5 | `poolside/laguna-s-2.1` | 11/12 |
+| crimson | 0 | `groq:openai/gpt-oss-120b` | 9/9 — son propre modèle, tous les tours |
+| azure | 0 | `nvidia/nemotron-3-ultra-550b-a55b` | 5/12, replis sur `groq:compound` ×7 |
 
-## Le résultat le plus important n'est pas le vainqueur
+## La comparaison entre modèles est redevenue possible
 
-**Le modèle préféré de verdant n'a jamais été servi. Pas une seule fois sur
-douze tours.** `openai/gpt-oss-20b:free` a échoué à chaque appel et verdant a
-joué l'intégralité de la bataille avec `gemma-4-26b`, le modèle de repli.
+C'était l'objet du défaut D1. Dans la première bataille de référence, un seul
+modèle prenait 62,5 % des décisions et le modèle préféré de verdant n'était
+jamais servi. Ici la répartition est plate :
 
-Or crimson jouait déjà `gemma-4-26b`. La bataille annoncée comme « quatre
-modèles distincts s'affrontent » a en réalité opposé **le même modèle à
-lui-même sur deux des quatre factions**, et 62,5 % de toutes les décisions de la
-bataille ont été prises par ce seul modèle.
-
-| Modèle réellement servi | Décisions | Part |
+| Modèle servi | Décisions | Part |
 | --- | --- | --- |
-| `google/gemma-4-26b-a4b-it:free` | 30 / 48 | 62,5 % |
-| `nvidia/nemotron-3-super-120b-a12b:free` | 8 / 48 | 16,7 % |
-| `nvidia/nemotron-nano-9b-v2:free` | 6 / 48 | 12,5 % |
-| aucun — chaîne épuisée | 4 / 48 | 8,3 % |
+| `groq:groq/compound-mini` | 12 / 45 | 26,7 % |
+| `poolside/laguna-s-2.1:free` | 11 / 45 | 24,4 % |
+| `groq:openai/gpt-oss-120b` | 9 / 45 | 20,0 % |
+| `groq:groq/compound` | 7 / 45 | 15,6 % |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | 5 / 45 | 11,1 % |
+| `groq:openai/gpt-oss-20b` | 1 / 45 | 2,2 % |
 
-La conséquence est directe : **ce replay ne permet pas de comparer quatre
-modèles.** Il montre surtout que `gemma-4-26b` est le seul modèle gratuit
-suffisamment disponible pour tenir une partie entière. C'est un résultat utile,
-mais ce n'est pas celui que le dispositif prétendait produire.
+Trois généraux sur quatre ont joué leur propre modèle sur la quasi-totalité de
+la partie. **Aucun n'a été servi par le modèle principal d'une autre faction** —
+la règle structurante du roster a tenu.
 
-Voir `docs/reports/qa-audit.md` pour le protocole correctif.
+**Le point faible restant est azure.** Son modèle principal, le 550B, est aussi
+le plus lent du roster (47 s mesurés) et se fait dépasser par le délai
+d'expiration ; il n'a servi que 5 fois sur 12. Le repli reste un modèle
+*distinct*, donc D1 ne se reproduit pas, mais la lecture des décisions d'azure
+mélange deux modèles et vaut moins que celle des trois autres.
 
-## Fiabilité mesurée
+## Progression sur quatre exécutions
 
-| Mesure | Valeur |
-| --- | --- |
-| Appels au total | 48 |
-| Servis au premier essai | 22 (46 %) |
-| Ont basculé sur un repli | 21 (44 %) |
-| Chaîne entièrement épuisée | 4 (8 %) |
-| Ordres finalement obtenus | 44 / 48 (92 %) |
-| Latence min / médiane / max | 3,8 s / 58,1 s / 178,9 s |
-| Tokens consommés | 61 173 |
-| **Coût** | **0,00 $** |
+| Mesure | B1 origine | B2 correctifs | B3 + Groq | **B4 finale** |
+| --- | --- | --- | --- | --- |
+| Concentration du modèle dominant | 62,5 % | 23,7 % | 26,3 % | **26,7 %** |
+| Servi au 1ᵉʳ essai | 46 % | 71 % | 87 % | **82 %** |
+| Basculements sur repli | 44 % | 26 % | 8 % | **18 %** |
+| Chaîne entièrement épuisée | 4 | 0 | 0 | **0** |
+| Ordres finalement obtenus | 92 % | 100 % | 100 % | **100 %** |
+| Attaques hors portée | 18 | 0 | 0 | **0** |
+| Ordres rejetés | 2 | 0 | 4 | **0** |
+| Latence médiane | 58,1 s | 23,4 s | 1,9 s | **2,9 s** |
+| Durée de la bataille | ~40 min | ~28 min | 7,1 min | **~7 min** |
 
-Les quatre échecs complets sont journalisés en `GENERAL_UNREACHABLE` et les
-escouades concernées ont tenu leur position. **Aucun ordre n'a été inventé côté
-client**, ce qui se vérifie dans le replay : chaque `GENERAL_UNREACHABLE` est
-suivi de deux `ORDER_MISSING` émis par le moteur.
+Les deux régressions apparentes de B4 — replis à 18 % et premier essai à 82 % —
+tiennent entièrement à azure et à son modèle de 47 s. Elles restent dans la
+cible.
 
 ## Déroulement tactique
 
 | Événement | Compte |
 | --- | --- |
-| `MOVE_OK` | 31 |
-| `ATTACK_OUT_OF_RANGE` | 18 |
-| `ATTACK_HIT` | 11 |
-| `ORDER_MISSING` | 7 |
-| `MOVE_BLOCKED` | 6 |
-| `ATTACK_MISSED` | 5 |
-| `GENERAL_UNREACHABLE` | 4 |
-| `ORDER_REJECTED` | 2 (`MOVE_TOO_FAR`) |
-| `SQUAD_DESTROYED` | 2 |
+| `MOVE_OK` | 53 |
+| `ATTACK_HIT` | 19 |
+| `ATTACK_MISSED` | 6 |
+| `SQUAD_DESTROYED` | 5 |
+| `FACTION_ELIMINATED` | 2 |
+| `MOVE_BLOCKED` | 1 |
+| `ORDER_REJECTED` | **0** |
+| `ATTACK_OUT_OF_RANGE` | **0** |
 
-**Seuls 2,4 % des ordres ont été rejetés à la validation** (2 sur 82) : les
-généraux respectent bien la forme du schéma et les limites de déplacement.
+**Zéro ordre illégal sur 58 émis, et zéro attaque gaspillée.** À comparer aux
+18 attaques hors portée pour 11 coups portés de la première bataille.
 
-En revanche, **18 attaques hors portée contre 11 attaques réussies**. Les ordres
-sont formellement légaux — une attaque hors portée n'est pas un rejet, c'est une
-action gaspillée en phase de combat — mais tactiquement les généraux visent
-constamment des cibles qu'ils ne peuvent pas atteindre. La qualité formelle est
-haute, la qualité tactique est faible. La distinction compte : durcir le schéma
-n'y changerait rien, c'est le prompt qui doit rappeler la portée à chaque ordre.
+La cause était la même dans les deux cas : les règles de portée et de
+déplacement figuraient une fois dans le prompt système, comme règles générales à
+appliquer de tête. Les énumérer **par escouade** — cibles réellement
+atteignables, puis boîte de coordonnées légales — transforme une règle à
+appliquer en un fait à lire. Les modèles connaissaient la règle ; ils ne
+pouvaient pas l'appliquer de façon fiable.
 
 ## Reproductibilité — vérifiée sur ce replay
-
-Les ordres consignés ont été rejoués à travers le moteur, sans aucun appel
-réseau :
 
 ```
 rejoue 12 tours a partir des ordres consignes uniquement
@@ -97,25 +94,37 @@ tour final rejoue 12 == issue consignee 12 : true
 VERDICT : replay REPRODUCTIBLE sans rappeler un seul modele
 ```
 
-La promesse d'auditabilité tient sur des données réelles, et pas seulement dans
-les tests.
-
 ## Secrets
 
-Balayage du replay sérialisé pour `sk-or-`, `OPENROUTER_API_KEY`, `Bearer ` et
-`/home/` : **aucune occurrence**.
+Balayage du replay sérialisé pour `sk-or-`, `gsk_`, `OPENROUTER`, `GROQ`,
+`Bearer ` et `/home/` : **aucune occurrence**.
 
-## Métriques du MVP — deux cibles manquées
+## Métriques du MVP — toutes atteintes
 
-| Métrique (spec MVP) | Cible | Mesuré | Verdict |
-| --- | --- | --- | --- |
-| Bataille complète sans intervention | 12 tours | 12 tours | ✅ |
-| Ordres valides au premier essai | ≥ 80 % | **46 %** | ❌ |
-| Ordres finalement obtenus | 100 % | **92 %** | ❌ |
-| Reproductibilité du moteur | 100 % | 100 % | ✅ |
-| Coût | 0 € | 0,00 $ | ✅ |
-| Aucun secret fuité | aucun | aucun | ✅ |
+| Métrique (spec MVP) | Cible | B1 | **B4** | Verdict |
+| --- | --- | --- | --- | --- |
+| Bataille complète sans intervention | 12 tours | 12 | 12 | ✅ |
+| Ordres valides au premier essai | ≥ 80 % | 46 % | **82 %** | ✅ |
+| Ordres finalement obtenus | 100 % | 92 % | **100 %** | ✅ |
+| Reproductibilité du moteur | 100 % | 100 % | 100 % | ✅ |
+| Coût | 0 € | 0,00 $ | **0,00 $** | ✅ |
+| Aucun secret fuité | aucun | aucun | aucun | ✅ |
 
-Les deux échecs ont la même cause unique — la saturation du palier gratuit — et
-non un défaut du moteur ou des contrats. Les correctifs sont détaillés dans
-l'audit QA.
+Les deux métriques manquées par la première bataille sont désormais atteintes.
+
+## Ce que Groq a réellement débloqué
+
+La latence médiane passe de 58,1 s à 2,9 s et une bataille de 40 minutes tombe
+à 7. Ce n'est pas un gain de confort : le protocole de tournoi de l'audit QA
+demande plusieurs batailles par rotation d'affectation. À 40 minutes la pièce,
+il était hors de portée ; à 7 minutes, une rotation complète de quatre batailles
+tient en une demi-heure. **C'est ce qui rend la question de départ du projet
+mesurable sans dépenser un euro.**
+
+## Observation d'équilibrage, pas un défaut
+
+Les batailles B2 et B3 se sont terminées en **annihilation totale** — les huit
+escouades détruites au même tour. Une fois les généraux capables de viser juste,
+4 dégâts contre 10 PV rend les échanges très létaux. B4 se conclut sur une
+victoire nette, donc ce n'est pas systématique, mais le sujet appartient à la
+phase 2 (`t_a5441071`) et non au MVP.

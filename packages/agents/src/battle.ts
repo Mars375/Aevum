@@ -9,7 +9,7 @@ import {
   type TurnRecord,
 } from "@abs/contracts";
 import { checkOutcome, createInitialState, localViewFor, resolveTurn, type FactionOrders } from "@abs/engine";
-import type { OrderProvider } from "./openrouter.js";
+import type { OrderProvider } from "./provider.js";
 
 export interface RunBattleOptions {
   config: BattleConfig;
@@ -17,6 +17,18 @@ export interface RunBattleOptions {
   onProgress?: (message: string) => void;
   battleId?: string;
   now?: () => Date;
+  /**
+   * Called after every turn with the replay as it stands. A battle takes 30-40
+   * minutes against a rate-limited free tier, so writing only at the end means
+   * an interruption at turn 11 loses everything (QA defect D4).
+   */
+  onTurn?: (partial: Replay) => void;
+  /**
+   * A previously interrupted replay to continue. Its turns are trusted and
+   * replayed through the engine to rebuild state — never re-requested from a
+   * model, which keeps a resumed battle as auditable as an uninterrupted one.
+   */
+  resumeFrom?: Replay;
 }
 
 /**
@@ -25,13 +37,34 @@ export interface RunBattleOptions {
  * from the recorded orders, which is what makes the replay auditable without
  * calling a single model again.
  */
-export async function runBattle({ config, provider, onProgress, battleId, now }: RunBattleOptions): Promise<Replay> {
+export async function runBattle({
+  config,
+  provider,
+  onProgress,
+  battleId,
+  now,
+  onTurn,
+  resumeFrom,
+}: RunBattleOptions): Promise<Replay> {
   const log = onProgress ?? (() => {});
-  const initialState = createInitialState(FACTION_IDS);
+  const initialState = resumeFrom?.initialState ?? createInitialState(FACTION_IDS);
   const roster = initialState.squads.map((s) => s.id);
 
-  let state = initialState;
-  const turns: TurnRecord[] = [];
+  const turns: TurnRecord[] = resumeFrom ? [...resumeFrom.turns] : [];
+  let state = turns.length ? turns[turns.length - 1]!.stateAfter : initialState;
+  if (resumeFrom && turns.length) log(`resuming after turn ${state.turn}, ${state.squads.length} squad(s) alive`);
+
+  const id = resumeFrom?.manifest.battleId ?? battleId ?? `battle-${(now?.() ?? new Date()).toISOString().replace(/[:.]/g, "-")}`;
+  const createdAt = resumeFrom?.manifest.createdAt ?? (now?.() ?? new Date()).toISOString();
+  const manifest = {
+    replayVersion: "1",
+    rulesetVersion: RULESET_VERSION,
+    contractsVersion: CONTRACTS_VERSION,
+    battleId: id,
+    createdAt,
+    config,
+  } as const;
+
   let outcome = checkOutcome(state, config.maxTurns);
 
   while (!outcome) {
@@ -81,19 +114,21 @@ export async function runBattle({ config, provider, onProgress, battleId, now }:
 
     log(`turn ${state.turn}/${config.maxTurns} — ${state.squads.length} squad(s) left`);
     outcome = checkOutcome(state, config.maxTurns);
+
+    // Checkpoint every turn. The provisional outcome lets a partial replay
+    // still satisfy its own schema, so an interrupted file stays loadable.
+    onTurn?.({
+      manifest,
+      initialState,
+      turns,
+      outcome: outcome ?? {
+        kind: "DRAW",
+        winner: null,
+        reason: `Bataille en cours, interrompue apres le tour ${state.turn}.`,
+        finalTurn: state.turn,
+      },
+    });
   }
 
-  return {
-    manifest: {
-      replayVersion: "1",
-      rulesetVersion: RULESET_VERSION,
-      contractsVersion: CONTRACTS_VERSION,
-      battleId: battleId ?? `battle-${(now?.() ?? new Date()).toISOString().replace(/[:.]/g, "-")}`,
-      createdAt: (now?.() ?? new Date()).toISOString(),
-      config,
-    },
-    initialState,
-    turns,
-    outcome,
-  };
+  return { manifest, initialState, turns, outcome };
 }

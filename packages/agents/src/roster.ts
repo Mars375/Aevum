@@ -1,19 +1,67 @@
 import type { GeneralConfig } from "@abs/contracts";
 
 /**
- * One distinct preferred model per faction — model diversity is the point of
- * the exercise — each falling back onto the two models that scored 2/2 in the
- * provider probe. See docs/research/providers.md for the measurements.
+ * Models measured to honour `response_format: json_schema` reliably.
  *
- * Models excluded on evidence: dots-3-note-preview (always truncates),
- * gemma-4-31b-it (429 on every attempt), lfm-2.5-2.6b (207-213s per order).
+ * Deliberately short. Native enforcement looks like the safe default and is
+ * not: `openai/gpt-oss-20b:free` fails 0/4 with it (schema mismatch, then
+ * timeouts) and succeeds 2/2 without it, on the same prompt. Only models that
+ * scored 2/2 in native mode stay here; everything else uses prompt mode, which
+ * is both broader and, on a free tier, more reliable.
  */
-const PROVEN_A = "google/gemma-4-26b-a4b-it:free";
-const PROVEN_B = "nvidia/nemotron-3-super-120b-a12b:free";
+export const NATIVE_SCHEMA_MODELS = new Set([
+  "google/gemma-4-26b-a4b-it:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+]);
 
+export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(model);
+
+/**
+ * Four distinct primaries, four model families, spread across two providers.
+ *
+ * Two rules hold this roster together, both earned from the first reference
+ * battle where a single model decided 62.5% of the game and one general never
+ * once played its own (QA defect D1):
+ *
+ *  1. **No faction's first fallback is another faction's primary.** A model
+ *     going down cannot turn one general into a copy of another.
+ *  2. **Every chain spans both providers.** OpenRouter and Groq rate-limit
+ *     independently, so one provider throttling completely still leaves every
+ *     general a path to a model. This is the property that makes a battle
+ *     finish on a free tier.
+ *
+ * Groq is 10-40x faster (0.4-4.9s against 4.5-60s) but rate-limits hard per
+ * minute; OpenRouter is slower but steadier. Mixing them plays each to its
+ * strength rather than betting the battle on either.
+ *
+ * Excluded on repeated measurement, not on capability flags:
+ *   google/gemma-4-31b-it     HTTP 429 on 3/3          z-ai/glm-5.2       HTTP 429 on 3/3
+ *   cohere/north-mini-code    60s timeout on 3/3       liquid/lfm-2.5     207-213s per order
+ *   groq:qwen/qwen3.6-27b     HTTP 403, access-gated   dots-3-note        truncates every time
+ */
 export const DEFAULT_GENERALS: GeneralConfig[] = [
-  { factionId: "crimson", displayName: "Crimson", model: PROVEN_A, fallbacks: [PROVEN_B] },
-  { factionId: "azure", displayName: "Azure", model: PROVEN_B, fallbacks: [PROVEN_A] },
-  { factionId: "verdant", displayName: "Verdant", model: "openai/gpt-oss-20b:free", fallbacks: [PROVEN_A, PROVEN_B] },
-  { factionId: "amber", displayName: "Amber", model: "nvidia/nemotron-nano-9b-v2:free", fallbacks: [PROVEN_B, PROVEN_A] },
+  {
+    factionId: "crimson",
+    displayName: "Crimson",
+    model: "groq:openai/gpt-oss-120b", // Groq, 1.6s
+    fallbacks: ["google/gemma-4-26b-a4b-it:free", "nvidia/nemotron-3.5-lightning:free"],
+  },
+  {
+    factionId: "azure",
+    displayName: "Azure",
+    model: "nvidia/nemotron-3-ultra-550b-a55b:free", // OpenRouter, 47.3s, largest free model
+    fallbacks: ["groq:groq/compound", "nvidia/nemotron-3-super-120b-a12b:free"],
+  },
+  {
+    factionId: "verdant",
+    displayName: "Verdant",
+    model: "groq:groq/compound-mini", // Groq, 0.4-1.5s
+    fallbacks: ["poolside/laguna-xs-2.1:free", "nvidia/nemotron-3-nano-30b-a3b:free"],
+  },
+  {
+    factionId: "amber",
+    displayName: "Amber",
+    model: "poolside/laguna-s-2.1:free", // OpenRouter, 4.5s
+    fallbacks: ["groq:openai/gpt-oss-20b", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"],
+  },
 ];

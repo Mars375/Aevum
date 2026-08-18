@@ -1,5 +1,5 @@
 import type { Decision, GeneralConfig, LocalView, Vec2 } from "@abs/contracts";
-import type { OrderProvider, ProviderResult } from "./openrouter.js";
+import type { OrderProvider, ProviderResult } from "./provider.js";
 
 /**
  * Deterministic stand-in for tests and offline demos. Touches no network, so

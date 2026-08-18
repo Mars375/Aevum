@@ -9,7 +9,8 @@ Nobody plays. You watch — and you read why each general gave the orders it did
 ```
 npm install
 npm run battle -- --scripted     # offline baseline, no key, no network
-npm run battle                   # four remote models, needs OPENROUTER_API_KEY
+npm run battle                   # four remote models, ~7 minutes
+npm run battle -- --resume       # continue an interrupted battle
 npm run player:dev               # open the replay in the browser
 ```
 
@@ -19,7 +20,7 @@ npm run player:dev               # open the replay in the browser
 | --- | --- | --- |
 | `@abs/contracts` | zod schemas shared by everything | import the engine, the network or Vue |
 | `@abs/engine` | resolves a turn, decides the outcome | make a single network call |
-| `@abs/agents` | talks to OpenRouter, drives the battle loop | decide who wins |
+| `@abs/agents` | talks to OpenRouter and Groq, drives the battle loop | decide who wins |
 | `@abs/cli` | runs a battle, writes the replay | — |
 | `@abs/player` | Vue 3 replay viewer | run the engine |
 
@@ -27,31 +28,45 @@ The split that matters: **the model decides, the engine resolves.** An illegal
 order is rejected and recorded, never quietly rewritten into something workable.
 That is what makes a replay auditable.
 
-## Three things the measurements forced
+## Four things the measurements forced
 
-The provider survey (`docs/research/providers.md`) changed the design in ways
-worth knowing before you touch the orchestrator:
+Every one of these was a wrong first guess corrected by evidence
+(`docs/research/providers.md`, `docs/reports/qa-audit.md`):
 
-1. **`max_tokens` must cover reasoning tokens.** At 800, six of seven free
-   models returned unparseable JSON and looked incapable of structured output.
-   They were being truncated — reasoning tokens are billed against the
-   completion budget before the first brace. At 3000 they pass. A
-   `finish_reason: length` is therefore treated as a retryable failure, not as a
-   malformed answer.
-2. **HTTP 429 is the normal regime**, not an incident. Every general has an
-   ordered fallback chain; a 429 backs off, then switches model.
-3. **Latency spans 3.7 s to 213 s.** Every request has a 60 s ceiling, and the
-   slowest models are excluded from the roster outright.
+1. **Do not require native structured output.** Only 6 of 16 free models
+   advertise it, and requiring it collapsed the roster onto two models — one
+   model then decided 62.5% of a whole battle. The other 10 answer JSON fine
+   when asked in the prompt. Proof it was the wrong filter:
+   `openai/gpt-oss-20b` scores **0/4 with** server-side schema enforcement and
+   **2/2 without**, same prompt.
+2. **`max_tokens` must cover reasoning tokens.** At 800, six of seven models
+   returned unparseable JSON and looked incapable of structured output. They
+   were truncated — reasoning tokens are billed against the completion budget
+   before the first brace. 3000 cleared a turn-1 prompt and still truncated
+   mid-battle; the ceiling is 6000. `finish_reason: length` is a retryable
+   failure, never a malformed answer.
+3. **State the rules per squad, not once as general rules.** The generals
+   produced 18 out-of-range attacks against 11 hits, and illegal moves, while
+   knowing the rules perfectly well. Listing each squad's reachable targets and
+   its legal move box took both counts to **zero**.
+4. **Use two providers.** OpenRouter and Groq rate-limit independently, so every
+   fallback chain spans both and one provider throttling strands nobody. Groq
+   also cuts median latency from 58 s to 3 s, which turns a 40-minute battle
+   into a 7-minute one — the difference between a tournament being affordable
+   and not.
 
-When the whole chain fails, the squads hold and the replay says
+When a whole chain fails, the squads hold and the replay says
 `GENERAL_UNREACHABLE`. The client never invents an order to cover the gap.
 
 ## Budget
 
-Locked at **0 €** by the launch gate. The orchestrator refuses any model whose
-id does not end in `:free`, and it refuses it before making the request. Raising
-the ceiling is a human decision — set `ABS_FREE_MODELS_ONLY=0` only after taking
-it.
+Locked at **0 €** by the launch gate.
+
+On OpenRouter this is enforced in code: a model id without a `:free` suffix is
+refused *before* the request is made. On Groq it **cannot** be — the free tier
+is a property of the account, not of the model. An account with no payment
+method is rate-limited rather than billed, and that is where the guarantee
+actually comes from. Stated plainly rather than implied.
 
 ## Determinism
 
@@ -73,15 +88,18 @@ single model again. That round trip is a test
 | `docs/spec/rules.md` | Ruleset v1 — the engine's source of truth, with 11 invariants |
 | `docs/architecture/data-contracts.md` | Why the schemas are shaped the way they are |
 | `docs/research/providers.md` | Model measurements and the roster they justify |
+| `docs/reports/reference-battle.md` | The delivered battle, and four runs of measurements |
+| `docs/reports/qa-audit.md` | Defects found, what was fixed, what is still open |
 
 ## Commands
 
 | Command | Does |
 | --- | --- |
-| `npm test` | 49 tests: engine invariants, replay round-trip, provider behaviour |
+| `npm test` | 76 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
 | `npm run typecheck` | `tsc --noEmit` across the workspace |
 | `npm run battle -- --scripted` | Offline battle with the baseline AI |
-| `npm run battle` | Remote battle, four free models, several minutes |
+| `npm run battle` | Remote battle, four free models, ~7 minutes |
+| `npm run battle -- --resume` | Continue the replay at `--out` instead of restarting |
 | `npm run probe` | Re-measure the free-model catalogue |
 | `npm run healthcheck` | Container and clone liveness |
 | `npm run player:dev` | Replay viewer on :5173 |
@@ -89,6 +107,12 @@ single model again. That round trip is a test
 
 ## Configuration
 
-Copy `.env.example` to `.env`. The only credential is `OPENROUTER_API_KEY`, and
-it never leaves the `Authorization` header — prompts carry public battlefield
-state and nothing else.
+Copy `.env.example` to `.env`. Credentials are `OPENROUTER_API_KEY` and,
+optionally, `GROQ_API_KEY`; at least one is required. Neither ever leaves the
+`Authorization` header — prompts carry public battlefield state and nothing
+else, and a test fails if a key pattern appears in a URL, a request body, or a
+replay.
+
+Models are referenced by provider: a bare id goes to OpenRouter
+(`google/gemma-4-26b-a4b-it:free`), a `groq:` prefix goes to Groq
+(`groq:openai/gpt-oss-120b`).

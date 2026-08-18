@@ -1,5 +1,8 @@
 import { DecisionSchema, MAX_REASONING_CHARS, type Decision, type GeneralConfig, type LocalView, type Telemetry } from "@abs/contracts";
-import { systemPrompt, userPrompt } from "./prompt.js";
+import { ENDPOINTS, isFreeRef, parseModelRef } from "./endpoints.js";
+import { extractJson } from "./json.js";
+import { jsonModeInstruction, systemPrompt, userPrompt } from "./prompt.js";
+import { supportsNativeSchema } from "./roster.js";
 import { ORDER_JSON_SCHEMA } from "./schema.js";
 
 export interface ProviderResult {
@@ -12,8 +15,9 @@ export interface OrderProvider {
   decide(view: LocalView, general: GeneralConfig): Promise<ProviderResult>;
 }
 
-export interface OpenRouterOptions {
-  apiKey: string;
+export interface RemoteProviderOptions {
+  /** One key per endpoint actually used. A missing key skips that endpoint. */
+  apiKeys: Partial<Record<"openrouter" | "groq", string>>;
   /**
    * Must cover reasoning tokens, which are billed against the completion budget
    * before the model emits its first brace. 800 truncates most free models and
@@ -29,26 +33,26 @@ export interface OpenRouterOptions {
   freeModelsOnly?: boolean;
   fetchImpl?: typeof fetch;
   sleepImpl?: (ms: number) => Promise<void>;
-  baseUrl?: string;
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 class RetryableError extends Error {}
 
-export class OpenRouterProvider implements OrderProvider {
-  private readonly opts: Required<Omit<OpenRouterOptions, "apiKey">> & { apiKey: string };
+export class RemoteProvider implements OrderProvider {
+  private readonly opts: Required<Omit<RemoteProviderOptions, "apiKeys">> & {
+    apiKeys: Partial<Record<"openrouter" | "groq", string>>;
+  };
 
-  constructor(options: OpenRouterOptions) {
+  constructor(options: RemoteProviderOptions) {
     this.opts = {
-      apiKey: options.apiKey,
+      apiKeys: options.apiKeys,
       maxTokens: options.maxTokens ?? 6000,
       timeoutMs: options.timeoutMs ?? 60_000,
       attemptsPerModel: options.attemptsPerModel ?? 2,
       freeModelsOnly: options.freeModelsOnly ?? true,
       fetchImpl: options.fetchImpl ?? fetch,
       sleepImpl: options.sleepImpl ?? sleep,
-      baseUrl: options.baseUrl ?? "https://openrouter.ai/api/v1/chat/completions",
     };
   }
 
@@ -59,10 +63,14 @@ export class OpenRouterProvider implements OrderProvider {
     let lastError = "no model attempted";
 
     for (const model of chain) {
-      if (this.opts.freeModelsOnly && !model.endsWith(":free")) {
+      if (this.opts.freeModelsOnly && !isFreeRef(model)) {
         // Budget ceiling comes from the launch GATE, so this is a hard refusal
         // rather than a warning: a paid model must never be reached by accident.
-        lastError = `refused ${model}: budget is 0 EUR, only ":free" models are allowed`;
+        lastError = `refused ${model}: budget is 0 EUR, only free models are allowed`;
+        continue;
+      }
+      if (!this.opts.apiKeys[parseModelRef(model).provider]) {
+        lastError = `skipped ${model}: no key for ${parseModelRef(model).provider}`;
         continue;
       }
 
@@ -113,25 +121,36 @@ export class OpenRouterProvider implements OrderProvider {
   }
 
   private async call(model: string, view: LocalView, general: GeneralConfig) {
-    const res = await this.opts.fetchImpl(this.opts.baseUrl, {
+    // Only six of the sixteen free models enforce a schema server-side. The
+    // others are asked for JSON in the prompt and validated here instead —
+    // demanding native support is what collapsed the roster onto one model.
+    const native = supportsNativeSchema(model);
+    const ref = parseModelRef(model);
+    const endpoint = ENDPOINTS[ref.provider];
+
+    const res = await this.opts.fetchImpl(endpoint.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${this.opts.apiKey}`,
+        Authorization: `Bearer ${this.opts.apiKeys[ref.provider]}`,
         "Content-Type": "application/json",
         "X-Title": "ai-battle-simulator",
       },
       body: JSON.stringify({
-        model,
+        model: ref.model,
         messages: [
-          { role: "system", content: systemPrompt() },
+          { role: "system", content: native ? systemPrompt() : `${systemPrompt()}\n\n${jsonModeInstruction()}` },
           { role: "user", content: userPrompt(view) },
         ],
         max_tokens: this.opts.maxTokens,
         temperature: 0.4,
-        response_format: {
-          type: "json_schema",
-          json_schema: { name: "battle_orders", strict: true, schema: ORDER_JSON_SCHEMA },
-        },
+        ...(native
+          ? {
+              response_format: {
+                type: "json_schema",
+                json_schema: { name: "battle_orders", strict: true, schema: ORDER_JSON_SCHEMA },
+              },
+            }
+          : {}),
       }),
       signal: AbortSignal.timeout(this.opts.timeoutMs),
     });
@@ -154,12 +173,8 @@ export class OpenRouterProvider implements OrderProvider {
       throw new RetryableError("truncated: finish_reason=length, raise ABS_MAX_TOKENS");
     }
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(choice?.message?.content ?? "");
-    } catch {
-      throw new RetryableError("response was not valid JSON");
-    }
+    const parsed = extractJson(choice?.message?.content ?? "");
+    if (parsed === null) throw new RetryableError("no JSON object found in the answer");
 
     const result = DecisionSchema.safeParse(parsed);
     if (!result.success) throw new RetryableError(`schema mismatch: ${result.error.issues[0]?.message ?? "unknown"}`);
