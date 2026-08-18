@@ -6,8 +6,20 @@ import { z } from "zod";
  * engine or the network, so both sides can depend on it without a cycle.
  */
 
-export const CONTRACTS_VERSION = "1.0.0";
+export const CONTRACTS_VERSION = "2.0.0";
 export const RULESET_VERSION = "v1";
+export const RULESET_VERSIONS = ["v1", "v2"] as const;
+export const RulesetVersionSchema = z.enum(RULESET_VERSIONS);
+export type RulesetVersion = z.infer<typeof RulesetVersionSchema>;
+
+/** v2 only. See docs/spec/rules-v2.md. */
+export const ARMY_BUDGET = 20;
+export const MAX_SQUADS_PER_FACTION = 4;
+export const MAX_MEMORY_ENTRIES = 8;
+export const MAX_DIPLOMACY_MESSAGE_CHARS = 200;
+/** A betrayal takes effect at the end of the FOLLOWING turn, never instantly. */
+export const ALLIANCE_BREAK_DELAY_TURNS = 1;
+export const PROPOSAL_TTL_TURNS = 3;
 export const GRID_SIZE = 16;
 export const MAX_TURNS = 12;
 export const MAX_REASONING_CHARS = 2000;
@@ -16,14 +28,35 @@ export const FACTION_IDS = ["crimson", "azure", "verdant", "amber"] as const;
 export const FactionIdSchema = z.enum(FACTION_IDS);
 export type FactionId = z.infer<typeof FactionIdSchema>;
 
-export const ArchetypeSchema = z.enum(["MELEE", "RANGED"]);
+export const ArchetypeSchema = z.enum(["MELEE", "RANGED", "SCOUT", "HEAVY"]);
 export type Archetype = z.infer<typeof ArchetypeSchema>;
 
-/** Fixed at ruleset v1: no army budget, no customisation. See docs/spec/rules.md. */
-export const ARCHETYPES: Record<Archetype, { hp: number; movement: number; range: number; damage: number }> = {
-  MELEE: { hp: 10, movement: 2, range: 1, damage: 4 },
-  RANGED: { hp: 8, movement: 1, range: 4, damage: 3 },
+export interface ArchetypeStats {
+  hp: number;
+  movement: number;
+  range: number;
+  damage: number;
+  /** Chebyshev sight radius. Unused at v1, where visibility is total. */
+  vision: number;
+  /** Army-budget cost. Unused at v1, where composition is imposed. */
+  cost: number;
+}
+
+/**
+ * MELEE and RANGED keep their exact v1 numbers, so a v1 replay resolves
+ * identically under the v2 engine (invariant I20). SCOUT and HEAVY exist only
+ * at v2 — the scout barely fights and sees furthest, the heavy is blind and
+ * absorbs.
+ */
+export const ARCHETYPES: Record<Archetype, ArchetypeStats> = {
+  MELEE: { hp: 10, movement: 2, range: 1, damage: 4, vision: 4, cost: 6 },
+  RANGED: { hp: 8, movement: 1, range: 4, damage: 3, vision: 6, cost: 7 },
+  SCOUT: { hp: 6, movement: 3, range: 1, damage: 2, vision: 9, cost: 4 },
+  HEAVY: { hp: 16, movement: 1, range: 1, damage: 6, vision: 3, cost: 10 },
 };
+
+/** Archetypes a v1 battle may contain. Guards I20 against a v2 unit leaking in. */
+export const V1_ARCHETYPES: readonly Archetype[] = ["MELEE", "RANGED"];
 
 export const Vec2Schema = z.object({
   x: z.number().int(),
@@ -48,9 +81,29 @@ export const WorldStateSchema = z.object({
 });
 export type WorldState = z.infer<typeof WorldStateSchema>;
 
+/** An enemy seen on an earlier turn and lost since. Fog made playable. */
+export const RememberedSquadSchema = SquadSchema.extend({
+  /** Turn the position was last observed. The general may act on stale news. */
+  lastSeenTurn: z.number().int(),
+});
+export type RememberedSquad = z.infer<typeof RememberedSquadSchema>;
+
+/** One line of the engine-built digest handed back to a general. */
+export const MemoryEntrySchema = z.object({
+  turn: z.number().int(),
+  lost: z.array(z.string()),
+  destroyed: z.array(z.string()),
+  diplomacy: z.array(z.string()),
+});
+export type MemoryEntry = z.infer<typeof MemoryEntrySchema>;
+
 /**
- * What a single general is shown. Distinct from WorldState on purpose: phase 2
- * introduces fog of war by filtering this projection, leaving the engine alone.
+ * What a single general is shown.
+ *
+ * Distinct from WorldState on purpose, and that separation is what let v2 add
+ * fog of war without touching the engine: `enemySquads` becomes "what you can
+ * see", `rememberedEnemies` "what you last saw". At v1 the fields carry total
+ * visibility and the v2-only fields stay empty.
  */
 export const LocalViewSchema = z.object({
   turn: z.number().int(),
@@ -58,7 +111,18 @@ export const LocalViewSchema = z.object({
   gridSize: z.number().int(),
   you: FactionIdSchema,
   yourSquads: z.array(SquadSchema),
+  /** Currently visible. At v1 this is every enemy. */
   enemySquads: z.array(SquadSchema),
+  /** v2 only: last known position of enemies now out of sight. */
+  rememberedEnemies: z.array(RememberedSquadSchema).default([]),
+  /** v2 only: factions currently allied with you. */
+  allies: z.array(FactionIdSchema).default([]),
+  /** v2 only: alliance proposals awaiting your answer. */
+  pendingProposals: z.array(FactionIdSchema).default([]),
+  /** v2 only: engine-built digest, capped at MAX_MEMORY_ENTRIES. */
+  memory: z.array(MemoryEntrySchema).default([]),
+  /** v2 only: points spent and the ceiling, so a general can reason about it. */
+  budget: z.object({ spent: z.number().int(), total: z.number().int() }).nullable().default(null),
 });
 export type LocalView = z.infer<typeof LocalViewSchema>;
 
@@ -72,12 +136,38 @@ export const OrderSchema = z.object({
 });
 export type Order = z.infer<typeof OrderSchema>;
 
+export const DiplomacyActionSchema = z.enum(["PROPOSE_ALLIANCE", "ACCEPT_ALLIANCE", "BREAK_ALLIANCE", "SURRENDER"]);
+export type DiplomacyAction = z.infer<typeof DiplomacyActionSchema>;
+
+/**
+ * At most one per general per turn — that is the "bounded" in bounded
+ * diplomacy. `message` is theatre: it is recorded and shown, and has no
+ * mechanical effect whatsoever. Said explicitly so nobody believes a model can
+ * negotiate anything beyond the four verbs above.
+ */
+export const DiplomacySchema = z.object({
+  action: DiplomacyActionSchema,
+  /** Omitted for SURRENDER, required otherwise. */
+  target: FactionIdSchema.nullable().default(null),
+  message: z.string().default(""),
+});
+export type Diplomacy = z.infer<typeof DiplomacySchema>;
+
 /** Exactly what a general's model must return. Mirrored as JSON Schema in @abs/agents. */
 export const DecisionSchema = z.object({
   reasoning: z.string(),
   orders: z.array(OrderSchema),
+  /** v2 only. Absent or null at v1, and ignored by the v1 engine. */
+  diplomacy: DiplomacySchema.nullable().default(null),
 });
 export type Decision = z.infer<typeof DecisionSchema>;
+
+/** What a general answers when asked to buy an army, before turn 1. */
+export const CompositionChoiceSchema = z.object({
+  reasoning: z.string(),
+  squads: z.array(ArchetypeSchema),
+});
+export type CompositionChoice = z.infer<typeof CompositionChoiceSchema>;
 
 export const REJECTION_REASONS = [
   "UNKNOWN_SQUAD",
@@ -88,6 +178,21 @@ export const REJECTION_REASONS = [
   "OUT_OF_BOUNDS",
   "MOVE_TOO_FAR",
 ] as const;
+
+export const DIPLOMACY_REJECTIONS = [
+  "DUPLICATE_DIPLOMACY",
+  "NO_SUCH_PROPOSAL",
+  "SELF_TARGETED",
+  "DEAD_FACTION",
+  "NOT_ALLIED",
+  "MISSING_TARGET",
+  "ALREADY_ALLIED",
+] as const;
+export const DiplomacyRejectionSchema = z.enum(DIPLOMACY_REJECTIONS);
+export type DiplomacyRejection = z.infer<typeof DiplomacyRejectionSchema>;
+
+export const COMPOSITION_REJECTIONS = ["OVER_BUDGET", "TOO_MANY_SQUADS", "EMPTY", "NO_OFFENSE"] as const;
+export const CompositionRejectionSchema = z.enum(COMPOSITION_REJECTIONS);
 export const RejectionReasonSchema = z.enum(REJECTION_REASONS);
 export type RejectionReason = z.infer<typeof RejectionReasonSchema>;
 
@@ -107,6 +212,17 @@ export const BattleEventSchema = z.discriminatedUnion("type", [
    * hold, and the replay says so — the client never invents an order.
    */
   z.object({ type: z.literal("GENERAL_UNREACHABLE"), factionId: FactionIdSchema, error: z.string() }),
+
+  // ---- v2 ----
+  z.object({ type: z.literal("ATTACK_ALLY_BLOCKED"), squadId: z.string(), at: Vec2Schema }),
+  z.object({ type: z.literal("COMPOSITION_REJECTED"), factionId: FactionIdSchema, reason: CompositionRejectionSchema }),
+  z.object({ type: z.literal("DIPLOMACY_REJECTED"), factionId: FactionIdSchema, reason: DiplomacyRejectionSchema }),
+  z.object({ type: z.literal("ALLIANCE_PROPOSED"), from: FactionIdSchema, to: FactionIdSchema, message: z.string() }),
+  z.object({ type: z.literal("ALLIANCE_FORMED"), a: FactionIdSchema, b: FactionIdSchema }),
+  /** Announced the turn it is declared; it only bites at `effectiveTurn`. */
+  z.object({ type: z.literal("ALLIANCE_BREAK_DECLARED"), from: FactionIdSchema, to: FactionIdSchema, effectiveTurn: z.number().int() }),
+  z.object({ type: z.literal("ALLIANCE_BROKEN"), a: FactionIdSchema, b: FactionIdSchema }),
+  z.object({ type: z.literal("FACTION_SURRENDERED"), factionId: FactionIdSchema, message: z.string() }),
 ]);
 export type BattleEvent = z.infer<typeof BattleEventSchema>;
 
@@ -135,21 +251,33 @@ export const DecisionRecordSchema = z.object({
   factionId: FactionIdSchema,
   reasoning: z.string(),
   orders: z.array(OrderSchema),
+  diplomacy: DiplomacySchema.nullable().default(null),
   telemetry: TelemetrySchema,
 });
 export type DecisionRecord = z.infer<typeof DecisionRecordSchema>;
+
+export const AllianceStateSchema = z.object({
+  /** Sorted, deduplicated pairs "a|b". Always symmetric (invariant I15). */
+  pairs: z.array(z.string()).default([]),
+  surrendered: z.array(FactionIdSchema).default([]),
+});
+export type AllianceState = z.infer<typeof AllianceStateSchema>;
 
 export const TurnRecordSchema = z.object({
   turn: z.number().int(),
   decisions: z.array(DecisionRecordSchema),
   events: z.array(BattleEventSchema),
   stateAfter: WorldStateSchema,
+  /** v2 only. Absent on v1 replays. */
+  alliances: AllianceStateSchema.nullable().default(null),
 });
 export type TurnRecord = z.infer<typeof TurnRecordSchema>;
 
 export const OutcomeSchema = z.object({
-  kind: z.enum(["VICTORY", "DRAW", "ANNIHILATION"]),
+  kind: z.enum(["VICTORY", "DRAW", "ANNIHILATION", "ALLIANCE_VICTORY"]),
   winner: FactionIdSchema.nullable(),
+  /** v2 only: every faction of a jointly winning alliance. No tie-break. */
+  winners: z.array(FactionIdSchema).default([]),
   reason: z.string(),
   finalTurn: z.number().int(),
 });
@@ -165,6 +293,8 @@ export const GeneralConfigSchema = z.object({
 export type GeneralConfig = z.infer<typeof GeneralConfigSchema>;
 
 export const BattleConfigSchema = z.object({
+  /** Which ruleset the engine plays. Defaults to v1 so old configs keep working. */
+  rulesetVersion: RulesetVersionSchema.default("v1"),
   seed: z.number().int(),
   maxTurns: z.number().int().default(MAX_TURNS),
   gridSize: z.number().int().default(GRID_SIZE),
@@ -174,7 +304,7 @@ export type BattleConfig = z.infer<typeof BattleConfigSchema>;
 
 export const ReplayManifestSchema = z.object({
   replayVersion: z.literal("1"),
-  rulesetVersion: z.literal(RULESET_VERSION),
+  rulesetVersion: RulesetVersionSchema,
   contractsVersion: z.string(),
   battleId: z.string(),
   createdAt: z.string(),

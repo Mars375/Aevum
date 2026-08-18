@@ -3,7 +3,7 @@ import { FACTION_IDS, GRID_SIZE, ReplaySchema } from "@abs/contracts";
 import { createInitialState, resolveTurn } from "@abs/engine";
 import { DEFAULT_GENERALS, ScriptedProvider, chargeNearest, runBattle } from "@abs/agents";
 
-const CONFIG = { seed: 7, maxTurns: 12, gridSize: GRID_SIZE, generals: DEFAULT_GENERALS };
+const CONFIG = { rulesetVersion: "v1" as const, seed: 7, maxTurns: 12, gridSize: GRID_SIZE, generals: DEFAULT_GENERALS };
 
 const play = () =>
   runBattle({

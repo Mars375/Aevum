@@ -183,6 +183,7 @@ export class RemoteProvider implements OrderProvider {
       decision: {
         reasoning: result.data.reasoning.slice(0, MAX_REASONING_CHARS),
         orders: result.data.orders,
+        diplomacy: result.data.diplomacy ?? null,
       },
       usage: payload.usage ?? {},
     };

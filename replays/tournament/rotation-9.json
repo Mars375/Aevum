@@ -1,0 +1,2933 @@
+{
+  "manifest": {
+    "replayVersion": "1",
+    "rulesetVersion": "v1",
+    "contractsVersion": "1.0.0",
+    "battleId": "tournament-r9",
+    "createdAt": "2026-08-18T16:24:23.388Z",
+    "config": {
+      "seed": 51,
+      "maxTurns": 12,
+      "gridSize": 16,
+      "generals": [
+        {
+          "factionId": "crimson",
+          "displayName": "crimson",
+          "model": "nvidia/nemotron-3-super-120b-a12b:free",
+          "fallbacks": [
+            "groq:groq/compound",
+            "nvidia/nemotron-3-ultra-550b-a55b:free"
+          ]
+        },
+        {
+          "factionId": "azure",
+          "displayName": "azure",
+          "model": "groq:groq/compound-mini",
+          "fallbacks": [
+            "poolside/laguna-xs-2.1:free",
+            "nvidia/nemotron-3-nano-30b-a3b:free"
+          ]
+        },
+        {
+          "factionId": "verdant",
+          "displayName": "verdant",
+          "model": "poolside/laguna-s-2.1:free",
+          "fallbacks": [
+            "groq:openai/gpt-oss-20b",
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+          ]
+        },
+        {
+          "factionId": "amber",
+          "displayName": "amber",
+          "model": "groq:openai/gpt-oss-120b",
+          "fallbacks": [
+            "google/gemma-4-26b-a4b-it:free",
+            "nvidia/nemotron-3.5-lightning:free"
+          ]
+        }
+      ]
+    }
+  },
+  "initialState": {
+    "turn": 0,
+    "squads": [
+      {
+        "id": "amber-melee",
+        "factionId": "amber",
+        "archetype": "MELEE",
+        "position": {
+          "x": 2,
+          "y": 13
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "amber-ranged",
+        "factionId": "amber",
+        "archetype": "RANGED",
+        "position": {
+          "x": 1,
+          "y": 12
+        },
+        "hp": 8,
+        "maxHp": 8
+      },
+      {
+        "id": "azure-melee",
+        "factionId": "azure",
+        "archetype": "MELEE",
+        "position": {
+          "x": 13,
+          "y": 2
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "azure-ranged",
+        "factionId": "azure",
+        "archetype": "RANGED",
+        "position": {
+          "x": 14,
+          "y": 3
+        },
+        "hp": 8,
+        "maxHp": 8
+      },
+      {
+        "id": "crimson-melee",
+        "factionId": "crimson",
+        "archetype": "MELEE",
+        "position": {
+          "x": 2,
+          "y": 2
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "crimson-ranged",
+        "factionId": "crimson",
+        "archetype": "RANGED",
+        "position": {
+          "x": 1,
+          "y": 3
+        },
+        "hp": 8,
+        "maxHp": 8
+      },
+      {
+        "id": "verdant-melee",
+        "factionId": "verdant",
+        "archetype": "MELEE",
+        "position": {
+          "x": 13,
+          "y": 13
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "verdant-ranged",
+        "factionId": "verdant",
+        "archetype": "RANGED",
+        "position": {
+          "x": 14,
+          "y": 12
+        },
+        "hp": 8,
+        "maxHp": 8
+      }
+    ]
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2818,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1733,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1700,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1696,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged"
+        }
+      ],
+      "stateAfter": {
+        "turn": 1,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 2,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2844,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1908,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Both squads move to safe corners; melee to (15,15) and ranged to (15,13) to avoid conflicts and maintain distance.",
+          "orders": [
+            {
+              "squadId": "verdant-melee",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 15
+              }
+            },
+            {
+              "squadId": "verdant-ranged",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 13
+              }
+            }
+          ],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "groq:openai/gpt-oss-20b",
+            "fellBack": true,
+            "attempts": 4,
+            "latencyMs": 2032,
+            "promptTokens": 815,
+            "completionTokens": 584,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1798,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee",
+          "from": {
+            "x": 13,
+            "y": 13
+          },
+          "to": {
+            "x": 15,
+            "y": 15
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged",
+          "from": {
+            "x": 14,
+            "y": 12
+          },
+          "to": {
+            "x": 15,
+            "y": 13
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 2,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 15,
+              "y": 15
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 13
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 3,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2902,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1735,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1704,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1712,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged"
+        }
+      ],
+      "stateAfter": {
+        "turn": 3,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 15,
+              "y": 15
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 13
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 4,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2804,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1913,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Verdant-melee moves to (14,14) and verdant-ranged moves to (15,14) to position for upcoming engagements.",
+          "orders": [
+            {
+              "squadId": "verdant-melee",
+              "action": "MOVE",
+              "target": {
+                "x": 14,
+                "y": 14
+              }
+            },
+            {
+              "squadId": "verdant-ranged",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 14
+              }
+            }
+          ],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "groq:openai/gpt-oss-20b",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 2538,
+            "promptTokens": 815,
+            "completionTokens": 1180,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1696,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee",
+          "from": {
+            "x": 15,
+            "y": 15
+          },
+          "to": {
+            "x": 14,
+            "y": 14
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged",
+          "from": {
+            "x": 15,
+            "y": 13
+          },
+          "to": {
+            "x": 15,
+            "y": 14
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 4,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 14,
+              "y": 14
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 14
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 5,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2826,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1722,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2011,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1712,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged"
+        }
+      ],
+      "stateAfter": {
+        "turn": 5,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 14,
+              "y": 14
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 14
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 6,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2802,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1695,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Both squads have no enemies in range, so we move them towards the enemy front while avoiding collision.",
+          "orders": [
+            {
+              "squadId": "verdant-melee",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 15
+              }
+            },
+            {
+              "squadId": "verdant-ranged",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 13
+              }
+            }
+          ],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "groq:openai/gpt-oss-20b",
+            "fellBack": true,
+            "attempts": 4,
+            "latencyMs": 1850,
+            "promptTokens": 815,
+            "completionTokens": 482,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1694,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee",
+          "from": {
+            "x": 14,
+            "y": 14
+          },
+          "to": {
+            "x": 15,
+            "y": 15
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged",
+          "from": {
+            "x": 15,
+            "y": 14
+          },
+          "to": {
+            "x": 15,
+            "y": 13
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 6,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 15,
+              "y": 15
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 13
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 7,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2868,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1696,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1698,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1713,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged"
+        }
+      ],
+      "stateAfter": {
+        "turn": 7,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 15,
+              "y": 15
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 13
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 8,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2938,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1722,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "No enemies are in range, so both squads move to get closer to the front lines. Verdant-melee moves to (14,14) and verdant-ranged moves to (15,12).",
+          "orders": [
+            {
+              "squadId": "verdant-melee",
+              "action": "MOVE",
+              "target": {
+                "x": 14,
+                "y": 14
+              }
+            },
+            {
+              "squadId": "verdant-ranged",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 12
+              }
+            }
+          ],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "groq:openai/gpt-oss-20b",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 1675,
+            "promptTokens": 815,
+            "completionTokens": 558,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1698,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee",
+          "from": {
+            "x": 15,
+            "y": 15
+          },
+          "to": {
+            "x": 14,
+            "y": 14
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged",
+          "from": {
+            "x": 15,
+            "y": 13
+          },
+          "to": {
+            "x": 15,
+            "y": 12
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 8,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 14,
+              "y": 14
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 9,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2753,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1708,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1705,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1702,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged"
+        }
+      ],
+      "stateAfter": {
+        "turn": 9,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 14,
+              "y": 14
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 10,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2244,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1705,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1900,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1719,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged"
+        }
+      ],
+      "stateAfter": {
+        "turn": 10,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 14,
+              "y": 14
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 11,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2838,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1707,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Move verdant-melee to (15,15) to position closer to enemies; move verdant-ranged to (15,13) to stay within move limits and avoid collision.",
+          "orders": [
+            {
+              "squadId": "verdant-melee",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 15
+              }
+            },
+            {
+              "squadId": "verdant-ranged",
+              "action": "MOVE",
+              "target": {
+                "x": 15,
+                "y": 13
+              }
+            }
+          ],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "groq:openai/gpt-oss-20b",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 1601,
+            "promptTokens": 815,
+            "completionTokens": 752,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1709,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee",
+          "from": {
+            "x": 14,
+            "y": 14
+          },
+          "to": {
+            "x": 15,
+            "y": 15
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged",
+          "from": {
+            "x": 15,
+            "y": 12
+          },
+          "to": {
+            "x": 15,
+            "y": 13
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 11,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 15,
+              "y": 15
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 13
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    },
+    {
+      "turn": 12,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "nvidia/nemotron-3-super-120b-a12b:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 2365,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "groq:groq/compound-mini",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1712,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1786,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "",
+          "orders": [],
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 6,
+            "latencyMs": 1698,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "crimson",
+          "error": "nvidia/nemotron-3-ultra-550b-a55b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "nvidia/nemotron-3-nano-30b-a3b:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "amber",
+          "error": "nvidia/nemotron-3.5-lightning:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "amber-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "crimson-ranged"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged"
+        }
+      ],
+      "stateAfter": {
+        "turn": 12,
+        "squads": [
+          {
+            "id": "amber-melee",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 13
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-ranged",
+            "factionId": "amber",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 12
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "azure-melee",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 13,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-ranged",
+            "factionId": "azure",
+            "archetype": "RANGED",
+            "position": {
+              "x": 14,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "crimson-melee",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 2,
+              "y": 2
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-ranged",
+            "factionId": "crimson",
+            "archetype": "RANGED",
+            "position": {
+              "x": 1,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-melee",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 15,
+              "y": 15
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 15,
+              "y": 13
+            },
+            "hp": 8,
+            "maxHp": 8
+          }
+        ]
+      }
+    }
+  ],
+  "outcome": {
+    "kind": "DRAW",
+    "winner": null,
+    "reason": "Limite de 12 tours atteinte, départage impossible : 18 PV et 2 escouades à égalité.",
+    "finalTurn": 12
+  }
+}

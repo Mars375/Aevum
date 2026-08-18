@@ -20,6 +20,9 @@ export interface TurnResult {
   events: BattleEvent[];
 }
 
+/** v2 only. Absent means "nobody is allied", which is exactly v1. */
+export type AllyLookup = (a: FactionId, b: FactionId) => boolean;
+
 const key = (p: Vec2) => `${p.x},${p.y}`;
 
 /**
@@ -35,6 +38,11 @@ export function resolveTurn(
   factionOrders: readonly FactionOrders[],
   roster: readonly string[],
   gridSize: number,
+  /**
+   * v2 alliance test. Omitted at v1, where it is never consulted — which is why
+   * a v1 replay resolves identically under this engine (invariant I20).
+   */
+  areAllied?: AllyLookup,
 ): TurnResult {
   const events: BattleEvent[] = [];
   const living = new Map(state.squads.map((s) => [s.id, s]));
@@ -144,6 +152,11 @@ export function resolveTurn(
     }
     if (victim.factionId === attacker.factionId) {
       events.push({ type: "ATTACK_FRIENDLY_BLOCKED", squadId: attacker.id, at });
+      continue;
+    }
+    // v2: an ally is not a target. The attack is wasted, not redirected.
+    if (areAllied?.(victim.factionId, attacker.factionId)) {
+      events.push({ type: "ATTACK_ALLY_BLOCKED", squadId: attacker.id, at });
       continue;
     }
     damage.set(victim.id, (damage.get(victim.id) ?? 0) + stats.damage);

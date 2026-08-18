@@ -89,14 +89,81 @@ Trois corrections possibles, à trancher :
 3. **Réessayer une rotation sale** au lieu de l'écarter. Simple, mais biaise
    l'échantillon vers les moments où le palier gratuit est calme.
 
-**Recommandation : l'option 2.** C'est la seule qui améliore la statistique sans
-rien concéder sur la rigueur, et Groq l'a rendue abordable.
+**Recommandation initiale : l'option 2.** — ⚠️ **Réfutée par la mesure**, voir la
+section suivante. Augmenter le nombre de rotations dégrade le tournoi au lieu de
+l'améliorer.
+
+## Deuxième exécution — 12 rotations, et ma recommandation réfutée
+
+Le rapport ci-dessus recommandait « augmenter le nombre de rotations » comme la
+correction la plus propre. **Cette recommandation est fausse. La mesure la
+réfute.**
+
+12 rotations ont été jouées (558 appels contre 183). Résultat :
+
+| Modèle | Servi (4 rotations) | Servi (12 rotations) | Rotations propres |
+| --- | --- | --- | --- |
+| `groq:openai/gpt-oss-120b` | 100 % | **11 %** | 1/12 |
+| `groq:groq/compound-mini` | 98 % | **3 %** | 0/12 |
+| `nvidia/nemotron-3-super-120b-a12b:free` | 87 % | **51 %** | 1/12 |
+| `poolside/laguna-s-2.1:free` | 79 % | **59 %** | 2/12 |
+
+Aucune victoire n'a pu être attribuée. Le tournoi long produit **moins**
+d'information que le court.
+
+### Ce que montre la chronologie
+
+| Rotation | Taux de service moyen | Rotations propres |
+| --- | --- | --- |
+| 0 | 76 % | 2/4 |
+| 1 | 52 % | 1/4 |
+| 2 – 3 | 44 % → 40 % | 0/4 |
+| 4 – 7 | 46 % → 35 % | 1/4 puis 0 |
+| **8 – 11** | **0 %** | **0/4** |
+
+Dégradation monotone, puis **effondrement complet à partir de la rotation 8**.
+À ce stade, plus aucun général n'est servi par son propre modèle — pas une seule
+fois sur les quatre dernières rotations.
+
+### La cause, et pourquoi je m'étais trompé
+
+Le palier gratuit n'est pas seulement limité en **débit**, il l'est en **volume
+quotidien**. Le raisonnement « une bataille coûte 7 minutes, donc 12 rotations
+coûtent 1 h 30 et restent gratuites » comptait le temps. Ce qu'il fallait
+compter, ce sont les **appels** : 183 passent, 558 non.
+
+Le point de bascule observé se situe autour de **350 appels cumulés**.
+
+À noter, et c'est à mettre au crédit de l'architecture plutôt qu'à sa charge :
+**les douze batailles se sont terminées normalement**, 48 appels chacune, audit
+reproductible sur les douze. Les chaînes de repli ont fait exactement leur
+travail. Le système s'est dégradé proprement au lieu de tomber — bon en
+ingénierie, ruineux pour l'expérience, puisque tout le monde a fini par jouer
+avec le modèle de quelqu'un d'autre.
+
+### Recommandation corrigée
+
+**Rester sous ~200 appels par session**, soit 4 rotations de 12 tours. C'est le
+régime dans lequel le tournoi de référence a produit un résultat défendable.
+
+Pour aller au-delà, trois options réelles :
+
+1. **Étaler les rotations sur plusieurs jours**, une session de 4 par jour. Gratuit,
+   lent, et statistiquement propre. C'est l'option honnête.
+2. **Raccourcir les batailles** — 8 tours au lieu de 12 fait 32 appels par
+   rotation au lieu de 48, donc 6 rotations dans le même budget.
+3. **Payer.** Quelques euros lèvent la contrainte entièrement.
+
+L'option 1 est recommandée. Ce qu'il faut retenir surtout : **la contrainte du
+palier gratuit est un budget d'appels, pas un budget de temps**, et tout
+protocole qui l'ignore produira des données propres au début et du bruit ensuite.
 
 ## Reproduire
 
 ```
-npm run tournament                    # 4 rotations, graine 42
-ABS_TOURNAMENT_SEED=100 npm run tournament
+npm run tournament                              # 4 rotations, graine 42 — le régime utilisable
+ABS_TOURNAMENT_SEED=100 npm run tournament      # autre graine
+ABS_TOURNAMENT_ROTATIONS=12 npm run tournament  # possible, mais s'effondre après ~350 appels
 ```
 
 Le script écrit un checkpoint après chaque tour, donc une interruption ne coûte

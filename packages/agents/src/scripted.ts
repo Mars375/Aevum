@@ -78,5 +78,5 @@ export function chargeNearest(view: LocalView, _general: GeneralConfig): Decisio
     return hold;
   });
 
-  return { reasoning: "Scripted baseline: close on the nearest enemy, strike once in range.", orders };
+  return { reasoning: "Scripted baseline: close on the nearest enemy, strike once in range.", orders, diplomacy: null };
 }

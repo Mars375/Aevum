@@ -128,7 +128,7 @@ describe("D2 · reachability is stated per squad", () => {
 
 /** D4 — an interruption at turn 11 used to lose the whole battle. */
 describe("D4 · checkpoint and resume", () => {
-  const config = { seed: 7, maxTurns: 12, gridSize: GRID_SIZE, generals: DEFAULT_GENERALS };
+  const config = { rulesetVersion: "v1" as const, seed: 7, maxTurns: 12, gridSize: GRID_SIZE, generals: DEFAULT_GENERALS };
   const play = (extra: Record<string, unknown> = {}) =>
     runBattle({
       config,
@@ -156,7 +156,7 @@ describe("D4 · checkpoint and resume", () => {
     const cut: Replay = {
       ...full,
       turns: full.turns.slice(0, 3),
-      outcome: { kind: "DRAW", winner: null, reason: "interrompue", finalTurn: full.turns[2]!.stateAfter.turn },
+      outcome: { kind: "DRAW", winner: null, winners: [], reason: "interrompue", finalTurn: full.turns[2]!.stateAfter.turn },
     };
 
     const resumed = await play({ resumeFrom: cut });

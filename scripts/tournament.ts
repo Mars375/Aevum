@@ -30,6 +30,14 @@ if (!apiKeys.openrouter && !apiKeys.groq) {
 /** A contender is a model plus the fallback chain that travels with it. */
 const CONTENDERS = DEFAULT_GENERALS.map((g) => ({ model: g.model, fallbacks: g.fallbacks }));
 const SEED = Number(process.env.ABS_TOURNAMENT_SEED ?? 42);
+/**
+ * Rotations to play. One full cycle is CONTENDERS.length; multiples give each
+ * contender several passes through every corner. The first run used a single
+ * cycle and left three of four contenders with 0-3 clean rotations — too few to
+ * rank. More cycles is the only fix that buys statistics without loosening the
+ * cleanliness rule.
+ */
+const ROTATIONS = Number(process.env.ABS_TOURNAMENT_ROTATIONS ?? CONTENDERS.length);
 const OUT = resolve("replays/tournament");
 mkdirSync(OUT, { recursive: true });
 
@@ -48,7 +56,7 @@ interface Row {
 const rows: Row[] = [];
 const replays: Replay[] = [];
 
-for (let rotation = 0; rotation < CONTENDERS.length; rotation += 1) {
+for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
   // Rotation r gives faction i the contender (i + r) mod 4, so every contender
   // sits in every corner exactly once and no positional residue survives.
   const generals = FACTION_IDS.map((factionId, i) => {
@@ -59,7 +67,7 @@ for (let rotation = 0; rotation < CONTENDERS.length; rotation += 1) {
   const config = BattleConfigSchema.parse({ seed: SEED + rotation, maxTurns: MAX_TURNS, gridSize: GRID_SIZE, generals });
   const out = resolve(OUT, `rotation-${rotation}.json`);
 
-  console.log(`\n=== rotation ${rotation + 1}/${CONTENDERS.length} (seed ${config.seed}) ===`);
+  console.log(`\n=== rotation ${rotation + 1}/${ROTATIONS} (seed ${config.seed}) ===`);
   for (const g of generals) console.log(`  ${g.factionId.padEnd(8)} ${g.model}`);
 
   const provider = new RemoteProvider({

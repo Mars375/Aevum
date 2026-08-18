@@ -166,7 +166,7 @@ describe("RemoteProvider", () => {
 });
 
 describe("runBattle", () => {
-  const config = { seed: 42, maxTurns: 12, gridSize: GRID_SIZE, generals: DEFAULT_GENERALS };
+  const config = { rulesetVersion: "v1" as const, seed: 42, maxTurns: 12, gridSize: GRID_SIZE, generals: DEFAULT_GENERALS };
 
   it("plays a full battle offline and produces a coherent replay", async () => {
     const replay = await runBattle({

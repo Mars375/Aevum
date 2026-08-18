@@ -97,20 +97,20 @@ export async function runBattle({
           error: telemetry.error ?? "unknown",
         });
         factionOrders.push({ factionId: general.factionId, orders: [] });
-        decisions.push({ factionId: general.factionId, reasoning: "", orders: [], telemetry });
+        decisions.push({ factionId: general.factionId, reasoning: "", orders: [], diplomacy: null, telemetry });
         log(`  ${general.factionId}: unreachable after ${telemetry.attempts} attempt(s) — ${telemetry.error}`);
         continue;
       }
 
       factionOrders.push({ factionId: general.factionId, orders: decision.orders });
-      decisions.push({ factionId: general.factionId, reasoning: decision.reasoning, orders: decision.orders, telemetry });
+      decisions.push({ factionId: general.factionId, reasoning: decision.reasoning, orders: decision.orders, diplomacy: decision.diplomacy ?? null, telemetry });
       const fellBack = telemetry.fellBack ? ` (fell back to ${telemetry.servedModel})` : "";
       log(`  ${general.factionId}: ${decision.orders.length} order(s) in ${telemetry.latencyMs}ms${fellBack}`);
     }
 
     const result = resolveTurn(state, factionOrders, roster, config.gridSize);
     state = result.state;
-    turns.push({ turn: state.turn, decisions, events: [...extraEvents, ...result.events], stateAfter: state });
+    turns.push({ turn: state.turn, decisions, events: [...extraEvents, ...result.events], stateAfter: state, alliances: null });
 
     log(`turn ${state.turn}/${config.maxTurns} — ${state.squads.length} squad(s) left`);
     outcome = checkOutcome(state, config.maxTurns);
@@ -124,6 +124,7 @@ export async function runBattle({
       outcome: outcome ?? {
         kind: "DRAW",
         winner: null,
+        winners: [],
         reason: `Bataille en cours, interrompue apres le tour ${state.turn}.`,
         finalTurn: state.turn,
       },
