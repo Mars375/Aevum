@@ -80,6 +80,14 @@ tour**. C'est la borne : pas de négociation libre, pas de fil de discussion.
 Le délai de rupture est la règle qui donne son poids à une alliance : trahir
 coûte un tour pendant lequel l'allié sait et peut réagir.
 
+**Renouvellement.** Une proposition adressée à un partenaire dont la rupture est
+déjà annoncée est acceptée comme une offre de renouvellement, et non rejetée en
+`ALREADY_ALLIED`. Sans cette exception, le tour où une trahison prend effet est
+exactement celui où la réconciliation est impossible — la proposition est
+refusée parce que la rupture n'a pas encore eu lieu, et au tour suivant il n'y a
+plus d'offre à accepter. Un tour mort que personne n'a demandé. La trahison
+coûte toujours son tour : elle n'est pas annulée rétroactivement.
+
 Effets d'une alliance active :
 
 - les attaques entre alliés sont bloquées (`ATTACK_ALLY_BLOCKED`) ;
@@ -132,6 +140,7 @@ est simplement éliminée.
 | 16 | Action diplomatique visant sa propre faction | Ignorée, `SELF_TARGETED` |
 | 17 | Action visant une faction éliminée | Ignorée, `DEAD_FACTION` |
 | 18 | `BREAK_ALLIANCE` sans alliance | Ignorée, `NOT_ALLIED` |
+| 18b | `BREAK_ALLIANCE` répété pour avancer la date | Ignoré — la date d'effet ne bouge pas |
 | 19 | Attaque sur un allié | Annulée, `ATTACK_ALLY_BLOCKED` |
 | 20 | Message diplomatique démesuré | Tronqué à 200 caractères |
 

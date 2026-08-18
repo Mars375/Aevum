@@ -125,7 +125,13 @@ export function resolveDiplomacy(
     const allied = next.pairs.has(pairKey(factionId, target));
 
     if (diplomacy.action === "PROPOSE_ALLIANCE") {
-      if (allied) {
+      // An alliance with a break already queued against it is on its way out,
+      // so a proposal to that partner is a renewal offer rather than a
+      // redundant one. Without this, the turn a betrayal lands is exactly the
+      // turn reconciliation is impossible — a dead turn and a confusing
+      // rejection, for no rule anyone would want.
+      const dissolving = next.pendingBreaks.some((b) => pairKey(b.a, b.b) === pairKey(factionId, target));
+      if (allied && !dissolving) {
         events.push({ type: "DIPLOMACY_REJECTED", factionId, reason: "ALREADY_ALLIED" });
         continue;
       }
