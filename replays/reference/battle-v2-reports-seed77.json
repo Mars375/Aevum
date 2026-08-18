@@ -1,0 +1,4974 @@
+{
+  "manifest": {
+    "replayVersion": "1",
+    "rulesetVersion": "v2",
+    "contractsVersion": "2.0.0",
+    "battleId": "battle-v2-2026-08-18T23-15-30-175Z",
+    "createdAt": "2026-08-18T23:15:30.176Z",
+    "config": {
+      "rulesetVersion": "v2",
+      "seed": 77,
+      "maxTurns": 12,
+      "gridSize": 16,
+      "generals": [
+        {
+          "factionId": "crimson",
+          "displayName": "Crimson",
+          "model": "groq:openai/gpt-oss-120b",
+          "fallbacks": [
+            "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "google/gemma-4-26b-a4b-it:free"
+          ]
+        },
+        {
+          "factionId": "azure",
+          "displayName": "Azure",
+          "model": "nvidia:minimaxai/minimax-m3",
+          "fallbacks": [
+            "google/gemma-4-26b-a4b-it:free",
+            "groq:groq/compound-mini"
+          ]
+        },
+        {
+          "factionId": "verdant",
+          "displayName": "Verdant",
+          "model": "nvidia:meta/llama-3.3-70b-instruct",
+          "fallbacks": [
+            "groq:groq/compound-mini",
+            "nvidia/nemotron-3-super-120b-a12b:free"
+          ]
+        },
+        {
+          "factionId": "amber",
+          "displayName": "Amber",
+          "model": "poolside/laguna-s-2.1:free",
+          "fallbacks": [
+            "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "groq:openai/gpt-oss-20b"
+          ]
+        }
+      ]
+    }
+  },
+  "initialState": {
+    "turn": 0,
+    "squads": [
+      {
+        "id": "amber-heavy-1",
+        "factionId": "amber",
+        "archetype": "HEAVY",
+        "position": {
+          "x": 2,
+          "y": 13
+        },
+        "hp": 16,
+        "maxHp": 16
+      },
+      {
+        "id": "amber-melee-1",
+        "factionId": "amber",
+        "archetype": "MELEE",
+        "position": {
+          "x": 1,
+          "y": 12
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "amber-scout-1",
+        "factionId": "amber",
+        "archetype": "SCOUT",
+        "position": {
+          "x": 3,
+          "y": 14
+        },
+        "hp": 6,
+        "maxHp": 6
+      },
+      {
+        "id": "azure-heavy-1",
+        "factionId": "azure",
+        "archetype": "HEAVY",
+        "position": {
+          "x": 13,
+          "y": 2
+        },
+        "hp": 16,
+        "maxHp": 16
+      },
+      {
+        "id": "azure-melee-1",
+        "factionId": "azure",
+        "archetype": "MELEE",
+        "position": {
+          "x": 14,
+          "y": 3
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "azure-scout-1",
+        "factionId": "azure",
+        "archetype": "SCOUT",
+        "position": {
+          "x": 12,
+          "y": 1
+        },
+        "hp": 6,
+        "maxHp": 6
+      },
+      {
+        "id": "crimson-heavy-1",
+        "factionId": "crimson",
+        "archetype": "HEAVY",
+        "position": {
+          "x": 2,
+          "y": 2
+        },
+        "hp": 16,
+        "maxHp": 16
+      },
+      {
+        "id": "crimson-melee-1",
+        "factionId": "crimson",
+        "archetype": "MELEE",
+        "position": {
+          "x": 1,
+          "y": 3
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "crimson-scout-1",
+        "factionId": "crimson",
+        "archetype": "SCOUT",
+        "position": {
+          "x": 3,
+          "y": 1
+        },
+        "hp": 6,
+        "maxHp": 6
+      },
+      {
+        "id": "verdant-melee-1",
+        "factionId": "verdant",
+        "archetype": "MELEE",
+        "position": {
+          "x": 13,
+          "y": 13
+        },
+        "hp": 10,
+        "maxHp": 10
+      },
+      {
+        "id": "verdant-ranged-1",
+        "factionId": "verdant",
+        "archetype": "RANGED",
+        "position": {
+          "x": 14,
+          "y": 12
+        },
+        "hp": 8,
+        "maxHp": 8
+      },
+      {
+        "id": "verdant-scout-1",
+        "factionId": "verdant",
+        "archetype": "SCOUT",
+        "position": {
+          "x": 12,
+          "y": 14
+        },
+        "hp": 6,
+        "maxHp": 6
+      }
+    ]
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "All enemies are far away; move squads toward the visible enemy to close distance and scout ahead.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 3
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 4
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 16356,
+            "promptTokens": 1113,
+            "completionTokens": 146,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "Move all squads toward the visible enemy to close distance for future attacks.",
+          "orders": [
+            {
+              "squadId": "azure-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 12,
+                "y": 2
+              }
+            },
+            {
+              "squadId": "azure-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 12,
+                "y": 3
+              }
+            },
+            {
+              "squadId": "azure-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 1
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": "groq:groq/compound-mini",
+            "fellBack": true,
+            "attempts": 4,
+            "latencyMs": 50359,
+            "promptTokens": 2573,
+            "completionTokens": 518,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Since no enemies are within attack range, I will move my squads to position themselves for potential future attacks.",
+          "orders": [
+            {
+              "squadId": "verdant-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 12,
+                "y": 12
+              }
+            },
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "MOVE",
+              "target": {
+                "x": 13,
+                "y": 11
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 11,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 14457,
+            "promptTokens": 1107,
+            "completionTokens": 144,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "Enemy scout is far away; move squads toward it to close distance while keeping formation.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 13
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 12
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 14
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 6381,
+            "promptTokens": 1113,
+            "completionTokens": 148,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "COMPOSITION_REJECTED",
+          "factionId": "verdant",
+          "reason": "OVER_BUDGET"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 2,
+            "y": 13
+          },
+          "to": {
+            "x": 3,
+            "y": 13
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 1,
+            "y": 12
+          },
+          "to": {
+            "x": 3,
+            "y": 12
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-scout-1",
+          "from": {
+            "x": 3,
+            "y": 14
+          },
+          "to": {
+            "x": 6,
+            "y": 14
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-heavy-1",
+          "from": {
+            "x": 13,
+            "y": 2
+          },
+          "to": {
+            "x": 12,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-melee-1",
+          "from": {
+            "x": 14,
+            "y": 3
+          },
+          "to": {
+            "x": 12,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-scout-1",
+          "from": {
+            "x": 12,
+            "y": 1
+          },
+          "to": {
+            "x": 9,
+            "y": 1
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 2,
+            "y": 2
+          },
+          "to": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 1,
+            "y": 3
+          },
+          "to": {
+            "x": 3,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-scout-1",
+          "from": {
+            "x": 3,
+            "y": 1
+          },
+          "to": {
+            "x": 6,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee-1",
+          "from": {
+            "x": 13,
+            "y": 13
+          },
+          "to": {
+            "x": 12,
+            "y": 12
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged-1",
+          "from": {
+            "x": 14,
+            "y": 12
+          },
+          "to": {
+            "x": 13,
+            "y": 11
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-scout-1",
+          "from": {
+            "x": 12,
+            "y": 14
+          },
+          "to": {
+            "x": 11,
+            "y": 13
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 1,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 3,
+              "y": 13
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 3,
+              "y": 12
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 14
+            },
+            "hp": 6,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 12,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "azure-melee-1",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 12,
+              "y": 3
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-scout-1",
+            "factionId": "azure",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 9,
+              "y": 1
+            },
+            "hp": 6,
+            "maxHp": 6
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 3,
+              "y": 3
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 3,
+              "y": 5
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 4
+            },
+            "hp": 6,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 12,
+              "y": 12
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 13,
+              "y": 11
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 11,
+              "y": 13
+            },
+            "hp": 6,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 2,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "Move squads forward to close distance with enemies.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 4,
+                "y": 4
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 6
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 3
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "groq:openai/gpt-oss-120b",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 1409,
+            "promptTokens": 1402,
+            "completionTokens": 517,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "All squads are out of attack range, so we advance them toward the enemy cluster while staying within their movement limits.",
+          "orders": [
+            {
+              "squadId": "azure-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 11,
+                "y": 2
+              }
+            },
+            {
+              "squadId": "azure-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 10,
+                "y": 3
+              }
+            },
+            {
+              "squadId": "azure-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 2
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": "groq:groq/compound-mini",
+            "fellBack": true,
+            "attempts": 4,
+            "latencyMs": 18063,
+            "promptTokens": 2719,
+            "completionTokens": 688,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Since none of the squads can attack this turn, focus on repositioning for future turns while considering potential alliances.",
+          "orders": [
+            {
+              "squadId": "verdant-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 11,
+                "y": 11
+              }
+            },
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "MOVE",
+              "target": {
+                "x": 12,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 10,
+                "y": 14
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 18404,
+            "promptTokens": 1254,
+            "completionTokens": 146,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "We are outnumbered by two factions. Verdant is closer and stronger; propose an alliance to crimson to balance the fight. Move squads to better positions while keeping them together.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 12
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 4,
+                "y": 11
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": {
+            "action": "PROPOSE_ALLIANCE",
+            "target": "crimson",
+            "message": "Verdant is the bigger threat. Let's ally against them."
+          },
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 28365,
+            "promptTokens": 1226,
+            "completionTokens": 191,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "ALLIANCE_PROPOSED",
+          "from": "amber",
+          "to": "crimson",
+          "message": "Verdant is the bigger threat. Let's ally against them."
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 3,
+            "y": 13
+          },
+          "to": {
+            "x": 3,
+            "y": 12
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 3,
+            "y": 12
+          },
+          "to": {
+            "x": 4,
+            "y": 11
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-scout-1",
+          "from": {
+            "x": 6,
+            "y": 14
+          },
+          "to": {
+            "x": 7,
+            "y": 13
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-heavy-1",
+          "from": {
+            "x": 12,
+            "y": 2
+          },
+          "to": {
+            "x": 11,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-melee-1",
+          "from": {
+            "x": 12,
+            "y": 3
+          },
+          "to": {
+            "x": 10,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-scout-1",
+          "from": {
+            "x": 9,
+            "y": 1
+          },
+          "to": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 3,
+            "y": 3
+          },
+          "to": {
+            "x": 4,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 3,
+            "y": 5
+          },
+          "to": {
+            "x": 3,
+            "y": 6
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-scout-1",
+          "from": {
+            "x": 6,
+            "y": 4
+          },
+          "to": {
+            "x": 7,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee-1",
+          "from": {
+            "x": 12,
+            "y": 12
+          },
+          "to": {
+            "x": 11,
+            "y": 11
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged-1",
+          "from": {
+            "x": 13,
+            "y": 11
+          },
+          "to": {
+            "x": 12,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-scout-1",
+          "from": {
+            "x": 11,
+            "y": 13
+          },
+          "to": {
+            "x": 10,
+            "y": 14
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 2,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 3,
+              "y": 12
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 4,
+              "y": 11
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 13
+            },
+            "hp": 6,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 11,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "azure-melee-1",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 10,
+              "y": 3
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-scout-1",
+            "factionId": "azure",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 2
+            },
+            "hp": 6,
+            "maxHp": 6
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 4,
+              "y": 4
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 3,
+              "y": 6
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 3
+            },
+            "hp": 6,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 11,
+              "y": 11
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 12,
+              "y": 10
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 10,
+              "y": 14
+            },
+            "hp": 6,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 3,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "Accept amber alliance and press forward; scout attacks azure scout while heavy and melee reposition toward enemy lines",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 4,
+                "y": 7
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 6,
+                "y": 2
+              }
+            }
+          ],
+          "diplomacy": {
+            "action": "ACCEPT_ALLIANCE",
+            "target": "amber",
+            "message": "Alliance accepted."
+          },
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "groq:openai/gpt-oss-120b",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 2074,
+            "promptTokens": 1460,
+            "completionTokens": 898,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "Scout attacks the nearby crimson scout to weaken them; heavy holds position; melee advances to gain ground for future engagements.",
+          "orders": [
+            {
+              "squadId": "azure-heavy-1",
+              "action": "HOLD",
+              "target": {
+                "x": 11,
+                "y": 2
+              }
+            },
+            {
+              "squadId": "azure-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 11,
+                "y": 4
+              }
+            },
+            {
+              "squadId": "azure-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 3
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": "groq:groq/compound-mini",
+            "fellBack": true,
+            "attempts": 4,
+            "latencyMs": 18646,
+            "promptTokens": 2936,
+            "completionTokens": 793,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Since none of the squads can attack any enemy this turn, they will move to get closer to the enemies or to a better position.",
+          "orders": [
+            {
+              "squadId": "verdant-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 10,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "MOVE",
+              "target": {
+                "x": 11,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 42962,
+            "promptTokens": 1254,
+            "completionTokens": 150,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "Verdant proposed an alliance; accept it to avoid being caught between two factions. Move my squads to safer positions while keeping formation.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 12
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 4,
+                "y": 11
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": {
+            "action": "ACCEPT_ALLIANCE",
+            "target": "verdant",
+            "message": "Accepting your proposal. Let's crush crimson."
+          },
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 28949,
+            "promptTokens": 1297,
+            "completionTokens": 178,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "DIPLOMACY_REJECTED",
+          "factionId": "amber",
+          "reason": "NO_SUCH_PROPOSAL"
+        },
+        {
+          "type": "ALLIANCE_FORMED",
+          "a": "amber",
+          "b": "crimson"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 3,
+            "y": 12
+          },
+          "to": {
+            "x": 3,
+            "y": 12
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 4,
+            "y": 11
+          },
+          "to": {
+            "x": 4,
+            "y": 11
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-scout-1",
+          "from": {
+            "x": 7,
+            "y": 13
+          },
+          "to": {
+            "x": 7,
+            "y": 13
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-melee-1",
+          "from": {
+            "x": 10,
+            "y": 3
+          },
+          "to": {
+            "x": 11,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 4,
+            "y": 4
+          },
+          "to": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 3,
+            "y": 6
+          },
+          "to": {
+            "x": 4,
+            "y": 7
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee-1",
+          "from": {
+            "x": 11,
+            "y": 11
+          },
+          "to": {
+            "x": 10,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-ranged-1",
+          "from": {
+            "x": 12,
+            "y": 10
+          },
+          "to": {
+            "x": 11,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-scout-1",
+          "from": {
+            "x": 10,
+            "y": 14
+          },
+          "to": {
+            "x": 8,
+            "y": 13
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "azure-scout-1",
+          "targetSquadId": "crimson-scout-1",
+          "at": {
+            "x": 7,
+            "y": 3
+          },
+          "damage": 2
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-scout-1",
+          "targetSquadId": "azure-scout-1",
+          "at": {
+            "x": 6,
+            "y": 2
+          },
+          "damage": 2
+        }
+      ],
+      "stateAfter": {
+        "turn": 3,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 3,
+              "y": 12
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 4,
+              "y": 11
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 13
+            },
+            "hp": 6,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 11,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "azure-melee-1",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 11,
+              "y": 4
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-scout-1",
+            "factionId": "azure",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 2
+            },
+            "hp": 4,
+            "maxHp": 6
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 5,
+              "y": 5
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 4,
+              "y": 7
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 3
+            },
+            "hp": 4,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 10,
+              "y": 10
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 13
+            },
+            "hp": 6,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 4,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We attack the nearby azure scout with our scout and reposition heavy and melee units toward the enemy front",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 4
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 6
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 6,
+                "y": 2
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "groq:openai/gpt-oss-120b",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 1741,
+            "promptTokens": 1506,
+            "completionTokens": 669,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "Attack the visible enemy scout with the scout and reposition heavy and melee units closer for future attacks.",
+          "orders": [
+            {
+              "squadId": "azure-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 10,
+                "y": 2
+              }
+            },
+            {
+              "squadId": "azure-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 3
+              }
+            },
+            {
+              "squadId": "azure-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 3
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": "groq:groq/compound-mini",
+            "fellBack": true,
+            "attempts": 4,
+            "latencyMs": 21032,
+            "promptTokens": 2936,
+            "completionTokens": 936,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Verdant squads will move to strategic positions to prepare for future attacks, while also considering potential alliances with other factions.",
+          "orders": [
+            {
+              "squadId": "verdant-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 13
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 14
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 7633,
+            "promptTokens": 1317,
+            "completionTokens": 148,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "Verdant scout is adjacent to our scout and can be eliminated; heavy and melee reposition toward the Verdant cluster while staying out of immediate danger.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 3,
+                "y": 11
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 8,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 1838,
+            "promptTokens": 1491,
+            "completionTokens": 160,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 3,
+            "y": 12
+          },
+          "to": {
+            "x": 3,
+            "y": 11
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 4,
+            "y": 11
+          },
+          "to": {
+            "x": 5,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-heavy-1",
+          "from": {
+            "x": 11,
+            "y": 2
+          },
+          "to": {
+            "x": 10,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "azure-melee-1",
+          "from": {
+            "x": 11,
+            "y": 4
+          },
+          "to": {
+            "x": 9,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 5,
+            "y": 5
+          },
+          "to": {
+            "x": 5,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 4,
+            "y": 7
+          },
+          "to": {
+            "x": 5,
+            "y": 6
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee-1",
+          "from": {
+            "x": 10,
+            "y": 10
+          },
+          "to": {
+            "x": 9,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-scout-1",
+          "from": {
+            "x": 8,
+            "y": 13
+          },
+          "to": {
+            "x": 6,
+            "y": 14
+          }
+        },
+        {
+          "type": "ATTACK_MISSED",
+          "squadId": "amber-scout-1",
+          "at": {
+            "x": 8,
+            "y": 13
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "azure-scout-1",
+          "targetSquadId": "crimson-scout-1",
+          "at": {
+            "x": 7,
+            "y": 3
+          },
+          "damage": 2
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-scout-1",
+          "targetSquadId": "azure-scout-1",
+          "at": {
+            "x": 6,
+            "y": 2
+          },
+          "damage": 2
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "verdant-ranged-1",
+          "targetSquadId": "amber-scout-1",
+          "at": {
+            "x": 7,
+            "y": 13
+          },
+          "damage": 3
+        }
+      ],
+      "stateAfter": {
+        "turn": 4,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 3,
+              "y": 11
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 5,
+              "y": 10
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 13
+            },
+            "hp": 3,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "azure-melee-1",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 3
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "azure-scout-1",
+            "factionId": "azure",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 2
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 5,
+              "y": 4
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 5,
+              "y": 6
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 3
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 9
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 14
+            },
+            "hp": 6,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 5,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "Scout attacks the nearby azure scout while heavy and melee advance toward the azure forces.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 4
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 6,
+                "y": 2
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "groq:openai/gpt-oss-120b",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 2143,
+            "promptTokens": 1506,
+            "completionTokens": 812,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 48199,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 4,
+            "latencyMs": 63018,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-super-120b-a12b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "We are allied with crimson and facing azure and verdant. Verdant is closest to our position, so I will move my heavy and melee forward to engage, while my scout attacks the weakened verdant scout to eliminate it.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 4,
+                "y": 11
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 6,
+                "y": 14
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 35768,
+            "promptTokens": 1491,
+            "completionTokens": 194,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-super-120b-a12b:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-scout-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-scout-1"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 3,
+            "y": 11
+          },
+          "to": {
+            "x": 4,
+            "y": 11
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 5,
+            "y": 10
+          },
+          "to": {
+            "x": 7,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 5,
+            "y": 4
+          },
+          "to": {
+            "x": 6,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 5,
+            "y": 6
+          },
+          "to": {
+            "x": 6,
+            "y": 5
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "amber-scout-1",
+          "targetSquadId": "verdant-scout-1",
+          "at": {
+            "x": 6,
+            "y": 14
+          },
+          "damage": 2
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-scout-1",
+          "targetSquadId": "azure-scout-1",
+          "at": {
+            "x": 6,
+            "y": 2
+          },
+          "damage": 2
+        },
+        {
+          "type": "SQUAD_DESTROYED",
+          "squadId": "azure-scout-1",
+          "factionId": "azure"
+        }
+      ],
+      "stateAfter": {
+        "turn": 5,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 4,
+              "y": 11
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 7,
+              "y": 10
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 13
+            },
+            "hp": 3,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "azure-melee-1",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 3
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 6,
+              "y": 4
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 6,
+              "y": 5
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 3
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 9
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 14
+            },
+            "hp": 4,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 6,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We are allied with amber and outnumbered by azure and verdant. I will move my squads toward the azure forces to engage them, while keeping the scout in a position to spot enemies.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 4
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 3
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 23925,
+            "promptTokens": 1465,
+            "completionTokens": 167,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 7863,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Verdant faction is focusing on attacking visible enemies and repositioning for future turns.",
+          "orders": [
+            {
+              "squadId": "verdant-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 13510,
+            "promptTokens": 1349,
+            "completionTokens": 143,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "Verdant scout is weak and in range of my scout; eliminate it. Move heavy and melee toward the Verdant cluster to prepare for engagement, staying within reachable areas.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 11
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 6,
+                "y": 14
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 48976,
+            "promptTokens": 1467,
+            "completionTokens": 184,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee-1"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 4,
+            "y": 11
+          },
+          "to": {
+            "x": 5,
+            "y": 11
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 7,
+            "y": 10
+          },
+          "to": {
+            "x": 8,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 6,
+            "y": 4
+          },
+          "to": {
+            "x": 7,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 6,
+            "y": 5
+          },
+          "to": {
+            "x": 8,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-scout-1",
+          "from": {
+            "x": 7,
+            "y": 3
+          },
+          "to": {
+            "x": 8,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee-1",
+          "from": {
+            "x": 9,
+            "y": 9
+          },
+          "to": {
+            "x": 8,
+            "y": 10
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "amber-scout-1",
+          "targetSquadId": "verdant-scout-1",
+          "at": {
+            "x": 6,
+            "y": 14
+          },
+          "damage": 2
+        },
+        {
+          "type": "ATTACK_MISSED",
+          "squadId": "verdant-ranged-1",
+          "at": {
+            "x": 7,
+            "y": 10
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "verdant-scout-1",
+          "targetSquadId": "amber-scout-1",
+          "at": {
+            "x": 7,
+            "y": 13
+          },
+          "damage": 2
+        }
+      ],
+      "stateAfter": {
+        "turn": 6,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 5,
+              "y": 11
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 8,
+              "y": 9
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 13
+            },
+            "hp": 1,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "azure-melee-1",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 3
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 7,
+              "y": 4
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 8,
+              "y": 5
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 3
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 8,
+              "y": 10
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 14
+            },
+            "hp": 2,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 7,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We are allied with amber and face azure and verdant. Azure melee is close and damaged by our scout, so focus fire. Move heavy and melee toward the front to support, while scout attacks azure-melee.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 4
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 9,
+                "y": 3
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 31476,
+            "promptTokens": 1458,
+            "completionTokens": 200,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 2753,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "I will move my squads to optimal positions to prepare for future attacks and defend against enemy movements.",
+          "orders": [
+            {
+              "squadId": "verdant-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 8,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 23105,
+            "promptTokens": 1355,
+            "completionTokens": 143,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "Scout finishes off the weakened verdant scout; melee attacks verdant melee; heavy advances to support while staying out of immediate danger.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 8,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 6,
+                "y": 14
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 22487,
+            "promptTokens": 1460,
+            "completionTokens": 158,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee-1"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 5,
+            "y": 11
+          },
+          "to": {
+            "x": 5,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 7,
+            "y": 4
+          },
+          "to": {
+            "x": 8,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 8,
+            "y": 5
+          },
+          "to": {
+            "x": 9,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-melee-1",
+          "from": {
+            "x": 8,
+            "y": 10
+          },
+          "to": {
+            "x": 7,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-scout-1",
+          "from": {
+            "x": 6,
+            "y": 14
+          },
+          "to": {
+            "x": 5,
+            "y": 13
+          }
+        },
+        {
+          "type": "ATTACK_MISSED",
+          "squadId": "amber-melee-1",
+          "at": {
+            "x": 8,
+            "y": 10
+          }
+        },
+        {
+          "type": "ATTACK_MISSED",
+          "squadId": "amber-scout-1",
+          "at": {
+            "x": 6,
+            "y": 14
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-scout-1",
+          "targetSquadId": "azure-melee-1",
+          "at": {
+            "x": 9,
+            "y": 3
+          },
+          "damage": 2
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "verdant-ranged-1",
+          "targetSquadId": "amber-melee-1",
+          "at": {
+            "x": 8,
+            "y": 9
+          },
+          "damage": 3
+        }
+      ],
+      "stateAfter": {
+        "turn": 7,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 5,
+              "y": 10
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 8,
+              "y": 9
+            },
+            "hp": 7,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 13
+            },
+            "hp": 1,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "azure-melee-1",
+            "factionId": "azure",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 3
+            },
+            "hp": 8,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 8,
+              "y": 4
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 5
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 3
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 7,
+              "y": 10
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 5,
+              "y": 13
+            },
+            "hp": 2,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 8,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We are allied with amber and outnumbered by azure and verdant. Focus fire on azure-melee-1 with heavy and scout, while moving melee to support and threaten. No diplomatic action needed this turn.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 9,
+                "y": 3
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 9,
+                "y": 3
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 26906,
+            "promptTokens": 1451,
+            "completionTokens": 171,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 6986,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 3,
+            "latencyMs": 60289,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-super-120b-a12b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "We are allied with crimson and outnumbered by azure and verdant. Move heavy to support melee, melee attacks verdant-melee, scout moves to safety and vision.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 12
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 13791,
+            "promptTokens": 1467,
+            "completionTokens": 157,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-super-120b-a12b:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-melee-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-melee-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-scout-1"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 5,
+            "y": 10
+          },
+          "to": {
+            "x": 6,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-scout-1",
+          "from": {
+            "x": 7,
+            "y": 13
+          },
+          "to": {
+            "x": 6,
+            "y": 12
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 9,
+            "y": 5
+          },
+          "to": {
+            "x": 9,
+            "y": 5
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "amber-melee-1",
+          "targetSquadId": "verdant-melee-1",
+          "at": {
+            "x": 7,
+            "y": 10
+          },
+          "damage": 4
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-heavy-1",
+          "targetSquadId": "azure-melee-1",
+          "at": {
+            "x": 9,
+            "y": 3
+          },
+          "damage": 6
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-scout-1",
+          "targetSquadId": "azure-melee-1",
+          "at": {
+            "x": 9,
+            "y": 3
+          },
+          "damage": 2
+        },
+        {
+          "type": "SQUAD_DESTROYED",
+          "squadId": "azure-melee-1",
+          "factionId": "azure"
+        }
+      ],
+      "stateAfter": {
+        "turn": 8,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 6,
+              "y": 10
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 8,
+              "y": 9
+            },
+            "hp": 7,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 12
+            },
+            "hp": 1,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 8,
+              "y": 4
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 5
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 3
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-melee-1",
+            "factionId": "verdant",
+            "archetype": "MELEE",
+            "position": {
+              "x": 7,
+              "y": 10
+            },
+            "hp": 6,
+            "maxHp": 10
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 5,
+              "y": 13
+            },
+            "hp": 2,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 9,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We are allied with amber and outnumbered by azure and verdant. Move to support amber against verdant and position for future attacks, while keeping scout safe.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 7
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 6
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 4,
+            "latencyMs": 30838,
+            "promptTokens": 1437,
+            "completionTokens": 168,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 6904,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Prioritizing attacks on nearby enemies and moving squads to strategic positions",
+          "orders": [
+            {
+              "squadId": "verdant-melee-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 6,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 8,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 4,
+                "y": 12
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 30846,
+            "promptTokens": 1330,
+            "completionTokens": 139,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "Verdant melee is adjacent and weakened; focus fire to eliminate it. Scout should move to finish off the weak verdant scout to reduce threats.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 7,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 5,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 10615,
+            "promptTokens": 1428,
+            "completionTokens": 160,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 8,
+            "y": 4
+          },
+          "to": {
+            "x": 8,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 9,
+            "y": 5
+          },
+          "to": {
+            "x": 9,
+            "y": 7
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-scout-1",
+          "from": {
+            "x": 8,
+            "y": 3
+          },
+          "to": {
+            "x": 8,
+            "y": 6
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-scout-1",
+          "from": {
+            "x": 5,
+            "y": 13
+          },
+          "to": {
+            "x": 4,
+            "y": 12
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "amber-heavy-1",
+          "targetSquadId": "verdant-melee-1",
+          "at": {
+            "x": 7,
+            "y": 10
+          },
+          "damage": 6
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "amber-melee-1",
+          "targetSquadId": "verdant-melee-1",
+          "at": {
+            "x": 7,
+            "y": 10
+          },
+          "damage": 4
+        },
+        {
+          "type": "ATTACK_MISSED",
+          "squadId": "amber-scout-1",
+          "at": {
+            "x": 5,
+            "y": 13
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "verdant-melee-1",
+          "targetSquadId": "amber-heavy-1",
+          "at": {
+            "x": 6,
+            "y": 10
+          },
+          "damage": 4
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "verdant-ranged-1",
+          "targetSquadId": "amber-melee-1",
+          "at": {
+            "x": 8,
+            "y": 9
+          },
+          "damage": 3
+        },
+        {
+          "type": "SQUAD_DESTROYED",
+          "squadId": "verdant-melee-1",
+          "factionId": "verdant"
+        }
+      ],
+      "stateAfter": {
+        "turn": 9,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 6,
+              "y": 10
+            },
+            "hp": 12,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 8,
+              "y": 9
+            },
+            "hp": 4,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 12
+            },
+            "hp": 1,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 8,
+              "y": 5
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 7
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 6
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 4,
+              "y": 12
+            },
+            "hp": 2,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 10,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We are allied with amber and outnumber the enemies. Move to engage verdant-ranged-1 and azure-heavy-1, positioning for next turn's attacks.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 5
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 10,
+                "y": 8
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 8
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 14630,
+            "promptTokens": 1414,
+            "completionTokens": 169,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 6905,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Verdant faction needs to prioritize survival and strategic positioning for the remaining turns. Verdant-ranged-1 should attack a high-value target, while verdant-scout-1 should reposition to gain a strategic advantage.",
+          "orders": [
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 9,
+                "y": 7
+              }
+            },
+            {
+              "squadId": "verdant-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 5,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 10812,
+            "promptTokens": 1279,
+            "completionTokens": 134,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "We are allied with crimson and outnumber the remaining enemies. Move forward to close distance and prepare to attack next turn; scout moves to maintain vision on verdant-scout.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 10
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 6,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 18730,
+            "promptTokens": 1424,
+            "completionTokens": 164,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 6,
+            "y": 10
+          },
+          "to": {
+            "x": 7,
+            "y": 10
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 8,
+            "y": 9
+          },
+          "to": {
+            "x": 9,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-scout-1",
+          "from": {
+            "x": 6,
+            "y": 12
+          },
+          "to": {
+            "x": 6,
+            "y": 13
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 8,
+            "y": 5
+          },
+          "to": {
+            "x": 9,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-melee-1",
+          "from": {
+            "x": 9,
+            "y": 7
+          },
+          "to": {
+            "x": 10,
+            "y": 8
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-scout-1",
+          "from": {
+            "x": 8,
+            "y": 6
+          },
+          "to": {
+            "x": 8,
+            "y": 8
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "verdant-scout-1",
+          "from": {
+            "x": 4,
+            "y": 12
+          },
+          "to": {
+            "x": 5,
+            "y": 13
+          }
+        },
+        {
+          "type": "ATTACK_MISSED",
+          "squadId": "verdant-ranged-1",
+          "at": {
+            "x": 9,
+            "y": 7
+          }
+        }
+      ],
+      "stateAfter": {
+        "turn": 10,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 7,
+              "y": 10
+            },
+            "hp": 12,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 9
+            },
+            "hp": 4,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 13
+            },
+            "hp": 1,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 9,
+              "y": 5
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 10,
+              "y": 8
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 8
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 8,
+            "maxHp": 8
+          },
+          {
+            "id": "verdant-scout-1",
+            "factionId": "verdant",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 5,
+              "y": 13
+            },
+            "hp": 2,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 11,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We need to eliminate the verdant-ranged threat while positioning to survive the final turns. Crimson-melee can attack verdant-ranged now; heavy and scout should reposition to support and avoid being isolated.",
+          "orders": [
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 6
+              }
+            },
+            {
+              "squadId": "crimson-melee-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 11,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 9
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 36552,
+            "promptTokens": 1407,
+            "completionTokens": 167,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 6914,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 3,
+            "latencyMs": 60288,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "nvidia/nemotron-3-super-120b-a12b:free: HTTP 429"
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "Scout can finish off the weakened verdant scout; heavy and melee reposition to support against verdant ranged and azure heavy.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 9,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 5,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 18751,
+            "promptTokens": 1417,
+            "completionTokens": 156,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "verdant",
+          "error": "nvidia/nemotron-3-super-120b-a12b:free: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-ranged-1"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "verdant-scout-1"
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-heavy-1",
+          "from": {
+            "x": 7,
+            "y": 10
+          },
+          "to": {
+            "x": 7,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 9,
+            "y": 9
+          },
+          "to": {
+            "x": 9,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 9,
+            "y": 5
+          },
+          "to": {
+            "x": 9,
+            "y": 6
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-scout-1",
+          "from": {
+            "x": 8,
+            "y": 8
+          },
+          "to": {
+            "x": 8,
+            "y": 9
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "amber-scout-1",
+          "targetSquadId": "verdant-scout-1",
+          "at": {
+            "x": 5,
+            "y": 13
+          },
+          "damage": 2
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-melee-1",
+          "targetSquadId": "verdant-ranged-1",
+          "at": {
+            "x": 11,
+            "y": 9
+          },
+          "damage": 4
+        },
+        {
+          "type": "SQUAD_DESTROYED",
+          "squadId": "verdant-scout-1",
+          "factionId": "verdant"
+        }
+      ],
+      "stateAfter": {
+        "turn": 11,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 7,
+              "y": 9
+            },
+            "hp": 12,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 9,
+              "y": 9
+            },
+            "hp": 4,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 6,
+              "y": 13
+            },
+            "hp": 1,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 9,
+              "y": 6
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 10,
+              "y": 8
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 9
+            },
+            "hp": 2,
+            "maxHp": 6
+          },
+          {
+            "id": "verdant-ranged-1",
+            "factionId": "verdant",
+            "archetype": "RANGED",
+            "position": {
+              "x": 11,
+              "y": 9
+            },
+            "hp": 4,
+            "maxHp": 8
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    },
+    {
+      "turn": 12,
+      "decisions": [
+        {
+          "factionId": "crimson",
+          "reasoning": "We need to eliminate verdant-ranged-1 this turn to secure the win. Crimson-melee-1 can attack it directly, while the others reposition to support and block. No diplomatic action is needed.",
+          "orders": [
+            {
+              "squadId": "crimson-melee-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 11,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "crimson-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 10,
+                "y": 7
+              }
+            },
+            {
+              "squadId": "crimson-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 9
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "crimson",
+            "requestedModel": "groq:openai/gpt-oss-120b",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 3,
+            "latencyMs": 18955,
+            "promptTokens": 1384,
+            "completionTokens": 168,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "azure",
+          "reasoning": "",
+          "orders": [],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "azure",
+            "requestedModel": "nvidia:minimaxai/minimax-m3",
+            "servedModel": null,
+            "fellBack": false,
+            "attempts": 5,
+            "latencyMs": 6898,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "costUsd": 0,
+            "error": "groq:groq/compound-mini: HTTP 429"
+          }
+        },
+        {
+          "factionId": "verdant",
+          "reasoning": "Verdant-ranged-1 should attack amber-melee-1 to deal damage and potentially gain an advantage.",
+          "orders": [
+            {
+              "squadId": "verdant-ranged-1",
+              "action": "ATTACK",
+              "target": {
+                "x": 9,
+                "y": 9
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "verdant",
+            "requestedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "servedModel": "nvidia:meta/llama-3.3-70b-instruct",
+            "fellBack": false,
+            "attempts": 1,
+            "latencyMs": 45698,
+            "promptTokens": 1219,
+            "completionTokens": 77,
+            "costUsd": 0,
+            "error": null
+          }
+        },
+        {
+          "factionId": "amber",
+          "reasoning": "We need to close distance on verdant-ranged-1 and position for a final attack. Move heavy and melee toward it, scout to support.",
+          "orders": [
+            {
+              "squadId": "amber-heavy-1",
+              "action": "MOVE",
+              "target": {
+                "x": 8,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "amber-melee-1",
+              "action": "MOVE",
+              "target": {
+                "x": 10,
+                "y": 9
+              }
+            },
+            {
+              "squadId": "amber-scout-1",
+              "action": "MOVE",
+              "target": {
+                "x": 7,
+                "y": 13
+              }
+            }
+          ],
+          "diplomacy": null,
+          "telemetry": {
+            "factionId": "amber",
+            "requestedModel": "poolside/laguna-s-2.1:free",
+            "servedModel": "nvidia:deepseek-ai/deepseek-v4-flash-0731",
+            "fellBack": true,
+            "attempts": 2,
+            "latencyMs": 13245,
+            "promptTokens": 1400,
+            "completionTokens": 151,
+            "costUsd": 0,
+            "error": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "GENERAL_UNREACHABLE",
+          "factionId": "azure",
+          "error": "groq:groq/compound-mini: HTTP 429"
+        },
+        {
+          "type": "ORDER_MISSING",
+          "squadId": "azure-heavy-1"
+        },
+        {
+          "type": "MOVE_BLOCKED",
+          "squadId": "amber-heavy-1",
+          "attempted": {
+            "x": 8,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_BLOCKED",
+          "squadId": "crimson-scout-1",
+          "attempted": {
+            "x": 8,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-melee-1",
+          "from": {
+            "x": 9,
+            "y": 9
+          },
+          "to": {
+            "x": 10,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "amber-scout-1",
+          "from": {
+            "x": 6,
+            "y": 13
+          },
+          "to": {
+            "x": 7,
+            "y": 13
+          }
+        },
+        {
+          "type": "MOVE_OK",
+          "squadId": "crimson-heavy-1",
+          "from": {
+            "x": 9,
+            "y": 6
+          },
+          "to": {
+            "x": 10,
+            "y": 7
+          }
+        },
+        {
+          "type": "ATTACK_HIT",
+          "squadId": "crimson-melee-1",
+          "targetSquadId": "verdant-ranged-1",
+          "at": {
+            "x": 11,
+            "y": 9
+          },
+          "damage": 4
+        },
+        {
+          "type": "ATTACK_MISSED",
+          "squadId": "verdant-ranged-1",
+          "at": {
+            "x": 9,
+            "y": 9
+          }
+        },
+        {
+          "type": "SQUAD_DESTROYED",
+          "squadId": "verdant-ranged-1",
+          "factionId": "verdant"
+        },
+        {
+          "type": "FACTION_ELIMINATED",
+          "factionId": "verdant"
+        }
+      ],
+      "stateAfter": {
+        "turn": 12,
+        "squads": [
+          {
+            "id": "amber-heavy-1",
+            "factionId": "amber",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 7,
+              "y": 9
+            },
+            "hp": 12,
+            "maxHp": 16
+          },
+          {
+            "id": "amber-melee-1",
+            "factionId": "amber",
+            "archetype": "MELEE",
+            "position": {
+              "x": 10,
+              "y": 9
+            },
+            "hp": 4,
+            "maxHp": 10
+          },
+          {
+            "id": "amber-scout-1",
+            "factionId": "amber",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 7,
+              "y": 13
+            },
+            "hp": 1,
+            "maxHp": 6
+          },
+          {
+            "id": "azure-heavy-1",
+            "factionId": "azure",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 2
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-heavy-1",
+            "factionId": "crimson",
+            "archetype": "HEAVY",
+            "position": {
+              "x": 10,
+              "y": 7
+            },
+            "hp": 16,
+            "maxHp": 16
+          },
+          {
+            "id": "crimson-melee-1",
+            "factionId": "crimson",
+            "archetype": "MELEE",
+            "position": {
+              "x": 10,
+              "y": 8
+            },
+            "hp": 10,
+            "maxHp": 10
+          },
+          {
+            "id": "crimson-scout-1",
+            "factionId": "crimson",
+            "archetype": "SCOUT",
+            "position": {
+              "x": 8,
+              "y": 9
+            },
+            "hp": 2,
+            "maxHp": 6
+          }
+        ]
+      },
+      "alliances": {
+        "pairs": [
+          "amber|crimson"
+        ],
+        "surrendered": []
+      }
+    }
+  ],
+  "outcome": {
+    "kind": "VICTORY",
+    "winner": "crimson",
+    "winners": [
+      "crimson"
+    ],
+    "reason": "Limite de 12 tours atteinte ; crimson l'emporte avec 28 PV restants contre 17.",
+    "finalTurn": 12
+  },
+  "reports": [
+    {
+      "factionId": "crimson",
+      "summary": "We advanced aggressively, used the scout to weaken the enemy position, and pressed the attack to secure victory.",
+      "claims": []
+    }
+  ],
+  "audits": [
+    {
+      "factionId": "crimson",
+      "claims": [],
+      "fidelity": null,
+      "metrics": {
+        "turnsPlayed": 12,
+        "ordersIssued": 36,
+        "ordersRejected": 0,
+        "attacksLanded": 8,
+        "attacksWasted": 0,
+        "squadsLost": 0,
+        "squadsDestroyed": 5,
+        "finalHp": 28,
+        "survived": true
+      }
+    }
+  ]
+}
