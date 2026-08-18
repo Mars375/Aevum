@@ -12,6 +12,9 @@ import {
   type RememberedSquad,
   type WorldState,
   CompositionChoiceSchema,
+  FACTION_TRAITS,
+  budgetFor,
+  statsFor,
 } from "@abs/contracts";
 import {
   appendMemory,
@@ -451,5 +454,58 @@ describe("army answers are parsed, not repaired", () => {
     const parsed = CompositionChoiceSchema.parse({ squads: [{ type: "HEAVY", quantity: 3 }] });
     expect(parsed.squads).toEqual(["HEAVY", "HEAVY", "HEAVY"]);
     expect(validateComposition(parsed.squads)).toBe("OVER_BUDGET");
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe("faction traits are trades, never upgrades", () => {
+  it("pays for every bonus with a matching malus", () => {
+    for (const f of FACTION_IDS) {
+      const t = FACTION_TRAITS[f];
+      const gains = (t.budgetDelta > 0 ? 1 : 0) + (t.hpMultiplier > 1 ? 1 : 0) + (t.visionDelta > 0 ? 1 : 0);
+      const costs = (t.budgetDelta < 0 ? 1 : 0) + (t.hpMultiplier < 1 ? 1 : 0) + (t.visionDelta < 0 ? 1 : 0);
+      // A faction with an advantage must carry a disadvantage. Amber, the
+      // deliberately neutral reference, has neither.
+      expect(gains === 0 ? costs : costs, `${f} has ${gains} gains and ${costs} costs`).toBeGreaterThanOrEqual(
+        gains === 0 ? 0 : 1,
+      );
+    }
+  });
+
+  it("keeps one faction perfectly neutral as a reference point", () => {
+    expect(FACTION_TRAITS.amber).toMatchObject({ budgetDelta: 0, hpMultiplier: 1, visionDelta: 0 });
+    expect(statsFor("amber", "MELEE")).toEqual(ARCHETYPES.MELEE);
+  });
+
+  it("gives the scouting faction real reach and the entrenched one real blindness", () => {
+    expect(statsFor("azure", "SCOUT").vision).toBe(ARCHETYPES.SCOUT.vision + 2);
+    expect(statsFor("verdant", "SCOUT").vision).toBe(ARCHETYPES.SCOUT.vision - 2);
+    expect(statsFor("verdant", "HEAVY").hp).toBeGreaterThan(ARCHETYPES.HEAVY.hp);
+    expect(statsFor("crimson", "HEAVY").hp).toBeLessThan(ARCHETYPES.HEAVY.hp);
+  });
+
+  it("never reduces a statistic below a usable floor", () => {
+    for (const f of FACTION_IDS) {
+      for (const a of ["MELEE", "RANGED", "SCOUT", "HEAVY"] as const) {
+        expect(statsFor(f, a).hp).toBeGreaterThanOrEqual(1);
+        expect(statsFor(f, a).vision).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+
+  it("adjusts the army budget per faction", () => {
+    expect(budgetFor("crimson")).toBe(ARMY_BUDGET + 3);
+    expect(budgetFor("azure")).toBe(ARMY_BUDGET - 3);
+    expect(budgetFor("amber")).toBe(ARMY_BUDGET);
+    // The zealots' extra points buy something their fragility must pay back.
+    expect(validateComposition(["HEAVY", "RANGED", "SCOUT"], "crimson")).toBeNull();
+    expect(validateComposition(["HEAVY", "RANGED", "SCOUT"], "azure")).toBe("OVER_BUDGET");
+  });
+
+  it("I20 · leaves v1 deployment untouched by traits", () => {
+    // crimson's trait would cut hp by 15%; a v1 battle must not feel it.
+    const state = createInitialState(FACTION_IDS);
+    expect(state.squads.find((s) => s.id === "crimson-melee")!.hp).toBe(ARCHETYPES.MELEE.hp);
+    expect(state.squads.find((s) => s.id === "verdant-ranged")!.hp).toBe(ARCHETYPES.RANGED.hp);
   });
 });

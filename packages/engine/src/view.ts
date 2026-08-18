@@ -1,6 +1,6 @@
 import {
-  ARCHETYPES,
-  ARMY_BUDGET,
+  budgetFor,
+  statsFor,
   GRID_SIZE,
   MAX_MEMORY_ENTRIES,
   distance,
@@ -55,7 +55,9 @@ export function visibleTo(state: WorldState, faction: FactionId, allies: readonl
       continue;
     }
     // Shared vision is the first concrete benefit of an alliance.
-    if (eyes.some((e) => distance(e.position, squad.position) <= ARCHETYPES[e.archetype].vision)) seen.add(squad.id);
+    // Vision uses the looking faction's trait, so an Éclaireur really does see
+    // further and a Retranché really is short-sighted.
+    if (eyes.some((e) => distance(e.position, squad.position) <= statsFor(e.factionId, e.archetype).vision)) seen.add(squad.id);
   }
   return seen;
 }
@@ -102,7 +104,7 @@ export function localViewForV2(input: V2ViewInput): LocalView {
     allies,
     pendingProposals: proposalsTo(diplomacy, you),
     memory: input.memory.slice(-MAX_MEMORY_ENTRIES),
-    budget: { spent: input.budgetSpent, total: ARMY_BUDGET },
+    budget: { spent: input.budgetSpent, total: budgetFor(you) },
   };
 }
 

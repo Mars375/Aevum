@@ -24,3 +24,4 @@ export {
   type DiplomacyState,
   type DiplomacyInput,
 } from "./alliances.js";
+export { auditReport, verifyClaim, factionMetrics } from "./verify-report.js";

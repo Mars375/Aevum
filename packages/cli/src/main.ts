@@ -10,6 +10,7 @@ import {
   chargeNearest,
   compositionSystemPrompt,
   compositionUserPrompt,
+  collectReports,
   runBattle,
   runBattleV2,
 } from "@abs/agents";
@@ -30,6 +31,7 @@ const { values } = parseArgs({
     scripted: { type: "boolean", default: false },
     resume: { type: "boolean", default: false },
     ruleset: { type: "string", default: "v1" },
+    reports: { type: "boolean", default: false },
     help: { type: "boolean", default: false },
   },
 });
@@ -43,6 +45,8 @@ if (values.help) {
   --scripted      Play offline with the baseline AI, no API calls, no key
   --resume        Continue the replay already at --out instead of restarting
   --ruleset <v>   v1 (default) or v2: army budget, fog of war, bounded diplomacy
+  --reports       After the battle, each general writes an account, which is
+                  then checked against the replay turn by turn
   --help          This message
 
 Remote battles need OPENROUTER_API_KEY. Only ":free" models are ever called;
@@ -114,7 +118,7 @@ const replay =
         // retries, the fallback chain and the 0 EUR guard.
         buyArmy: async (factionId, general) => {
           if (!(provider instanceof RemoteProvider)) return null;
-          const raw = await provider.ask(general, compositionSystemPrompt(), compositionUserPrompt(factionId), COMPOSITION_JSON_SCHEMA);
+          const raw = await provider.ask(general, compositionSystemPrompt(factionId), compositionUserPrompt(factionId), COMPOSITION_JSON_SCHEMA);
           if (!raw) return null;
           const parsed = CompositionChoiceSchema.safeParse(JSON.parse(raw));
           return parsed.success ? (parsed.data.squads as Archetype[]) : null;
@@ -122,11 +126,21 @@ const replay =
       })
     : await runBattle({ config, provider, resumeFrom, onProgress: (m) => console.log(m), onTurn });
 
+// Battle reports come after the fighting, and are audited before they are
+// written anywhere — a report nobody checked is just a press release.
+const finalReplay =
+  values.reports && provider instanceof RemoteProvider
+    ? await (async () => {
+        console.log("\nAsking each general to account for the battle...");
+        return collectReports(replay, config.generals, provider, (m) => console.log(m));
+      })()
+    : replay;
+
 // Validate before writing: a replay that fails its own schema must never land
 // on disk and be taken for a valid artefact.
-ReplaySchema.parse(replay);
+ReplaySchema.parse(finalReplay);
 
-writeFileSync(outPath, JSON.stringify(replay, null, 2));
+writeFileSync(outPath, JSON.stringify(finalReplay, null, 2));
 
 const cost = replay.turns.flatMap((t) => t.decisions).reduce((sum, d) => sum + d.telemetry.costUsd, 0);
 const fallbacks = replay.turns
@@ -143,3 +157,9 @@ fallbacks     ${fallbacks}
 unreachable   ${unreachable}
 cost          $${cost.toFixed(4)}
 replay        ${outPath}`);
+
+for (const audit of finalReplay.audits) {
+  const fidelity = audit.fidelity === null ? "non mesurable" : `${Math.round(audit.fidelity * 100)} %`;
+  const bad = audit.claims.filter((c) => c.verdict === "CONTRADICTED").length;
+  console.log(`  ${audit.factionId.padEnd(8)} fidélité ${fidelity}${bad ? ` · ${bad} contredite(s)` : ""}`);
+}

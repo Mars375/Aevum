@@ -121,6 +121,8 @@ export async function runBattle({
       manifest,
       initialState,
       turns,
+      reports: [],
+      audits: [],
       outcome: outcome ?? {
         kind: "DRAW",
         winner: null,
@@ -131,5 +133,5 @@ export async function runBattle({
     });
   }
 
-  return { manifest, initialState, turns, outcome };
+  return { manifest, initialState, turns, outcome, reports: [], audits: [] };
 }

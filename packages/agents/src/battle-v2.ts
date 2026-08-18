@@ -1,6 +1,7 @@
 import {
   ARCHETYPES,
   CONTRACTS_VERSION,
+  budgetFor,
   CompositionChoiceSchema,
   FACTION_IDS,
   type Archetype,
@@ -77,7 +78,7 @@ export async function runBattleV2({
       log(`  ${general.factionId}: army request failed — ${(err as Error).message}`);
     }
 
-    const rejection = chosen ? validateComposition(chosen) : null;
+    const rejection = chosen ? validateComposition(chosen, general.factionId) : null;
     if (!chosen || rejection) {
       // Never repaired into something legal: the replay records the overspend.
       if (chosen && rejection) {
@@ -91,7 +92,7 @@ export async function runBattleV2({
       compositions[general.factionId] = [...DEFAULT_V2_COMPOSITION];
     } else {
       compositions[general.factionId] = chosen;
-      log(`  ${general.factionId}: ${chosen.join(" + ")} (${compositionCost(chosen)}/${20} pts)`);
+      log(`  ${general.factionId}: ${chosen.join(" + ")} (${compositionCost(chosen)}/${budgetFor(general.factionId)} pts)`);
     }
   }
 
@@ -221,6 +222,8 @@ export async function runBattleV2({
       manifest,
       initialState,
       turns,
+      reports: [],
+      audits: [],
       outcome: outcome ?? {
         kind: "DRAW",
         winner: null,
@@ -231,7 +234,7 @@ export async function runBattleV2({
     });
   }
 
-  return { manifest, initialState, turns, outcome };
+  return { manifest, initialState, turns, outcome, reports: [], audits: [] };
 }
 
 /** Ask one general to buy an army, validating the answer locally. */

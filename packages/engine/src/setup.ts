@@ -2,6 +2,8 @@ import {
   ARCHETYPES,
   ARMY_BUDGET,
   MAX_SQUADS_PER_FACTION,
+  budgetFor,
+  statsFor,
   type Archetype,
   type FactionId,
   type Squad,
@@ -78,23 +80,23 @@ export function compositionCost(composition: readonly Archetype[]): number {
  * repairs a composition to make it fit — it rejects it and substitutes the
  * default, so the replay records that the general overspent.
  */
-export function validateComposition(composition: readonly Archetype[]): CompositionRejection | null {
+export function validateComposition(
+  composition: readonly Archetype[],
+  /** Omit for the plain 20-point ceiling; pass a faction to apply its trait. */
+  factionId?: FactionId,
+): CompositionRejection | null {
   if (composition.length === 0) return "EMPTY";
   if (composition.length > MAX_SQUADS_PER_FACTION) return "TOO_MANY_SQUADS";
-  if (compositionCost(composition) > ARMY_BUDGET) return "OVER_BUDGET";
+  if (compositionCost(composition) > (factionId ? budgetFor(factionId) : ARMY_BUDGET)) return "OVER_BUDGET";
   if (!composition.some((a) => ARCHETYPES[a].damage > 0)) return "NO_OFFENSE";
   return null;
 }
 
-function makeSquad(factionId: FactionId, archetype: Archetype, id: string, position: Vec2): Squad {
-  return {
-    id,
-    factionId,
-    archetype,
-    position: { ...position },
-    hp: ARCHETYPES[archetype].hp,
-    maxHp: ARCHETYPES[archetype].hp,
-  };
+function makeSquad(factionId: FactionId, archetype: Archetype, id: string, position: Vec2, applyTrait = false): Squad {
+  // v1 never applies traits, which is half of why a v1 replay still resolves
+  // identically under this engine.
+  const hp = applyTrait ? statsFor(factionId, archetype).hp : ARCHETYPES[archetype].hp;
+  return { id, factionId, archetype, position: { ...position }, hp, maxHp: hp };
 }
 
 /** v1: one MELEE and one RANGED per faction, at the historical tiles. */
@@ -121,7 +123,9 @@ export function createInitialStateV2(compositions: Record<FactionId, readonly Ar
     const tiles = DEPLOYMENT_TILES[factionId];
     composition.forEach((archetype, i) => {
       const seen = composition.slice(0, i + 1).filter((a) => a === archetype).length;
-      squads.push(makeSquad(factionId, archetype, `${factionId}-${archetype.toLowerCase()}-${seen}`, tiles[i] ?? tiles[tiles.length - 1]!));
+      squads.push(
+        makeSquad(factionId, archetype, `${factionId}-${archetype.toLowerCase()}-${seen}`, tiles[i] ?? tiles[tiles.length - 1]!, true),
+      );
     });
   }
   squads.sort((a, b) => a.id.localeCompare(b.id));

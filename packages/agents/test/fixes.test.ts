@@ -266,3 +266,47 @@ function localViewForV2Stub(state: { turn: number; squads: any[] }) {
     budget: { spent: 14, total: 20 },
   };
 }
+
+/** A trait a general cannot see is a trait it cannot play around. */
+describe("faction traits reach the generals", () => {
+  it("shows a general its own trait and every rival's", async () => {
+    const { compositionSystemPrompt } = await import("@abs/agents");
+    const prompt = compositionSystemPrompt("azure");
+    expect(prompt).toContain("Éclaireurs");
+    expect(prompt).toContain("Zélotes"); // crimson's, so azure can plan against it
+    expect(prompt).toContain("Retranchés");
+  });
+
+  it("quotes statistics with the trait already applied, not the base ones", async () => {
+    const { compositionSystemPrompt } = await import("@abs/agents");
+    const { ARCHETYPES, statsFor } = await import("@abs/contracts");
+    // A general should not have to do the arithmetic itself.
+    expect(statsFor("azure", "SCOUT").vision).toBe(ARCHETYPES.SCOUT.vision + 2);
+    expect(compositionSystemPrompt("azure")).toContain(`vision ${statsFor("azure", "SCOUT").vision}`);
+  });
+
+  it("announces the faction's own budget, not the flat ceiling", async () => {
+    const { compositionSystemPrompt } = await import("@abs/agents");
+    const { budgetFor } = await import("@abs/contracts");
+    expect(compositionSystemPrompt("crimson")).toContain(`${budgetFor("crimson")} points`);
+    expect(compositionSystemPrompt("azure")).toContain(`${budgetFor("azure")} points`);
+  });
+
+  it("reminds the general of its trait during the battle too", async () => {
+    const { userPromptV2 } = await import("@abs/agents");
+    const { localViewForV2 } = await import("@abs/engine");
+    const { emptyDiplomacy } = await import("@abs/engine");
+    const view = localViewForV2({
+      state: { turn: 1, squads: [] },
+      you: "verdant",
+      maxTurns: 12,
+      gridSize: GRID_SIZE,
+      diplomacy: emptyDiplomacy(),
+      factions: ["crimson", "azure", "verdant", "amber"],
+      sightings: new Map(),
+      memory: [],
+      budgetSpent: 14,
+    });
+    expect(userPromptV2(view)).toContain("Retranchés");
+  });
+});

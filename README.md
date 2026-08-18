@@ -85,6 +85,8 @@ deployment tiles are unchanged, and the alliance lookup is simply absent at v1.
 | Visibility | total | fog of war, with remembered sightings |
 | Diplomacy | none | four verbs, at most one action per turn |
 | Victory | last faction standing | + joint alliance win, + surrender |
+| Factions | identical | four traits, every bonus paid for by a malus |
+| After the battle | nothing | each general writes an account, checked against the replay |
 
 Three v2 decisions worth knowing:
 
@@ -130,6 +132,7 @@ single model again. That round trip is a test
 | `docs/spec/mvp.md` | Scope, audience, what is deliberately out |
 | `docs/spec/rules.md` | Ruleset v1 — the engine's source of truth, with 11 invariants |
 | `docs/spec/rules-v2.md` | Ruleset v2 — budget, fog, diplomacy, and 9 more invariants |
+| `docs/spec/reports.md` | Battle reports, and why the replay grades them instead of a model |
 | `docs/architecture/data-contracts.md` | Why the schemas are shaped the way they are |
 | `docs/research/providers.md` | Model measurements and the roster they justify |
 | `docs/reports/reference-battle.md` | The delivered battle, and four runs of measurements |
@@ -140,11 +143,12 @@ single model again. That round trip is a test
 
 | Command | Does |
 | --- | --- |
-| `npm test` | 126 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
+| `npm test` | 153 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
 | `npm run typecheck` | `tsc --noEmit` across the workspace |
 | `npm run battle -- --scripted` | Offline battle with the baseline AI |
 | `npm run battle` | Remote battle, four free models, ~7 minutes |
 | `npm run battle -- --ruleset v2` | Same, with army budget, fog of war and diplomacy |
+| `npm run battle -- --ruleset v2 --reports` | …and each general accounts for the battle, audited against the replay |
 | `npm run battle -- --resume` | Continue the replay at `--out` instead of restarting |
 | `npm run probe` | Re-measure the free-model catalogue |
 | `npm run tournament` | 4 rotations ranking the four contenders, ~30 min |

@@ -58,6 +58,73 @@ export const ARCHETYPES: Record<Archetype, ArchetypeStats> = {
 /** Archetypes a v1 battle may contain. Guards I20 against a v2 unit leaking in. */
 export const V1_ARCHETYPES: readonly Archetype[] = ["MELEE", "RANGED"];
 
+/**
+ * Faction traits — v2 only, and deliberately small.
+ *
+ * Every trait is a trade: a bonus is always paid for by a matching malus, so no
+ * faction is simply better and the symmetry that makes model comparison honest
+ * survives. They apply to the ARMY-BUYING step and to derived statistics, never
+ * to resolution, so the engine stays free of per-faction special cases.
+ *
+ * A general is told its own trait and its rivals', because a trait it cannot
+ * see cannot be played around.
+ */
+export interface FactionTrait {
+  name: string;
+  description: string;
+  /** Extra army points, positive or negative. */
+  budgetDelta: number;
+  /** Multiplier on every squad's starting hp, rounded down. */
+  hpMultiplier: number;
+  /** Flat modifier on every squad's vision radius. */
+  visionDelta: number;
+}
+
+export const FACTION_TRAITS: Record<FactionId, FactionTrait> = {
+  crimson: {
+    name: "Zélotes",
+    description: "Frappent fort et meurent vite : 3 points de plus, mais 15 % de PV en moins.",
+    budgetDelta: 3,
+    hpMultiplier: 0.85,
+    visionDelta: 0,
+  },
+  azure: {
+    name: "Éclaireurs",
+    description: "Voient loin, frappent peu : +2 de vision partout, mais 3 points de moins.",
+    budgetDelta: -3,
+    hpMultiplier: 1,
+    visionDelta: 2,
+  },
+  verdant: {
+    name: "Retranchés",
+    description: "Encaissent et voient mal : 15 % de PV en plus, mais -2 de vision.",
+    budgetDelta: 0,
+    hpMultiplier: 1.15,
+    visionDelta: -2,
+  },
+  amber: {
+    name: "Opportunistes",
+    description: "Sans force ni faiblesse. La faction de référence, volontairement neutre.",
+    budgetDelta: 0,
+    hpMultiplier: 1,
+    visionDelta: 0,
+  },
+};
+
+/** Army budget for a faction, once its trait is applied. */
+export const budgetFor = (factionId: FactionId): number => ARMY_BUDGET + FACTION_TRAITS[factionId].budgetDelta;
+
+/** Squad statistics for a faction, once its trait is applied. Never used at v1. */
+export function statsFor(factionId: FactionId, archetype: Archetype): ArchetypeStats {
+  const base = ARCHETYPES[archetype];
+  const trait = FACTION_TRAITS[factionId];
+  return {
+    ...base,
+    hp: Math.max(1, Math.floor(base.hp * trait.hpMultiplier)),
+    vision: Math.max(1, base.vision + trait.visionDelta),
+  };
+}
+
 export const Vec2Schema = z.object({
   x: z.number().int(),
   y: z.number().int(),
@@ -306,6 +373,65 @@ export const OutcomeSchema = z.object({
 });
 export type Outcome = z.infer<typeof OutcomeSchema>;
 
+// ---------------------------------------------------------------------------
+// Battle reports and their mechanical verification.
+//
+// A general writes what it believes it did; the replay records what it
+// actually did. Every claim carries the turn it refers to, which is what makes
+// the two comparable without asking a model to referee — the defence against
+// grading an LLM with an LLM.
+// ---------------------------------------------------------------------------
+
+export const ReportClaimSchema = z.object({
+  /** 1-based turn the claim is about. */
+  turn: z.number().int(),
+  /** What the general says it decided. */
+  decision: z.string(),
+  reasoning: z.string(),
+  /** What the general says came of it. */
+  result: z.string(),
+});
+export type ReportClaim = z.infer<typeof ReportClaimSchema>;
+
+export const BattleReportSchema = z.object({
+  factionId: FactionIdSchema,
+  summary: z.string(),
+  claims: z.array(ReportClaimSchema).default([]),
+});
+export type BattleReport = z.infer<typeof BattleReportSchema>;
+
+export const CLAIM_VERDICTS = ["VERIFIED", "UNSUPPORTED", "CONTRADICTED", "OUT_OF_RANGE"] as const;
+export const ClaimVerdictSchema = z.enum(CLAIM_VERDICTS);
+export type ClaimVerdict = z.infer<typeof ClaimVerdictSchema>;
+
+export const VerifiedClaimSchema = z.object({
+  claim: ReportClaimSchema,
+  verdict: ClaimVerdictSchema,
+  /** Why the verdict, in plain terms, quoting what the replay actually holds. */
+  evidence: z.string(),
+});
+export type VerifiedClaim = z.infer<typeof VerifiedClaimSchema>;
+
+export const ReportAuditSchema = z.object({
+  factionId: FactionIdSchema,
+  claims: z.array(VerifiedClaimSchema),
+  /** Verified claims over checkable claims. Null when nothing was checkable. */
+  fidelity: z.number().nullable(),
+  /** Objective outcome measures, taken from the replay rather than the report. */
+  metrics: z.object({
+    turnsPlayed: z.number().int(),
+    ordersIssued: z.number().int(),
+    ordersRejected: z.number().int(),
+    attacksLanded: z.number().int(),
+    attacksWasted: z.number().int(),
+    squadsLost: z.number().int(),
+    squadsDestroyed: z.number().int(),
+    finalHp: z.number().int(),
+    survived: z.boolean(),
+  }),
+});
+export type ReportAudit = z.infer<typeof ReportAuditSchema>;
+
 export const GeneralConfigSchema = z.object({
   factionId: FactionIdSchema,
   displayName: z.string(),
@@ -340,6 +466,9 @@ export const ReplaySchema = z.object({
   initialState: WorldStateSchema,
   turns: z.array(TurnRecordSchema),
   outcome: OutcomeSchema,
+  /** Written after the battle, and audited against the turns above. */
+  reports: z.array(BattleReportSchema).default([]),
+  audits: z.array(ReportAuditSchema).default([]),
 });
 export type Replay = z.infer<typeof ReplaySchema>;
 

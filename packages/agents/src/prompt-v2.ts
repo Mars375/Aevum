@@ -1,9 +1,13 @@
 import {
   ARCHETYPES,
-  ARMY_BUDGET,
+  FACTION_IDS,
+  FACTION_TRAITS,
   MAX_SQUADS_PER_FACTION,
+  budgetFor,
   distance,
+  statsFor,
   type Archetype,
+  type FactionId,
   type LocalView,
   type Squad,
 } from "@abs/contracts";
@@ -11,21 +15,35 @@ import {
 /** Prompts still carry public battlefield state and nothing else. */
 
 const describe = (s: Squad) => {
-  const st = ARCHETYPES[s.archetype];
+  const st = statsFor(s.factionId, s.archetype);
   return `  - ${s.id} at (${s.position.x},${s.position.y}), ${s.hp}/${s.maxHp} HP, ${s.archetype.toLowerCase()}, move ${st.movement}, range ${st.range}, damage ${st.damage}, vision ${st.vision}`;
 };
 
-export function compositionSystemPrompt(): string {
+export function compositionSystemPrompt(factionId: FactionId = "amber"): string {
+  // Statistics are shown AS THIS FACTION WILL FIELD THEM, traits already
+  // applied — a general should not have to do the arithmetic to know what it
+  // is buying.
   const rows = (Object.keys(ARCHETYPES) as Archetype[]).map((a) => {
-    const s = ARCHETYPES[a];
+    const s = statsFor(factionId, a);
     return `  ${a.padEnd(7)} cost ${s.cost}  hp ${s.hp}  move ${s.movement}  range ${s.range}  damage ${s.damage}  vision ${s.vision}`;
   });
+  const mine = FACTION_TRAITS[factionId];
+  // Rivals' traits too: a trait you cannot see is a trait you cannot play around.
+  const rivals = FACTION_IDS.filter((f) => f !== factionId).map(
+    (f) => `  ${f.padEnd(8)} ${FACTION_TRAITS[f].name} — ${FACTION_TRAITS[f].description}`,
+  );
+
   return [
     "You are buying the army you will command in a tactical battle.",
     "",
-    `Budget: ${ARMY_BUDGET} points. You may field 1 to ${MAX_SQUADS_PER_FACTION} squads. Duplicates are allowed.`,
+    `Your faction trait: ${mine.name} — ${mine.description}`,
     "",
-    "Available squads:",
+    "Your rivals:",
+    ...rivals,
+    "",
+    `Budget: ${budgetFor(factionId)} points. You may field 1 to ${MAX_SQUADS_PER_FACTION} squads. Duplicates are allowed.`,
+    "",
+    "Available squads, with your trait already applied:",
     ...rows,
     "",
     "Visibility is limited: you only see enemies within one of your squads' vision radius,",
@@ -40,7 +58,7 @@ export function compositionSystemPrompt(): string {
 }
 
 export function compositionUserPrompt(faction: string): string {
-  return `You command the ${faction} faction. Choose your army now, before the battle starts.`;
+  return `You command the ${faction} faction. Choose your army now, before the battle starts, and say what you are betting on.`;
 }
 
 export function systemPromptV2(): string {
@@ -90,7 +108,7 @@ function reachability(view: LocalView): string[] {
   for (const squad of view.yourSquads) {
     if (!view.allies.includes(squad.factionId) && squad.factionId !== view.you) continue;
     if (squad.factionId !== view.you) continue; // you only order your own squads
-    const st = ARCHETYPES[squad.archetype];
+    const st = statsFor(squad.factionId, squad.archetype);
     const inRange = foes.filter((e) => distance(squad.position, e.position) <= st.range);
     const lo = { x: Math.max(0, squad.position.x - st.movement), y: Math.max(0, squad.position.y - st.movement) };
     const hi = { x: Math.min(gridMax, squad.position.x + st.movement), y: Math.min(gridMax, squad.position.y + st.movement) };
@@ -108,12 +126,14 @@ function reachability(view: LocalView): string[] {
 }
 
 export function userPromptV2(view: LocalView): string {
+  const trait = FACTION_TRAITS[view.you];
   const mine = view.yourSquads.filter((s) => s.factionId === view.you);
   const allied = view.yourSquads.filter((s) => s.factionId !== view.you);
 
   const lines = [
     `Turn ${view.turn + 1} of ${view.maxTurns}. You command the ${view.you} faction on a ${view.gridSize}x${view.gridSize} grid.`,
     `Tiles run from (0,0) top-left to (${view.gridSize - 1},${view.gridSize - 1}) bottom-right.`,
+    `Your trait: ${trait.name} — ${trait.description}`,
     "",
     "Your squads:",
     ...mine.map(describe),
