@@ -13,7 +13,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { BattleConfigSchema, FACTION_IDS, GRID_SIZE, MAX_TURNS, ReplaySchema, type FactionId, type Replay } from "@abs/contracts";
 import { resolveTurn } from "@abs/engine";
-import { DEFAULT_GENERALS, RemoteProvider, runBattle } from "@abs/agents";
+import { DEFAULT_GENERALS, RemoteProvider, collectReports, runBattle } from "@abs/agents";
 
 try {
   process.loadEnvFile(resolve(process.cwd(), ".env"));
@@ -38,6 +38,8 @@ const SEED = Number(process.env.ABS_TOURNAMENT_SEED ?? 42);
  * cleanliness rule.
  */
 const ROTATIONS = Number(process.env.ABS_TOURNAMENT_ROTATIONS ?? CONTENDERS.length);
+/** Ask each general to account for its battle, and audit the account. */
+const WITH_REPORTS = process.env.ABS_TOURNAMENT_REPORTS !== "0";
 const OUT = resolve("replays/tournament");
 mkdirSync(OUT, { recursive: true });
 
@@ -51,6 +53,13 @@ interface Row {
   finalHp: number;
   won: boolean;
   survived: boolean;
+  /**
+   * Share of this general's checkable report claims the replay confirms.
+   * Null when it wrote nothing checkable — never conflated with zero.
+   */
+  fidelity: number | null;
+  attacksLanded: number;
+  attacksWasted: number;
 }
 
 const rows: Row[] = [];
@@ -77,7 +86,7 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
     freeModelsOnly: process.env.ABS_FREE_MODELS_ONLY !== "0",
   });
 
-  const replay = await runBattle({
+  let replay = await runBattle({
     config,
     provider,
     battleId: `tournament-r${rotation}`,
@@ -86,6 +95,11 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
       if (m.startsWith("turn ")) console.log(`  ${m}`);
     },
   });
+  // Reports cost one extra call per general. Worth it: fidelity measures
+  // something about the model itself, where a win depends heavily on luck and
+  // on whichever quota happened to hold.
+  if (WITH_REPORTS) replay = await collectReports(replay, generals, provider, (m) => console.log(m));
+
   ReplaySchema.parse(replay);
   writeFileSync(out, JSON.stringify(replay, null, 2));
   replays.push(replay);
@@ -94,6 +108,7 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
     const calls = replay.turns.flatMap((t) => t.decisions).filter((d) => d.factionId === g.factionId);
     const served = calls.filter((d) => d.telemetry.servedModel === g.model).length;
     const squads = replay.turns.at(-1)!.stateAfter.squads.filter((s) => s.factionId === g.factionId);
+    const audit = replay.audits.find((a) => a.factionId === g.factionId);
     rows.push({
       rotation,
       faction: g.factionId,
@@ -101,8 +116,11 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
       serviceRate: calls.length ? served / calls.length : 0,
       calls: calls.length,
       finalHp: squads.reduce((n, s) => n + s.hp, 0),
-      won: replay.outcome.winner === g.factionId,
+      won: replay.outcome.winner === g.factionId || replay.outcome.winners.includes(g.factionId),
       survived: squads.length > 0,
+      fidelity: audit?.fidelity ?? null,
+      attacksLanded: audit?.metrics.attacksLanded ?? 0,
+      attacksWasted: audit?.metrics.attacksWasted ?? 0,
     });
   }
   console.log(`  -> ${replay.outcome.kind}${replay.outcome.winner ? ` ${replay.outcome.winner}` : ""}`);
@@ -139,6 +157,12 @@ const table = [...byModel.entries()]
   .map(([model, rs]) => {
     const clean = rs.filter((r) => r.serviceRate >= CLEAN);
     const avgService = rs.reduce((n, r) => n + r.serviceRate, 0) / rs.length;
+    // Fidelity is averaged over rotations where it was measurable at all, and
+    // over CLEAN ones only — grading a report written by somebody else's model
+    // would measure the fallback, not the contender.
+    const scored = clean.filter((r) => r.fidelity !== null);
+    const landed = clean.reduce((n, r) => n + r.attacksLanded, 0);
+    const wasted = clean.reduce((n, r) => n + r.attacksWasted, 0);
     return {
       model,
       rotations: rs.length,
@@ -147,6 +171,9 @@ const table = [...byModel.entries()]
       wins: clean.filter((r) => r.won).length,
       survived: clean.filter((r) => r.survived).length,
       hp: clean.reduce((n, r) => n + r.finalHp, 0),
+      fidelity: scored.length ? scored.reduce((n, r) => n + (r.fidelity ?? 0), 0) / scored.length : null,
+      fidelitySamples: scored.length,
+      accuracy: landed + wasted > 0 ? landed / (landed + wasted) : null,
       rankable: clean.length > 0,
     };
   })
@@ -159,14 +186,25 @@ for (const t of table) {
 }
 
 console.log("\n=== RANKING (clean rotations only) ===");
-console.log("model".padEnd(46) + "wins  survived  hp");
+console.log("model".padEnd(46) + "wins  survived  hp   accuracy  fidelity");
 for (const t of table) {
   if (!t.rankable) {
     console.log(`${t.model.padEnd(46)}NOT RANKED — never played a full battle on its own model`);
     continue;
   }
-  console.log(`${t.model.padEnd(46)}${String(t.wins).padStart(4)}  ${String(t.survived).padStart(8)}  ${String(t.hp).padStart(3)}`);
+  const acc = t.accuracy === null ? "  n/a" : `${(t.accuracy * 100).toFixed(0).padStart(4)}%`;
+  // "n/a" and 0% are different findings and must not look alike.
+  const fid = t.fidelity === null ? "     n/a" : `${(t.fidelity * 100).toFixed(0).padStart(6)}% (${t.fidelitySamples})`;
+  console.log(
+    `${t.model.padEnd(46)}${String(t.wins).padStart(4)}  ${String(t.survived).padStart(8)}  ${String(t.hp).padStart(3)}   ${acc}  ${fid}`,
+  );
 }
+console.log(
+  "\naccuracy = attacks landed / attacks attempted, from the replay." +
+    "\nfidelity = report claims the replay confirms, over checkable claims; the count in" +
+    "\n           brackets is how many rotations it could be measured on. A win depends" +
+    "\n           heavily on luck and on which quota held; fidelity does not.",
+);
 
 const totalCalls = replays.flatMap((r) => r.turns).flatMap((t) => t.decisions).length;
 const cost = replays.flatMap((r) => r.turns).flatMap((t) => t.decisions).reduce((n, d) => n + d.telemetry.costUsd, 0);

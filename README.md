@@ -71,6 +71,20 @@ Every one of these was a wrong first guess corrected by evidence
 When a whole chain fails, the squads hold and the replay says
 `GENERAL_UNREACHABLE`. The client never invents an order to cover the gap.
 
+## What the tournament measures
+
+Wins, and two things that are less noisy than winning:
+
+- **accuracy** — attacks landed over attacks attempted, read from the replay.
+- **fidelity** — the share of a general's report claims the replay confirms.
+
+A win leans heavily on luck and on whichever quota happened to hold. Fidelity
+does not: it measures whether a model can give a true account of what it
+actually did. Two models can win equally often and differ completely here.
+
+Both are reported beside wins, never folded into them, and a model that never
+played a full battle on its own model is reported NOT RANKED rather than last.
+
 ## Two rulesets
 
 `v1` is frozen. `v2` extends it, and both are playable — the engine picks from
@@ -152,7 +166,7 @@ single model again. That round trip is a test
 | `npm run battle -- --ruleset v2 --reports` | …and each general accounts for the battle, audited against the replay |
 | `npm run battle -- --resume` | Continue the replay at `--out` instead of restarting |
 | `npm run probe` | Re-measure the free-model catalogue |
-| `npm run tournament` | 4 rotations ranking the four contenders, ~30 min |
+| `npm run tournament` | 4 rotations ranking the four contenders on wins, accuracy and report fidelity |
 | `npm run healthcheck` | Container and clone liveness |
 | `npm run player:dev` | Replay viewer on :5173 |
 | `docker compose up -d --build` | Serve the player and `./replays` on :8088 |
