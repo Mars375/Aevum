@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { newCiv, type DecisionPoint } from "@abs/world";
 import type { GeneralConfig } from "@abs/contracts";
 import { askRuler, RULING_JSON_SCHEMA, systemPromptWorld, userPromptWorld, type RulerProvider } from "../src/index.js";
@@ -262,5 +262,65 @@ describe("un serment ecrit comme on l'ecrirait naturellement", () => {
     for (const field of ["reasoning", "claim", "posture", "vowMetric", "creed", "farming"]) {
       expect(usr, field).toContain(field);
     }
+  });
+});
+
+describe("un dirigeant attend son propre modele plutot que de ceder la main", () => {
+  /**
+   * Regle payee une rotation entiere : gpt-oss-120b n'a repondu qu'a 1 de ses
+   * 25 decisions sur quatre mondes, non parce qu'il etait injoignable mais
+   * parce qu'un budget de jetons partage le rendait brievement lent, et que
+   * cette boucle passait aussitot la question a un repli. Un monde gouverne par
+   * le modele de quelqu'un d'autre n'est pas une mesure de celui-ci.
+   *
+   * `call` tenait deja cette regle depuis le tournoi v2 ; `ask`, que le monde
+   * utilise, ne l'avait jamais eue.
+   */
+  const answer = JSON.stringify({ reasoning: "r", creed: "c", farming: 5, forestry: 1, mining: 1, trade: 1, military: 1 });
+
+  const reply = (body: string) =>
+    new Response(JSON.stringify({ choices: [{ message: { content: body } }], usage: {} }), { status: 200 });
+  const busy = () => new Response("{}", { status: 429, headers: { "retry-after": "2" } });
+
+  const chained: GeneralConfig = {
+    factionId: "crimson",
+    displayName: "Crimson",
+    model: "primaire:free",
+    fallbacks: ["repli:free"],
+  };
+
+  it("le primaire est represse avant qu'un repli soit sollicite", async () => {
+    const { RemoteProvider } = await import("../src/index.js");
+    const seen: string[] = [];
+    const fetchImpl = vi.fn(async (_url: string, init: any) => {
+      const model = JSON.parse(init.body).model as string;
+      seen.push(model);
+      // Le primaire est occupe une fois, puis repond.
+      if (model === "primaire:free") return seen.filter((m) => m === "primaire:free").length === 1 ? busy() : reply(answer);
+      return reply(answer);
+    });
+    const provider = new RemoteProvider({ apiKeys: { openrouter: "k" }, fetchImpl: fetchImpl as any, sleepImpl: async () => {} });
+
+    const ruling = await askRuler(provider, chained, newCiv("crimson"), point);
+    expect(ruling).not.toBeNull();
+    // Deux passages sur le primaire, et le repli jamais appele.
+    expect(seen.filter((m) => m === "primaire:free")).toHaveLength(2);
+    expect(seen).not.toContain("repli:free");
+  });
+
+  it("mais un primaire qui ne repond jamais finit par ceder la main", async () => {
+    const { RemoteProvider } = await import("../src/index.js");
+    const seen: string[] = [];
+    const fetchImpl = vi.fn(async (_url: string, init: any) => {
+      const model = JSON.parse(init.body).model as string;
+      seen.push(model);
+      return model === "primaire:free" ? busy() : reply(answer);
+    });
+    const provider = new RemoteProvider({ apiKeys: { openrouter: "k" }, fetchImpl: fetchImpl as any, sleepImpl: async () => {} });
+
+    const ruling = await askRuler(provider, chained, newCiv("crimson"), point);
+    expect(ruling).not.toBeNull();
+    expect(seen).toContain("repli:free");
+    expect(provider.lastModel()).toBe("repli:free");
   });
 });

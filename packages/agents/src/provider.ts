@@ -235,7 +235,25 @@ export class RemoteProvider implements OrderProvider {
     this.lastAskModel = null;
     const reasons: string[] = [];
 
-    for (const model of [general.model, ...general.fallbacks]) {
+    const chain = [general.model, ...general.fallbacks];
+
+    for (const [position, model] of chain.entries()) {
+      /**
+       * Identity outranks speed for a primary — the same rule `call` has held
+       * since the v2 tournament, and which this path never got.
+       *
+       * It cost a whole rotation to notice: `gpt-oss-120b` answered 1 of its 25
+       * decisions across four worlds, not because it was unreachable but
+       * because a shared token budget made it briefly slow, and this loop
+       * handed the question to a fallback instead of waiting. A world governed
+       * by somebody else's model is not a measurement of this one.
+       */
+      const isPrimary = position === 0;
+      const hasAlternative = position < chain.length - 1;
+      const waitBudget = isPrimary ? WAIT_FOR_OWN_MODEL_MS : hasAlternative ? HOP_INSTEAD_OF_WAITING_MS : MAX_BACKOFF_MS;
+      // A primary is also worth pressing harder before giving its turn away.
+      const attempts = isPrimary ? this.opts.attemptsPerModel + 1 : this.opts.attemptsPerModel;
+
       if (this.opts.freeModelsOnly && !isFreeRef(model)) {
         reasons.push(`${model}: paid`);
         continue;
@@ -245,12 +263,12 @@ export class RemoteProvider implements OrderProvider {
         reasons.push(`${model}: no key`);
         continue;
       }
-      if (!(await this.waitIfDrained(ref.provider, this.tokensFor(ref.provider), MAX_BACKOFF_MS))) {
+      if (!(await this.waitIfDrained(ref.provider, this.tokensFor(ref.provider), waitBudget))) {
         reasons.push(`${model}: budget drained`);
         continue;
       }
 
-      for (let attempt = 1; attempt <= this.opts.attemptsPerModel; attempt += 1) {
+      for (let attempt = 1; attempt <= attempts; attempt += 1) {
         try {
           const res = await this.opts.fetchImpl(ENDPOINTS[ref.provider].url, {
             method: "POST",
@@ -296,8 +314,15 @@ export class RemoteProvider implements OrderProvider {
             reasons.push(`${model}: ${why}`);
             break;
           }
-          if (attempt < this.opts.attemptsPerModel) {
-            await this.opts.sleepImpl(Math.min(err.retryAfterMs ?? 500 * 2 ** (attempt - 1), MAX_BACKOFF_MS));
+          if (attempt < attempts) {
+            const asked = err.retryAfterMs ?? 500 * 2 ** (attempt - 1);
+            // A primary waits out what the provider asked for; a fallback with
+            // somewhere else to go does not.
+            if (asked > waitBudget) {
+              reasons.push(`${model}: ${why} (attente ${Math.round(asked / 1000)}s trop longue)`);
+              break;
+            }
+            await this.opts.sleepImpl(Math.min(asked, MAX_BACKOFF_MS));
           } else {
             reasons.push(`${model}: ${why}`);
           }
