@@ -45,7 +45,15 @@ const arg = (name: string, fallback: string) => {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1]! : fallback;
 };
 
-const TICKS = Number(arg("ticks", "150"));
+/**
+ * Sixty years, not a hundred and fifty.
+ *
+ * Measured offline by scripts/board-fairness.ts: the board's own noise grows
+ * with the horizon — a relative spread of 0.21 at 60 years, 0.32 at 120, 0.56
+ * at 320. Luck compounds faster than governance does, so a longer run is not a
+ * better measurement, only a more expensive one. Short courses, many of them.
+ */
+const TICKS = Number(arg("ticks", "60"));
 const ROTATIONS = Number(arg("rotations", String(DEFAULT_GENERALS.length)));
 /**
  * Seeds, not just rotations.
@@ -142,6 +150,28 @@ for (const run of runs) {
   console.log(`graine ${run.seed} rotation ${run.r} — ${run.generals.map((g) => `${g.factionId}:${g.model}`).join("  ")}`);
 }
 
+/**
+ * What this run will cost, and what it could prove — before a call is spent.
+ *
+ * The board's standard deviation is 5.6 places (board-fairness.ts, 24 worlds),
+ * so a model's mean is only as sharp as the number of courses behind it. Saying
+ * so up front turns "let's run a rotation" into a decision with a number on it.
+ */
+const toLive = runs.reduce((n, run) => n + Math.max(0, TICKS - run.world.tick), 0);
+// About one decision per civilisation per fifteen years, measured across worlds.
+const expected = Math.round((toLive / 15) * FACTIONS.length);
+const BOARD_SD = 5.6;
+const courses = runs.length;
+const stderr = BOARD_SD / Math.sqrt(courses);
+console.log(
+  `\n${courses} courses, ${toLive} annees a vivre, environ ${expected} appels (~${Math.round(expected / FACTIONS.length)} par modele).\n` +
+    `Erreur type attendue : ${stderr.toFixed(1)} lieux, donc un ecart credible entre deux modeles\n` +
+    `demande environ ${(stderr * 2).toFixed(1)} lieux. En dessous, la carte parle plus fort que le dirigeant.\n`,
+);
+
+/** A model this starved is not being measured; running on would only spend quota. */
+const STARVED_BELOW = 0.5;
+
 let pass = 0;
 while (runs.some((run) => run.world.tick < TICKS)) {
   pass += 1;
@@ -163,6 +193,31 @@ while (runs.some((run) => run.world.tick < TICKS)) {
     });
     run.world = result.world;
     writeFileSync(run.path, JSON.stringify(run.journal, null, 2));
+  }
+
+  // Checked between passes, once every course has had a turn: a model that
+  // stops answering makes the rest of the run unusable, and the last rotation
+  // taught that the cost of finding out afterwards is the whole run.
+  const served = new Map<string, { own: number; total: number }>();
+  for (const run of runs) {
+    for (const g of run.generals) {
+      const mine = run.journal.rulings.filter((x) => x.civ === g.factionId);
+      const acc = served.get(g.model) ?? { own: 0, total: 0 };
+      acc.total += mine.length;
+      acc.own += mine.filter((x) => x.model === g.model).length;
+      served.set(g.model, acc);
+    }
+  }
+  const starved = [...served].filter(([, a]) => a.total >= 6 && a.own / a.total < STARVED_BELOW);
+  if (starved.length > 0) {
+    console.log(
+      `\nARRET : ${starved
+        .map(([m, a]) => `${m} n'a servi que ${a.own}/${a.total} de ses decisions`)
+        .join(", ")}.\n` +
+        `Continuer ne mesurerait que sa chaine de repli. Les courses deja vecues sont conservees\n` +
+        `et la meme commande reprendra ou elle s'est arretee quand le quota sera revenu.\n`,
+    );
+    break;
   }
 }
 
