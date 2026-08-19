@@ -108,6 +108,35 @@ Après correction : **20 décisions retenues sur 25 consultations** contre 6 sur
 18 avant, sur un monde de 60 ans, les cinq échecs restants étant des HTTP 429
 — du quota, pas un défaut.
 
+### La terre est finie
+
+Quatre civilisations qui ne se voient jamais ne font pas une civilisation, elles
+font quatre solitudes. Ce qui les met en contact n'est pas un système
+diplomatique, c'est une contrainte : **le monde a 80 terres, pas une de plus**.
+Tant qu'il en reste, chacune grandit sans rencontrer personne ; le jour où il
+n'en reste plus, chaque arpent gagné est un arpent perdu par un voisin, et une
+politique étrangère devient nécessaire.
+
+Trois postures, tenues jusqu'à ce qu'un dirigeant en change :
+
+- **TRADE** enrichit, mais seulement si un voisin commerce aussi — on ne
+  s'enrichit pas en déclarant sa bonne volonté à qui s'arme contre soi ;
+- **GUARD** ne prend rien à personne et rend cher à attaquer ;
+- **PRESSURE** prend une terre par la force si les soldats dépassent nettement
+  la défense adverse, et coûte des soldats même quand elle réussit — sans quoi
+  ce serait la seule posture rationnelle.
+
+La posture appartient à la doctrine et non à côté : comme les parts de travail,
+c'est une politique permanente qui tient jusqu'à révision. Une seule posture, et
+non une par voisin : W5 existe précisément parce que quatre questions posées
+d'un coup reçoivent quatre réponses médiocres.
+
+La même mesure hors ligne, doctrines figées, donne maintenant 116 points pour
+500 tours (17,2x) — et **toutes les civilisations s'éteignent à l'an 192**,
+étouffées par une terre qu'elles ne peuvent plus prendre. C'est le pire cas
+assumé : une civilisation qui n'adapte jamais sa doctrine meurt quand le monde
+se referme. Les dirigeants existent pour ça.
+
 À 92 points pour 500 tours, un quota gratuit d'environ 350 appels par jour fait
 vivre à peu près **1900 tours de monde par jour**. C'est ce chiffre qui décide
 si le projet tient, et il est mesuré, pas supposé.

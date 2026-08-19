@@ -17,11 +17,10 @@ import type { GeneralConfig } from "@abs/contracts";
 import { DEFAULT_GENERALS, RemoteProvider, askRuler } from "@abs/agents";
 import {
   JournalSchema,
-  WORLD_VERSION,
   applyRuling,
   detectDecisions,
-  newCiv,
   newJournal,
+  newWorld,
   replay,
   tickWorld,
   type Journal,
@@ -54,7 +53,7 @@ const FACTIONS = DEFAULT_GENERALS.map((g) => g.factionId);
 
 function load(): Journal {
   if (!existsSync(PATH)) {
-    const origin: World = { worldVersion: WORLD_VERSION, tick: 0, seed: SEED, civs: FACTIONS.map(newCiv) };
+    const origin: World = newWorld(FACTIONS, SEED);
     return newJournal(origin);
   }
   return JournalSchema.parse(JSON.parse(readFileSync(PATH, "utf8")));

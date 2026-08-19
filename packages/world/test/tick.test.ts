@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { newCiv, season, shares, tickWorld, WORLD_VERSION, type World } from "../src/index.js";
+import { newCiv, newWorld, season, shares, tickWorld, type World } from "../src/index.js";
 
 const world = (over: Partial<World> = {}): World => ({
-  worldVersion: WORLD_VERSION,
-  tick: 0,
-  seed: 42,
-  civs: [newCiv("crimson"), newCiv("azure"), newCiv("verdant"), newCiv("amber")],
+  ...newWorld(["crimson", "azure", "verdant", "amber"], 42),
   ...over,
 });
 
@@ -91,12 +88,12 @@ describe("les saisons sont deterministes", () => {
 
 describe("les parts de doctrine sont normalisees", () => {
   it("accepte n'importe quelle echelle", () => {
-    const a = shares({ farming: 1, forestry: 1, mining: 1, trade: 1, military: 1, creed: "" });
-    const b = shares({ farming: 40, forestry: 40, mining: 40, trade: 40, military: 40, creed: "" });
+    const a = shares({ farming: 1, forestry: 1, mining: 1, trade: 1, military: 1, posture: "GUARD", creed: "" });
+    const b = shares({ farming: 40, forestry: 40, mining: 40, trade: 40, military: 40, posture: "GUARD", creed: "" });
     expect(a).toEqual(b);
   });
 
   it("une doctrine entierement a zero nourrit plutot que de tout bloquer", () => {
-    expect(shares({ farming: 0, forestry: 0, mining: 0, trade: 0, military: 0, creed: "" }).farming).toBe(1);
+    expect(shares({ farming: 0, forestry: 0, mining: 0, trade: 0, military: 0, posture: "GUARD", creed: "" }).farming).toBe(1);
   });
 });

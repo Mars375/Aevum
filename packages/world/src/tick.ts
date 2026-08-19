@@ -25,7 +25,12 @@ export interface TickEvent {
     | "COLLAPSED"
     | "SURPLUS"
     | "SHORTAGE"
-    | "HARD_YEAR";
+    | "HARD_YEAR"
+    /** The world has no unclaimed land left. From here, growth is at someone's expense. */
+    | "LAND_FULL"
+    | "SEIZED"
+    | "CEDED"
+    | "TRADED";
   detail: string;
 }
 
@@ -103,7 +108,7 @@ function produce(civ: Civ, harvest: number): Stock {
   };
 }
 
-function tickCiv(civ: Civ, tick: number, harvest: number): { civ: Civ; events: TickEvent[] } {
+function tickCiv(civ: Civ, tick: number, harvest: number, freeLand: number): { civ: Civ; events: TickEvent[] } {
   const events: TickEvent[] = [];
   const say = (kind: TickEvent["kind"], detail: string) => events.push({ tick, civ: civ.id, kind, detail });
 
@@ -148,7 +153,12 @@ function tickCiv(civ: Civ, tick: number, harvest: number): { civ: Civ; events: T
 
   // Expansion is bought with timber and people, and only while both allow.
   const wantsLand = population / 25 > territory;
-  if (wantsLand && stock.timber >= 60) {
+  if (wantsLand && freeLand <= 0) {
+    // Not a failure — a fact the ruler needs. Expansion from here is a foreign
+    // policy question, not a forestry one.
+    say("LAND_FULL", "plus une terre libre dans le monde");
+  }
+  if (wantsLand && freeLand > 0 && stock.timber >= 60) {
     stock.timber = round2(stock.timber - 60);
     territory += 1;
     say("EXPANDED", `frontiere portee a ${territory}`);
@@ -190,16 +200,70 @@ export function tickWorld(world: World): TickResult {
   // year is something neighbours can talk about rather than private bad luck.
   const harvest = season(world.seed, tick);
   const events: TickEvent[] = [];
+  const freeLand = world.land - world.civs.reduce((n, c) => n + c.territory, 0);
   // Canonical id order, as everywhere else in this project: the result must not
   // depend on the order civilisations happen to sit in the array.
   const civs = [...world.civs]
     .sort((a, b) => a.id.localeCompare(b.id))
     .map((civ) => {
       if (!isAlive(civ)) return civ;
-      const r = tickCiv(civ, tick, harvest);
+      const r = tickCiv(civ, tick, harvest, freeLand);
       events.push(...r.events);
       return r.civ;
     });
 
-  return { world: { ...world, tick, civs }, events };
+  return { world: { ...world, tick, civs: contact(civs, tick, events) }, events };
+}
+
+/**
+ * What civilisations do to each other.
+ *
+ * Deliberately thin. The engine decides outcomes; postures are what rulers
+ * chose, and this only resolves them. Everything here is a pure function of
+ * the civilisation list in canonical id order, so contact cannot depend on who
+ * happens to be first in the array.
+ */
+function contact(civs: Civ[], tick: number, events: TickEvent[]): Civ[] {
+  const alive = civs.filter(isAlive);
+  if (alive.length < 2) return civs;
+
+  const byId = new Map(civs.map((c) => [c.id, { ...c }]));
+
+  // Trade is mutual or it does not happen: a civilisation cannot enrich itself
+  // by declaring goodwill at someone who is arming against it.
+  const traders = alive.filter((c) => c.doctrine.posture === "TRADE");
+  if (traders.length >= 2) {
+    for (const c of traders) {
+      const partner = byId.get(c.id)!;
+      const gain = Math.round(partner.population * 0.05);
+      partner.stock = { ...partner.stock, wealth: round2(partner.stock.wealth + gain) };
+      events.push({ tick, civ: c.id, kind: "TRADED", detail: `commerce avec ${traders.length - 1} voisin(s), +${gain} richesse` });
+    }
+  }
+
+  for (const aggressor of alive.filter((c) => c.doctrine.posture === "PRESSURE")) {
+    // The weakest living neighbour, by soldiers then by id so the choice is
+    // never left to array order.
+    const target = alive
+      .filter((c) => c.id !== aggressor.id && c.territory > 1)
+      .sort((a, b) => a.soldiers - b.soldiers || a.id.localeCompare(b.id))[0];
+    if (!target) continue;
+
+    const attacker = byId.get(aggressor.id)!;
+    const defender = byId.get(target.id)!;
+    // Guarding is worth something, or nobody would ever choose it over pressing.
+    const defence = defender.soldiers * (defender.doctrine.posture === "GUARD" ? 1.5 : 1);
+    if (attacker.soldiers <= defence * 1.2) continue;
+
+    // Land changes hands and both sides pay for it. A seizure that costs the
+    // taker nothing would make PRESSURE the only rational posture.
+    attacker.territory += 1;
+    defender.territory -= 1;
+    attacker.soldiers = Math.max(0, attacker.soldiers - Math.ceil(defence * 0.3));
+    defender.soldiers = Math.max(0, defender.soldiers - Math.ceil(defender.soldiers * 0.4));
+    events.push({ tick, civ: attacker.id, kind: "SEIZED", detail: `terre prise a ${defender.id}` });
+    events.push({ tick, civ: defender.id, kind: "CEDED", detail: `terre perdue au profit de ${attacker.id}` });
+  }
+
+  return civs.map((c) => byId.get(c.id)!);
 }

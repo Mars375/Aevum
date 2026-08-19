@@ -38,6 +38,17 @@ export const DoctrineSchema = z.object({
   trade: z.number().min(0),
   military: z.number().min(0),
   /**
+   * How this civilisation carries itself towards its neighbours. It belongs in
+   * the doctrine rather than beside it: like the work shares, it is a standing
+   * policy that holds until a ruler changes it.
+   *
+   * One posture, not one per neighbour: friendly to the east and hostile to
+   * the west is a richer model, but it multiplies the questions a ruler must
+   * answer in a single call, and W5 exists precisely because four questions at
+   * once get four poor answers.
+   */
+  posture: z.enum(["TRADE", "GUARD", "PRESSURE"]).default("GUARD"),
+  /**
    * What this civilisation tells itself it is doing, written by its own rulers
    * and inherited by their successors. This is the only thing that "evolves" —
    * the model's weights never change, but the context it inherits does.
@@ -68,6 +79,15 @@ export const WorldSchema = z.object({
   worldVersion: z.literal(WORLD_VERSION),
   tick: z.number().int(),
   seed: z.number().int(),
+  /**
+   * Total workable land in the world.
+   *
+   * Finite, and that is the entire point. While there is free land the
+   * civilisations grow past each other without ever meeting; once it runs out,
+   * every further acre one gains is one another loses, and they finally have a
+   * reason to have a foreign policy at all.
+   */
+  land: z.number().int().default(80),
   civs: z.array(CivSchema),
 });
 export type World = z.infer<typeof WorldSchema>;
@@ -78,6 +98,7 @@ export const DEFAULT_DOCTRINE: Doctrine = {
   mining: 0.2,
   trade: 0.15,
   military: 0.05,
+  posture: "GUARD",
   creed: "",
 };
 
@@ -96,3 +117,10 @@ export function newCiv(id: Civ["id"]): Civ {
 }
 
 export const isAlive = (c: Civ): boolean => c.fellOnTick === null;
+
+/** Total workable land, sized so it runs out while the world is still young. */
+export const DEFAULT_LAND = 80;
+
+export function newWorld(ids: Civ["id"][], seed: number, land = DEFAULT_LAND): World {
+  return { worldVersion: WORLD_VERSION, tick: 0, seed, land, civs: ids.map(newCiv) };
+}

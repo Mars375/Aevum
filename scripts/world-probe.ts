@@ -9,17 +9,12 @@
  *
  * Run: npx tsx scripts/world-probe.ts [ticks]
  */
-import { detectDecisions, newCiv, tickWorld, WORLD_VERSION, type DecisionKind, type World } from "../packages/world/src/index.js";
+import { detectDecisions, newWorld, tickWorld, type DecisionKind, type World } from "../packages/world/src/index.js";
 
 const TICKS = Number(process.argv[2] ?? 500);
 const FACTIONS = ["crimson", "azure", "verdant", "amber"] as const;
 
-let world: World = {
-  worldVersion: WORLD_VERSION,
-  tick: 0,
-  seed: 42,
-  civs: FACTIONS.map((f) => newCiv(f)),
-};
+let world: World = newWorld([...FACTIONS], 42);
 
 const byKind = new Map<DecisionKind, number>();
 let total = 0;

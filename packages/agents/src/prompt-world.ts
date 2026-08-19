@@ -31,6 +31,12 @@ export function systemPromptWorld(): string {
     "- Stores never go negative: a food deficit kills people, a treasury deficit costs you soldiers.",
     "- A civilisation whose population reaches zero is gone for good. Nothing recovers it.",
     "",
+    "Land in this world is finite. While some is unclaimed, you grow past your neighbours without ever meeting them; once it runs out, every acre you gain is one a neighbour loses.",
+    "Choose how you carry yourself towards them:",
+    "- TRADE enriches you, but only if a neighbour is trading too. Goodwill declared at someone arming against you earns nothing.",
+    "- GUARD takes land from nobody and makes you expensive to attack.",
+    "- PRESSURE takes a neighbour's land by force, if your soldiers clearly outnumber their defence. It costs you soldiers even when it works.",
+    "",
     "You also leave a creed: what this civilisation believes about itself, in one or two sentences.",
     "Your successors inherit it and nothing else of you. Write it for them, not for a spectator.",
     "",
@@ -59,9 +65,10 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint): string {
     "",
     "Standing doctrine:",
     `- farming ${pct(d.farming, total)}, forestry ${pct(d.forestry, total)}, mining ${pct(d.mining, total)}, trade ${pct(d.trade, total)}, military ${pct(d.military, total)}`,
+    `- posture towards neighbours: ${d.posture}`,
     d.creed ? `- creed inherited from your predecessors: "${d.creed}"` : "- no creed has been written yet. You are the first.",
     "",
-    "Set the shares your people will work under until something else wakes you, and leave a creed.",
+    "Set the shares your people will work under, your posture towards your neighbours, and leave a creed. All of it holds until something wakes you again.",
   ].join("\n");
 }
 
@@ -69,10 +76,11 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint): string {
 export const RULING_JSON_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["reasoning", "creed", "farming", "forestry", "mining", "trade", "military"],
+  required: ["reasoning", "creed", "posture", "farming", "forestry", "mining", "trade", "military"],
   properties: {
     reasoning: { type: "string", description: "One or two sentences on why, written for a spectator." },
     creed: { type: "string", description: "What this civilisation believes about itself. Inherited by your successors." },
+    posture: { type: "string", enum: ["TRADE", "GUARD", "PRESSURE"], description: "How you carry yourself towards your neighbours." },
     farming: { type: "number", description: "Relative share of the workforce farming." },
     forestry: { type: "number" },
     mining: { type: "number" },

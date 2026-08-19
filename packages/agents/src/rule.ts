@@ -45,6 +45,10 @@ const lift = (value: unknown): unknown => {
 const RulingAnswerSchema = z.preprocess(lift, z.object({
   reasoning: z.string().default(""),
   creed: z.string().default(""),
+  // Defaulted, not required: a ruler woken by a famine has no reason to
+  // reconsider its foreign policy, and rejecting the whole answer over a
+  // missing posture would throw away a good one.
+  posture: z.enum(["TRADE", "GUARD", "PRESSURE"]).optional(),
   farming: z.number().min(0).max(1000),
   forestry: z.number().min(0).max(1000),
   mining: z.number().min(0).max(1000),
@@ -95,7 +99,7 @@ export async function askRuler(
     return null;
   }
 
-  const { reasoning, creed, ...work } = answer.data;
+  const { reasoning, creed, posture, ...work } = answer.data;
   const total = work.farming + work.forestry + work.mining + work.trade + work.military;
   // A ruler who employs nobody has not answered the question. Better to keep
   // the standing doctrine than to install one that starves everyone.
@@ -110,7 +114,11 @@ export async function askRuler(
     kind: point.kind,
     // The creed is only replaced when the ruler actually wrote one; an empty
     // string would silently erase what predecessors left behind.
-    doctrine: { ...work, ...(creed.trim() ? { creed: creed.trim() } : {}) },
+    doctrine: {
+      ...work,
+      ...(posture ? { posture } : {}),
+      ...(creed.trim() ? { creed: creed.trim() } : {}),
+    },
     reason: reasoning.trim(),
     model: provider.lastModel?.() ?? general.model,
   };

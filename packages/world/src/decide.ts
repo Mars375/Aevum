@@ -31,6 +31,10 @@ export const DECISION_KINDS = [
   "DECLINE",
   /** Nothing has needed deciding for a long time. Boredom is itself a prompt. */
   "DRIFT",
+  /** The world has no free land left. Growth is now someone else's loss. */
+  "BORDER",
+  /** A neighbour took land by force. */
+  "INVADED",
 ] as const;
 export type DecisionKind = (typeof DECISION_KINDS)[number];
 
@@ -102,6 +106,14 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
 
   if (mine.some((e) => e.kind === "SURPLUS")) {
     raise("SURPLUS", 40, [`vivres ${civ.stock.food}`, `tresor ${civ.stock.wealth}`, "rien n'en est fait"]);
+  }
+
+  if (mine.some((e) => e.kind === "CEDED")) {
+    raise("INVADED", 85, ["une frontiere a cede sous la force", `${civ.territory} terres`, `${civ.soldiers} soldats`]);
+  }
+
+  if (mine.some((e) => e.kind === "LAND_FULL")) {
+    raise("BORDER", 55, ["plus une terre libre dans le monde", `${civ.population} habitants pour ${civ.territory} terres`]);
   }
 
   if (mine.some((e) => e.kind === "LOST_LAND")) {

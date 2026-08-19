@@ -74,16 +74,17 @@ describe("une reponse valide devient une decision", () => {
 describe("le schema JSON et le schema zod ne divergent pas", () => {
   it("tout champ requis cote API existe cote validation", async () => {
     const required = RULING_JSON_SCHEMA.required as readonly string[];
-    const complete = Object.fromEntries(
-      required.map((k) => [k, typeof (valid as Record<string, unknown>)[k] === "number" ? 1 : "x"]),
-    );
+    const sample: Record<string, unknown> = { ...valid, posture: "GUARD" };
+    const complete = Object.fromEntries(required.map((k) => [k, sample[k] ?? 1]));
     expect(await askRuler(answering(complete), general, newCiv("crimson"), point)).not.toBeNull();
   });
 
   it("chaque champ requis manquant fait echouer la validation", async () => {
     for (const key of RULING_JSON_SCHEMA.required as readonly string[]) {
-      if (key === "reasoning" || key === "creed") continue; // ceux-la ont un defaut assume
-      const partial = { ...valid } as Record<string, unknown>;
+      // Ces trois-la ont un defaut assume : un dirigeant reveille par une
+      // famine n'a pas a rouvrir sa politique etrangere pour etre entendu.
+      if (key === "reasoning" || key === "creed" || key === "posture") continue;
+      const partial = { ...valid, posture: "GUARD" } as Record<string, unknown>;
       delete partial[key];
       expect(await askRuler(answering(partial), general, newCiv("crimson"), point)).toBeNull();
     }
@@ -126,5 +127,24 @@ describe("les deux encodages des parts sont acceptes", () => {
   it("et l'encodage plat marche toujours", async () => {
     const ruling = (await askRuler(answering(valid), general, newCiv("crimson"), point))!;
     expect(ruling.doctrine.farming).toBe(7);
+  });
+});
+
+describe("la posture envers les voisins", () => {
+  it("est transmise quand le dirigeant en choisit une", async () => {
+    const ruling = (await askRuler(answering({ ...valid, posture: "TRADE" }), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.posture).toBe("TRADE");
+  });
+
+  it("mais son absence ne fait pas jeter une bonne reponse", async () => {
+    // Un dirigeant reveille par une famine n'a aucune raison de rouvrir sa
+    // politique etrangere.
+    const ruling = (await askRuler(answering(valid), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.posture).toBeUndefined();
+    expect(ruling.doctrine.farming).toBe(7);
+  });
+
+  it("une posture inventee fait rejeter la reponse plutot que d'en inventer une", async () => {
+    expect(await askRuler(answering({ ...valid, posture: "CONQUER" }), general, newCiv("crimson"), point)).toBeNull();
   });
 });

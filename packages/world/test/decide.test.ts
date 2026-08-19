@@ -6,17 +6,14 @@ import {
   foodRunway,
   newCiv,
   newJournal,
+  newWorld,
   replay,
   tickWorld,
-  WORLD_VERSION,
   type World,
 } from "../src/index.js";
 
 const world = (over: Partial<World> = {}): World => ({
-  worldVersion: WORLD_VERSION,
-  tick: 0,
-  seed: 42,
-  civs: [newCiv("crimson")],
+  ...newWorld(["crimson"], 42),
   ...over,
 });
 
