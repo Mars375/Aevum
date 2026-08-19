@@ -18,7 +18,17 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { DEFAULT_GENERALS, RemoteProvider, liveWorld } from "@abs/agents";
-import { JournalSchema, isOver, living, newJournal, newWorld, replay, type Journal } from "@abs/world";
+import {
+  JournalSchema,
+  WORLD_VERSION,
+  isOver,
+  living,
+  newJournal,
+  newWorld,
+  replay,
+  worldVersionOf,
+  type Journal,
+} from "@abs/world";
 
 try {
   process.loadEnvFile(resolve(process.cwd(), ".env"));
@@ -60,7 +70,16 @@ if (era === 0) {
   era = 1;
   journal = openEra(era);
 } else {
-  journal = JournalSchema.parse(JSON.parse(readFileSync(pathFor(era), "utf8")));
+  const raw = JSON.parse(readFileSync(pathFor(era), "utf8"));
+  const version = worldVersionOf(raw);
+  if (version !== WORLD_VERSION) {
+    console.error(
+      `${pathFor(era)} a ete vecu sous les regles ${version ?? "inconnues"} ; le monde tourne aujourd'hui en ${WORLD_VERSION}.\n` +
+        `Ce journal reste lisible comme archive mais n'est plus rejouable. Utilisez --world <autre-nom> pour ouvrir un monde neuf.`,
+    );
+    process.exit(1);
+  }
+  journal = JournalSchema.parse(raw);
   // The world is never stored, only recomputed. This is why the journal stays
   // small no matter how long the world lives.
   if (isOver(replay(journal.origin, journal.rulings, journal.livedTo).world)) {

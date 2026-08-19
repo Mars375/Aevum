@@ -64,6 +64,10 @@ const RulingAnswerSchema = z.preprocess(lift, z.object({
   // reconsider its foreign policy, and rejecting the whole answer over a
   // missing posture would throw away a good one.
   posture: z.enum(["TRADE", "GUARD", "PRESSURE"]).optional(),
+  // Same reasoning as posture: a ruler woken by a famine has no reason to
+  // reconsider which frontier it wants next, and rejecting a good answer over a
+  // missing field would be throwing away governing to enforce a form.
+  claim: z.enum(["plain", "forest", "hill", "river"]).optional(),
   farming: z.number().min(0).max(1000),
   forestry: z.number().min(0).max(1000),
   mining: z.number().min(0).max(1000),
@@ -114,7 +118,7 @@ export async function askRuler(
     return null;
   }
 
-  const { reasoning, creed, posture, ...work } = answer.data;
+  const { reasoning, creed, posture, claim, ...work } = answer.data;
   const total = work.farming + work.forestry + work.mining + work.trade + work.military;
   // A ruler who employs nobody has not answered the question. Better to keep
   // the standing doctrine than to install one that starves everyone.
@@ -132,6 +136,7 @@ export async function askRuler(
     doctrine: {
       ...work,
       ...(posture ? { posture } : {}),
+      ...(claim ? { claim } : {}),
       ...(creed.trim() ? { creed: creed.trim() } : {}),
     },
     reason: reasoning.trim(),

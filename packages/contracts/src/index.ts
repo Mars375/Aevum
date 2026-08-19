@@ -397,6 +397,16 @@ export const BattleReportSchema = z.object({
   factionId: FactionIdSchema,
   summary: z.string(),
   claims: z.array(ReportClaimSchema).default([]),
+  /**
+   * Which model actually wrote this, including a fallback.
+   *
+   * Added after a measurement that could not be finished: 18 of 20 audits had
+   * no measurable fidelity because the reports carried no dated claims, and
+   * nothing recorded who had written them — so there was no way to tell whether
+   * one weak model was responsible or all of them were. A report that cannot be
+   * attributed cannot be learned from.
+   */
+  model: z.string().nullable().default(null),
 });
 export type BattleReport = z.infer<typeof BattleReportSchema>;
 

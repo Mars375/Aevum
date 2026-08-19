@@ -1,4 +1,4 @@
-import { isAlive, type Civ, type World } from "./state.js";
+import { LAND_KINDS, isAlive, type Civ, type World } from "./state.js";
 import type { TickEvent } from "./tick.js";
 
 /**
@@ -37,6 +37,8 @@ export const DECISION_KINDS = [
   "INVADED",
   /** Bandits took what was not guarded. */
   "RAIDED",
+  /** The doctrine asks for work the ground cannot carry. */
+  "MISMATCH",
 ] as const;
 export type DecisionKind = (typeof DECISION_KINDS)[number];
 
@@ -141,7 +143,34 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
   }
 
   if (mine.some((e) => e.kind === "LAND_FULL")) {
-    raise("BORDER", 55, ["plus une terre libre dans le monde", `${civ.population} habitants pour ${civ.territory} terres`], true);
+    raise(
+      "BORDER",
+      55,
+      [
+        "plus une terre libre dans le monde",
+        `${civ.population} habitants pour ${civ.territory} terres`,
+        `vos terres : ${LAND_KINDS.map((k) => `${k} ${civ.lands[k]}`).join(", ")}`,
+      ],
+      true,
+    );
+  }
+
+  // A civilisation working ground that cannot carry it is not in crisis, but it
+  // is wasting people, and no other rule would ever tell its ruler.
+  const s = civ.doctrine;
+  const strain = [
+    { share: s.farming, parcels: civ.lands.plain + civ.lands.river, what: "champs" },
+    { share: s.forestry, parcels: civ.lands.forest, what: "forets" },
+    { share: s.mining, parcels: civ.lands.hill, what: "collines" },
+    { share: s.trade, parcels: civ.lands.river, what: "fleuves" },
+  ].find((x) => x.share > 0.2 && x.parcels === 0);
+  if (strain) {
+    raise(
+      "MISMATCH",
+      45,
+      [`des gens travaillent sans ${strain.what}`, `vos terres : ${LAND_KINDS.map((k) => `${k} ${civ.lands[k]}`).join(", ")}`],
+      true,
+    );
   }
 
   if (mine.some((e) => e.kind === "LOST_LAND")) {

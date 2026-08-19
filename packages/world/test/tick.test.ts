@@ -88,12 +88,89 @@ describe("les saisons sont deterministes", () => {
 
 describe("les parts de doctrine sont normalisees", () => {
   it("accepte n'importe quelle echelle", () => {
-    const a = shares({ farming: 1, forestry: 1, mining: 1, trade: 1, military: 1, posture: "GUARD", creed: "" });
-    const b = shares({ farming: 40, forestry: 40, mining: 40, trade: 40, military: 40, posture: "GUARD", creed: "" });
+    const a = shares({ farming: 1, forestry: 1, mining: 1, trade: 1, military: 1, posture: "GUARD", claim: "plain", creed: "" });
+    const b = shares({ farming: 40, forestry: 40, mining: 40, trade: 40, military: 40, posture: "GUARD", claim: "plain", creed: "" });
     expect(a).toEqual(b);
   });
 
   it("une doctrine entierement a zero nourrit plutot que de tout bloquer", () => {
-    expect(shares({ farming: 0, forestry: 0, mining: 0, trade: 0, military: 0, posture: "GUARD", creed: "" }).farming).toBe(1);
+    expect(shares({ farming: 0, forestry: 0, mining: 0, trade: 0, military: 0, posture: "GUARD", claim: "plain", creed: "" }).farming).toBe(1);
+  });
+});
+
+describe("la terre n'est pas interchangeable", () => {
+  const withLands = (lands: { plain: number; forest: number; hill: number; river: number }, doctrine = {}) =>
+    world({
+      civs: [
+        {
+          ...newCiv("crimson"),
+          lands,
+          territory: lands.plain + lands.forest + lands.hill + lands.river,
+          doctrine: { ...newCiv("crimson").doctrine, ...doctrine },
+        },
+      ],
+    });
+
+  const oreGained = (lands: Parameters<typeof withLands>[0]) => {
+    const before = withLands(lands, { farming: 0, forestry: 0, mining: 1, trade: 0 });
+    return tickWorld(before).world.civs[0]!.stock.ore - before.civs[0]!.stock.ore;
+  };
+
+  it("mettre tout le monde a la mine sans colline ne produit presque rien", () => {
+    expect(oreGained({ plain: 4, forest: 0, hill: 0, river: 0 })).toBeLessThan(
+      oreGained({ plain: 0, forest: 0, hill: 4, river: 0 }) / 4,
+    );
+  });
+
+  it("mais jamais exactement rien : un sol ingrat n'est pas une impasse", () => {
+    const before = withLands({ plain: 4, forest: 0, hill: 0, river: 0 }, { farming: 0, mining: 1 });
+    const after = tickWorld(before);
+    expect(after.world.civs[0]!.stock.ore).toBeGreaterThan(before.civs[0]!.stock.ore);
+  });
+
+  it("les fleuves arrosent aussi les champs", () => {
+    const farmers = { farming: 1, forestry: 0, mining: 0, trade: 0 };
+    const plains = tickWorld(withLands({ plain: 2, forest: 2, hill: 0, river: 0 }, farmers));
+    const rivers = tickWorld(withLands({ plain: 2, forest: 0, hill: 0, river: 2 }, farmers));
+    expect(rivers.world.civs[0]!.stock.food).toBeGreaterThan(plains.world.civs[0]!.stock.food);
+  });
+
+  it("le monde ne cree ni ne detruit de terre", () => {
+    let w = world();
+    const total = (x: typeof w) =>
+      x.civs.reduce((n, c) => n + c.lands.plain + c.lands.forest + c.lands.hill + c.lands.river, 0) +
+      x.free.plain + x.free.forest + x.free.hill + x.free.river;
+    const before = total(w);
+    for (let i = 0; i < 300; i += 1) w = tickWorld(w).world;
+    expect(total(w)).toBe(before);
+  });
+
+  it("le total des terres d'une civilisation reste egal a sa frontiere", () => {
+    let w = world();
+    for (let i = 0; i < 300; i += 1) {
+      w = tickWorld(w).world;
+      for (const c of w.civs) {
+        expect(c.lands.plain + c.lands.forest + c.lands.hill + c.lands.river, `${c.id} an ${w.tick}`).toBe(c.territory);
+      }
+    }
+  });
+
+  it("une civilisation annexe d'abord ce qu'elle convoite", () => {
+    let w = world({
+      civs: [{ ...newCiv("crimson"), population: 400, stock: { food: 4000, timber: 4000, ore: 0, wealth: 100 }, doctrine: { ...newCiv("crimson").doctrine, claim: "hill" } }],
+    });
+    const before = w.civs[0]!.lands.hill;
+    for (let i = 0; i < 6; i += 1) w = tickWorld(w).world;
+    expect(w.civs[0]!.lands.hill).toBeGreaterThan(before);
+  });
+
+  it("et se rabat sur autre chose quand ce type est epuise", () => {
+    let w = world({
+      free: { plain: 5, forest: 0, hill: 0, river: 0 },
+      civs: [{ ...newCiv("crimson"), population: 400, stock: { food: 4000, timber: 4000, ore: 0, wealth: 100 }, doctrine: { ...newCiv("crimson").doctrine, claim: "river" } }],
+    });
+    for (let i = 0; i < 4; i += 1) w = tickWorld(w).world;
+    expect(w.civs[0]!.lands.plain).toBeGreaterThan(1);
+    expect(w.civs[0]!.lands.river).toBe(1);
   });
 });

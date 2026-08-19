@@ -116,26 +116,54 @@ export async function collectReports(
     if (!played) continue;
 
     log(`  ${general.factionId}: writing its report...`);
-    const raw = await provider.ask(
-      general,
-      reportSystemPrompt(),
-      reportUserPrompt(replay, general.factionId),
-      REPORT_JSON_SCHEMA,
-    );
-    if (!raw) {
+
+    /**
+     * Asked twice at most: once normally, and once told plainly what was wrong
+     * with the first answer.
+     *
+     * A report with no dated claims is not a report, it is a press release —
+     * and a whole tournament produced eighteen of them, which cost the calls
+     * and measured nothing. One extra call is cheaper than a measurement that
+     * cannot be made.
+     */
+    let parsed: ReturnType<typeof BattleReportSchema.safeParse> | null = null;
+    let model: string | null = null;
+
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      const nag =
+        attempt === 1
+          ? ""
+          : "\n\nYour previous answer had a summary but no dated turns, so nothing in it could be checked. " +
+            "Give between two and six specific turns, each with its turn number.";
+      const raw = await provider.ask(
+        general,
+        reportSystemPrompt(),
+        reportUserPrompt(replay, general.factionId) + nag,
+        REPORT_JSON_SCHEMA,
+      );
+      if (!raw) break;
+
+      model = provider.lastModel?.() ?? general.model;
+      const candidate = BattleReportSchema.safeParse({ ...JSON.parse(raw), factionId: general.factionId, model });
+      if (!candidate.success) {
+        log(`  ${general.factionId}: report did not parse, discarded`);
+        parsed = null;
+        break;
+      }
+      parsed = candidate;
+      if (candidate.data.claims.length > 0) break;
+      if (attempt === 1) log(`  ${general.factionId}: no dated claims, asking once more`);
+    }
+
+    if (!parsed) {
       log(`  ${general.factionId}: unreachable, no report`);
       continue;
     }
-
-    const parsed = BattleReportSchema.safeParse({ ...JSON.parse(raw), factionId: general.factionId });
-    if (!parsed.success) {
-      log(`  ${general.factionId}: report did not parse, discarded`);
-      continue;
+    if (parsed.data.claims.length === 0) {
+      // Kept rather than discarded: hiding it would hide that the general
+      // answered, and the empty rate is itself a measurement.
+      log(`  ${general.factionId}: still no dated claims (${model ?? "?"}) — nothing to verify`);
     }
-    // A summary with no dated claims cannot be checked against the replay, so
-    // it is not a report — it is a press release. Kept, because discarding it
-    // would hide that the general answered, but flagged loudly.
-    if (parsed.data.claims.length === 0) log(`  ${general.factionId}: report has no dated claims — nothing to verify`);
     reports.push(parsed.data);
   }
 

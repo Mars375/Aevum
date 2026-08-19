@@ -9,7 +9,7 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { JournalSchema, isOver, living, replay } from "@abs/world";
+import { JournalSchema, WORLD_VERSION, isOver, living, replay, worldVersionOf } from "@abs/world";
 
 const ROOT = resolve("worlds");
 if (!existsSync(ROOT)) {
@@ -33,7 +33,15 @@ const entries: Entry[] = [];
 for (const world of readdirSync(ROOT, { withFileTypes: true }).filter((d) => d.isDirectory())) {
   for (const file of readdirSync(join(ROOT, world.name)).filter((f) => /^era-\d+\.json$/.test(f))) {
     const full = join(ROOT, world.name, file);
-    const parsed = JournalSchema.safeParse(JSON.parse(readFileSync(full, "utf8")));
+    const raw = JSON.parse(readFileSync(full, "utf8"));
+    const version = worldVersionOf(raw);
+    if (version !== WORLD_VERSION) {
+      // Kept on disk as a record, left out of the catalogue: the player would
+      // recompute it under today's rules and show numbers it never lived.
+      console.log(`archive ${full} : regles ${version ?? "inconnues"}, le monde tourne en ${WORLD_VERSION}`);
+      continue;
+    }
+    const parsed = JournalSchema.safeParse(raw);
     if (!parsed.success) {
       console.warn(`ignore ${full} : ${parsed.error.issues[0]?.message}`);
       continue;

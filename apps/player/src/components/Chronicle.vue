@@ -27,6 +27,21 @@ const METRICS = [
   { key: "wealth", label: "Richesse" },
 ] as const;
 
+/**
+ * Land is shown as a small stacked bar rather than four more numbers.
+ *
+ * A civilisation's ground is now what decides what its doctrine can do, so it
+ * has to be readable at a glance — and "3 plaines 1 fleuve" read as a row of
+ * digits tells you nothing about the shape of a country.
+ */
+const LAND_KINDS = ["plain", "forest", "hill", "river"] as const;
+const LAND_LABEL: Record<string, string> = {
+  plain: "plaine",
+  forest: "forêt",
+  hill: "colline",
+  river: "fleuve",
+};
+
 const POSTURE: Record<string, string> = {
   TRADE: "commerce",
   GUARD: "garde",
@@ -114,6 +129,13 @@ const round = (n: number) => Math.round(n);
           <div><dt>richesse</dt><dd>{{ round(civ.stock.wealth) }}</dd></div>
           <div><dt>progrès</dt><dd>{{ civ.advances.length }}</dd></div>
         </dl>
+        <ul class="lands mono" :aria-label="`Terres : ${LAND_KINDS.map((k) => `${civ.lands[k]} ${LAND_LABEL[k]}`).join(', ')}`">
+          <li v-for="k in LAND_KINDS" :key="k" :class="k" :style="{ flexGrow: civ.lands[k] }" :title="`${civ.lands[k]} ${LAND_LABEL[k]}`">
+            <span v-if="civ.lands[k] > 0">{{ civ.lands[k] }}</span>
+          </li>
+        </ul>
+        <p class="claims mono">convoite : {{ LAND_LABEL[civ.doctrine.claim] }}</p>
+
         <p v-if="civ.doctrine.creed" class="creed">« {{ civ.doctrine.creed }} »</p>
         <p v-else class="creed muted">Aucun dirigeant n'a encore écrit de credo.</p>
       </article>
@@ -261,6 +283,38 @@ dt {
 
 dd {
   margin: 0;
+}
+
+/* Land kinds are told apart by hue AND by their number, never by hue alone. */
+.lands {
+  display: flex;
+  list-style: none;
+  margin: var(--s3) 0 0;
+  padding: 0;
+  height: 18px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--border-soft);
+}
+
+.lands li {
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  color: #05070f;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lands li.plain { background: #a3e635; }
+.lands li.forest { background: #34d399; }
+.lands li.hill { background: #a8a29e; }
+.lands li.river { background: #38bdf8; }
+
+.claims {
+  margin: var(--s1) 0 0;
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .creed {

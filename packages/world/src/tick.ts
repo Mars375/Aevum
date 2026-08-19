@@ -1,4 +1,14 @@
-import { isAlive, type Civ, type Doctrine, type Stock, type World } from "./state.js";
+import {
+  LAND_KINDS,
+  isAlive,
+  landCount,
+  type Civ,
+  type Doctrine,
+  type LandKind,
+  type Lands,
+  type Stock,
+  type World,
+} from "./state.js";
 
 /**
  * One tick of the world.
@@ -167,28 +177,75 @@ export function raidOn(civ: Civ, seed: number, tick: number): Raid {
   return { strength, repelled: defence >= strength };
 }
 
+/** How many workers one parcel of land can carry before crowding. */
+const WORKERS_PER_LAND = 25;
+
 function produce(civ: Civ, harvest: number): Stock {
   const s = shares(civ.doctrine);
   const workers = civ.population;
-  // Land limits what people can work: doubling population on the same territory
-  // does not double output. This is what makes expansion matter.
-  const land = Math.min(1, civ.territory / Math.max(1, workers / 25));
-  const yieldOf = (share: number, rate: number) => workers * share * rate * land;
+
+  /**
+   * Each activity is limited by the land that carries it, not by territory in
+   * general. Everyone in the mines is worth nothing without hills — which is
+   * the whole reason land now has kinds, and the reason a ruler has to think
+   * about what it takes rather than only how much.
+   *
+   * A little is always possible on unsuited ground (the 0.15 floor): a
+   * civilisation with no forest can still cut something, just badly. Zero would
+   * make a single bad expansion unrecoverable.
+   */
+  const carried = (share: number, parcels: number, rate: number) => {
+    const assigned = workers * share;
+    const capacity = parcels * WORKERS_PER_LAND;
+    const effective = Math.min(assigned, capacity) + Math.max(0, assigned - capacity) * 0.15;
+    return effective * rate;
+  };
 
   // A farmer feeds several people — that is the whole reason a civilisation can
   // afford anyone who is not a farmer. The first measurement had this backwards
   // (0.9 produced against 0.8 eaten) and every civilisation starved by tick 12.
   return {
     // Only food follows the season. A bad year is a bad harvest, not a mine
-    // that stops working.
-    food: yieldOf(s.farming, 2.5) * harvest,
-    timber: yieldOf(s.forestry, 1.2),
-    ore: yieldOf(s.mining, 0.8),
-    wealth: yieldOf(s.trade, 1.0),
+    // that stops working. Rivers water the fields too, which is what makes them
+    // the land everyone wants and the reason they are scarce.
+    food: (carried(s.farming, civ.lands.plain + civ.lands.river * 0.5, 2.5)) * harvest,
+    timber: carried(s.forestry, civ.lands.forest, 1.2),
+    ore: carried(s.mining, civ.lands.hill, 0.8),
+    wealth: carried(s.trade, civ.lands.river, 1.0),
   };
 }
 
-function tickCiv(civ: Civ, tick: number, harvest: number, freeLand: number, seed: number): { civ: Civ; events: TickEvent[] } {
+export const LAND_LABEL: Record<LandKind, string> = {
+  plain: "plaine",
+  forest: "foret",
+  hill: "colline",
+  river: "fleuve",
+};
+
+/**
+ * How much a civilisation would miss one parcel of a kind it already has.
+ *
+ * Used only to decide what to abandon and what a raider takes first, so it is
+ * a ranking and not a price: the last river is worth more than the tenth plain.
+ */
+const value = (lands: Lands, kind: LandKind): number => (kind === "river" ? 3 : kind === "plain" ? 2 : 1) / lands[kind];
+
+/** Take one parcel of the wanted kind, or the next best thing that exists. */
+function takeFrom(pool: Lands, wanted: LandKind): { kind: LandKind; pool: Lands } | null {
+  const order: LandKind[] = [wanted, ...LAND_KINDS.filter((k) => k !== wanted)];
+  for (const kind of order) {
+    if (pool[kind] > 0) return { kind, pool: { ...pool, [kind]: pool[kind] - 1 } };
+  }
+  return null;
+}
+
+function tickCiv(
+  civ: Civ,
+  tick: number,
+  harvest: number,
+  free: Lands,
+  seed: number,
+): { civ: Civ; events: TickEvent[]; free: Lands } {
   const events: TickEvent[] = [];
   const say = (kind: TickEvent["kind"], detail: string) => events.push({ tick, civ: civ.id, kind, detail });
 
@@ -232,20 +289,38 @@ function tickCiv(civ: Civ, tick: number, harvest: number, freeLand: number, seed
   }
 
   // Expansion is bought with timber and people, and only while both allow.
-  const wantsLand = population / 25 > territory;
+  let lands = { ...civ.lands };
+  let pool = free;
+  const freeLand = landCount(pool);
+  const wantsLand = population / WORKERS_PER_LAND > territory;
+
   if (wantsLand && freeLand <= 0) {
     // Not a failure — a fact the ruler needs. Expansion from here is a foreign
     // policy question, not a forestry one.
     say("LAND_FULL", "plus une terre libre dans le monde");
   }
   if (wantsLand && freeLand > 0 && stock.timber >= 60) {
+    // The ruler's standing claim decides what gets taken. When that kind has
+    // run out, something else is taken rather than nothing: a civilisation that
+    // needs land takes what is there.
+    const taken = takeFrom(pool, civ.doctrine.claim)!;
+    pool = taken.pool;
+    lands = { ...lands, [taken.kind]: lands[taken.kind] + 1 };
     stock.timber = round2(stock.timber - 60);
     territory += 1;
-    say("EXPANDED", `frontiere portee a ${territory}`);
+    const asked = taken.kind === civ.doctrine.claim ? "" : ` (faute de ${civ.doctrine.claim})`;
+    say("EXPANDED", `${LAND_LABEL[taken.kind]} annexee${asked}, frontiere a ${territory}`);
   } else if (territory > 1 && population < (territory - 1) * 15) {
-    // Land nobody works reverts. A civilisation shrinks quietly, without a war.
+    // Land nobody works reverts, and the least useful goes first — a
+    // civilisation abandons the hill it cannot man before the field it eats
+    // from. It returns to the world rather than vanishing.
+    const giveUp = [...LAND_KINDS]
+      .filter((k) => lands[k] > 0)
+      .sort((a, b) => value(lands, a) - value(lands, b) || a.localeCompare(b))[0]!;
+    lands = { ...lands, [giveUp]: lands[giveUp] - 1 };
+    pool = { ...pool, [giveUp]: pool[giveUp] + 1 };
     territory -= 1;
-    say("LOST_LAND", `terre abandonnee, frontiere a ${territory}`);
+    say("LOST_LAND", `${LAND_LABEL[giveUp]} abandonnee, frontiere a ${territory}`);
   }
 
   soldiers = Math.max(0, Math.round(soldiers + population * s.military * 0.05 - soldiers * 0.02));
@@ -289,8 +364,9 @@ function tickCiv(civ: Civ, tick: number, harvest: number, freeLand: number, seed
   }
 
   return {
-    civ: { ...civ, population, territory, soldiers, stock, advances, fellOnTick, ticksSinceDecision: civ.ticksSinceDecision + 1 },
+    civ: { ...civ, population, territory, lands, soldiers, stock, advances, fellOnTick, ticksSinceDecision: civ.ticksSinceDecision + 1 },
     events,
+    free: pool,
   };
 }
 
@@ -300,19 +376,22 @@ export function tickWorld(world: World): TickResult {
   // year is something neighbours can talk about rather than private bad luck.
   const harvest = season(world.seed, tick);
   const events: TickEvent[] = [];
-  const freeLand = world.land - world.civs.reduce((n, c) => n + c.territory, 0);
+  // One shared pool, walked in canonical id order: when the last river is
+  // taken, which civilisation got it must not depend on array order.
+  let free = { ...world.free };
   // Canonical id order, as everywhere else in this project: the result must not
   // depend on the order civilisations happen to sit in the array.
   const civs = [...world.civs]
     .sort((a, b) => a.id.localeCompare(b.id))
     .map((civ) => {
       if (!isAlive(civ)) return civ;
-      const r = tickCiv(civ, tick, harvest, freeLand, world.seed);
+      const r = tickCiv(civ, tick, harvest, free, world.seed);
       events.push(...r.events);
+      free = r.free;
       return r.civ;
     });
 
-  return { world: { ...world, tick, civs: contact(civs, tick, events) }, events };
+  return { world: { ...world, tick, free, civs: contact(civs, tick, events) }, events };
 }
 
 /**
@@ -357,12 +436,17 @@ function contact(civs: Civ[], tick: number, events: TickEvent[]): Civ[] {
 
     // Land changes hands and both sides pay for it. A seizure that costs the
     // taker nothing would make PRESSURE the only rational posture.
+    // The aggressor takes what it came for, falling back to whatever the
+    // defender actually holds.
+    const seized = takeFrom(defender.lands, attacker.doctrine.claim)!;
+    defender.lands = seized.pool;
+    attacker.lands = { ...attacker.lands, [seized.kind]: attacker.lands[seized.kind] + 1 };
     attacker.territory += 1;
     defender.territory -= 1;
     attacker.soldiers = Math.max(0, attacker.soldiers - Math.ceil(defence * 0.3));
     defender.soldiers = Math.max(0, defender.soldiers - Math.ceil(defender.soldiers * 0.4));
-    events.push({ tick, civ: attacker.id, kind: "SEIZED", detail: `terre prise a ${defender.id}` });
-    events.push({ tick, civ: defender.id, kind: "CEDED", detail: `terre perdue au profit de ${attacker.id}` });
+    events.push({ tick, civ: attacker.id, kind: "SEIZED", detail: `${LAND_LABEL[seized.kind]} prise a ${defender.id}` });
+    events.push({ tick, civ: defender.id, kind: "CEDED", detail: `${LAND_LABEL[seized.kind]} perdue au profit de ${attacker.id}` });
   }
 
   return civs.map((c) => byId.get(c.id)!);

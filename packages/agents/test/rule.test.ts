@@ -75,7 +75,7 @@ describe("une reponse valide devient une decision", () => {
 describe("le schema JSON et le schema zod ne divergent pas", () => {
   it("tout champ requis cote API existe cote validation", async () => {
     const required = RULING_JSON_SCHEMA.required as readonly string[];
-    const sample: Record<string, unknown> = { ...valid, posture: "GUARD" };
+    const sample: Record<string, unknown> = { ...valid, posture: "GUARD", claim: "plain" };
     const complete = Object.fromEntries(required.map((k) => [k, sample[k] ?? 1]));
     expect(await askRuler(answering(complete), general, newCiv("crimson"), point)).not.toBeNull();
   });
@@ -84,8 +84,8 @@ describe("le schema JSON et le schema zod ne divergent pas", () => {
     for (const key of RULING_JSON_SCHEMA.required as readonly string[]) {
       // Ces trois-la ont un defaut assume : un dirigeant reveille par une
       // famine n'a pas a rouvrir sa politique etrangere pour etre entendu.
-      if (key === "reasoning" || key === "creed" || key === "posture") continue;
-      const partial = { ...valid, posture: "GUARD" } as Record<string, unknown>;
+      if (key === "reasoning" || key === "creed" || key === "posture" || key === "claim") continue;
+      const partial = { ...valid, posture: "GUARD", claim: "plain" } as Record<string, unknown>;
       delete partial[key];
       expect(await askRuler(answering(partial), general, newCiv("crimson"), point)).toBeNull();
     }
@@ -170,5 +170,38 @@ describe("l'explication est lue quel que soit le mot employe", () => {
   it("une raison absente ne fait pas jeter la decision pour autant", async () => {
     const ruling = await askRuler(answering(base), general, newCiv("crimson"), point);
     expect(ruling?.reason).toBe("");
+  });
+});
+
+describe("la terre convoitee", () => {
+  it("est transmise quand le dirigeant en choisit une", async () => {
+    const ruling = (await askRuler(answering({ ...valid, claim: "river" }), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.claim).toBe("river");
+  });
+
+  it("son absence ne fait pas jeter une bonne reponse", async () => {
+    const ruling = (await askRuler(answering(valid), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.claim).toBeUndefined();
+  });
+
+  it("une terre inventee fait rejeter plutot que d'en choisir une au hasard", async () => {
+    expect(await askRuler(answering({ ...valid, claim: "montagne" }), general, newCiv("crimson"), point)).toBeNull();
+  });
+
+  it("le dirigeant voit son sol", () => {
+    const civ = { ...newCiv("crimson"), lands: { plain: 5, forest: 0, hill: 2, river: 1 } };
+    expect(userPromptWorld(civ, point)).toContain("5 plain, 0 forest, 2 hill, 1 river");
+  });
+});
+
+describe("un rapport sans affirmation datee n'est pas un rapport", () => {
+  // 18 audits sur 20 n'ont rien pu mesurer parce que les rapports ne portaient
+  // aucune affirmation verifiable — et rien n'enregistrait quel modele les
+  // avait ecrits, donc rien ne permettait de savoir qui etait en cause.
+  it("le schema du rapport porte desormais le modele qui l'a ecrit", async () => {
+    const { BattleReportSchema } = await import("@abs/contracts");
+    const parsed = BattleReportSchema.parse({ factionId: "crimson", summary: "x", claims: [] });
+    expect(parsed.model).toBeNull();
+    expect(BattleReportSchema.parse({ factionId: "crimson", summary: "x", claims: [], model: "a/b" }).model).toBe("a/b");
   });
 });

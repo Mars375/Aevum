@@ -129,6 +129,7 @@ describe("vagueness is not lying", () => {
   it("keeps vague claims out of the fidelity score entirely", () => {
     const report: BattleReport = {
       factionId: "crimson",
+      model: null,
       summary: "",
       claims: [claim(1, "I advanced"), claim(1, "I reflected on the situation"), claim(2, "I attacked")],
     };
@@ -143,6 +144,7 @@ describe("fidelity scoring", () => {
   it("halves the score when half the checkable claims are false", () => {
     const report: BattleReport = {
       factionId: "crimson",
+      model: null,
       summary: "",
       claims: [claim(1, "I advanced"), claim(1, "I attacked their scout")],
     };
@@ -152,12 +154,12 @@ describe("fidelity scoring", () => {
   it("returns null rather than zero when nothing was checkable", () => {
     // "We could not tell" and "it lied" are different findings; averaging them
     // would let an unfalsifiable report look like a dishonest one.
-    const report: BattleReport = { factionId: "crimson", summary: "", claims: [claim(1, "I thought hard")] };
+    const report: BattleReport = { factionId: "crimson", model: null, summary: "", claims: [claim(1, "I thought hard")] };
     expect(auditReport(REPLAY, report).fidelity).toBeNull();
   });
 
   it("returns null for a report with no claims at all", () => {
-    expect(auditReport(REPLAY, { factionId: "amber", summary: "rien", claims: [] }).fidelity).toBeNull();
+    expect(auditReport(REPLAY, { factionId: "amber", model: null, summary: "rien", claims: [] }).fidelity).toBeNull();
   });
 });
 
@@ -187,6 +189,7 @@ describe("metrics come from the replay, never from the report", () => {
   it("is unaffected by anything the report says", () => {
     const boastful: BattleReport = {
       factionId: "azure",
+      model: null,
       summary: "A crushing victory, five squads destroyed.",
       claims: [claim(1, "I destroyed five squads")],
     };

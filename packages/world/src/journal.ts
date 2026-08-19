@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { FactionIdSchema } from "@abs/contracts";
-import { DoctrineSchema, WorldSchema, type World } from "./state.js";
+import { DoctrineSchema, WORLD_VERSION, WorldSchema, type World } from "./state.js";
 import { DECISION_KINDS } from "./decide.js";
 
 /**
@@ -38,8 +38,15 @@ export const RulingSchema = z.object({
 });
 export type Ruling = z.infer<typeof RulingSchema>;
 
+/** Read the header of a journal file without parsing the rest. */
+export function worldVersionOf(raw: unknown): string | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const v = (raw as Record<string, unknown>).worldVersion;
+  return typeof v === "string" ? v : null;
+}
+
 export const JournalSchema = z.object({
-  worldVersion: z.literal("w1"),
+  worldVersion: z.literal(WORLD_VERSION),
   /**
    * Which world this is.
    *
@@ -63,7 +70,7 @@ export const JournalSchema = z.object({
 export type Journal = z.infer<typeof JournalSchema>;
 
 export const newJournal = (origin: World, era = 1): Journal => ({
-  worldVersion: "w1",
+  worldVersion: WORLD_VERSION,
   era,
   origin,
   livedTo: origin.tick,

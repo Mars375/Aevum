@@ -15,11 +15,61 @@ import { FactionIdSchema } from "@abs/contracts";
  * actually needs deciding.
  */
 
-export const WORLD_VERSION = "w1";
+/**
+ * The rules a world was lived under.
+ *
+ * w1 counted territory as a single number: every acre identical, and a doctrine
+ * free to mine without hills. w2 gives land four kinds, each carrying one kind
+ * of work, which changes what the same journal would produce.
+ *
+ * So the version is bumped rather than the old worlds quietly re-interpreted.
+ * The same discipline as I20 in the battle rules — a recorded run must keep
+ * meaning what it meant when it was recorded. w1 journals stay on disk as
+ * records, with the reports written from them; they are no longer replayable,
+ * and the code says so instead of silently producing different numbers.
+ */
+export const WORLD_VERSION = "w2";
 
 export const RESOURCES = ["food", "timber", "ore", "wealth"] as const;
 export const ResourceSchema = z.enum(RESOURCES);
 export type Resource = z.infer<typeof ResourceSchema>;
+
+/**
+ * Land is not interchangeable.
+ *
+ * The first version counted territory as a single number, which made every
+ * acre identical and expansion a purely quantitative question. It also made
+ * doctrine free: a ruler could put everyone in the mines whether or not it held
+ * a single hill.
+ *
+ * Four kinds, each limiting one activity. Deliberately NOT a map: these are
+ * counts, not tiles, and nothing here claims adjacency, distance or borders
+ * drawn on a surface. A real map would need pathing, frontiers and a renderer
+ * for all of it; this gets heterogeneous land — which is what makes "what do we
+ * take next" a question — at a fraction of the cost.
+ */
+export const LAND_KINDS = ["plain", "forest", "hill", "river"] as const;
+export const LandKindSchema = z.enum(LAND_KINDS);
+export type LandKind = z.infer<typeof LandKindSchema>;
+
+export const LandsSchema = z.object({
+  plain: z.number().int().min(0),
+  forest: z.number().int().min(0),
+  hill: z.number().int().min(0),
+  river: z.number().int().min(0),
+});
+export type Lands = z.infer<typeof LandsSchema>;
+
+export const noLand = (): Lands => ({ plain: 0, forest: 0, hill: 0, river: 0 });
+export const landCount = (l: Lands): number => l.plain + l.forest + l.hill + l.river;
+
+/** Which activity each kind of land carries. A doctrine cannot outrun its ground. */
+export const LAND_CARRIES: Record<LandKind, "farming" | "forestry" | "mining" | "trade"> = {
+  plain: "farming",
+  forest: "forestry",
+  hill: "mining",
+  river: "trade",
+};
 
 export const StockSchema = z.object({
   food: z.number(),
@@ -54,13 +104,27 @@ export const DoctrineSchema = z.object({
    * the model's weights never change, but the context it inherits does.
    */
   creed: z.string().default(""),
+  /**
+   * What kind of land this civilisation reaches for when it expands, and takes
+   * first when it seizes.
+   *
+   * Standing policy like the rest: a ruler that has decided its people need
+   * grain does not need to be woken again to say so the next time a frontier
+   * opens.
+   */
+  claim: LandKindSchema.default("plain"),
 });
 export type Doctrine = z.infer<typeof DoctrineSchema>;
 
 export const CivSchema = z.object({
   id: FactionIdSchema,
   population: z.number(),
-  /** Tiles held. Growth and loss are slow and mechanical. */
+  /**
+   * Land held, by kind. `territory` is the total and is derived from it — kept
+   * as a field because every reader, the chronicle included, wants the number
+   * without summing four others.
+   */
+  lands: LandsSchema,
   territory: z.number(),
   stock: StockSchema,
   doctrine: DoctrineSchema,
@@ -88,6 +152,14 @@ export const WorldSchema = z.object({
    * reason to have a foreign policy at all.
    */
   land: z.number().int().default(80),
+  /**
+   * Unclaimed land, by kind.
+   *
+   * Finite per kind, not just in total: a world can run out of rivers while
+   * plains remain, and then trade stops being something a ruler can simply
+   * decide to do.
+   */
+  free: LandsSchema.default({ plain: 26, forest: 18, hill: 14, river: 6 }),
   civs: z.array(CivSchema),
 });
 export type World = z.infer<typeof WorldSchema>;
@@ -100,12 +172,16 @@ export const DEFAULT_DOCTRINE: Doctrine = {
   military: 0.05,
   posture: "GUARD",
   creed: "",
+  claim: "plain",
 };
 
 export function newCiv(id: Civ["id"]): Civ {
   return {
     id,
     population: 100,
+    // Everyone starts with one of each: no civilisation is born unable to do
+    // something, and every difference that follows was chosen or taken.
+    lands: { plain: 1, forest: 1, hill: 1, river: 1 },
     territory: 4,
     stock: { food: 200, timber: 80, ore: 40, wealth: 50 },
     doctrine: { ...DEFAULT_DOCTRINE },
@@ -132,6 +208,24 @@ export const isOver = (world: World): boolean => living(world).length <= 1;
 /** Total workable land, sized so it runs out while the world is still young. */
 export const DEFAULT_LAND = 80;
 
+/**
+ * The unclaimed world, once the founders have taken their four each.
+ *
+ * Deliberately unequal by kind: plains are common and rivers are scarce, so
+ * "who gets the rivers" is settled early and permanently — which is the same
+ * property that made finite land produce a history rather than a cycle.
+ */
+export const FREE_LAND: Lands = { plain: 30, forest: 18, hill: 10, river: 6 };
+
 export function newWorld(ids: Civ["id"][], seed: number, land = DEFAULT_LAND): World {
-  return { worldVersion: WORLD_VERSION, tick: 0, seed, land, civs: ids.map(newCiv) };
+  const civs = ids.map(newCiv);
+  const taken = civs.reduce((n, c) => n + landCount(c.lands), 0);
+  return {
+    worldVersion: WORLD_VERSION,
+    tick: 0,
+    seed,
+    land: taken + landCount(FREE_LAND),
+    free: { ...FREE_LAND },
+    civs,
+  };
 }
