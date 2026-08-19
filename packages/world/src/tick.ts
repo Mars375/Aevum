@@ -48,7 +48,10 @@ export interface TickEvent {
     /** A disaster struck. The land a civilisation covets carries a risk too. */
     | "DISASTER"
     /** A promise a predecessor made no longer holds. */
-    | "VOW_BROKEN";
+    | "VOW_BROKEN"
+    /** A capital changed hands. Not the same as losing a field. */
+    | "CAPITAL_LOST"
+    | "CAPITAL_MOVED";
   detail: string;
 }
 
@@ -275,11 +278,17 @@ function produce(civ: Civ, harvest: number): Stock {
    * A little is always possible on unsuited ground (the 0.15 floor): a
    * civilisation with no forest can still cut something, just badly. Zero would
    * make a single bad expansion unrecoverable.
+   *
+   * But that floor is people making do on ground they hold. A civilisation
+   * that holds nothing has no ground at all, and must produce nothing — else
+   * losing every place would leave it quietly alive forever, which is not a
+   * world, it is a bookkeeping error.
    */
+  const floor = civ.territory > 0 ? 0.15 : 0;
   const carried = (share: number, parcels: number, rate: number) => {
     const assigned = workers * share;
     const capacity = parcels * WORKERS_PER_LAND;
-    const effective = Math.min(assigned, capacity) + Math.max(0, assigned - capacity) * 0.15;
+    const effective = Math.min(assigned, capacity) + Math.max(0, assigned - capacity) * floor;
     return effective * rate;
   };
 
@@ -502,7 +511,7 @@ export function tickWorld(world: World): TickResult {
         board[target]!.owner = civ.id;
         civ.stock = { ...civ.stock, timber: round2(civ.stock.timber - 60) };
         const asked = board[target]!.kind === civ.doctrine.claim ? "" : ` (faute de ${civ.doctrine.claim})`;
-        events.push({ tick, civ: civ.id, kind: "EXPANDED", detail: `${LAND_LABEL[board[target]!.kind]} occupee${asked}` });
+        events.push({ tick, civ: civ.id, kind: "EXPANDED", detail: `${board[target]!.name} occupee, ${LAND_LABEL[board[target]!.kind]}${asked}` });
       }
     } else if (want === "abandon") {
       // The least useful goes first — a civilisation abandons the hill it
@@ -515,8 +524,41 @@ export function tickWorld(world: World): TickResult {
       const giveUp = mine[0];
       if (giveUp && mine.length > 1) {
         board[giveUp.i]!.owner = null;
-        events.push({ tick, civ: civ.id, kind: "LOST_LAND", detail: `${LAND_LABEL[giveUp.p.kind]} abandonnee` });
+        if (civ.capital === giveUp.i) {
+          const seat = board.findIndex((p, i) => p.owner === civ.id && i !== giveUp.i);
+          civ.capital = seat >= 0 ? seat : null;
+          if (seat >= 0) events.push({ tick, civ: civ.id, kind: "CAPITAL_MOVED", detail: `siege transfere a ${board[seat]!.name}` });
+        }
+        events.push({ tick, civ: civ.id, kind: "LOST_LAND", detail: `${giveUp.p.name} abandonnee` });
       }
+    }
+  }
+
+  /**
+   * A civilisation that dies lets go of its land.
+   *
+   * Found by running one: crimson was extinguished in year 393 and still held
+   * thirteen places. Ruins that nobody can enter would freeze a third of the
+   * board forever and quietly end the world's history — the survivors would
+   * have nowhere left to grow. The places go back to being unclaimed, which is
+   * what they were before anyone arrived.
+   */
+  for (const civ of civs) {
+    // Any dead civilisation, not only one that died this year. Comparing the
+    // year of death to the current year worked exactly once and then silently
+    // stopped — a world resumed, or a fixture that starts from a state rather
+    // than from year zero, would never pass through the year it needed.
+    if (isAlive(civ)) continue;
+    let released = 0;
+    for (const place of board) {
+      if (place.owner === civ.id) {
+        place.owner = null;
+        released += 1;
+      }
+    }
+    civ.capital = null;
+    if (released > 0) {
+      events.push({ tick, civ: civ.id, kind: "LOST_LAND", detail: `${released} lieux retournent au monde` });
     }
   }
 
@@ -594,11 +636,31 @@ function contact(world: World, events: TickEvent[]): World {
     board[target.i]!.owner = attacker.id;
     attacker.soldiers = Math.max(0, attacker.soldiers - Math.ceil(defence * 0.3));
     defender.soldiers = Math.max(0, defender.soldiers - Math.ceil(defender.soldiers * 0.4));
+
+    if (defender.capital === target.i) {
+      // A seat is not a field. Losing it costs people and treasure, and the
+      // civilisation has to sit down somewhere else — its oldest remaining
+      // place, which keeps the choice out of iteration order.
+      const lost = Math.floor(defender.population * 0.15);
+      defender.population = Math.max(1, defender.population - lost);
+      defender.stock = { ...defender.stock, wealth: round2(defender.stock.wealth * 0.7) };
+      const seat = board.findIndex((p, i) => p.owner === defender.id && i !== target.i);
+      defender.capital = seat >= 0 ? seat : null;
+      events.push({
+        tick,
+        civ: defender.id,
+        kind: "CAPITAL_LOST",
+        detail: `${target.place.name}, notre siege, est tombee : ${lost} morts et les coffres pilles`,
+      });
+      if (seat >= 0) {
+        events.push({ tick, civ: defender.id, kind: "CAPITAL_MOVED", detail: `siege transfere a ${board[seat]!.name}` });
+      }
+    }
     // Counted here so a second aggressor this same year sees the new frontier.
     defender.territory -= 1;
     attacker.territory += 1;
-    events.push({ tick, civ: attacker.id, kind: "SEIZED", detail: `${LAND_LABEL[target.place.kind]} prise a ${defender.id}` });
-    events.push({ tick, civ: defender.id, kind: "CEDED", detail: `${LAND_LABEL[target.place.kind]} perdue au profit de ${attacker.id}` });
+    events.push({ tick, civ: attacker.id, kind: "SEIZED", detail: `${target.place.name} prise a ${defender.id}` });
+    events.push({ tick, civ: defender.id, kind: "CEDED", detail: `${target.place.name} perdue au profit de ${attacker.id}` });
   }
 
   return { ...world, board, civs: civs.map((c) => byId.get(c.id)!) };

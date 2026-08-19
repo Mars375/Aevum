@@ -51,9 +51,12 @@ const cells = computed(() =>
     y: Math.floor(i / size.value),
     kind: place.kind,
     owner: place.owner,
-    label: place.owner ? `${LABEL[place.kind]} — ${place.owner}` : `${LABEL[place.kind]} — libre`,
+    name: place.name,
+    label: `${place.name} — ${LABEL[place.kind]}${place.owner ? ` — ${place.owner}` : " — libre"}`,
   })),
 );
+
+const capitals = computed(() => new Map(props.year.world.civs.filter((c) => c.capital !== null).map((c) => [c.capital!, c.id])));
 
 const held = computed(() => props.year.world.civs.map((c) => ({ id: c.id, n: c.territory, fallen: c.fellOnTick !== null })));
 const neutral = computed(() => props.year.world.board.filter((p) => p.owner === null).length);
@@ -64,7 +67,7 @@ const neutral = computed(() => props.year.world.board.filter((p) => p.owner === 
     <svg
       :viewBox="`0 0 ${size * 10} ${size * 10}`"
       role="img"
-      :aria-label="`Carte de ${size} sur ${size} lieux. ${held.map((h) => `${h.id} en tient ${h.n}`).join(', ')}. ${neutral} encore libres.`"
+      :aria-label="`Carte de ${size} sur ${size} lieux. ${held.map((h) => `${h.id} en tient ${h.n}`).join(', ')}. ${neutral} encore libres. Un anneau marque un siege.`"
     >
       <g v-for="c in cells" :key="c.i">
         <rect
@@ -82,12 +85,24 @@ const neutral = computed(() => props.year.world.board.filter((p) => p.owner === 
         </rect>
         <!-- A held place carries a dot in its owner's colour: the border alone
              would be hard to tell apart where two empires meet. -->
-        <circle v-if="c.owner" :cx="c.x * 10 + 5" :cy="c.y * 10 + 5" r="1.6" :fill="OWNER[c.owner]" />
+        <!-- A seat is drawn as a ring, not a bigger dot: it has to be legible
+             where two empires meet and their colours already sit side by side. -->
+        <circle
+          v-if="c.owner && capitals.get(c.i) === c.owner"
+          :cx="c.x * 10 + 5"
+          :cy="c.y * 10 + 5"
+          r="2.6"
+          fill="none"
+          :stroke="OWNER[c.owner]"
+          stroke-width="1.4"
+        />
+        <circle v-else-if="c.owner" :cx="c.x * 10 + 5" :cy="c.y * 10 + 5" r="1.6" :fill="OWNER[c.owner]" />
       </g>
     </svg>
 
     <figcaption>
       <ul class="legend mono">
+        <li class="seat"><span class="ring"></span>siège</li>
         <li v-for="h in held" :key="h.id" :class="[h.id, { fallen: h.fallen }]">
           <span class="swatch"></span>{{ h.id }} <b>{{ h.n }}</b>
         </li>
@@ -167,4 +182,11 @@ svg {
 .legend .verdant .swatch { border-color: var(--verdant); }
 .legend .amber .swatch { border-color: var(--amber); }
 .legend .free .swatch { border-color: transparent; background: #3f5f27; }
+
+.ring {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+}
 </style>

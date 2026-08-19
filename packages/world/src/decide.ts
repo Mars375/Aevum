@@ -43,6 +43,8 @@ export const DECISION_KINDS = [
   "DISASTER",
   /** A promise a predecessor made no longer holds. */
   "VOW_BROKEN",
+  /** The seat of the civilisation has been taken. */
+  "CAPITAL",
 ] as const;
 export type DecisionKind = (typeof DECISION_KINDS)[number];
 
@@ -156,6 +158,13 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
 
   if (mine.some((e) => e.kind === "SURPLUS")) {
     raise("SURPLUS", 40, [`vivres ${civ.stock.food}`, `tresor ${civ.stock.wealth}`, "rien n'en est fait"], true);
+  }
+
+  const seat = mine.find((e) => e.kind === "CAPITAL_LOST");
+  if (seat) {
+    // Above URGENT: a ruler whose seat has just fallen is not made to wait for
+    // a gap the way a ruler with a slow harvest is.
+    raise("CAPITAL", 95, [seat.detail, `${civ.territory} lieux restants`, `${civ.soldiers} soldats`]);
   }
 
   const struck = mine.find((e) => e.kind === "DISASTER");

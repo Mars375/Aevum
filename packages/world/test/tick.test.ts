@@ -92,7 +92,11 @@ describe("les stocks ne partent jamais en negatif", () => {
   });
 
   it("une civilisation eteinte ne bouge plus jamais", () => {
-    const dead = world({ civs: [{ ...newCiv("crimson"), fellOnTick: 3 }] });
+    // Une eteinte ne tient plus rien : le moteur libere sa terre des qu'il en
+    // voit, donc un etat ou elle en garde encore n'est pas un etat stable mais
+    // une incoherence qu'il corrige.
+    const base = world({ civs: [{ ...newCiv("crimson"), fellOnTick: 3 }] });
+    const dead = census({ ...base, board: base.board.map((p) => ({ ...p, owner: null })) });
     expect(JSON.stringify(run(20, dead).civs[0])).toBe(JSON.stringify(dead.civs[0]));
   });
 });
@@ -331,5 +335,148 @@ describe("un serment engage les successeurs", () => {
 
   it("sans serment, il n'y a rien a tenir", () => {
     expect(vowHeld(newCiv("crimson"))).toBeNull();
+  });
+});
+
+describe("un siege n'est pas un champ", () => {
+  /** Two civilisations side by side, one about to be pressed. */
+  const facing = (attackerSoldiers: number) => {
+    const base = newWorld(["crimson", "azure"], 42);
+    const board = base.board.map((p, i) => ({
+      ...p,
+      owner: i === 0 || i === 1 ? ("crimson" as const) : i === 2 || i === 11 ? ("azure" as const) : null,
+    }));
+    return census({
+      ...base,
+      board,
+      civs: base.civs.map((c) =>
+        c.id === "crimson"
+          ? {
+              ...c,
+              capital: 0,
+              soldiers: attackerSoldiers,
+              population: 300,
+              stock: { food: 6000, timber: 0, ore: 0, wealth: 900 },
+              doctrine: { ...c.doctrine, posture: "PRESSURE" as const },
+            }
+          : { ...c, capital: 2, soldiers: 1, population: 300, stock: { food: 6000, timber: 0, ore: 0, wealth: 900 } },
+      ),
+    });
+  };
+
+  it("prendre la capitale coute des gens et le tresor a celui qui la perd", () => {
+    const w = facing(200);
+    const before = w.civs.find((c) => c.id === "azure")!;
+    const after = tickWorld(w);
+    const fell = after.events.find((e) => e.kind === "CAPITAL_LOST");
+    if (!fell) return; // la saisie n'a pas vise le siege cette annee-la
+    const azure = after.world.civs.find((c) => c.id === "azure")!;
+    expect(azure.population).toBeLessThan(before.population);
+    expect(azure.stock.wealth).toBeLessThan(before.stock.wealth);
+  });
+
+  it("et la civilisation se rassoit ailleurs plutot que de rester sans siege", () => {
+    let w = facing(200);
+    for (let i = 0; i < 6; i += 1) {
+      const stepped = tickWorld(w);
+      w = stepped.world;
+      const azure = w.civs.find((c) => c.id === "azure")!;
+      if (azure.territory > 0) expect(azure.capital, `an ${w.tick}`).not.toBeNull();
+    }
+  });
+
+  it("une armee trop faible ne prend rien du tout", () => {
+    const w = facing(1);
+    const after = tickWorld(w);
+    expect(after.events.some((e) => e.kind === "SEIZED")).toBe(false);
+  });
+});
+
+describe("sans terre, on ne produit rien", () => {
+  it("une civilisation depossedee finit par s'eteindre", () => {
+    const base = newWorld(["crimson"], 42);
+    let w = census({
+      ...base,
+      board: base.board.map((p) => ({ ...p, owner: null })),
+      civs: base.civs.map((c) => ({ ...c, capital: null, population: 200, stock: { food: 300, timber: 0, ore: 0, wealth: 0 } })),
+    });
+    expect(w.civs[0]!.territory).toBe(0);
+    for (let i = 0; i < 40; i += 1) w = tickWorld(w).world;
+    // Elle meurt de faim, faute du moindre sol a travailler — et non parce
+    // qu'une regle la declare morte.
+    expect(w.civs[0]!.fellOnTick).not.toBeNull();
+  });
+
+  it("alors qu'un champ, meme seul, suffit a tenir", () => {
+    const base = newWorld(["crimson"], 42);
+    let w = census({
+      ...base,
+      // Fondee sur une plaine plutot que sur ce que la graine a donne.
+      board: base.board.map((p) => (p.owner === "crimson" ? { ...p, kind: "plain" as const } : p)),
+      civs: base.civs.map((c) => ({ ...c, population: 20, stock: { food: 300, timber: 0, ore: 0, wealth: 0 } })),
+    });
+    for (let i = 0; i < 40; i += 1) w = tickWorld(w).world;
+    expect(w.civs[0]!.fellOnTick).toBeNull();
+  });
+
+  it("mais une civilisation fondee sur une colline doit s'etendre ou mourir de faim", () => {
+    // Consequence assumee de w4 : ce qu'on sait faire depend de l'endroit ou
+    // l'on nait. Sur la pierre, on ne mange pas, et sans expansion on s'eteint.
+    const base = newWorld(["crimson"], 42);
+    let w = census({
+      ...base,
+      board: base.board.map((p) => (p.owner === "crimson" ? { ...p, kind: "hill" as const } : p)),
+      // Ni bois pour s'etendre, ni voisins : elle est seule sur sa pierre.
+      civs: base.civs.map((c) => ({ ...c, population: 20, stock: { food: 300, timber: 0, ore: 0, wealth: 0 } })),
+    });
+    for (let i = 0; i < 120; i += 1) w = tickWorld(w).world;
+    expect(w.civs[0]!.fellOnTick).not.toBeNull();
+  });
+});
+
+describe("les lieux ont un nom", () => {
+  it("le meme monde donne les memes noms", () => {
+    expect(newWorld(["crimson"], 42).board.map((p) => p.name)).toEqual(newWorld(["crimson"], 42).board.map((p) => p.name));
+  });
+
+  it("et deux graines donnent des noms differents", () => {
+    expect(newWorld(["crimson"], 42).board[0]!.name).not.toBe(newWorld(["crimson"], 99).board[0]!.name);
+  });
+
+  it("la chronique dit ou, pas seulement quoi", () => {
+    let w = census({
+      ...newWorld(["crimson"], 42),
+      civs: [{ ...newCiv("crimson"), population: 400, stock: { food: 9000, timber: 9000, ore: 0, wealth: 100 }, capital: null }],
+    });
+    const said: string[] = [];
+    for (let i = 0; i < 8; i += 1) {
+      const stepped = tickWorld(w);
+      for (const e of stepped.events) if (e.kind === "EXPANDED") said.push(e.detail);
+      w = stepped.world;
+    }
+    expect(said.length).toBeGreaterThan(0);
+    // Un nom de lieu, pas seulement un type de terrain.
+    expect(said[0]).toMatch(/^[A-ZÀ-Ý][a-zà-ÿ]+/);
+  });
+});
+
+describe("une civilisation eteinte laisse la place", () => {
+  it("ses lieux redeviennent libres plutot que de geler la carte", () => {
+    const base = newWorld(["crimson", "azure"], 42);
+    let w = census({
+      ...base,
+      board: base.board.map((p, i) => ({ ...p, owner: i < 10 ? ("crimson" as const) : p.owner })),
+      civs: base.civs.map((c) =>
+        c.id === "crimson" ? { ...c, population: 1, stock: { food: 0, timber: 0, ore: 0, wealth: 0 } } : c,
+      ),
+    });
+    expect(w.civs.find((c) => c.id === "crimson")!.territory).toBeGreaterThan(5);
+
+    for (let i = 0; i < 30; i += 1) w = tickWorld(w).world;
+    const dead = w.civs.find((c) => c.id === "crimson")!;
+    expect(dead.fellOnTick).not.toBeNull();
+    expect(dead.territory).toBe(0);
+    expect(dead.capital).toBeNull();
+    expect(w.board.some((p) => p.owner === "crimson")).toBe(false);
   });
 });

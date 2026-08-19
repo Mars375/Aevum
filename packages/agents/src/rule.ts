@@ -65,6 +65,20 @@ const lift = (value: unknown): unknown => {
  * `vow: { metric, floor }` instead. Reading both is a line of code; losing every
  * vow to a shape preference is not worth defending.
  */
+/**
+ * A null field is a model saying "nothing here", which is what absent means.
+ *
+ * Caught by the preflight before it cost a rotation: one model answered
+ * `vowMetric: "none", vowFloor: null`, and the whole ruling — shares, posture,
+ * creed and all — was thrown away because zod's `.optional()` accepts undefined
+ * and not null. Rejecting a good answer to enforce a form is the failure this
+ * file already guards against everywhere else.
+ */
+const dropNulls = (value: unknown): unknown => {
+  if (typeof value !== "object" || value === null) return value;
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([, v]) => v !== null));
+};
+
 const liftVow = (value: unknown): unknown => {
   if (typeof value !== "object" || value === null) return value;
   const obj = value as Record<string, unknown>;
@@ -76,7 +90,7 @@ const liftVow = (value: unknown): unknown => {
   return { ...obj, vowMetric: inner.metric, vowFloor: inner.floor };
 };
 
-const RulingAnswerSchema = z.preprocess((v) => liftVow(lift(v)), z.object({
+const RulingAnswerSchema = z.preprocess((v) => dropNulls(liftVow(lift(v))), z.object({
   reasoning: z.string().default(""),
   creed: z.string().default(""),
   // Defaulted, not required: a ruler woken by a famine has no reason to

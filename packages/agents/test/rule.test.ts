@@ -324,3 +324,37 @@ describe("un dirigeant attend son propre modele plutot que de ceder la main", ()
     expect(provider.lastModel()).toBe("repli:free");
   });
 });
+
+describe("un champ nul veut dire absent, pas invalide", () => {
+  // Attrape par le preflight avant qu'il ne coute une rotation : un modele
+  // repondait vowMetric "none" et vowFloor null, et toute la decision — parts,
+  // posture, credo compris — etait jetee parce que .optional() accepte undefined
+  // et non null.
+  it("un plancher de serment nul ne fait pas jeter la decision", async () => {
+    const ruling = await askRuler(
+      answering({ ...valid, vowMetric: "none", vowFloor: null }),
+      general,
+      newCiv("crimson"),
+      point,
+    );
+    expect(ruling).not.toBeNull();
+    expect(ruling!.doctrine.farming).toBe(7);
+    expect(ruling!.doctrine.vow).toBeUndefined();
+  });
+
+  it("de meme pour une posture, une terre ou un credo nuls", async () => {
+    const ruling = await askRuler(
+      answering({ ...valid, posture: null, claim: null, creed: null }),
+      general,
+      newCiv("crimson"),
+      point,
+    );
+    expect(ruling).not.toBeNull();
+    expect(ruling!.doctrine.posture).toBeUndefined();
+    expect(ruling!.doctrine.claim).toBeUndefined();
+  });
+
+  it("mais une valeur reellement invalide fait toujours rejeter", async () => {
+    expect(await askRuler(answering({ ...valid, farming: null }), general, newCiv("crimson"), point)).toBeNull();
+  });
+});

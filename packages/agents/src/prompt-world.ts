@@ -29,6 +29,8 @@ export function systemPromptWorld(): string {
     "The world is a board of places, every one of them somewhere. You may only take what your own frontier touches:",
     "an unclaimed place beside you, or, under PRESSURE, a place held by a neighbour you actually border.",
     "Choose which kind you reach for; when none of that kind touches you, you take what does.",
+    "Your seat is one of your places. Losing it costs you people and treasure, and you must sit down elsewhere —",
+    "so a frontier that exposes your seat is worth more attention than one that exposes a field.",
     "",
     "You set how your people are employed. Shares are relative, not percentages — the engine normalises them.",
     "- farming feeds everyone. A farmer feeds several people; that surplus is what pays for everyone who is not a farmer.",
@@ -84,7 +86,8 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint, world?: World): 
           (() => {
             const f = frontier(world, civ.id);
             const free = world.board.filter((p) => p.owner === null).length;
-            return `- your frontier touches ${f.neutral} unclaimed place(s)${
+            const seat = civ.capital !== null ? world.board[civ.capital]?.name : null;
+            return `${seat ? `- your seat is ${seat}\n` : ""}- your frontier touches ${f.neutral} unclaimed place(s)${
               f.neighbours.length ? ` and borders ${f.neighbours.join(", ")}` : " and no neighbour yet"
             }. ${free} place(s) in the world are still unclaimed.`;
           })(),

@@ -69,6 +69,8 @@ export type LandKind = z.infer<typeof LandKindSchema>;
 export const PlaceSchema = z.object({
   kind: LandKindSchema,
   owner: FactionIdSchema.nullable(),
+  /** A name, so a chronicle can say where something happened. */
+  name: z.string().default(""),
 });
 export type Place = z.infer<typeof PlaceSchema>;
 
@@ -181,6 +183,14 @@ export const CivSchema = z.object({
   soldiers: z.number(),
   /** Unlocked advances, in the order they were reached. */
   advances: z.array(z.string()).default([]),
+  /**
+   * Where this civilisation is seated, as an index on the board.
+   *
+   * Founded on its first place. Taking a capital is not the same as taking a
+   * field: a civilisation that loses its seat loses people and treasure with
+   * it, and has to sit down somewhere else.
+   */
+  capital: z.number().int().nullable().default(null),
   /** Ticks since this civilisation last had to decide anything. */
   ticksSinceDecision: z.number().int().default(0),
   /**
@@ -245,6 +255,7 @@ export function newCiv(id: Civ["id"]): Civ {
     doctrine: { ...DEFAULT_DOCTRINE },
     soldiers: 5,
     advances: [],
+    capital: null,
     ticksSinceDecision: 0,
     vowBrokenOn: null,
     fellOnTick: null,
@@ -281,6 +292,32 @@ export function neighbours(size: number, index: number): number[] {
   return out;
 }
 
+/**
+ * Names, so the chronicle can say where.
+ *
+ * Built from the seed and the index, like everything else that must survive a
+ * replay. Two syllable tables and a suffix give enough distinct names for a
+ * board this size without a word list to maintain.
+ */
+const HEADS = ["Kar", "Vel", "Mor", "Tha", "Bren", "Sel", "Dun", "Ash", "Rho", "Ferr", "Vas", "Ithi"];
+const TAILS = ["mar", "dun", "ash", "vale", "reth", "por", "gan", "wick", "mere", "fell", "ost", "lin"];
+const SUFFIX: Record<LandKind, string[]> = {
+  plain: ["-les-Champs", "-la-Plaine", ""],
+  forest: ["-sous-Bois", "-la-Forêt", ""],
+  hill: ["-le-Haut", "-les-Monts", ""],
+  river: ["-sur-Eau", "-les-Rives", ""],
+};
+
+export function placeName(seed: number, index: number, kind: LandKind): string {
+  let h = (seed * 0x1b873593) ^ ((index + 7) * 0xcc9e2d51);
+  h = Math.imul(h ^ (h >>> 15), 0x2545f491);
+  h ^= h >>> 12;
+  const a = HEADS[(h >>> 0) % HEADS.length]!;
+  const b = TAILS[(h >>> 7) % TAILS.length]!;
+  const s = SUFFIX[kind]!;
+  return a + b + s[(h >>> 14) % s.length]!;
+}
+
 /** Which kinds the board is made of, and in what proportion. */
 const KIND_WEIGHTS: Array<[LandKind, number]> = [
   ["plain", 0.46],
@@ -312,7 +349,7 @@ export function newWorld(ids: Civ["id"][], seed: number, size = 9): World {
       }
       roll -= w;
     }
-    board.push({ kind, owner: null });
+    board.push({ kind, owner: null, name: placeName(seed, i, kind) });
   }
 
   // Founders start one place each, spread to the corners: nobody begins next to
@@ -323,6 +360,7 @@ export function newWorld(ids: Civ["id"][], seed: number, size = 9): World {
   civs.forEach((civ, i) => {
     const home = corners[i % corners.length]!;
     board[home]!.owner = civ.id;
+    civ.capital = home;
   });
 
   return { worldVersion: WORLD_VERSION, tick: 0, seed, land: size * size, size, board, free: noLand(), civs };
