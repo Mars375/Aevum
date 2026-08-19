@@ -48,7 +48,7 @@ for (const general of DEFAULT_GENERALS) {
   const provider = new RemoteProvider({ apiKeys, freeModelsOnly: true });
   const started = Date.now();
   let rejection: string | null = null;
-  const ruling = await askRuler(provider, solo, newCiv("crimson"), point, (why) => (rejection = why));
+  const ruling = await askRuler(provider, solo, newCiv("crimson"), point, undefined, (why) => (rejection = why));
   const ms = Date.now() - started;
   const used = provider.usage()[0]?.completion ?? 0;
 

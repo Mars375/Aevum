@@ -1,4 +1,4 @@
-import { LAND_KINDS, isAlive, type Civ, type World } from "./state.js";
+import { LAND_KINDS, isAlive, neighbours, type Civ, type World } from "./state.js";
 import type { TickEvent } from "./tick.js";
 
 /**
@@ -102,6 +102,27 @@ export function foodRunway(civ: Civ): number {
   return civ.stock.food / burn;
 }
 
+/**
+ * What a civilisation can actually reach, and from whom.
+ *
+ * Since w4 this is the fact that decides whether a border question has an
+ * answer: a ruler told "the world is full" while three neutral places sit
+ * against its frontier would be told a lie.
+ */
+export function frontier(world: World, civ: Civ["id"]): { neutral: number; neighbours: string[] } {
+  const neutral = new Set<number>();
+  const others = new Set<string>();
+  world.board.forEach((place, i) => {
+    if (place.owner !== civ) return;
+    for (const n of neighbours(world.size, i)) {
+      const owner = world.board[n]!.owner;
+      if (owner === null) neutral.add(n);
+      else if (owner !== civ) others.add(owner);
+    }
+  });
+  return { neutral: neutral.size, neighbours: [...others].sort() };
+}
+
 function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[] {
   const mine = events.filter((e) => e.civ === civ.id);
   const out: DecisionPoint[] = [];
@@ -161,7 +182,7 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
       "BORDER",
       55,
       [
-        "plus une terre libre dans le monde",
+        "plus un lieu libre a portee de nos frontieres",
         `${civ.population} habitants pour ${civ.territory} terres`,
         `vos terres : ${LAND_KINDS.map((k) => `${k} ${civ.lands[k]}`).join(", ")}`,
       ],

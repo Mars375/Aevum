@@ -1,4 +1,4 @@
-import type { Civ, DecisionPoint } from "@abs/world";
+import { frontier, type Civ, type DecisionPoint, type World } from "@abs/world";
 
 /**
  * What a ruler is told, and what a ruler answers.
@@ -24,7 +24,11 @@ export function systemPromptWorld(): string {
     "- forest carries forestry.",
     "- hill carries mining.",
     "- river carries trade, and waters fields too, which is why rivers are the scarcest land in the world.",
-    "Each parcel carries about 25 workers. Choose which kind you reach for when you expand or seize; when none of that kind is left, you take what exists instead.",
+    "Each place carries about 25 workers.",
+    "",
+    "The world is a board of places, every one of them somewhere. You may only take what your own frontier touches:",
+    "an unclaimed place beside you, or, under PRESSURE, a place held by a neighbour you actually border.",
+    "Choose which kind you reach for; when none of that kind touches you, you take what does.",
     "",
     "You set how your people are employed. Shares are relative, not percentages — the engine normalises them.",
     "- farming feeds everyone. A farmer feeds several people; that surplus is what pays for everyone who is not a farmer.",
@@ -60,7 +64,7 @@ export function systemPromptWorld(): string {
 
 const pct = (n: number, total: number) => `${Math.round((n / (total || 1)) * 100)}%`;
 
-export function userPromptWorld(civ: Civ, point: DecisionPoint): string {
+export function userPromptWorld(civ: Civ, point: DecisionPoint, world?: World): string {
   const d = civ.doctrine;
   const total = d.farming + d.forestry + d.mining + d.trade + d.military;
 
@@ -75,6 +79,17 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint): string {
     "Your civilisation:",
     `- ${civ.population} people on ${civ.territory} territories, ${civ.soldiers} soldiers`,
     `- land: ${civ.lands.plain} plain, ${civ.lands.forest} forest, ${civ.lands.hill} hill, ${civ.lands.river} river`,
+    ...(world
+      ? [
+          (() => {
+            const f = frontier(world, civ.id);
+            const free = world.board.filter((p) => p.owner === null).length;
+            return `- your frontier touches ${f.neutral} unclaimed place(s)${
+              f.neighbours.length ? ` and borders ${f.neighbours.join(", ")}` : " and no neighbour yet"
+            }. ${free} place(s) in the world are still unclaimed.`;
+          })(),
+        ]
+      : []),
     `- stores: ${Math.round(civ.stock.food)} food, ${Math.round(civ.stock.timber)} timber, ${Math.round(civ.stock.ore)} ore, ${Math.round(civ.stock.wealth)} wealth`,
     `- advances: ${civ.advances.length > 0 ? civ.advances.join(", ") : "none yet"}`,
     "",

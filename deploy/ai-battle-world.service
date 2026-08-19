@@ -6,7 +6,7 @@
 # session ouverte.
 [Unit]
 Description=ai-battle-simulator — faire vivre le monde continu
-Documentation=file:%h/git/ai-battle-simulator/docs/spec/world-w3.md
+Documentation=file:%h/git/ai-battle-simulator/docs/spec/world-w4.md
 After=network-online.target
 Wants=network-online.target
 

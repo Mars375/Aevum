@@ -7,6 +7,7 @@ import {
   detectDecisions,
   foodRunway,
   newCiv,
+  census,
   isOver,
   living,
   newJournal,
@@ -17,10 +18,12 @@ import {
   type World,
 } from "../src/index.js";
 
-const world = (over: Partial<World> = {}): World => ({
-  ...newWorld(["crimson"], 42),
-  ...over,
-});
+/** The board is built for exactly the civilisations a fixture asks for. */
+const world = (over: Partial<World> = {}): World => {
+  const ids = over.civs?.map((c) => c.id) ?? ["crimson"];
+  const base = newWorld(ids, 42);
+  return census({ ...base, ...over, board: over.board ?? base.board });
+};
 
 describe("W1 — un point de decision ne depend que de l'etat et des evenements", () => {
   it("les memes entrees donnent les memes points", () => {
@@ -62,8 +65,23 @@ describe("une seule question par civilisation et par tour", () => {
   });
 
   it("la derive finit par reveiller un dirigeant que rien n'a inquiete", () => {
-    const calm = world({
-      civs: [{ ...newCiv("crimson"), ticksSinceDecision: DRIFT_TICKS, stock: { food: 400, timber: 100, ore: 50, wealth: 200 } }],
+    // Depuis w4, ce qu'une civilisation peut faire depend du lieu ou elle est
+    // fondee : celle-ci nait sur une colline, donc labourer y leve un MISMATCH,
+    // plus urgent que la derive. On lui donne une plaine pour ne mesurer que
+    // la derive.
+    const base = world({
+      civs: [
+        {
+          ...newCiv("crimson"),
+          ticksSinceDecision: DRIFT_TICKS,
+          stock: { food: 400, timber: 100, ore: 50, wealth: 200 },
+          doctrine: { ...newCiv("crimson").doctrine, farming: 1, forestry: 0, mining: 0, trade: 0, military: 0 },
+        },
+      ],
+    });
+    const calm = census({
+      ...base,
+      board: base.board.map((p) => (p.owner === "crimson" ? { ...p, kind: "plain" as const } : p)),
     });
     expect(detectDecisions(calm, [])[0]!.kind).toBe("DRIFT");
   });

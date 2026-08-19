@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from "vue";
 import type { Year } from "@abs/world";
+import WorldMap from "./WorldMap.vue";
 
 /**
  * Watching a civilisation change, year by year.
  *
- * Deliberately NOT a map. The engine holds counts, not places — a civilisation
- * has "seven plains and two rivers", with no coordinates, no adjacency and no
- * frontier drawn on a surface. Painting a landscape would invent a geography
- * the engine does not have, which is the same rule the battle views follow:
- * representing terrain the engine ignores is a visual lie.
- *
- * So each parcel is one square, grouped by kind. It reads as a holding, not as
- * a country — and every square, every soldier mark and every flash of disaster
- * is a value the engine actually produced.
+ * The map beside it shows where those places are; this side shows what a
+ * civilisation is made of — its holdings by kind, its garrison, and whatever
+ * struck it this year. Every square and every mark is a value the engine
+ * actually produced.
  */
 const props = defineProps<{ years: Year[]; index: number }>();
 const emit = defineEmits<{ seek: [number] }>();
@@ -94,7 +90,10 @@ const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches 
       </div>
     </header>
 
-    <div class="civs">
+    <div class="split">
+      <WorldMap :year="year" />
+
+      <div class="civs">
       <article v-for="civ in year.world.civs" :key="civ.id" class="civ" :class="[civ.id, { fallen: civ.fellOnTick !== null }]">
         <div class="name">
           <span class="mono id">{{ civ.id }}</span>
@@ -130,11 +129,12 @@ const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches 
           <li v-for="(f, i) in flashes.get(civ.id)" :key="i">{{ f }}</li>
         </ul>
       </article>
+      </div>
     </div>
 
     <p class="mono caveat">
-      Ce ne sont pas des tuiles voisines : le moteur compte des terres, il ne les place pas.
-      Une parcelle = un carré, regroupée par type.
+      La carte est le monde : chaque lieu existe, commence libre, et ne peut être pris que
+      depuis une frontière qui le touche.
     </p>
   </section>
 </template>
@@ -170,10 +170,27 @@ h3 {
   font-size: 11px;
 }
 
+.split {
+  display: grid;
+  gap: var(--s5);
+  justify-items: center;
+}
+
+/* The map is the world; the strips beside it are what each civilisation is
+   made of. Side by side at width, stacked when there is none. */
+@media (min-width: 860px) {
+  .split {
+    grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+    align-items: start;
+    justify-items: stretch;
+  }
+}
+
 .civs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: var(--s4);
+  width: 100%;
 }
 
 .civ {

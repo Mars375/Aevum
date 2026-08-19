@@ -9,12 +9,12 @@
  *
  * Run: npx tsx scripts/world-probe.ts [ticks]
  */
-import { detectDecisions, newWorld, tickWorld, type DecisionKind, type World } from "../packages/world/src/index.js";
+import { census, detectDecisions, newWorld, tickWorld, type DecisionKind, type World } from "../packages/world/src/index.js";
 
 const TICKS = Number(process.argv[2] ?? 500);
 const FACTIONS = ["crimson", "azure", "verdant", "amber"] as const;
 
-let world: World = newWorld([...FACTIONS], 42);
+let world: World = census(newWorld([...FACTIONS], 42));
 
 const byKind = new Map<DecisionKind, number>();
 let total = 0;
@@ -54,5 +54,7 @@ for (const [kind, n] of [...byKind].sort((a, b) => b[1] - a[1])) {
 console.log(`\netat final :`);
 for (const c of world.civs) {
   const state = c.fellOnTick === null ? "vivante" : `eteinte au tour ${c.fellOnTick}`;
-  console.log(`  ${c.id.padEnd(8)} pop ${String(c.population).padStart(5)}  terres ${String(c.territory).padStart(3)}  soldats ${String(c.soldiers).padStart(4)}  progres ${c.advances.length}  ${state}`);
+  console.log(`  ${c.id.padEnd(8)} pop ${String(c.population).padStart(5)}  lieux ${String(c.territory).padStart(3)}  soldats ${String(c.soldiers).padStart(4)}  progres ${c.advances.length}  ${state}`);
 }
+const neutral = world.board.filter((p) => p.owner === null).length;
+console.log(`\n  ${neutral} lieux encore neutres sur ${world.board.length}`);

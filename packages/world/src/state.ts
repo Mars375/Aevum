@@ -20,9 +20,13 @@ import { FactionIdSchema } from "@abs/contracts";
  *
  * w1 counted territory as a single number: every acre identical, and a doctrine
  * free to mine without hills. w2 gave land four kinds, each carrying one kind
- * of work. w3 adds disaster — so the land a civilisation covets carries a risk
- * as well as a yield — and vows, which give a ruler something its successor
- * inherits besides words.
+ * of work. w3 added disaster and vows.
+ *
+ * w4 puts the land on a board. Until now a civilisation simply *had* seven
+ * plains, as if land were a stock you accumulate; there was no elsewhere for it
+ * to come from. Now every place exists in its own right, starts unowned, and
+ * has neighbours — so land is taken from somewhere, from someone, and only
+ * where a civilisation already reaches.
  *
  * So the version is bumped rather than the old worlds quietly re-interpreted.
  * The same discipline as I20 in the battle rules — a recorded run must keep
@@ -30,7 +34,7 @@ import { FactionIdSchema } from "@abs/contracts";
  * records, with the reports written from them; they are no longer replayable,
  * and the code says so instead of silently producing different numbers.
  */
-export const WORLD_VERSION = "w3";
+export const WORLD_VERSION = "w4";
 
 export const RESOURCES = ["food", "timber", "ore", "wealth"] as const;
 export const ResourceSchema = z.enum(RESOURCES);
@@ -53,6 +57,20 @@ export type Resource = z.infer<typeof ResourceSchema>;
 export const LAND_KINDS = ["plain", "forest", "hill", "river"] as const;
 export const LandKindSchema = z.enum(LAND_KINDS);
 export type LandKind = z.infer<typeof LandKindSchema>;
+
+/**
+ * One place in the world.
+ *
+ * Neutral until somebody takes it. Its position is its index on a square
+ * board, which is what gives it neighbours — and neighbours are the whole
+ * point: a civilisation can only reach what it already borders, so a frontier
+ * is a real thing rather than an accounting entry.
+ */
+export const PlaceSchema = z.object({
+  kind: LandKindSchema,
+  owner: FactionIdSchema.nullable(),
+});
+export type Place = z.infer<typeof PlaceSchema>;
 
 export const LandsSchema = z.object({
   plain: z.number().int().min(0),
@@ -149,9 +167,11 @@ export const CivSchema = z.object({
   id: FactionIdSchema,
   population: z.number(),
   /**
-   * Land held, by kind. `territory` is the total and is derived from it — kept
-   * as a field because every reader, the chronicle included, wants the number
-   * without summing four others.
+   * Land held, by kind, and its total.
+   *
+   * Both are now *derived from the board* and recomputed every tick. They stay
+   * on the civilisation because production, the decision rules and every reader
+   * want them without walking eighty-one places — but the board is the truth.
    */
   lands: LandsSchema,
   territory: z.number(),
@@ -186,14 +206,17 @@ export const WorldSchema = z.object({
    * reason to have a foreign policy at all.
    */
   land: z.number().int().default(80),
+  /** Side of the square board. */
+  size: z.number().int().default(9),
   /**
-   * Unclaimed land, by kind.
+   * Every place in the world, in row-major order.
    *
-   * Finite per kind, not just in total: a world can run out of rivers while
-   * plains remain, and then trade stops being something a ruler can simply
-   * decide to do.
+   * The single source of truth about who holds what. `free` is derived from it
+   * for readers who only want to know what is left.
    */
-  free: LandsSchema.default({ plain: 26, forest: 18, hill: 14, river: 6 }),
+  board: z.array(PlaceSchema),
+  /** Unclaimed land, by kind. Derived from the board every tick. */
+  free: LandsSchema.default({ plain: 0, forest: 0, hill: 0, river: 0 }),
   civs: z.array(CivSchema),
 });
 export type World = z.infer<typeof WorldSchema>;
@@ -214,10 +237,10 @@ export function newCiv(id: Civ["id"]): Civ {
   return {
     id,
     population: 100,
-    // Everyone starts with one of each: no civilisation is born unable to do
-    // something, and every difference that follows was chosen or taken.
-    lands: { plain: 1, forest: 1, hill: 1, river: 1 },
-    territory: 4,
+    // Filled from the board at founding: what a civilisation can do is now
+    // decided by where it happens to start, not by a gift of one of each.
+    lands: noLand(),
+    territory: 0,
     stock: { food: 200, timber: 80, ore: 40, wealth: 50 },
     doctrine: { ...DEFAULT_DOCTRINE },
     soldiers: 5,
@@ -244,24 +267,85 @@ export const isOver = (world: World): boolean => living(world).length <= 1;
 /** Total workable land, sized so it runs out while the world is still young. */
 export const DEFAULT_LAND = 80;
 
-/**
- * The unclaimed world, once the founders have taken their four each.
- *
- * Deliberately unequal by kind: plains are common and rivers are scarce, so
- * "who gets the rivers" is settled early and permanently — which is the same
- * property that made finite land produce a history rather than a cycle.
- */
-export const FREE_LAND: Lands = { plain: 30, forest: 18, hill: 10, river: 6 };
+/** Row-major index, and the four places that touch it. Edges have fewer. */
+export const at = (size: number, x: number, y: number) => y * size + x;
 
-export function newWorld(ids: Civ["id"][], seed: number, land = DEFAULT_LAND): World {
+export function neighbours(size: number, index: number): number[] {
+  const x = index % size;
+  const y = Math.floor(index / size);
+  const out: number[] = [];
+  if (x > 0) out.push(at(size, x - 1, y));
+  if (x < size - 1) out.push(at(size, x + 1, y));
+  if (y > 0) out.push(at(size, x, y - 1));
+  if (y < size - 1) out.push(at(size, x, y + 1));
+  return out;
+}
+
+/** Which kinds the board is made of, and in what proportion. */
+const KIND_WEIGHTS: Array<[LandKind, number]> = [
+  ["plain", 0.46],
+  ["forest", 0.24],
+  ["hill", 0.18],
+  ["river", 0.12],
+];
+
+/**
+ * Lay out a world.
+ *
+ * The board is drawn from the seed, so the same world is the same world every
+ * time it is replayed — and rivers are scarce, which is what makes "who reaches
+ * them first" a story rather than a formality.
+ */
+export function newWorld(ids: Civ["id"][], seed: number, size = 9): World {
+  const board: Place[] = [];
+  for (let i = 0; i < size * size; i += 1) {
+    // Same cheap mix as the seasons, different salt.
+    let h = (seed * 0x2545f491) ^ ((i + 1) * 0x9e3779b1);
+    h = Math.imul(h ^ (h >>> 13), 0x85ebca6b);
+    h ^= h >>> 16;
+    let roll = (h >>> 0) / 0x100000000;
+    let kind: LandKind = "plain";
+    for (const [k, w] of KIND_WEIGHTS) {
+      if (roll < w) {
+        kind = k;
+        break;
+      }
+      roll -= w;
+    }
+    board.push({ kind, owner: null });
+  }
+
+  // Founders start one place each, spread to the corners: nobody begins next to
+  // anybody, so the first century is expansion into empty land and the meeting
+  // happens later, on purpose.
+  const corners = [at(size, 1, 1), at(size, size - 2, 1), at(size, 1, size - 2), at(size, size - 2, size - 2)];
   const civs = ids.map(newCiv);
-  const taken = civs.reduce((n, c) => n + landCount(c.lands), 0);
+  civs.forEach((civ, i) => {
+    const home = corners[i % corners.length]!;
+    board[home]!.owner = civ.id;
+  });
+
+  return { worldVersion: WORLD_VERSION, tick: 0, seed, land: size * size, size, board, free: noLand(), civs };
+}
+
+/** Recount holdings from the board. The board is the truth; these are readings. */
+export function census(world: World): World {
+  const byCiv = new Map<string, Lands>(world.civs.map((c) => [c.id, noLand()]));
+  const free = noLand();
+  for (const place of world.board) {
+    const held = place.owner === null ? null : byCiv.get(place.owner);
+    // A place whose owner is not in this world counts as neutral rather than
+    // throwing: the board and the roll of civilisations are two files, and one
+    // being edited without the other must degrade, not crash.
+    if (held) held[place.kind] += 1;
+    else free[place.kind] += 1;
+  }
   return {
-    worldVersion: WORLD_VERSION,
-    tick: 0,
-    seed,
-    land: taken + landCount(FREE_LAND),
-    free: { ...FREE_LAND },
-    civs,
+    ...world,
+    free,
+    civs: world.civs.map((c) => {
+      const lands = byCiv.get(c.id)!;
+      return { ...c, lands, territory: landCount(lands) };
+    }),
   };
 }

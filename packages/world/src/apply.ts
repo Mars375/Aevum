@@ -1,4 +1,4 @@
-import { type World } from "./state.js";
+import { census, type World } from "./state.js";
 import type { Ruling } from "./journal.js";
 import { tickWorld, type TickEvent } from "./tick.js";
 
@@ -33,7 +33,9 @@ export function replay(
   rulings: Ruling[],
   untilTick: number,
 ): { world: World; events: TickEvent[] } {
-  let world = origin;
+  // The origin is laid out but never counted: census once so the very first
+  // tick sees the founders' holdings rather than four empty civilisations.
+  let world = census(origin);
   const events: TickEvent[] = [];
   // Rulings are keyed by the tick they were made on, so they can be looked up
   // rather than scanned once per tick.

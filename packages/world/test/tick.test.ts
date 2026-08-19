@@ -1,10 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { applyRuling, disasterOn, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
+import { applyRuling, census, disasterOn, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
 
-const world = (over: Partial<World> = {}): World => ({
-  ...newWorld(["crimson", "azure", "verdant", "amber"], 42),
-  ...over,
-});
+/** The board is built for exactly the civilisations a fixture asks for. */
+const world = (over: Partial<World> = {}): World => {
+  const ids = over.civs?.map((c) => c.id) ?? ["crimson", "azure", "verdant", "amber"];
+  const base = newWorld(ids, 42);
+  return census({ ...base, ...over, board: over.board ?? base.board });
+};
+
+/**
+ * Hand a civilisation places of the kinds a test needs.
+ *
+ * Since w4 the board is the truth and `civ.lands` is a reading of it, so a
+ * fixture cannot simply declare what a civilisation owns — it has to put the
+ * places on the map. Adjacency is not enforced here: these fixtures test
+ * production and disasters, not conquest.
+ */
+const holding = (over: Partial<World>, lands: Partial<Record<"plain" | "forest" | "hill" | "river", number>>, who = "crimson" as const): World => {
+  const base = { ...newWorld([who], 42), ...over };
+  const board = base.board.map((p) => ({ ...p, owner: null as World["board"][number]["owner"] }));
+  for (const [kind, n] of Object.entries(lands)) {
+    let left = n as number;
+    for (const place of board) {
+      if (left <= 0) break;
+      if (place.kind === kind && place.owner === null) {
+        place.owner = who;
+        left -= 1;
+      }
+    }
+  }
+  return census({ ...base, board });
+};
 
 const run = (n: number, w = world()) => {
   let cur = w;
@@ -25,9 +51,14 @@ describe("le tick est pur et deterministe", () => {
   });
 
   it("ne depend pas de l'ordre des civilisations dans le tableau", () => {
-    const a = run(50, world());
-    const b = run(50, world({ civs: [...world().civs].reverse() }));
-    expect(JSON.stringify(a.civs)).toBe(JSON.stringify(b.civs));
+    // Le meme monde, la meme carte : seul l'ordre du tableau change. Fonder le
+    // monde a partir d'une liste inversee donnerait d'autres positions de
+    // depart, ce qui serait un autre monde et non le meme lu autrement.
+    const base = world();
+    const a = run(50, base);
+    const b = run(50, { ...base, civs: [...base.civs].reverse() });
+    const sorted = (w: World) => JSON.stringify([...w.civs].sort((x, y) => x.id.localeCompare(y.id)));
+    expect(sorted(a)).toBe(sorted(b));
   });
 });
 
@@ -100,16 +131,7 @@ describe("les parts de doctrine sont normalisees", () => {
 
 describe("la terre n'est pas interchangeable", () => {
   const withLands = (lands: { plain: number; forest: number; hill: number; river: number }, doctrine = {}) =>
-    world({
-      civs: [
-        {
-          ...newCiv("crimson"),
-          lands,
-          territory: lands.plain + lands.forest + lands.hill + lands.river,
-          doctrine: { ...newCiv("crimson").doctrine, ...doctrine },
-        },
-      ],
-    });
+    holding({ civs: [{ ...newCiv("crimson"), doctrine: { ...newCiv("crimson").doctrine, ...doctrine } }] }, lands);
 
   const oreGained = (lands: Parameters<typeof withLands>[0]) => {
     const before = withLands(lands, { farming: 0, forestry: 0, mining: 1, trade: 0 });
@@ -135,43 +157,64 @@ describe("la terre n'est pas interchangeable", () => {
     expect(rivers.world.civs[0]!.stock.food).toBeGreaterThan(plains.world.civs[0]!.stock.food);
   });
 
-  it("le monde ne cree ni ne detruit de terre", () => {
+  it("le monde ne cree ni ne detruit de lieu", () => {
     let w = world();
-    const total = (x: typeof w) =>
-      x.civs.reduce((n, c) => n + c.lands.plain + c.lands.forest + c.lands.hill + c.lands.river, 0) +
-      x.free.plain + x.free.forest + x.free.hill + x.free.river;
-    const before = total(w);
+    const before = w.board.length;
     for (let i = 0; i < 300; i += 1) w = tickWorld(w).world;
-    expect(total(w)).toBe(before);
+    expect(w.board).toHaveLength(before);
+    // Et chaque lieu est soit neutre, soit tenu par une civilisation qui existe.
+    const ids = new Set(w.civs.map((c) => c.id));
+    for (const place of w.board) expect(place.owner === null || ids.has(place.owner)).toBe(true);
   });
 
-  it("le total des terres d'une civilisation reste egal a sa frontiere", () => {
+  it("le compte de chaque civilisation est exactement ce que la carte dit", () => {
     let w = world();
     for (let i = 0; i < 300; i += 1) {
       w = tickWorld(w).world;
       for (const c of w.civs) {
-        expect(c.lands.plain + c.lands.forest + c.lands.hill + c.lands.river, `${c.id} an ${w.tick}`).toBe(c.territory);
+        const onBoard = w.board.filter((p) => p.owner === c.id).length;
+        expect(c.territory, `${c.id} an ${w.tick}`).toBe(onBoard);
+        expect(c.lands.plain + c.lands.forest + c.lands.hill + c.lands.river).toBe(onBoard);
       }
     }
   });
 
-  it("une civilisation annexe d'abord ce qu'elle convoite", () => {
-    let w = world({
-      civs: [{ ...newCiv("crimson"), population: 400, stock: { food: 4000, timber: 4000, ore: 0, wealth: 100 }, doctrine: { ...newCiv("crimson").doctrine, claim: "hill" } }],
+  it("on ne prend que ce qu'on borde", () => {
+    // Une civilisation enfermee par des voisins n'a plus rien a portee, meme
+    // s'il reste des lieux neutres a l'autre bout du monde.
+    let w = census(newWorld(["crimson", "azure"], 42));
+    const boxed = w.board.map((p, i) => ({ ...p, owner: i === 0 ? ("crimson" as const) : i < 20 ? ("azure" as const) : p.owner }));
+    // Azure doit etre assez peuplee pour tenir ses dix-neuf lieux : une voisine
+    // qui se retire libere une frontiere, et crimson ne serait plus enfermee.
+    w = census({
+      ...w,
+      board: boxed,
+      civs: w.civs.map((c) =>
+        c.id === "crimson"
+          ? { ...c, population: 400, stock: { food: 9000, timber: 9000, ore: 0, wealth: 100 } }
+          : { ...c, population: 900, stock: { food: 9000, timber: 0, ore: 0, wealth: 900 } },
+      ),
     });
-    const before = w.civs[0]!.lands.hill;
-    for (let i = 0; i < 6; i += 1) w = tickWorld(w).world;
-    expect(w.civs[0]!.lands.hill).toBeGreaterThan(before);
+    const before = w.civs.find((c) => c.id === "crimson")!.territory;
+    const stepped = tickWorld(w);
+    expect(stepped.world.civs.find((c) => c.id === "crimson")!.territory).toBe(before);
+    expect(stepped.events.some((e) => e.civ === "crimson" && e.kind === "LAND_FULL")).toBe(true);
   });
 
-  it("et se rabat sur autre chose quand ce type est epuise", () => {
-    let w = world({
-      free: { plain: 5, forest: 0, hill: 0, river: 0 },
-      civs: [{ ...newCiv("crimson"), population: 400, stock: { food: 4000, timber: 4000, ore: 0, wealth: 100 }, doctrine: { ...newCiv("crimson").doctrine, claim: "river" } }],
+  it("une civilisation occupe d'abord le voisin qu'elle convoite", () => {
+    let w = census({
+      ...newWorld(["crimson"], 42),
+      civs: [{ ...newCiv("crimson"), population: 400, stock: { food: 4000, timber: 9000, ore: 0, wealth: 100 }, doctrine: { ...newCiv("crimson").doctrine, claim: "hill" } }],
     });
-    for (let i = 0; i < 4; i += 1) w = tickWorld(w).world;
-    expect(w.civs[0]!.lands.plain).toBeGreaterThan(1);
-    expect(w.civs[0]!.lands.river).toBe(1);
+    const gained: string[] = [];
+    for (let i = 0; i < 8; i += 1) {
+      const stepped = tickWorld(w);
+      for (const e of stepped.events) if (e.kind === "EXPANDED") gained.push(e.detail);
+      w = stepped.world;
+    }
+    expect(gained.length).toBeGreaterThan(0);
+    // Elle a pris des collines chaque fois qu'une bordait ses frontieres.
+    expect(gained.some((d) => d.includes("colline"))).toBe(true);
   });
 });
 

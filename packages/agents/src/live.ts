@@ -117,7 +117,7 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
 
       tally.asked += 1;
       let rejection: string | null = null;
-      const ruling: Ruling | null = await askRuler(provider, general, civ, point, (why, raw) => {
+      const ruling: Ruling | null = await askRuler(provider, general, civ, point, world, (why, raw) => {
         rejection = `${why} | ${raw.slice(0, 120)}`;
       });
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Civ, DecisionPoint, Ruling } from "@abs/world";
+import type { Civ, DecisionPoint, Ruling, World } from "@abs/world";
 import type { GeneralConfig } from "@abs/contracts";
 import { RULING_JSON_SCHEMA, systemPromptWorld, userPromptWorld } from "./prompt-world.js";
 
@@ -107,6 +107,8 @@ export async function askRuler(
   general: GeneralConfig,
   civ: Civ,
   point: DecisionPoint,
+  /** The board, so a ruler is told what its frontier actually touches. */
+  world?: World,
   /**
    * Told why an answer was thrown away, and what it was.
    *
@@ -120,7 +122,7 @@ export async function askRuler(
   const raw = await provider.ask(
     general,
     systemPromptWorld(),
-    userPromptWorld(civ, point),
+    userPromptWorld(civ, point, world),
     RULING_JSON_SCHEMA,
   );
   if (raw === null) return null;

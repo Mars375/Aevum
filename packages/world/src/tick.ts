@@ -1,7 +1,7 @@
 import {
-  LAND_KINDS,
+  census,
   isAlive,
-  landCount,
+  neighbours,
   type Civ,
   type Doctrine,
   type LandKind,
@@ -312,22 +312,40 @@ export const LAND_LABEL: Record<LandKind, string> = {
  */
 const value = (lands: Lands, kind: LandKind): number => (kind === "river" ? 3 : kind === "plain" ? 2 : 1) / lands[kind];
 
-/** Take one parcel of the wanted kind, or the next best thing that exists. */
-function takeFrom(pool: Lands, wanted: LandKind): { kind: LandKind; pool: Lands } | null {
-  const order: LandKind[] = [wanted, ...LAND_KINDS.filter((k) => k !== wanted)];
-  for (const kind of order) {
-    if (pool[kind] > 0) return { kind, pool: { ...pool, [kind]: pool[kind] - 1 } };
-  }
-  return null;
+/**
+ * The best place a civilisation can actually reach.
+ *
+ * "Reach" is the whole change from w3: a civilisation may only take what
+ * borders something it already holds, so a frontier is a real edge and not an
+ * accounting entry. Among reachable places, the one it covets wins; ties go to
+ * the lowest index so the choice never depends on iteration order.
+ */
+function reachable(
+  board: readonly { kind: LandKind; owner: Civ["id"] | null }[],
+  size: number,
+  civ: Civ["id"],
+  wanted: LandKind,
+  belongsTo: Civ["id"] | null,
+): number | null {
+  const edge = new Set<number>();
+  board.forEach((place, i) => {
+    if (place.owner !== civ) return;
+    for (const n of neighbours(size, i)) if (board[n]!.owner === belongsTo) edge.add(n);
+  });
+  if (edge.size === 0) return null;
+  const ranked = [...edge].sort(
+    (a, b) =>
+      Number(board[b]!.kind === wanted) - Number(board[a]!.kind === wanted) || a - b,
+  );
+  return ranked[0]!;
 }
 
 function tickCiv(
   civ: Civ,
   tick: number,
   harvest: number,
-  free: Lands,
   seed: number,
-): { civ: Civ; events: TickEvent[]; free: Lands } {
+): { civ: Civ; events: TickEvent[]; wants: "expand" | "abandon" | null } {
   const events: TickEvent[] = [];
   const say = (kind: TickEvent["kind"], detail: string) => events.push({ tick, civ: civ.id, kind, detail });
 
@@ -371,39 +389,13 @@ function tickCiv(
   }
 
   // Expansion is bought with timber and people, and only while both allow.
-  let lands = { ...civ.lands };
-  let pool = free;
-  const freeLand = landCount(pool);
-  const wantsLand = population / WORKERS_PER_LAND > territory;
-
-  if (wantsLand && freeLand <= 0) {
-    // Not a failure — a fact the ruler needs. Expansion from here is a foreign
-    // policy question, not a forestry one.
-    say("LAND_FULL", "plus une terre libre dans le monde");
-  }
-  if (wantsLand && freeLand > 0 && stock.timber >= 60) {
-    // The ruler's standing claim decides what gets taken. When that kind has
-    // run out, something else is taken rather than nothing: a civilisation that
-    // needs land takes what is there.
-    const taken = takeFrom(pool, civ.doctrine.claim)!;
-    pool = taken.pool;
-    lands = { ...lands, [taken.kind]: lands[taken.kind] + 1 };
-    stock.timber = round2(stock.timber - 60);
-    territory += 1;
-    const asked = taken.kind === civ.doctrine.claim ? "" : ` (faute de ${civ.doctrine.claim})`;
-    say("EXPANDED", `${LAND_LABEL[taken.kind]} annexee${asked}, frontiere a ${territory}`);
-  } else if (territory > 1 && population < (territory - 1) * 15) {
-    // Land nobody works reverts, and the least useful goes first — a
-    // civilisation abandons the hill it cannot man before the field it eats
-    // from. It returns to the world rather than vanishing.
-    const giveUp = [...LAND_KINDS]
-      .filter((k) => lands[k] > 0)
-      .sort((a, b) => value(lands, a) - value(lands, b) || a.localeCompare(b))[0]!;
-    lands = { ...lands, [giveUp]: lands[giveUp] - 1 };
-    pool = { ...pool, [giveUp]: pool[giveUp] + 1 };
-    territory -= 1;
-    say("LOST_LAND", `${LAND_LABEL[giveUp]} abandonnee, frontiere a ${territory}`);
-  }
+  const lands = civ.lands;
+  const wants: "expand" | "abandon" | null =
+    population / WORKERS_PER_LAND > territory && stock.timber >= 60
+      ? "expand"
+      : territory > 1 && population < (territory - 1) * 15
+        ? "abandon"
+        : null;
 
   soldiers = Math.max(0, Math.round(soldiers + population * s.military * 0.05 - soldiers * 0.02));
 
@@ -470,7 +462,7 @@ function tickCiv(
   return {
     civ: { ...civ, population, territory, lands, soldiers, stock, advances, fellOnTick, vowBrokenOn, ticksSinceDecision: civ.ticksSinceDecision + 1 },
     events,
-    free: pool,
+    wants,
   };
 }
 
@@ -480,22 +472,58 @@ export function tickWorld(world: World): TickResult {
   // year is something neighbours can talk about rather than private bad luck.
   const harvest = season(world.seed, tick);
   const events: TickEvent[] = [];
-  // One shared pool, walked in canonical id order: when the last river is
-  // taken, which civilisation got it must not depend on array order.
-  let free = { ...world.free };
+  const board = world.board.map((p) => ({ ...p }));
+  const wanted = new Map<string, "expand" | "abandon" | null>();
   // Canonical id order, as everywhere else in this project: the result must not
   // depend on the order civilisations happen to sit in the array.
   const civs = [...world.civs]
     .sort((a, b) => a.id.localeCompare(b.id))
     .map((civ) => {
       if (!isAlive(civ)) return civ;
-      const r = tickCiv(civ, tick, harvest, free, world.seed);
+      const r = tickCiv(civ, tick, harvest, world.seed);
       events.push(...r.events);
-      free = r.free;
+      wanted.set(civ.id, r.wants);
       return r.civ;
     });
 
-  return { world: { ...world, tick, free, civs: contact(civs, tick, events) }, events };
+  // Movement on the board happens after every civilisation has lived its year,
+  // in canonical id order: when two civilisations reach for the same empty
+  // place, which one gets it must not depend on array order.
+  for (const civ of [...civs].sort((a, b) => a.id.localeCompare(b.id))) {
+    if (!isAlive(civ)) continue;
+    const want = wanted.get(civ.id);
+    if (want === "expand") {
+      const target = reachable(board, world.size, civ.id, civ.doctrine.claim, null);
+      if (target === null) {
+        // Not a failure — a fact the ruler needs. Growth from here is a foreign
+        // policy question, not a forestry one.
+        events.push({ tick, civ: civ.id, kind: "LAND_FULL", detail: "plus un lieu libre a portee de nos frontieres" });
+      } else {
+        board[target]!.owner = civ.id;
+        civ.stock = { ...civ.stock, timber: round2(civ.stock.timber - 60) };
+        const asked = board[target]!.kind === civ.doctrine.claim ? "" : ` (faute de ${civ.doctrine.claim})`;
+        events.push({ tick, civ: civ.id, kind: "EXPANDED", detail: `${LAND_LABEL[board[target]!.kind]} occupee${asked}` });
+      }
+    } else if (want === "abandon") {
+      // The least useful goes first — a civilisation abandons the hill it
+      // cannot man before the field it eats from — and it returns to the world
+      // as a neutral place rather than vanishing.
+      const mine = board
+        .map((p, i) => ({ p, i }))
+        .filter((x) => x.p.owner === civ.id)
+        .sort((a, b) => value(civ.lands, a.p.kind) - value(civ.lands, b.p.kind) || a.i - b.i);
+      const giveUp = mine[0];
+      if (giveUp && mine.length > 1) {
+        board[giveUp.i]!.owner = null;
+        events.push({ tick, civ: civ.id, kind: "LOST_LAND", detail: `${LAND_LABEL[giveUp.p.kind]} abandonnee` });
+      }
+    }
+  }
+
+  const after = contact({ ...world, tick, board, civs }, events);
+  // The board is the truth; the holdings on each civilisation are a reading of
+  // it, taken once everything that could move has moved.
+  return { world: census(after), events };
 }
 
 /**
@@ -506,10 +534,13 @@ export function tickWorld(world: World): TickResult {
  * the civilisation list in canonical id order, so contact cannot depend on who
  * happens to be first in the array.
  */
-function contact(civs: Civ[], tick: number, events: TickEvent[]): Civ[] {
+function contact(world: World, events: TickEvent[]): World {
+  const tick = world.tick;
+  const civs = world.civs;
   const alive = civs.filter(isAlive);
-  if (alive.length < 2) return civs;
+  if (alive.length < 2) return world;
 
+  const board = world.board;
   const byId = new Map(civs.map((c) => [c.id, { ...c }]));
 
   // Trade is mutual or it does not happen: a civilisation cannot enrich itself
@@ -524,34 +555,52 @@ function contact(civs: Civ[], tick: number, events: TickEvent[]): Civ[] {
     }
   }
 
-  for (const aggressor of alive.filter((c) => c.doctrine.posture === "PRESSURE")) {
-    // The weakest living neighbour, by soldiers then by id so the choice is
-    // never left to array order.
-    const target = alive
-      .filter((c) => c.id !== aggressor.id && c.territory > 1)
-      .sort((a, b) => a.soldiers - b.soldiers || a.id.localeCompare(b.id))[0];
+  for (const aggressor of alive
+    .filter((c) => c.doctrine.posture === "PRESSURE")
+    .sort((a, b) => a.id.localeCompare(b.id))) {
+    const attacker = byId.get(aggressor.id)!;
+
+    /**
+     * You can only take what you border.
+     *
+     * This is what the board changed. Before, an aggressor picked the weakest
+     * civilisation anywhere in the world and took an abstract acre from it;
+     * now it can only reach across a frontier it actually shares, so who is
+     * exposed to whom is a fact about the map and not about a sort order.
+     */
+    const candidates = board
+      .map((place, i) => ({ place, i }))
+      .filter((x) => x.place.owner !== null && x.place.owner !== aggressor.id)
+      .filter((x) => neighbours(world.size, x.i).some((n) => board[n]!.owner === aggressor.id))
+      // What it covets first, then the weakest owner, then the lowest index.
+      .sort(
+        (a, b) =>
+          Number(b.place.kind === attacker.doctrine.claim) - Number(a.place.kind === attacker.doctrine.claim) ||
+          (byId.get(a.place.owner!)!.soldiers - byId.get(b.place.owner!)!.soldiers) ||
+          a.i - b.i,
+      );
+
+    const target = candidates[0];
     if (!target) continue;
 
-    const attacker = byId.get(aggressor.id)!;
-    const defender = byId.get(target.id)!;
+    const defender = byId.get(target.place.owner!)!;
+    if (defender.territory <= 1) continue;
     // Guarding is worth something, or nobody would ever choose it over pressing.
     const defence = defender.soldiers * (defender.doctrine.posture === "GUARD" ? 1.5 : 1);
     if (attacker.soldiers <= defence * 1.2) continue;
 
-    // Land changes hands and both sides pay for it. A seizure that costs the
-    // taker nothing would make PRESSURE the only rational posture.
-    // The aggressor takes what it came for, falling back to whatever the
-    // defender actually holds.
-    const seized = takeFrom(defender.lands, attacker.doctrine.claim)!;
-    defender.lands = seized.pool;
-    attacker.lands = { ...attacker.lands, [seized.kind]: attacker.lands[seized.kind] + 1 };
-    attacker.territory += 1;
-    defender.territory -= 1;
+    // The place changes hands and both sides pay for it. A seizure that costs
+    // the taker nothing would make PRESSURE the only rational posture.
+    board[target.i]!.owner = attacker.id;
     attacker.soldiers = Math.max(0, attacker.soldiers - Math.ceil(defence * 0.3));
     defender.soldiers = Math.max(0, defender.soldiers - Math.ceil(defender.soldiers * 0.4));
-    events.push({ tick, civ: attacker.id, kind: "SEIZED", detail: `${LAND_LABEL[seized.kind]} prise a ${defender.id}` });
-    events.push({ tick, civ: defender.id, kind: "CEDED", detail: `${LAND_LABEL[seized.kind]} perdue au profit de ${attacker.id}` });
+    // Counted here so a second aggressor this same year sees the new frontier.
+    defender.territory -= 1;
+    attacker.territory += 1;
+    events.push({ tick, civ: attacker.id, kind: "SEIZED", detail: `${LAND_LABEL[target.place.kind]} prise a ${defender.id}` });
+    events.push({ tick, civ: defender.id, kind: "CEDED", detail: `${LAND_LABEL[target.place.kind]} perdue au profit de ${attacker.id}` });
   }
 
-  return civs.map((c) => byId.get(c.id)!);
+  return { ...world, board, civs: civs.map((c) => byId.get(c.id)!) };
 }
+
