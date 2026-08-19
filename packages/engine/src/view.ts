@@ -1,9 +1,8 @@
 import {
   budgetFor,
-  statsFor,
   GRID_SIZE,
   MAX_MEMORY_ENTRIES,
-  distance,
+  visibleSquadIds,
   type FactionId,
   type LocalView,
   type MemoryEntry,
@@ -46,21 +45,8 @@ export function localViewFor(
 }
 
 /** Everything a faction can see, given its own squads and its allies'. */
-export function visibleTo(state: WorldState, faction: FactionId, allies: readonly FactionId[]): Set<string> {
-  const eyes = state.squads.filter((s) => s.factionId === faction || allies.includes(s.factionId));
-  const seen = new Set<string>();
-  for (const squad of state.squads) {
-    if (squad.factionId === faction || allies.includes(squad.factionId)) {
-      seen.add(squad.id);
-      continue;
-    }
-    // Shared vision is the first concrete benefit of an alliance.
-    // Vision uses the looking faction's trait, so an Éclaireur really does see
-    // further and a Retranché really is short-sighted.
-    if (eyes.some((e) => distance(e.position, squad.position) <= statsFor(e.factionId, e.archetype).vision)) seen.add(squad.id);
-  }
-  return seen;
-}
+export const visibleTo = (state: WorldState, faction: FactionId, allies: readonly FactionId[]): Set<string> =>
+  visibleSquadIds(state.squads, faction, allies);
 
 export interface V2ViewInput {
   state: WorldState;

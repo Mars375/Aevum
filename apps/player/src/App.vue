@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from "vue";
-import { ReplaySchema, type Replay } from "@abs/contracts";
+import { FACTION_IDS, ReplaySchema, type FactionId, type Replay } from "@abs/contracts";
 import BattleGrid from "./components/BattleGrid.vue";
 import EventLog from "./components/EventLog.vue";
 import GeneralPanel from "./components/GeneralPanel.vue";
 import ReportPanel from "./components/ReportPanel.vue";
+import FogView from "./components/FogView.vue";
+import { alliesOfAt, knowledgeOf } from "./fog";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
 const Battle3D = defineAsyncComponent(() => import("./components/Battle3D.vue"));
@@ -24,6 +26,22 @@ const BASE_MS = 1100;
 /** 2D stays the default and stays complete; 3D is an alternative view. */
 const view3d = ref(false);
 
+/**
+ * Whose eyes we are reading through. Null is the omniscient view, which shows
+ * more than any general ever saw — useful, but not what the battle was like.
+ */
+const fogFaction = ref<FactionId | null>(null);
+const fogAllies = computed(() =>
+  fogFaction.value && replay.value ? alliesOfAt(replay.value, fogFaction.value, index.value) : [],
+);
+const fogKnowledge = computed(() =>
+  fogFaction.value && replay.value ? knowledgeOf(replay.value, fogFaction.value, index.value) : null,
+);
+const fogHidden = computed(() => {
+  const k = fogKnowledge.value;
+  return k && current.value ? current.value.squads.filter((s) => !k.visible.has(s.id)).length : 0;
+});
+
 /** Catalogue of replays this deployment serves, newest first. */
 interface CatalogueEntry {
   path: string;
@@ -36,6 +54,8 @@ interface CatalogueEntry {
 }
 const catalogue = ref<CatalogueEntry[]>([]);
 const currentPath = ref<string>("");
+/** A turn requested by URL, applied once the replay's length is known. */
+let pendingTurn = 0;
 const audio = new BattleAudio();
 const soundOn = ref(false);
 
@@ -55,7 +75,10 @@ function load(raw: unknown, source: string) {
   }
   replay.value = parsed.data;
   error.value = null;
-  index.value = 0;
+  // A turn asked for in the URL is honoured once the replay is known to be
+  // long enough; otherwise we open at the deployment.
+  index.value = pendingTurn > 0 ? Math.min(pendingTurn, parsed.data.turns.length) : 0;
+  pendingTurn = 0;
 }
 
 async function loadFromUrl(url: string) {
@@ -123,11 +146,28 @@ function pick(path: string) {
   loadFromUrl(`replays/${path}`);
 }
 
+// The point of view belongs in the URL too: "look at turn 7 through amber's
+// eyes" is exactly the kind of thing one person sends another.
+watch([fogFaction, index], ([faction, turn]) => {
+  const url = new URL(location.href);
+  if (faction) url.searchParams.set("view", faction);
+  else url.searchParams.delete("view");
+  if (turn > 0) url.searchParams.set("turn", String(turn));
+  else url.searchParams.delete("turn");
+  history.replaceState(null, "", url);
+});
+
 onMounted(async () => {
   window.addEventListener("keydown", onKey);
   await loadCatalogue();
 
-  const requested = new URLSearchParams(location.search).get("replay");
+  const params = new URLSearchParams(location.search);
+  const view = params.get("view");
+  if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
+  const turn = Number(params.get("turn"));
+  if (Number.isInteger(turn) && turn > 0) pendingTurn = turn;
+
+  const requested = params.get("replay");
   if (requested) {
     currentPath.value = requested.replace(/^replays\//, "");
     loadFromUrl(requested);
@@ -169,9 +209,8 @@ onUnmounted(() => {
         <span class="visually-hidden">Bataille affichée</span>
         <select :value="currentPath" @change="pick(($event.target as HTMLSelectElement).value)">
           <option v-for="entry in catalogue" :key="entry.path" :value="entry.path">
-            {{ entry.ruleset }} · {{ entry.turns }} tours · {{ entry.outcome }}{{ entry.winner ? ` ${entry.winner}` : "" }}{{
-              entry.hasReports ? " · rapports" : ""
-            }} — {{ entry.path }}
+            {{ entry.ruleset }} · {{ entry.turns }}t · {{ entry.outcome }}{{ entry.hasReports ? " · rapports" : "" }} —
+            {{ entry.path }}
           </option>
         </select>
       </label>
@@ -218,6 +257,14 @@ onUnmounted(() => {
           </button>
         </div>
 
+        <FogView
+          v-model="fogFaction"
+          :knowledge="fogKnowledge"
+          :allies="fogAllies"
+          :hidden="fogHidden"
+          :turn-index="index"
+        />
+
         <Battle3D
           v-if="view3d"
           :state="current"
@@ -230,6 +277,8 @@ onUnmounted(() => {
           :grid-size="replay.manifest.config.gridSize"
           :highlight="highlight"
           :alliance-pairs="currentTurn?.alliances?.pairs ?? []"
+          :visible="fogKnowledge?.visible ?? null"
+          :remembered="fogKnowledge?.remembered ?? null"
         />
 
         <p v-if="currentTurn?.alliances?.pairs?.length" class="alliances mono">
@@ -330,6 +379,11 @@ onUnmounted(() => {
   gap: var(--s4);
   align-items: flex-start;
   justify-content: space-between;
+  min-width: 0;
+}
+
+.top > * {
+  min-width: 0;
 }
 
 h1 {
@@ -370,7 +424,17 @@ h1 {
   margin: 0;
 }
 
+/* A select sizes itself to its longest option, which pushed the header past
+   the viewport at 375px — and this project's own rule is that the body never
+   scrolls horizontally. Constrained on both the flex item and the control. */
+.picker-inline {
+  flex: 1 1 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .picker-inline select {
+  width: 100%;
   font: inherit;
   font-size: 12px;
   color: var(--fg);
@@ -379,8 +443,9 @@ h1 {
   border-radius: var(--radius);
   padding: var(--s2);
   min-height: 44px;
-  max-width: min(100%, 60ch);
+  max-width: 100%;
   cursor: pointer;
+  text-overflow: ellipsis;
 }
 
 .picker {

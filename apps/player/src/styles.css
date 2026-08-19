@@ -48,6 +48,9 @@ html {
 
 body {
   margin: 0;
+  /* The page itself must never scroll sideways. Anything genuinely wide —
+     a table, a diagram — scrolls inside its own container instead. */
+  overflow-x: clip;
   background: var(--bg);
   color: var(--fg);
   font-family: var(--sans);

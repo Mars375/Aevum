@@ -480,3 +480,31 @@ export function distance(a: Vec2, b: Vec2): number {
 export function inBounds(p: Vec2, gridSize = GRID_SIZE): boolean {
   return p.x >= 0 && p.y >= 0 && p.x < gridSize && p.y < gridSize;
 }
+
+/**
+ * Which squads a faction can see, given its own and its allies' eyes.
+ *
+ * Pure geometry over a squad list, so it belongs here rather than in the
+ * engine: the replay player needs it to show a battle through one general's
+ * eyes, and it must not have to run the engine to do that.
+ */
+export function visibleSquadIds(
+  squads: readonly Squad[],
+  faction: FactionId,
+  allies: readonly FactionId[] = [],
+): Set<string> {
+  const own = (s: Squad) => s.factionId === faction || allies.includes(s.factionId);
+  const eyes = squads.filter(own);
+  const seen = new Set<string>();
+  for (const squad of squads) {
+    if (own(squad)) {
+      seen.add(squad.id);
+      continue;
+    }
+    // Shared vision is the first concrete benefit of an alliance.
+    if (eyes.some((e) => distance(e.position, squad.position) <= statsFor(e.factionId, e.archetype).vision)) {
+      seen.add(squad.id);
+    }
+  }
+  return seen;
+}

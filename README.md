@@ -104,6 +104,10 @@ deployment tiles are unchanged, and the alliance lookup is simply absent at v1.
 
 Three v2 decisions worth knowing:
 
+- **You can watch through one general's eyes.** The player's default view is
+  omniscient, which is more than any general ever saw. Pick a faction and it
+  shows only what that faction could see, with everything else it once saw drawn
+  faded and dated at its last known position. Shareable: `?view=amber&turn=7`.
 - **Fog lives entirely in the view projection.** The v1 architecture note
   promised phase 2 would only have to filter there, and it held — the engine,
   the resolution rules and the replay format are untouched by v2 visibility. A
@@ -148,6 +152,7 @@ single model again. That round trip is a test
 | `docs/spec/rules-v2.md` | Ruleset v2 — budget, fog, diplomacy, and 9 more invariants |
 | `docs/spec/reports.md` | Battle reports, and why the replay grades them instead of a model |
 | `docs/spec/visual-identity.md` | The 3D view, and why 2D stays the default |
+| `scripts/screenshot.sh` | Capture the deployed player at 375, 900 and 1440 px |
 | `docs/architecture/data-contracts.md` | Why the schemas are shaped the way they are |
 | `docs/research/providers.md` | Model measurements and the roster they justify |
 | `docs/reports/reference-battle.md` | The delivered battle, and four runs of measurements |
@@ -158,7 +163,7 @@ single model again. That round trip is a test
 
 | Command | Does |
 | --- | --- |
-| `npm test` | 153 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
+| `npm test` | 179 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
 | `npm run typecheck` | `tsc --noEmit` across the workspace |
 | `npm run battle -- --scripted` | Offline battle with the baseline AI |
 | `npm run battle` | Remote battle, four free models, ~7 minutes |

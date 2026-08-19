@@ -8,6 +8,12 @@ const props = defineProps<{
   highlight: string | null;
   /** v2: "a|b" pairs. Allied factions get a shared marker on the grid. */
   alliancePairs?: string[];
+  /**
+   * Fog. Null means the omniscient view — the reader sees everything, which is
+   * more than any general ever did.
+   */
+  visible?: Set<string> | null;
+  remembered?: Map<string, { squad: Squad; turn: number }> | null;
 }>();
 
 /** Factions that are allied with at least one other, for the grid marker. */
@@ -17,14 +23,35 @@ const alliedFactions = computed(() => {
   return set;
 });
 
-const cells = computed(() => {
+interface Cell {
+  x: number;
+  y: number;
+  squad: Squad | null;
+  /** A last known position rather than a sighting. Drawn faded and dated. */
+  ghost: { squad: Squad; turn: number } | null;
+}
+
+const cells = computed<Cell[]>(() => {
+  const seen = props.visible;
   const byTile = new Map<string, Squad>();
-  for (const squad of props.state.squads) byTile.set(`${squad.position.x},${squad.position.y}`, squad);
+  for (const squad of props.state.squads) {
+    if (seen && !seen.has(squad.id)) continue; // out of sight: simply not there
+    byTile.set(`${squad.position.x},${squad.position.y}`, squad);
+  }
+
+  // Memories are laid down only where nothing is actually seen, so a stale
+  // belief never hides a present fact.
+  const ghosts = new Map<string, { squad: Squad; turn: number }>();
+  for (const entry of props.remembered?.values() ?? []) {
+    const key = `${entry.squad.position.x},${entry.squad.position.y}`;
+    if (!byTile.has(key)) ghosts.set(key, entry);
+  }
 
   return Array.from({ length: props.gridSize * props.gridSize }, (_, i) => {
     const x = i % props.gridSize;
     const y = Math.floor(i / props.gridSize);
-    return { x, y, squad: byTile.get(`${x},${y}`) ?? null };
+    const key = `${x},${y}`;
+    return { x, y, squad: byTile.get(key) ?? null, ghost: ghosts.get(key) ?? null };
   });
 });
 
@@ -49,7 +76,11 @@ function label(squad: Squad): string {
       class="grid"
       :style="{ '--n': gridSize }"
       role="img"
-      :aria-label="`Champ de bataille ${gridSize} sur ${gridSize}, ${state.squads.length} escouades en vie`"
+      :aria-label="
+        visible
+          ? `Champ de bataille ${gridSize} sur ${gridSize} vu par un seul général : ${cells.filter((c) => c.squad).length} escouades visibles, ${cells.filter((c) => c.ghost).length} en dernière position connue`
+          : `Champ de bataille ${gridSize} sur ${gridSize}, ${state.squads.length} escouades en vie`
+      "
     >
       <div
         v-for="cell in cells"
@@ -75,6 +106,22 @@ function label(squad: Squad): string {
           />
           <span class="visually-hidden">{{ label(cell.squad) }}</span>
         </div>
+
+        <!-- A remembered position: what this general last saw here, and when.
+             Dashed and faded so it never reads as a current sighting. -->
+        <div
+          v-else-if="cell.ghost"
+          class="squad ghost"
+          :class="ARCHETYPE_SHAPE[cell.ghost.squad.archetype]"
+          :style="{ '--faction': `var(--${cell.ghost.squad.factionId})` }"
+          :title="`${cell.ghost.squad.id} vu ici au tour ${cell.ghost.turn}, position probablement périmée`"
+        >
+          <span class="initial" aria-hidden="true">?</span>
+          <span class="visually-hidden">
+            Souvenir : {{ cell.ghost.squad.id }} vu en {{ cell.ghost.squad.position.x }}
+            {{ cell.ghost.squad.position.y }} au tour {{ cell.ghost.turn }}, position probablement périmée
+          </span>
+        </div>
       </div>
     </div>
 
@@ -91,6 +138,9 @@ function label(squad: Squad): string {
       </li>
       <li v-if="alliancePairs?.length" class="shapes">
         <span class="chip allied" aria-hidden="true" />liseré = alliée
+      </li>
+      <li v-if="visible" class="shapes">
+        <span class="chip ghost" aria-hidden="true">?</span>dernière position connue
       </li>
     </ul>
   </div>
@@ -146,6 +196,12 @@ function label(squad: Squad): string {
   border-radius: 50%;
 }
 
+.chip.ghost {
+  opacity: 0.42;
+  border-style: dashed;
+  background: transparent;
+}
+
 .squad.scout,
 .chip.scout {
   border-radius: 50%;
@@ -156,6 +212,14 @@ function label(squad: Squad): string {
 .chip.heavy {
   border-radius: 2px;
   border-width: 3px;
+}
+
+/* A memory, not a sighting: faded, dashed, and marked with a question mark so
+   it is never mistaken for a present unit — including in greyscale. */
+.squad.ghost {
+  opacity: 0.42;
+  border-style: dashed;
+  background: transparent;
 }
 
 /* Alliance is an outline, never a hue change: the faction must stay itself. */
@@ -230,6 +294,12 @@ function label(squad: Squad): string {
 
 .chip.ranged {
   border-radius: 50%;
+}
+
+.chip.ghost {
+  opacity: 0.42;
+  border-style: dashed;
+  background: transparent;
 }
 
 .shapes {
