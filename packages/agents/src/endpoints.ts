@@ -7,7 +7,7 @@
  * second provider implementation.
  */
 
-export type ProviderName = "openrouter" | "groq" | "nvidia";
+export type ProviderName = "openrouter" | "groq" | "nvidia" | "mistral";
 
 export interface Endpoint {
   url: string;
@@ -32,6 +32,7 @@ export const ENDPOINTS: Record<ProviderName, Endpoint> = {
   openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", keyEnv: "OPENROUTER_API_KEY", maxTokens: 6000 },
   groq: { url: "https://api.groq.com/openai/v1/chat/completions", keyEnv: "GROQ_API_KEY", maxTokens: 2000 },
   nvidia: { url: "https://integrate.api.nvidia.com/v1/chat/completions", keyEnv: "NVIDIA_API_KEY", maxTokens: 6000 },
+  mistral: { url: "https://api.mistral.ai/v1/chat/completions", keyEnv: "MISTRAL_API_KEY", maxTokens: 6000 },
 };
 
 /**
@@ -92,6 +93,7 @@ export interface ModelRef {
 export function parseModelRef(ref: string): ModelRef {
   if (ref.startsWith("groq:")) return { provider: "groq", model: ref.slice(5) };
   if (ref.startsWith("nvidia:")) return { provider: "nvidia", model: ref.slice(7) };
+  if (ref.startsWith("mistral:")) return { provider: "mistral", model: ref.slice(8) };
   return { provider: "openrouter", model: ref };
 }
 
@@ -99,7 +101,7 @@ export function parseModelRef(ref: string): ModelRef {
  * Whether a reference is free under the 0 EUR ceiling.
  *
  * OpenRouter marks free models with a `:free` suffix, so that is checkable.
- * **Groq and NVIDIA cannot be checked this way**: neither has a per-model
+ * **Groq, NVIDIA and Mistral cannot be checked this way**: none has a per-model
  * free/paid marker, because on both the free tier is a property of the
  * *account*, not of the model. An account with no payment method is
  * rate-limited or credit-limited rather than billed, and that — not this

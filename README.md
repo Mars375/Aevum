@@ -21,7 +21,7 @@ npm run player:dev               # open the replay in the browser
 | --- | --- | --- |
 | `@abs/contracts` | zod schemas shared by everything | import the engine, the network or Vue |
 | `@abs/engine` | resolves a turn, decides the outcome | make a single network call |
-| `@abs/agents` | talks to the three providers, drives the battle loop | decide who wins |
+| `@abs/agents` | talks to the four providers, drives the battle loop | decide who wins |
 | `@abs/cli` | runs a battle, writes the replay | — |
 | `@abs/player` | Vue 3 replay viewer, 2D grid and optional 3D | run the engine |
 
@@ -50,8 +50,8 @@ Every one of these was a wrong first guess corrected by evidence
    produced 18 out-of-range attacks against 11 hits, and illegal moves, while
    knowing the rules perfectly well. Listing each squad's reachable targets and
    its legal move box took both counts to **zero**.
-4. **Use three providers.** OpenRouter, Groq and NVIDIA rate-limit
-   independently, and every fallback chain spans all three. This is not
+4. **Use four providers.** OpenRouter, Groq, NVIDIA and Mistral rate-limit
+   independently, and every fallback chain spans all four. This is not
    redundancy for its own sake: a 12-rotation tournament collapsed to **0%**
    service after roughly 350 calls on a single tier. Groq also cuts median
    latency from 58 s to 3 s, turning a 40-minute battle into a 7-minute one.
@@ -174,9 +174,9 @@ single model again. That round trip is a test
 
 ## Configuration
 
-Copy `.env.example` to `.env`. Credentials are `OPENROUTER_API_KEY`, `GROQ_API_KEY`
-and `NVIDIA_API_KEY`; at least one is required, and all three make the roster
-meaningfully more robust. Neither ever leaves the
+Copy `.env.example` to `.env`. Credentials are `OPENROUTER_API_KEY`, `GROQ_API_KEY`,
+`NVIDIA_API_KEY` and `MISTRAL_API_KEY`; at least one is required, and all four
+make the roster meaningfully more robust. Neither ever leaves the
 `Authorization` header — prompts carry public battlefield state and nothing
 else, and a test fails if a key pattern appears in a URL, a request body, or a
 replay.
@@ -184,4 +184,5 @@ replay.
 Models are referenced by provider: a bare id goes to OpenRouter
 (`google/gemma-4-26b-a4b-it:free`), a `groq:` prefix goes to Groq
 (`groq:openai/gpt-oss-120b`), an `nvidia:` prefix goes to NVIDIA build
-(`nvidia:meta/llama-3.3-70b-instruct`).
+(`nvidia:meta/llama-3.3-70b-instruct`), a `mistral:` prefix to Mistral
+(`mistral:mistral-large-latest`).

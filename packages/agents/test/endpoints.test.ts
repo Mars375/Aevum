@@ -28,6 +28,7 @@ describe("model references carry their provider", () => {
       provider: "nvidia",
       model: "meta/llama-3.3-70b-instruct",
     });
+    expect(parseModelRef("mistral:mistral-large-latest")).toEqual({ provider: "mistral", model: "mistral-large-latest" });
   });
 
   it("checks free-ness the way each provider actually expresses it", () => {
@@ -36,6 +37,7 @@ describe("model references carry their provider", () => {
     // Groq has no per-model free marker: the free tier is an account property.
     expect(isFreeRef("groq:openai/gpt-oss-120b")).toBe(true);
     expect(isFreeRef("nvidia:meta/llama-3.3-70b-instruct")).toBe(true);
+    expect(isFreeRef("mistral:mistral-large-latest")).toBe(true);
   });
 });
 
@@ -128,7 +130,7 @@ describe("the mixed roster keeps its two structural promises", () => {
     for (const g of DEFAULT_GENERALS) {
       const providers = new Set([g.model, ...g.fallbacks].map((m) => parseModelRef(m).provider));
       expect(providers, `${g.factionId} only reaches ${[...providers]}`).toEqual(
-        new Set(["openrouter", "groq", "nvidia"]),
+        new Set(["openrouter", "groq", "nvidia", "mistral"]),
       );
     }
   });

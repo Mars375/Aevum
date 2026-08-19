@@ -72,8 +72,8 @@ if (values.scripted) {
   console.log("Scripted battle — no network, no key, fully reproducible.\n");
   provider = new ScriptedProvider(chargeNearest);
 } else {
-  const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY, nvidia: process.env.NVIDIA_API_KEY };
-  if (!apiKeys.openrouter && !apiKeys.groq && !apiKeys.nvidia) {
+  const apiKeys = { openrouter: process.env.OPENROUTER_API_KEY, groq: process.env.GROQ_API_KEY, nvidia: process.env.NVIDIA_API_KEY, mistral: process.env.MISTRAL_API_KEY };
+  if (!apiKeys.openrouter && !apiKeys.groq && !apiKeys.nvidia && !apiKeys.mistral) {
     console.error("No provider key set. Copy .env.example to .env, or pass --scripted to play offline.");
     process.exit(1);
   }

@@ -17,56 +17,59 @@ export const NATIVE_SCHEMA_MODELS = new Set([
 export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(model);
 
 /**
- * Four distinct primaries, four vendor families, three providers.
+ * Four primaries, four vendors, four providers — and every chain reaches all
+ * four providers.
  *
  * Two rules hold this roster together, both earned from measurement:
  *
  *  1. **No faction's first fallback is another faction's primary.** A model
  *     going down cannot turn one general into a copy of another — that is what
  *     ruined the first reference battle (QA defect D1).
- *  2. **Every chain spans all three providers.** OpenRouter, Groq and NVIDIA
- *     rate-limit independently, so no single exhausted quota can strand a
- *     general. This is the direct answer to the 12-rotation tournament, which
- *     collapsed to 0% service after roughly 350 calls on one tier.
+ *  2. **Every chain spans all four providers.** OpenRouter, Groq, NVIDIA and
+ *     Mistral rate-limit independently, so no single exhausted quota can strand
+ *     a general. The 12-rotation tournament collapsed to 0% service on a single
+ *     tier; this is the structural answer.
  *
- * Measured latencies, on a mid-battle position:
- *   groq:openai/gpt-oss-120b            1.6s   won 3 of 4 tournament rotations
- *   nvidia:minimaxai/minimax-m3         1.3s
+ * Measured on a mid-battle position:
+ *   mistral:mistral-large-latest        2.2-2.4s   2/2
+ *   mistral:mistral-medium-latest       0.8-0.9s   2/2
+ *   mistral:magistral-small-latest      1.1-1.2s   2/2
+ *   mistral:ministral-8b-latest         1.2-1.3s   2/2
+ *   groq:openai/gpt-oss-120b            1.6s       won 3 of 4 tournament rotations
+ *   groq:groq/compound-mini             0.4-1.5s
+ *   nvidia:minimaxai/minimax-m3         1.3-1.4s
  *   nvidia:meta/llama-3.3-70b-instruct  27-34s
  *   poolside/laguna-s-2.1:free          4.5s
- *   nvidia:deepseek-ai/deepseek-v4      20-38s
- *   groq:groq/compound-mini             0.4s
  *   google/gemma-4-26b-a4b-it:free      4-8s
  *
  * Excluded on repeated measurement, not on capability flags:
  *   google/gemma-4-31b-it            HTTP 429 on 3/3   z-ai/glm-5.2      HTTP 429 on 3/3
  *   cohere/north-mini-code           timeout on 3/3    liquid/lfm-2.5    207-213s per order
  *   nvidia:mistralai/mistral-large-2 HTTP 404          nvidia:moonshotai/kimi-k2.6  HTTP 404
- *   qwen/qwen3.6-27b                 403 / 404 on both providers
  */
 export const DEFAULT_GENERALS: GeneralConfig[] = [
   {
     factionId: "crimson",
     displayName: "Crimson",
-    model: "groq:openai/gpt-oss-120b",
-    fallbacks: ["nvidia:deepseek-ai/deepseek-v4-flash-0731", "google/gemma-4-26b-a4b-it:free"],
+    model: "mistral:mistral-large-latest",
+    fallbacks: ["groq:groq/compound-mini", "nvidia:deepseek-ai/deepseek-v4-flash-0731", "google/gemma-4-26b-a4b-it:free"],
   },
   {
     factionId: "azure",
     displayName: "Azure",
-    model: "nvidia:minimaxai/minimax-m3",
-    fallbacks: ["google/gemma-4-26b-a4b-it:free", "groq:groq/compound-mini"],
+    model: "groq:openai/gpt-oss-120b",
+    fallbacks: ["mistral:mistral-medium-latest", "nvidia:meta/llama-3.3-70b-instruct", "nvidia/nemotron-3-super-120b-a12b:free"],
   },
   {
     factionId: "verdant",
     displayName: "Verdant",
-    model: "nvidia:meta/llama-3.3-70b-instruct",
-    fallbacks: ["groq:groq/compound-mini", "nvidia/nemotron-3-super-120b-a12b:free"],
+    model: "nvidia:minimaxai/minimax-m3",
+    fallbacks: ["mistral:magistral-small-latest", "groq:openai/gpt-oss-20b", "poolside/laguna-xs-2.1:free"],
   },
   {
     factionId: "amber",
     displayName: "Amber",
     model: "poolside/laguna-s-2.1:free",
-    fallbacks: ["nvidia:deepseek-ai/deepseek-v4-flash-0731", "groq:openai/gpt-oss-20b"],
+    fallbacks: ["mistral:ministral-8b-latest", "groq:groq/compound-mini", "nvidia:deepseek-ai/deepseek-v4-flash-0731"],
   },
 ];

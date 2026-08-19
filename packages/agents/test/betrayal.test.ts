@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FACTION_IDS, GRID_SIZE, type Decision, type FactionId, type GeneralConfig, type LocalView } from "@abs/contracts";
+import { GRID_SIZE, type Decision, type FactionId, type GeneralConfig, type LocalView } from "@abs/contracts";
 import { DEFAULT_GENERALS, ScriptedProvider, chargeNearest, runBattleV2 } from "@abs/agents";
 
 /**
