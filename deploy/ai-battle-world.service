@@ -6,7 +6,7 @@
 # session ouverte.
 [Unit]
 Description=ai-battle-simulator — faire vivre le monde continu
-Documentation=file:%h/git/ai-battle-simulator/docs/spec/world-w2.md
+Documentation=file:%h/git/ai-battle-simulator/docs/spec/world-w3.md
 After=network-online.target
 Wants=network-online.target
 
@@ -15,7 +15,7 @@ Type=oneshot
 WorkingDirectory=%h/git/ai-battle-simulator
 # systemd donne un PATH minimal : node et npm sont installes dans ~/.local/bin.
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
-ExecStart=%h/git/ai-battle-simulator/scripts/tend-world.sh terres 40
+ExecStart=%h/git/ai-battle-simulator/scripts/tend-world.sh monde 40
 # Une passe qui dure plus d'une heure est bloquee, pas lente : la couper libere
 # le verrou pour le lendemain plutot que d'empiler les passes.
 TimeoutStartSec=3600

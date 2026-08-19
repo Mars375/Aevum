@@ -44,7 +44,11 @@ export interface TickEvent {
     /** Bandits took what a civilisation failed to guard. */
     | "RAIDED"
     /** Bandits came and were driven off. */
-    | "REPELLED";
+    | "REPELLED"
+    /** A disaster struck. The land a civilisation covets carries a risk too. */
+    | "DISASTER"
+    /** A promise a predecessor made no longer holds. */
+    | "VOW_BROKEN";
   detail: string;
 }
 
@@ -179,6 +183,84 @@ export function raidOn(civ: Civ, seed: number, tick: number): Raid {
 
 /** How many workers one parcel of land can carry before crowding. */
 const WORKERS_PER_LAND = 25;
+
+/**
+ * Disasters.
+ *
+ * Bandits already keep a world from settling, but they only ever take what is
+ * portable, so the land itself carried no risk — a civilisation that seized
+ * every river was simply better off, with nothing to weigh against it. Each
+ * disaster is tied to the ground that invites it, which is what turns "which
+ * land do we covet" from an optimisation into a bet.
+ *
+ * Pure functions of (seed, tick, civ) like the seasons and the bandits, and
+ * proportional like them: a share of what is there, never a fixed amount, so a
+ * village loses a village's worth.
+ */
+export const DISASTERS = [
+  {
+    kind: "flood",
+    label: "crue",
+    // Rivers feed you and drown you. The scarcest, most contested land is also
+    // the only one that can take a year's grain in a night.
+    invites: (c: Civ) => c.lands.river,
+    strike: (c: Civ) => ({ food: -0.35, population: -0.03, timber: -0.15 }),
+  },
+  {
+    kind: "plague",
+    label: "peste",
+    // Crowding, not size: a large civilisation on ample land is no more exposed
+    // than a small one.
+    invites: (c: Civ) => Math.max(0, c.population / Math.max(1, c.territory) / 25 - 1) * 4,
+    strike: () => ({ population: -0.12, food: 0, timber: 0 }),
+  },
+  {
+    kind: "fire",
+    label: "incendie",
+    invites: (c: Civ) => c.lands.forest * 0.6,
+    strike: () => ({ timber: -0.5, population: -0.01, food: -0.05 }),
+  },
+] as const;
+
+export interface Disaster {
+  kind: string;
+  label: string;
+  severity: number;
+  strike: { food: number; population: number; timber: number };
+}
+
+export function disasterOn(civ: Civ, seed: number, tick: number): Disaster | null {
+  const draw = noise(seed, tick, saltOf(civ.id) ^ 0x1b873593);
+  let floor = 0;
+  for (const d of DISASTERS) {
+    // Exposure buys likelihood, and nothing else: the severity of a flood does
+    // not grow with the number of rivers, or holding many would be fatal rather
+    // than risky.
+    const chance = Math.min(0.05, d.invites(civ) * 0.004);
+    if (draw >= floor && draw < floor + chance) {
+      const severity = 0.4 + noise(seed, tick, saltOf(civ.id) ^ 0x27d4eb2f) * 0.6;
+      const s = d.strike(civ);
+      return { kind: d.kind, label: d.label, severity, strike: s };
+    }
+    floor += chance;
+  }
+  return null;
+}
+
+/** Is a standing vow still held? Null when there is nothing to hold. */
+export function vowHeld(civ: Civ): boolean | null {
+  const vow = civ.doctrine.vow;
+  if (!vow) return null;
+  const value =
+    vow.metric === "food"
+      ? civ.stock.food
+      : vow.metric === "soldiers"
+        ? civ.soldiers
+        : vow.metric === "territory"
+          ? civ.territory
+          : civ.population;
+  return value >= vow.floor;
+}
 
 function produce(civ: Civ, harvest: number): Stock {
   const s = shares(civ.doctrine);
@@ -325,6 +407,16 @@ function tickCiv(
 
   soldiers = Math.max(0, Math.round(soldiers + population * s.military * 0.05 - soldiers * 0.02));
 
+  const disaster = disasterOn({ ...civ, population, stock, territory, lands: civ.lands }, seed, tick);
+  if (disaster) {
+    const hit = (share: number) => Math.abs(share) * disaster.severity;
+    const lostPop = Math.min(Math.floor(population * hit(disaster.strike.population)), Math.max(0, population - 1));
+    population -= lostPop;
+    stock.food = round2(stock.food * (1 - hit(disaster.strike.food)));
+    stock.timber = round2(stock.timber * (1 - hit(disaster.strike.timber)));
+    say("DISASTER", `${disaster.label} : ${lostPop} morts, greniers et reserves entames`);
+  }
+
   const raid = raidOn({ ...civ, population, soldiers, stock, territory }, seed, tick);
   if (raid.strength > 0 && raid.repelled) {
     // Driving them off still costs soldiers. A garrison that never bleeds is a
@@ -354,6 +446,18 @@ function tickCiv(
     }
   }
 
+  // Checked after everything else, on the year as it ends: a promise is kept or
+  // broken by the state a ruler leaves behind, not by the state it inherited.
+  let vowBrokenOn = civ.vowBrokenOn;
+  if (vowBrokenOn === null) {
+    const held = vowHeld({ ...civ, population, soldiers, territory, stock });
+    if (held === false) {
+      vowBrokenOn = tick;
+      const vow = civ.doctrine.vow!;
+      say("VOW_BROKEN", `serment rompu : ${vow.metric} sous ${vow.floor}, jure en l'an ${vow.sworn}`);
+    }
+  }
+
   let fellOnTick = civ.fellOnTick;
   if (population <= 0) {
     population = 0;
@@ -364,7 +468,7 @@ function tickCiv(
   }
 
   return {
-    civ: { ...civ, population, territory, lands, soldiers, stock, advances, fellOnTick, ticksSinceDecision: civ.ticksSinceDecision + 1 },
+    civ: { ...civ, population, territory, lands, soldiers, stock, advances, fellOnTick, vowBrokenOn, ticksSinceDecision: civ.ticksSinceDecision + 1 },
     events,
     free: pool,
   };

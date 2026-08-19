@@ -6,11 +6,19 @@ import { tickWorld, type TickEvent } from "./tick.js";
 export function applyRuling(world: World, ruling: Ruling): World {
   return {
     ...world,
-    civs: world.civs.map((civ) =>
-      civ.id === ruling.civ
-        ? { ...civ, doctrine: { ...civ.doctrine, ...ruling.doctrine }, ticksSinceDecision: 0 }
-        : civ,
-    ),
+    civs: world.civs.map((civ) => {
+      if (civ.id !== ruling.civ) return civ;
+      // A ruler answers for its own promise, not its ancestors': swearing a new
+      // vow wipes the record of the old one being broken. Saying nothing about
+      // vows leaves both the promise and its verdict standing.
+      const swore = ruling.doctrine.vow !== undefined;
+      return {
+        ...civ,
+        doctrine: { ...civ.doctrine, ...ruling.doctrine },
+        ticksSinceDecision: 0,
+        vowBrokenOn: swore ? null : civ.vowBrokenOn,
+      };
+    }),
   };
 }
 

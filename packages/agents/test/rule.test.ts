@@ -75,7 +75,7 @@ describe("une reponse valide devient une decision", () => {
 describe("le schema JSON et le schema zod ne divergent pas", () => {
   it("tout champ requis cote API existe cote validation", async () => {
     const required = RULING_JSON_SCHEMA.required as readonly string[];
-    const sample: Record<string, unknown> = { ...valid, posture: "GUARD", claim: "plain" };
+    const sample: Record<string, unknown> = { ...valid, posture: "GUARD", claim: "plain", vowMetric: "none", vowFloor: 0 };
     const complete = Object.fromEntries(required.map((k) => [k, sample[k] ?? 1]));
     expect(await askRuler(answering(complete), general, newCiv("crimson"), point)).not.toBeNull();
   });
@@ -84,7 +84,7 @@ describe("le schema JSON et le schema zod ne divergent pas", () => {
     for (const key of RULING_JSON_SCHEMA.required as readonly string[]) {
       // Ces trois-la ont un defaut assume : un dirigeant reveille par une
       // famine n'a pas a rouvrir sa politique etrangere pour etre entendu.
-      if (key === "reasoning" || key === "creed" || key === "posture" || key === "claim") continue;
+      if (["reasoning", "creed", "posture", "claim", "vowMetric", "vowFloor"].includes(key)) continue;
       const partial = { ...valid, posture: "GUARD", claim: "plain" } as Record<string, unknown>;
       delete partial[key];
       expect(await askRuler(answering(partial), general, newCiv("crimson"), point)).toBeNull();
@@ -203,5 +203,64 @@ describe("un rapport sans affirmation datee n'est pas un rapport", () => {
     const parsed = BattleReportSchema.parse({ factionId: "crimson", summary: "x", claims: [] });
     expect(parsed.model).toBeNull();
     expect(BattleReportSchema.parse({ factionId: "crimson", summary: "x", claims: [], model: "a/b" }).model).toBe("a/b");
+  });
+});
+
+describe("le serment qu'un dirigeant laisse a ses successeurs", () => {
+  it("est transmis avec l'annee ou il a ete jure", async () => {
+    const ruling = (await askRuler(answering({ ...valid, vowMetric: "food", vowFloor: 500 }), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.vow).toEqual({ metric: "food", floor: 500, sworn: point.tick });
+  });
+
+  it('"none" laisse le serment en place au lieu de l\'effacer', async () => {
+    const ruling = (await askRuler(answering({ ...valid, vowMetric: "none", vowFloor: 0 }), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.vow).toBeUndefined();
+  });
+
+  it("un serment sans plancher n'engage a rien et n'est pas retenu", async () => {
+    const ruling = (await askRuler(answering({ ...valid, vowMetric: "food" }), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.vow).toBeUndefined();
+  });
+
+  it("une mesure inventee fait rejeter plutot que d'en choisir une", async () => {
+    expect(await askRuler(answering({ ...valid, vowMetric: "gloire", vowFloor: 9 }), general, newCiv("crimson"), point)).toBeNull();
+  });
+
+  it("le successeur apprend le serment dont il herite, et s'il est rompu", () => {
+    const bound = {
+      ...newCiv("crimson"),
+      vowBrokenOn: 88,
+      doctrine: { ...newCiv("crimson").doctrine, vow: { metric: "food" as const, floor: 400, sworn: 61 } },
+    };
+    const prompt = userPromptWorld(bound, point);
+    expect(prompt).toContain("sworn in year 61");
+    expect(prompt).toContain("BROKEN in year 88");
+  });
+
+  it("et celui qui n'herite de rien l'apprend aussi", () => {
+    expect(userPromptWorld(newCiv("crimson"), point)).toContain("no vow binds you");
+  });
+});
+
+describe("un serment ecrit comme on l'ecrirait naturellement", () => {
+  it("imbrique sous vow", async () => {
+    const ruling = (await askRuler(answering({ ...valid, vow: { metric: "soldiers", floor: 30 } }), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.vow).toEqual({ metric: "soldiers", floor: 30, sworn: point.tick });
+  });
+
+  it("la forme plate reste prioritaire quand les deux sont la", async () => {
+    const body = { ...valid, vowMetric: "food", vowFloor: 100, vow: { metric: "soldiers", floor: 30 } };
+    const ruling = (await askRuler(answering(body), general, newCiv("crimson"), point))!;
+    expect(ruling.doctrine.vow!.metric).toBe("food");
+  });
+
+  it("la consigne finale enumere tout ce qu'on attend, serment compris", () => {
+    // Elle vit dans le prompt utilisateur et non systeme : c'est la derniere
+    // chose que le modele lit, et c'est a elle qu'il repond. Deux champs sont
+    // deja revenus vides pour avoir manque a cette liste.
+    const usr = userPromptWorld(newCiv("crimson"), point);
+    for (const field of ["reasoning", "claim", "posture", "vowMetric", "creed", "farming"]) {
+      expect(usr, field).toContain(field);
+    }
   });
 });

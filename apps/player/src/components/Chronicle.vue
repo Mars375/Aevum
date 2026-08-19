@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { chronicle, JournalSchema, type Journal, type Year } from "@abs/world";
 import CivTrend from "./CivTrend.vue";
+import Intro from "./Intro.vue";
 
 /**
  * A world, read year by year.
@@ -50,7 +51,46 @@ const tended = computed<{ tone: "ok" | "warn" | "fail"; text: string } | null>((
 
 const years = computed<Year[]>(() => chronicle(props.journal));
 const index = ref(0);
-watch(years, () => (index.value = years.value.length - 1), { immediate: true });
+
+/**
+ * The year lives in the URL.
+ *
+ * "Look at year 142" was an instruction one person had to give another out
+ * loud. A world worth reading is worth linking into, and a scrubber position
+ * that survives a reload is the cheapest way to make a moment shareable.
+ */
+const wantedYear = Number(new URLSearchParams(location.search).get("annee"));
+watch(
+  years,
+  (list) => {
+    const asked = Number.isInteger(wantedYear) && wantedYear > 0 ? list.findIndex((y) => y.tick === wantedYear) : -1;
+    index.value = asked >= 0 ? asked : list.length - 1;
+  },
+  { immediate: true },
+);
+
+watch(index, () => {
+  const url = new URL(location.href);
+  // Only when it is not simply the latest year: a bare link should keep meaning
+  // "the world as it stands", not freeze on whatever year it stood at.
+  if (index.value < years.value.length - 1) url.searchParams.set("annee", String(year.value.tick));
+  else url.searchParams.delete("annee");
+  history.replaceState(null, "", url);
+});
+
+const copied = ref(false);
+async function copyLink() {
+  const url = new URL(location.href);
+  url.searchParams.set("annee", String(year.value.tick));
+  try {
+    await navigator.clipboard.writeText(url.toString());
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 1800);
+  } catch {
+    // Clipboard refused (no permission, insecure context). The URL bar already
+    // carries the year, so nothing is lost — we just say nothing.
+  }
+}
 
 const year = computed(() => years.value[Math.min(index.value, years.value.length - 1)]!);
 const metric = ref<"population" | "territory" | "soldiers" | "wealth">("population");
@@ -77,6 +117,13 @@ const LAND_LABEL: Record<string, string> = {
   river: "fleuve",
 };
 
+const VOW_LABEL: Record<string, string> = {
+  food: "vivres",
+  soldiers: "soldats",
+  territory: "terres",
+  population: "population",
+};
+
 const POSTURE: Record<string, string> = {
   TRADE: "commerce",
   GUARD: "garde",
@@ -100,10 +147,14 @@ const EVENT_LABEL: Record<string, string> = {
   TRADED: "commerce",
   RAIDED: "pillage",
   REPELLED: "bandits repoussés",
+  DISASTER: "catastrophe",
+  VOW_BROKEN: "serment rompu",
 };
 
 /** The events worth a line in a chronicle. Growth every year is not history. */
-const NOTABLE = new Set(["STARVED", "ADVANCE", "COLLAPSED", "SEIZED", "CEDED", "RAIDED", "LAND_FULL", "SHORTAGE"]);
+const NOTABLE = new Set([
+  "STARVED", "ADVANCE", "COLLAPSED", "SEIZED", "CEDED", "RAIDED", "LAND_FULL", "SHORTAGE", "DISASTER", "VOW_BROKEN",
+]);
 const notable = computed(() => year.value.events.filter((e) => NOTABLE.has(e.kind)));
 
 /** Everything a ruler has ever said, newest first — the era's real narrative. */
@@ -118,13 +169,17 @@ const round = (n: number) => Math.round(n);
       <span class="dot" aria-hidden="true"></span>{{ tended.text }}
     </p>
 
+    <Intro
+      :era="journal.era"
+      :years="journal.livedTo"
+      :rulings="journal.rulings.length"
+      :alive="year.world.civs.filter((c) => c.fellOnTick === null).length"
+    />
+
     <header class="card head">
       <div>
         <h2>Ère {{ journal.era }}</h2>
-        <p class="mono muted">
-          {{ journal.livedTo }} années vécues · {{ journal.rulings.length }} décisions ·
-          {{ year.world.civs.filter((c) => c.fellOnTick === null).length }} civilisations vivantes
-        </p>
+        <p class="mono muted">année {{ year.tick }} sur {{ journal.livedTo }}</p>
       </div>
       <div class="metrics">
         <button
@@ -150,6 +205,7 @@ const round = (n: number) => Math.round(n);
           :aria-valuetext="`an ${year.tick}`"
         />
         <output class="mono">an {{ year.tick }}</output>
+        <button class="link mono" @click="copyLink">{{ copied ? "copié" : "lien vers cette année" }}</button>
       </label>
     </section>
 
@@ -174,6 +230,11 @@ const round = (n: number) => Math.round(n);
           </li>
         </ul>
         <p class="claims mono">convoite : {{ LAND_LABEL[civ.doctrine.claim] }}</p>
+        <p v-if="civ.doctrine.vow" class="vow mono" :class="{ broken: civ.vowBrokenOn !== null }">
+          serment (an {{ civ.doctrine.vow.sworn }}) : {{ VOW_LABEL[civ.doctrine.vow.metric] }} ≥ {{ civ.doctrine.vow.floor }}
+          <span v-if="civ.vowBrokenOn !== null">— rompu an {{ civ.vowBrokenOn }}</span>
+          <span v-else>— tenu</span>
+        </p>
 
         <p v-if="civ.doctrine.creed" class="creed">« {{ civ.doctrine.creed }} »</p>
         <p v-else class="creed muted">Aucun dirigeant n'a encore écrit de credo.</p>
@@ -379,6 +440,25 @@ dd {
   margin: var(--s1) 0 0;
   font-size: 11px;
   color: var(--muted);
+}
+
+/* A vow reads as kept or broken from the words; the colour only confirms it. */
+.vow {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--verdant);
+}
+
+.vow.broken {
+  color: var(--crimson);
+}
+
+.link {
+  min-height: 0;
+  min-width: 0;
+  padding: 3px var(--s2);
+  font-size: 11px;
+  background: transparent;
 }
 
 .creed {

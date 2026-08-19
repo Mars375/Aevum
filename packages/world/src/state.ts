@@ -19,8 +19,10 @@ import { FactionIdSchema } from "@abs/contracts";
  * The rules a world was lived under.
  *
  * w1 counted territory as a single number: every acre identical, and a doctrine
- * free to mine without hills. w2 gives land four kinds, each carrying one kind
- * of work, which changes what the same journal would produce.
+ * free to mine without hills. w2 gave land four kinds, each carrying one kind
+ * of work. w3 adds disaster — so the land a civilisation covets carries a risk
+ * as well as a yield — and vows, which give a ruler something its successor
+ * inherits besides words.
  *
  * So the version is bumped rather than the old worlds quietly re-interpreted.
  * The same discipline as I20 in the battle rules — a recorded run must keep
@@ -28,7 +30,7 @@ import { FactionIdSchema } from "@abs/contracts";
  * records, with the reports written from them; they are no longer replayable,
  * and the code says so instead of silently producing different numbers.
  */
-export const WORLD_VERSION = "w2";
+export const WORLD_VERSION = "w3";
 
 export const RESOURCES = ["food", "timber", "ore", "wealth"] as const;
 export const ResourceSchema = z.enum(RESOURCES);
@@ -71,6 +73,19 @@ export const LAND_CARRIES: Record<LandKind, "farming" | "forestry" | "mining" | 
   river: "trade",
 };
 
+/** What a ruler can bind its successors to. Each is a floor the engine can read. */
+export const VOW_METRICS = ["food", "soldiers", "territory", "population"] as const;
+export const VowMetricSchema = z.enum(VOW_METRICS);
+export type VowMetric = z.infer<typeof VowMetricSchema>;
+
+export const VowSchema = z.object({
+  metric: VowMetricSchema,
+  floor: z.number().min(0),
+  /** The year it was sworn, so a successor knows how old the promise is. */
+  sworn: z.number().int(),
+});
+export type Vow = z.infer<typeof VowSchema>;
+
 export const StockSchema = z.object({
   food: z.number(),
   timber: z.number(),
@@ -105,6 +120,20 @@ export const DoctrineSchema = z.object({
    */
   creed: z.string().default(""),
   /**
+   * A promise made to one's successors, and checked by the engine.
+   *
+   * Every decision is already taken by what amounts to a new ruler: the model
+   * has no memory between calls, so continuity has only ever been the creed —
+   * words inherited from people who are gone. A vow is the same inheritance
+   * made accountable: a floor a predecessor committed to, which the engine
+   * watches every year and reports as kept or broken.
+   *
+   * Deliberately structured rather than free text. A promise a machine cannot
+   * check is a promise nobody can check, and this project does not have one
+   * model judge another.
+   */
+  vow: VowSchema.nullable().default(null),
+  /**
    * What kind of land this civilisation reaches for when it expands, and takes
    * first when it seizes.
    *
@@ -134,6 +163,11 @@ export const CivSchema = z.object({
   advances: z.array(z.string()).default([]),
   /** Ticks since this civilisation last had to decide anything. */
   ticksSinceDecision: z.number().int().default(0),
+  /**
+   * The year a standing vow was broken, if it was. Cleared when a ruler swears
+   * a new one — a successor answers for its own promise, not its ancestors'.
+   */
+  vowBrokenOn: z.number().int().nullable().default(null),
   /** Set when a civilisation collapses. It stays in the world as a ruin. */
   fellOnTick: z.number().int().nullable().default(null),
 });
@@ -173,6 +207,7 @@ export const DEFAULT_DOCTRINE: Doctrine = {
   posture: "GUARD",
   creed: "",
   claim: "plain",
+  vow: null,
 };
 
 export function newCiv(id: Civ["id"]): Civ {
@@ -188,6 +223,7 @@ export function newCiv(id: Civ["id"]): Civ {
     soldiers: 5,
     advances: [],
     ticksSinceDecision: 0,
+    vowBrokenOn: null,
     fellOnTick: null,
   };
 }

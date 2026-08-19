@@ -44,6 +44,13 @@ export function systemPromptWorld(): string {
     "- GUARD takes land from nobody and makes you expensive to attack.",
     "- PRESSURE takes a neighbour's land by force, if your soldiers clearly outnumber their defence. It costs you soldiers even when it works.",
     "",
+    "The world is not only unkind by season. Rivers flood, crowded cities take plague, and forests burn.",
+    "Each disaster is invited by the ground that suffers it, so the land you covet carries a risk as well as a yield.",
+    "",
+    "You may also swear a vow: a floor your successors are bound to hold — food, soldiers, territory or population.",
+    "The engine checks it every year and records the year it breaks. Swear one you believe can be held; a broken vow",
+    "is inherited by everyone who follows you. Leave it out to keep the standing vow as it is.",
+    "",
     "You also leave a creed: what this civilisation believes about itself, in one or two sentences.",
     "Your successors inherit it and nothing else of you. Write it for them, not for a spectator.",
     "",
@@ -75,10 +82,24 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint): string {
     `- farming ${pct(d.farming, total)}, forestry ${pct(d.forestry, total)}, mining ${pct(d.mining, total)}, trade ${pct(d.trade, total)}, military ${pct(d.military, total)}`,
     `- posture towards neighbours: ${d.posture}`,
     `- land you reach for when expanding: ${d.claim}`,
+    d.vow
+      ? `- standing vow, sworn in year ${d.vow.sworn}: keep ${d.vow.metric} at or above ${d.vow.floor}${
+          civ.vowBrokenOn !== null ? ` — BROKEN in year ${civ.vowBrokenOn}` : " — held so far"
+        }`
+      : "- no vow binds you. Your predecessors left none.",
     d.creed ? `- creed inherited from your predecessors: "${d.creed}"` : "- no creed has been written yet. You are the first.",
     "",
-    "Answer with: why you are deciding this, the shares your people will work under, the land you will reach for, your posture towards your neighbours, and a creed. All of it holds until something wakes you again.",
-    "The reasoning is not decoration — it is what your civilisation will be remembered by. One or two sentences.",
+    // The closing list is what models actually answer to. Leaving a field out of
+    // it means the field comes back empty, however carefully it was explained
+    // above — measured twice now, first on the reasoning and then on the vow.
+    "Answer with ALL of the following:",
+    "- reasoning: why you are deciding this. Not decoration — it is what your civilisation will be remembered by. One or two sentences.",
+    "- farming, forestry, mining, trade, military: the shares your people will work under.",
+    "- claim: which of plain, forest, hill or river you will reach for next.",
+    "- posture: TRADE, GUARD or PRESSURE.",
+    "- vowMetric and vowFloor: the promise you bind your successors to, or vowMetric \"none\" to swear nothing new.",
+    "- creed: what this civilisation believes about itself.",
+    "All of it holds until something wakes you again.",
   ].join("\n");
 }
 
@@ -86,12 +107,18 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint): string {
 export const RULING_JSON_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["reasoning", "creed", "posture", "claim", "farming", "forestry", "mining", "trade", "military"],
+  required: ["reasoning", "creed", "posture", "claim", "vowMetric", "vowFloor", "farming", "forestry", "mining", "trade", "military"],
   properties: {
     reasoning: { type: "string", description: "One or two sentences on why, written for a spectator." },
     creed: { type: "string", description: "What this civilisation believes about itself. Inherited by your successors." },
     posture: { type: "string", enum: ["TRADE", "GUARD", "PRESSURE"], description: "How you carry yourself towards your neighbours." },
     claim: { type: "string", enum: ["plain", "forest", "hill", "river"], description: "The kind of land you reach for when you expand or seize." },
+    vowMetric: {
+      type: "string",
+      enum: ["food", "soldiers", "territory", "population", "none"],
+      description: "What you bind your successors to hold, or \"none\" to swear nothing new.",
+    },
+    vowFloor: { type: "number", description: "The floor of that vow. Ignored when vowMetric is \"none\"." },
     farming: { type: "number", description: "Relative share of the workforce farming." },
     forestry: { type: "number" },
     mining: { type: "number" },

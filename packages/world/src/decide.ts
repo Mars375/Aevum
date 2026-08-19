@@ -39,6 +39,10 @@ export const DECISION_KINDS = [
   "RAIDED",
   /** The doctrine asks for work the ground cannot carry. */
   "MISMATCH",
+  /** Disaster struck. */
+  "DISASTER",
+  /** A promise a predecessor made no longer holds. */
+  "VOW_BROKEN",
 ] as const;
 export type DecisionKind = (typeof DECISION_KINDS)[number];
 
@@ -131,6 +135,16 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
 
   if (mine.some((e) => e.kind === "SURPLUS")) {
     raise("SURPLUS", 40, [`vivres ${civ.stock.food}`, `tresor ${civ.stock.wealth}`, "rien n'en est fait"], true);
+  }
+
+  const struck = mine.find((e) => e.kind === "DISASTER");
+  if (struck) raise("DISASTER", 78, [struck.detail, `${civ.population} habitants`, `vivres ${Math.round(civ.stock.food)}`]);
+
+  const broken = mine.find((e) => e.kind === "VOW_BROKEN");
+  if (broken) {
+    // Worth waking a ruler for even in a calm year: a promise nobody is told
+    // about breaking is a promise that was never binding.
+    raise("VOW_BROKEN", 60, [broken.detail, "vos successeurs heriteront de ce manquement"]);
   }
 
   const raided = mine.find((e) => e.kind === "RAIDED");

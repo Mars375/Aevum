@@ -57,7 +57,26 @@ const lift = (value: unknown): unknown => {
   return obj;
 };
 
-const RulingAnswerSchema = z.preprocess(lift, z.object({
+/**
+ * A vow written the way one would naturally write it.
+ *
+ * The schema asks for two flat fields because strict structured output has no
+ * good way to say "an object or nothing". Models reasonably answer with
+ * `vow: { metric, floor }` instead. Reading both is a line of code; losing every
+ * vow to a shape preference is not worth defending.
+ */
+const liftVow = (value: unknown): unknown => {
+  if (typeof value !== "object" || value === null) return value;
+  const obj = value as Record<string, unknown>;
+  if (obj.vowMetric !== undefined) return obj;
+  const nested = obj.vow;
+  if (typeof nested !== "object" || nested === null) return obj;
+  const inner = nested as Record<string, unknown>;
+  if (typeof inner.metric !== "string") return obj;
+  return { ...obj, vowMetric: inner.metric, vowFloor: inner.floor };
+};
+
+const RulingAnswerSchema = z.preprocess((v) => liftVow(lift(v)), z.object({
   reasoning: z.string().default(""),
   creed: z.string().default(""),
   // Defaulted, not required: a ruler woken by a famine has no reason to
@@ -68,6 +87,8 @@ const RulingAnswerSchema = z.preprocess(lift, z.object({
   // reconsider which frontier it wants next, and rejecting a good answer over a
   // missing field would be throwing away governing to enforce a form.
   claim: z.enum(["plain", "forest", "hill", "river"]).optional(),
+  vowMetric: z.enum(["food", "soldiers", "territory", "population", "none"]).optional(),
+  vowFloor: z.number().min(0).optional(),
   farming: z.number().min(0).max(1000),
   forestry: z.number().min(0).max(1000),
   mining: z.number().min(0).max(1000),
@@ -118,7 +139,7 @@ export async function askRuler(
     return null;
   }
 
-  const { reasoning, creed, posture, claim, ...work } = answer.data;
+  const { reasoning, creed, posture, claim, vowMetric, vowFloor, ...work } = answer.data;
   const total = work.farming + work.forestry + work.mining + work.trade + work.military;
   // A ruler who employs nobody has not answered the question. Better to keep
   // the standing doctrine than to install one that starves everyone.
@@ -137,6 +158,12 @@ export async function askRuler(
       ...work,
       ...(posture ? { posture } : {}),
       ...(claim ? { claim } : {}),
+      // "none" is a real answer and not a missing one: it means this ruler
+      // swears nothing new, which leaves the standing vow untouched rather
+      // than clearing it.
+      ...(vowMetric && vowMetric !== "none" && vowFloor !== undefined
+        ? { vow: { metric: vowMetric, floor: vowFloor, sworn: point.tick } }
+        : {}),
       ...(creed.trim() ? { creed: creed.trim() } : {}),
     },
     reason: reasoning.trim(),
