@@ -5173,8 +5173,6 @@
       }
     }
   ],
-  "reports": [],
-  "audits": [],
   "outcome": {
     "kind": "VICTORY",
     "winner": "verdant",
@@ -5183,5 +5181,93 @@
     ],
     "reason": "Limite de 12 tours atteinte ; verdant l'emporte avec 12 PV restants contre 8.",
     "finalTurn": 12
-  }
+  },
+  "reports": [
+    {
+      "factionId": "crimson",
+      "summary": "The battle concluded in defeat for Crimson forces despite early aggressive maneuvers and a temporary alliance. Key failures included overextension of scouts, miscoordination in melee assaults, and inability to capitalize on numerical superiority in critical engagements. The final outcome was determined by Verdant's superior positioning and timely reinforcement of their remaining squad.",
+      "claims": []
+    },
+    {
+      "factionId": "azure",
+      "summary": "Our forces achieved early advances, but the destruction of the melee squad on turn 6 and the ranged squad on turn 8 crippled our offensive, allowing Verdant to seize victory.",
+      "claims": []
+    },
+    {
+      "factionId": "verdant",
+      "summary": "Verdant secured victory by maneuvering melee units to pressure the enemy center, using scouts to disrupt their formations and form an alliance that outflanked their defenses. Despite initial setbacks and rejections, coordinated attacks and alliance maneuvers broke their cohesion by Turn 12.",
+      "claims": []
+    },
+    {
+      "factionId": "amber",
+      "summary": "The battle was a costly defeat. Despite some successful attacks, we were overwhelmed by the enemy's coordinated assault. Poor positioning and missed opportunities led to the destruction of our scout squad and ultimately the loss of the battlefield to verdant.",
+      "claims": []
+    }
+  ],
+  "audits": [
+    {
+      "factionId": "crimson",
+      "claims": [],
+      "fidelity": null,
+      "metrics": {
+        "turnsPlayed": 12,
+        "ordersIssued": 32,
+        "ordersRejected": 0,
+        "attacksLanded": 9,
+        "attacksWasted": 0,
+        "squadsLost": 3,
+        "squadsDestroyed": 6,
+        "finalHp": 1,
+        "survived": true
+      }
+    },
+    {
+      "factionId": "azure",
+      "claims": [],
+      "fidelity": null,
+      "metrics": {
+        "turnsPlayed": 12,
+        "ordersIssued": 26,
+        "ordersRejected": 0,
+        "attacksLanded": 9,
+        "attacksWasted": 4,
+        "squadsLost": 2,
+        "squadsDestroyed": 7,
+        "finalHp": 8,
+        "survived": true
+      }
+    },
+    {
+      "factionId": "verdant",
+      "claims": [],
+      "fidelity": null,
+      "metrics": {
+        "turnsPlayed": 12,
+        "ordersIssued": 40,
+        "ordersRejected": 2,
+        "attacksLanded": 6,
+        "attacksWasted": 0,
+        "squadsLost": 2,
+        "squadsDestroyed": 7,
+        "finalHp": 12,
+        "survived": true
+      }
+    },
+    {
+      "factionId": "amber",
+      "claims": [],
+      "fidelity": null,
+      "metrics": {
+        "turnsPlayed": 12,
+        "ordersIssued": 32,
+        "ordersRejected": 1,
+        "attacksLanded": 12,
+        "attacksWasted": 4,
+        "squadsLost": 2,
+        "squadsDestroyed": 7,
+        "finalHp": 8,
+        "survived": true
+      }
+    }
+  ]
 }

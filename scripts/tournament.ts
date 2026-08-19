@@ -98,11 +98,17 @@ const replays: Replay[] = [];
  * A partial checkpoint is NOT reused: it fails its own schema or carries fewer
  * turns than it should, and half a battle is not a result.
  */
-function reload(path: string, expectedSeed: number): Replay | null {
+function reload(path: string, expectedSeed: number, expectedRuleset: string): Replay | null {
   if (!existsSync(path) || RESTART) return null;
   try {
     const replay = ReplaySchema.parse(JSON.parse(readFileSync(path, "utf8")));
-    if (replay.manifest.config.seed !== expectedSeed) return null; // a different tournament
+    // Seed AND ruleset. The seed alone is not enough: the earlier 12-rotation
+    // v1 tournament used seeds 42-53, and this v2 one starts at 42, so
+    // rotation-0.json would have matched on seed and been reloaded as a v2
+    // result. That is precisely the silent blending of two tournaments this
+    // function claims to prevent.
+    if (replay.manifest.config.seed !== expectedSeed) return null;
+    if (replay.manifest.rulesetVersion !== expectedRuleset) return null;
     if (replay.outcome.reason.includes("interrompue")) return null; // a partial checkpoint
     return replay;
   } catch {
@@ -133,7 +139,7 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
   console.log(`\n=== rotation ${rotation + 1}/${ROTATIONS} (seed ${config.seed}) ===`);
   for (const g of generals) console.log(`  ${g.factionId.padEnd(8)} ${g.model}`);
 
-  const existing = reload(out, config.seed);
+  const existing = reload(out, config.seed, config.rulesetVersion);
   if (existing) {
     console.log(`  déjà jouée, rechargée (${existing.turns.length} tours) — aucun appel dépensé`);
     replays.push(existing);

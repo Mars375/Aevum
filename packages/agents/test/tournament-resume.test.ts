@@ -43,10 +43,11 @@ const base = (overrides: Partial<Replay> = {}): Replay =>
   }) as unknown as Replay;
 
 /** Mirrors the reload rule in scripts/tournament.ts. */
-function reusable(raw: unknown, expectedSeed: number): boolean {
+function reusable(raw: unknown, expectedSeed: number, expectedRuleset = "v2"): boolean {
   const parsed = ReplaySchema.safeParse(raw);
   if (!parsed.success) return false;
   if (parsed.data.manifest.config.seed !== expectedSeed) return false;
+  if (parsed.data.manifest.rulesetVersion !== expectedRuleset) return false;
   if (parsed.data.outcome.reason.includes("interrompue")) return false;
   return true;
 }
@@ -72,6 +73,21 @@ describe("what a resumed tournament may reuse", () => {
   it("refuses a rotation from a different tournament", () => {
     // Same filename, different seed: reusing it would silently mix two runs.
     expect(reusable(base(), 99)).toBe(false);
+  });
+
+  it("refuses a rotation from a different RULESET, even on a matching seed", () => {
+    // The real case this guards: the earlier v1 tournament ran seeds 42-53 and
+    // wrote rotation-0.json; the v2 tournament also starts at 42. Matching on
+    // seed alone would have reloaded a v1 battle as a v2 result.
+    const v1 = base({
+      manifest: {
+        ...base().manifest,
+        rulesetVersion: "v1",
+        config: { ...base().manifest.config, rulesetVersion: "v1" },
+      },
+    } as Partial<Replay>);
+    expect(reusable(v1, 42, "v2")).toBe(false);
+    expect(reusable(v1, 42, "v1")).toBe(true);
   });
 
   it("refuses a file that fails its own schema", () => {
