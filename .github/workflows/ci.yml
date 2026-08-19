@@ -38,6 +38,15 @@ jobs:
         # Advisory network check inside; it never fails the build on its own.
         run: npm run healthcheck
 
+      - name: The world holds together over three centuries
+        # Free, offline and fast: three hundred years of engine, which is the
+        # cheapest way to catch a rule that only misbehaves at scale. Costs no
+        # quota, because nothing here consults a model.
+        run: npm run world:probe -- 300
+
+      - name: The reports still render
+        run: npm run build-reports
+
       - name: No API key in the diff
         # Turns the check I have run by hand before every commit into something
         # that cannot be forgotten. Patterns for all four providers.
