@@ -1,101 +1,51 @@
-# Remettre l'intégration continue
+# Pousser un workflow demande une permission de plus
 
-Le workflow GitHub Actions est écrit, testé, et **volontairement absent du dépôt** :
-GitHub refuse tout push qui crée ou modifie `.github/workflows/` si le jeton n'a
-pas le scope `workflow`, et ce commit était le plus ancien des vingt-sept en
-attente — il bloquait donc tout le reste.
+Si un `git push` est refusé avec :
 
-Le choix a été de pousser les vingt-six autres et de différer celui-ci, plutôt
-que de laisser vingt-sept commits de travail réel n'exister que sur une seule
-machine.
-
-## Ce qu'il reste à faire
-
-1. Obtenir le scope, par l'une des deux voies :
-
-   ```
-   gh auth refresh -h github.com -s workflow
-   ```
-
-   Sur une machine sans navigateur, la commande affiche un code à usage unique
-   et attend : il faut ouvrir `github.com/login/device` depuis un autre appareil
-   et y coller le code **sans fermer la commande**. Sinon, créer un jeton
-   personnel avec `repo` et `workflow` sur `github.com/settings/tokens`, puis
-   `gh auth login --with-token`.
-
-2. Vérifier : `gh auth status` doit lister `workflow` parmi les scopes.
-
-3. Remettre le fichier et le pousser :
-
-   ```
-   mkdir -p .github/workflows
-   cp <sauvegarde>/ci.yml .github/workflows/ci.yml
-   git add .github/workflows/ci.yml
-   git commit -m "ci: run the checks nobody was running"
-   git push
-   ```
-
-Le contenu du workflow est reproduit ci-dessous, pour qu'il ne dépende d'aucun
-fichier temporaire.
-
-## Le workflow
-
-```yaml
-name: CI
-
-# Every check here runs OFFLINE. The whole test suite exercises the battle loop
-# through ScriptedProvider, so CI needs no API key, spends no quota, and cannot
-# be broken by a provider having a bad day. That property is the reason the
-# scripted provider was worth building.
-on:
-  push:
-    branches: [master, main]
-  pull_request:
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          # Two commits, so the secret scan below can diff against the parent.
-          fetch-depth: 2
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Tests
-        run: npm test
-
-      - name: Build the player
-        run: npm run player:build
-
-      - name: Healthcheck
-        # Advisory network check inside; it never fails the build on its own.
-        run: npm run healthcheck
-
-      - name: No API key in the diff
-        # Turns the check I have run by hand before every commit into something
-        # that cannot be forgotten. Patterns for all four providers.
-        run: |
-          if git diff HEAD~1 HEAD | grep -nE 'sk-or-v1-[A-Za-z0-9]{20,}|gsk_[A-Za-z0-9]{30,}|nvapi-[A-Za-z0-9_-]{30,}|MISTRAL_API_KEY=[A-Za-z0-9]{20,}'; then
-            echo "::error::An API key pattern appears in this diff."
-            exit 1
-          fi
-          echo "No key pattern found."
-
-      - name: .env is not tracked
-        run: |
-          if git ls-files --error-unmatch .env 2>/dev/null; then
-            echo "::error::.env is tracked by git."
-            exit 1
-          fi
-          echo ".env is untracked, as it should be."
 ```
+refusing to allow an OAuth App to create or update workflow
+`.github/workflows/ci.yml` without `workflow` scope
+```
+
+ce n'est pas un problème de connexion. Le jeton GitHub ne dit pas seulement qui
+vous êtes, il porte la liste de ce qu'il a le droit de faire.
+
+`repo` suffit à pousser du code. Mais un fichier dans `.github/workflows/` n'est
+pas du code ordinaire : c'est **du code que GitHub exécutera lui-même**, sur ses
+machines, avec accès au dépôt et à ses secrets. D'où une permission séparée,
+`workflow` — précisément pour qu'un jeton volé ne suffise pas à faire tourner du
+code arbitraire sur un compte. C'est une protection, pas un caprice.
+
+## L'obtenir
+
+```
+gh auth refresh -h github.com -s workflow
+```
+
+Ce n'est pas une reconnexion : c'est la même session à laquelle on ajoute un
+droit.
+
+**Le piège, sur une machine sans navigateur** — un Raspberry Pi en SSH, par
+exemple. La commande affiche un code à usage unique puis **attend**. Il faut
+ouvrir `github.com/login/device` depuis un autre appareil, y coller le code et
+approuver, **sans fermer la commande**. Si l'étape n'aboutit pas, `gh` garde
+l'ancien jeton : on reste « connecté », ce qui est vrai, mais sans le nouveau
+droit — et rien ne le signale, sauf :
+
+```
+gh auth status
+```
+
+qui doit lister `workflow` parmi les scopes.
+
+Sans navigateur du tout, l'alternative est un jeton personnel portant `repo` et
+`workflow` (`github.com/settings/tokens`), puis `gh auth login --with-token`.
+
+## Ce que la CI vérifie
+
+Tout tourne **hors ligne** : la suite exerce la boucle de bataille et le monde
+continu à travers `ScriptedProvider`, donc la CI n'a besoin d'aucune clé, ne
+dépense aucun quota, et ne peut pas être cassée par un fournisseur qui a une
+mauvaise journée. Elle ajoute deux gardes qui étaient jusque-là des
+vérifications manuelles, donc oubliables : aucun motif de clé d'API dans le
+diff, pour les quatre fournisseurs, et `.env` non suivi.
