@@ -9,6 +9,7 @@ export default defineConfig({
       "@abs/contracts": r("./packages/contracts/src/index.ts"),
       "@abs/engine": r("./packages/engine/src/index.ts"),
       "@abs/agents": r("./packages/agents/src/index.ts"),
+      "@abs/world": r("./packages/world/src/index.ts"),
     },
   },
   test: {
