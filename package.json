@@ -25,7 +25,8 @@
     "balance": "tsx scripts/balance.ts",
     "live": "tsx scripts/live.ts",
     "world:probe": "tsx scripts/world-probe.ts",
-    "index-worlds": "tsx scripts/index-worlds.ts"
+    "index-worlds": "tsx scripts/index-worlds.ts",
+    "era-report": "tsx scripts/era-report.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
