@@ -242,16 +242,17 @@ describe("rate limits are read and obeyed, not guessed at", () => {
     expect(slept).toEqual([]);
   });
 
-  it("hops to another provider instead of waiting out a drained bucket", async () => {
-    const { ENDPOINTS, RemoteProvider } = await import("@abs/agents");
+  it("waits out a drained bucket for the primary rather than hopping off it", async () => {
+    // This test used to assert the opposite, and that rule cost a tournament:
+    // hopping whenever a fallback existed meant a contender's own model was
+    // never served once its bucket drained. Hopping is for fallbacks.
+    const { RemoteProvider } = await import("@abs/agents");
     const slept: number[] = [];
     const fetchImpl = vi
       .fn()
-      // Groq says its token bucket needs a full minute...
       .mockResolvedValueOnce(
         new Response("", { status: 429, headers: { "x-ratelimit-reset-tokens": "58s", "x-ratelimit-remaining-tokens": "0" } }),
       )
-      // ...so the NVIDIA fallback should serve immediately instead.
       .mockResolvedValueOnce(ok());
     const provider = new RemoteProvider({
       apiKeys: { groq: "gq", nvidia: "nv" },
@@ -267,9 +268,99 @@ describe("rate limits are read and obeyed, not guessed at", () => {
     });
 
     expect(decision).not.toBeNull();
-    expect(telemetry.servedModel).toBe("nvidia:meta/llama-3.3-70b-instruct");
-    expect(fetchImpl.mock.calls[1]![0]).toBe(ENDPOINTS.nvidia.url);
-    // The whole point: a drained bucket costs a hop, not a minute.
+    expect(telemetry.servedModel).toBe("groq:openai/gpt-oss-120b");
+    expect(slept[0]).toBeGreaterThan(50_000);
+  });
+});
+
+/**
+ * The tournament that motivated this: three of four contenders played 0 of 48
+ * turns on their own model. Nothing had failed — "hop instead of waiting" was
+ * doing its job for throughput, and starving the primary as a side effect.
+ * A ranking of models that never played is not a ranking.
+ */
+describe("a general's own model is worth waiting for", () => {
+  const drained = () =>
+    new Response("", { status: 429, headers: { "x-ratelimit-reset-tokens": "20s", "x-ratelimit-remaining-tokens": "0" } });
+
+  it("waits out a drained bucket for the primary, even with a fallback available", async () => {
+    const { RemoteProvider } = await import("@abs/agents");
+    const slept: number[] = [];
+    const fetchImpl = vi.fn().mockResolvedValueOnce(drained()).mockResolvedValueOnce(ok());
+    const provider = new RemoteProvider({
+      apiKeys: { groq: "gq", nvidia: "nv" },
+      fetchImpl,
+      sleepImpl: async (ms: number) => void slept.push(ms),
+    });
+
+    const { telemetry } = await provider.decide(VIEW, {
+      factionId: "crimson",
+      displayName: "C",
+      model: "groq:openai/gpt-oss-120b",
+      fallbacks: ["nvidia:meta/llama-3.3-70b-instruct"],
+    });
+
+    // It waited, and it was served by its own model rather than the fallback.
+    expect(slept[0]).toBeGreaterThan(15_000);
+    expect(telemetry.servedModel).toBe("groq:openai/gpt-oss-120b");
+    expect(telemetry.fellBack).toBe(false);
+  });
+
+  it("still hops rather than waiting for a fallback", async () => {
+    const { RemoteProvider } = await import("@abs/agents");
+    const slept: number[] = [];
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("", { status: 400 })) // primary out, permanently
+      .mockResolvedValueOnce(drained()) // first fallback drained
+      .mockResolvedValueOnce(ok()); // second fallback serves
+    const provider = new RemoteProvider({
+      apiKeys: { groq: "gq", nvidia: "nv", openrouter: "or" },
+      fetchImpl,
+      sleepImpl: async (ms: number) => void slept.push(ms),
+    });
+
+    await provider.decide(VIEW, {
+      factionId: "crimson",
+      displayName: "C",
+      model: "groq:openai/gpt-oss-120b",
+      fallbacks: ["nvidia:meta/llama-3.3-70b-instruct", "google/gemma-4-26b-a4b-it:free"],
+    });
+
+    // Speed outranks identity once we are already off the contender's model.
     expect(slept.reduce((a, b) => a + b, 0)).toBeLessThan(3_000);
+  });
+
+  it("records why it fell back, even when the fallback succeeded", async () => {
+    const { RemoteProvider } = await import("@abs/agents");
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("", { status: 400 }))
+      .mockResolvedValueOnce(ok());
+    const provider = new RemoteProvider({ apiKeys: { groq: "gq", nvidia: "nv" }, fetchImpl, sleepImpl: async () => {} });
+
+    const { telemetry } = await provider.decide(VIEW, {
+      factionId: "crimson",
+      displayName: "C",
+      model: "groq:openai/gpt-oss-120b",
+      fallbacks: ["nvidia:meta/llama-3.3-70b-instruct"],
+    });
+
+    expect(telemetry.fellBack).toBe(true);
+    // The replay used to show a substitution with no reason recorded anywhere.
+    expect(telemetry.error).toContain("400");
+  });
+
+  it("leaves error null when the general played its own model", async () => {
+    const { RemoteProvider } = await import("@abs/agents");
+    const fetchImpl = vi.fn().mockResolvedValue(ok());
+    const provider = new RemoteProvider({ apiKeys: { groq: "gq" }, fetchImpl, sleepImpl: async () => {} });
+    const { telemetry } = await provider.decide(VIEW, {
+      factionId: "crimson",
+      displayName: "C",
+      model: "groq:openai/gpt-oss-120b",
+      fallbacks: [],
+    });
+    expect(telemetry.error).toBeNull();
   });
 });

@@ -53,12 +53,26 @@ class RetryableError extends Error {
 const MAX_BACKOFF_MS = 75_000;
 
 /**
- * How long we are willing to wait when a *different provider* is still
- * untried. Fallback chains span three providers precisely so a drained token
- * bucket costs a hop, not a minute of idling — waiting 90s for Groq while
- * NVIDIA sits idle is the opposite of what the chain is for.
+ * How long we are willing to wait for a FALLBACK when another provider is still
+ * untried. Chains span four providers precisely so a drained bucket costs a
+ * hop, not a minute of idling.
  */
 const HOP_INSTEAD_OF_WAITING_MS = 3_000;
+
+/**
+ * A general's OWN model gets the full patience budget, not the hop budget.
+ *
+ * Hopping instead of waiting was tuned for throughput, and it quietly wrecked
+ * the tournament: a primary whose bucket was drained was never served, because
+ * a fallback was always available. Three of four contenders played 0 of 48
+ * turns on their own model, which makes a ranking meaningless — the whole point
+ * of a clean rotation is that the contender actually played.
+ *
+ * So identity outranks speed for the primary, and speed outranks identity for
+ * the fallbacks. Being served by somebody else's model is not a cheaper
+ * result; it is a different measurement.
+ */
+const WAIT_FOR_OWN_MODEL_MS = MAX_BACKOFF_MS;
 
 export class RemoteProvider implements OrderProvider {
   private readonly opts: Required<Omit<RemoteProviderOptions, "apiKeys">> & {
@@ -117,7 +131,8 @@ export class RemoteProvider implements OrderProvider {
       const hasAlternative = chain
         .slice(position + 1)
         .some((m) => parseModelRef(m).provider !== thisProvider && this.opts.apiKeys[parseModelRef(m).provider]);
-      const waitBudget = hasAlternative ? HOP_INSTEAD_OF_WAITING_MS : MAX_BACKOFF_MS;
+      const isPrimary = position === 0;
+      const waitBudget = isPrimary ? WAIT_FOR_OWN_MODEL_MS : hasAlternative ? HOP_INSTEAD_OF_WAITING_MS : MAX_BACKOFF_MS;
 
       if (this.opts.freeModelsOnly && !isFreeRef(model)) {
         // Budget ceiling comes from the launch GATE, so this is a hard refusal
@@ -146,12 +161,16 @@ export class RemoteProvider implements OrderProvider {
               requestedModel: general.model,
               servedModel: model,
               fellBack: model !== general.model,
+              // Recorded even on a SUCCESSFUL fallback. Without it the replay
+              // showed a general quietly served by another model and no reason
+              // anywhere, which is exactly what made the tournament's result
+              // impossible to diagnose.
+              error: model === general.model ? null : lastError,
               attempts,
               latencyMs: Date.now() - started,
               promptTokens: usage.prompt_tokens ?? 0,
               completionTokens: usage.completion_tokens ?? 0,
               costUsd: usage.cost ?? 0,
-              error: null,
             },
           };
         } catch (err) {
