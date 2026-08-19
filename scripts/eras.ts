@@ -67,9 +67,18 @@ interface Row {
   population: number;
   territory: number;
   alive: boolean;
-  asked: number;
-  answered: number;
-  deferred: number;
+  /** Decisions this civilisation faced. */
+  decisions: number;
+  /**
+   * Of those, how many its OWN model answered.
+   *
+   * Not "how many were answered at all" — the first run of this script
+   * reported 100% service for a model that had personally answered 3 of its
+   * 21 decisions, the other 18 having gone to its fallback chain. That is the
+   * tournament's oldest lesson repeating: a model served 14% of the time did
+   * not govern badly, it did not govern.
+   */
+  served: number;
 }
 const rows: Row[] = [];
 
@@ -114,7 +123,10 @@ for (let r = 0; r < ROTATIONS; r += 1) {
 
   for (const g of generals) {
     const civ = result.world.civs.find((c) => c.id === g.factionId)!;
-    const tally = result.ledger.get(civ.id) ?? { asked: 0, answered: 0, deferred: 0 };
+    // Read from the journal rather than the ledger: the journal records which
+    // model actually answered, and that is the only thing that makes a result
+    // attributable to a model.
+    const mine = journal.rulings.filter((x) => x.civ === g.factionId);
     rows.push({
       rotation: r,
       model: g.model,
@@ -122,35 +134,38 @@ for (let r = 0; r < ROTATIONS; r += 1) {
       population: Math.round(civ.population),
       territory: civ.territory,
       alive: civ.fellOnTick === null,
-      ...tally,
+      decisions: mine.length,
+      served: mine.filter((x) => x.model === g.model).length,
     });
   }
 }
 
 console.log(`\n\n=== resultat, ${ROTATIONS} rotation(s) de ${TICKS} ans\n`);
-console.log("  modele                             pop. moy.  terres moy.  vivantes  service");
+console.log("  modele                             pop. moy.  terres moy.  decisions  servies par lui");
 const models = [...new Set(rows.map((row) => row.model))];
 const ranked = models
   .map((model) => {
     const mine = rows.filter((row) => row.model === model);
     const mean = (pick: (row: Row) => number) => mine.reduce((n, row) => n + pick(row), 0) / mine.length;
-    const asked = mine.reduce((n, row) => n + row.asked, 0);
-    const answered = mine.reduce((n, row) => n + row.answered, 0);
+    const decisions = mine.reduce((n, row) => n + row.decisions, 0);
+    const served = mine.reduce((n, row) => n + row.served, 0);
     return {
       model,
       population: mean((row) => row.population),
       territory: mean((row) => row.territory),
-      alive: mine.filter((row) => row.alive).length,
-      total: mine.length,
-      service: asked > 0 ? answered / asked : 1,
+      decisions,
+      served,
+      service: decisions > 0 ? served / decisions : 1,
     };
   })
   .sort((a, b) => b.territory - a.territory || b.population - a.population);
 
 for (const m of ranked) {
+  const rate = Math.round(m.service * 100);
   console.log(
     `  ${m.model.padEnd(34)} ${m.population.toFixed(0).padStart(9)} ${m.territory.toFixed(1).padStart(12)} ` +
-      `${`${m.alive}/${m.total}`.padStart(9)} ${`${Math.round(m.service * 100)}%`.padStart(8)}`,
+      `${String(m.decisions).padStart(10)} ${`${m.served} (${rate}%)`.padStart(16)}` +
+      (rate < 70 ? "   ← non classable" : ""),
   );
 }
 
@@ -170,4 +185,6 @@ for (const model of models) {
 console.log(
   "\n  Lire par ligne : un modele dont les terres varient fortement d'une rotation a l'autre",
 );
-console.log("  n'a pas montre qu'il gouverne mieux, mais que la position compte.\n");
+console.log("  n'a pas montre qu'il gouverne mieux, mais que la position compte.");
+console.log("  Un modele dont la colonne 'servies par lui' est basse n'a pas gouverne du tout :");
+console.log("  son resultat est celui de sa chaine de repli, et ne lui est pas attribuable.\n");
