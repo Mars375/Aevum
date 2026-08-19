@@ -68,7 +68,8 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint): string {
     `- posture towards neighbours: ${d.posture}`,
     d.creed ? `- creed inherited from your predecessors: "${d.creed}"` : "- no creed has been written yet. You are the first.",
     "",
-    "Set the shares your people will work under, your posture towards your neighbours, and leave a creed. All of it holds until something wakes you again.",
+    "Answer with: why you are deciding this, the shares your people will work under, your posture towards your neighbours, and a creed. All of it holds until something wakes you again.",
+    "The reasoning is not decoration — it is what your civilisation will be remembered by. One or two sentences.",
   ].join("\n");
 }
 

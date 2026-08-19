@@ -15,3 +15,6 @@ replays/index.json
 # Les mondes sont des sorties, pas des sources. Un monde vit sur la machine
 # qui le fait vivre.
 worlds/
+
+# Le catalogue des mondes est derive de ce qu une machine a fait vivre.
+worlds/index.json

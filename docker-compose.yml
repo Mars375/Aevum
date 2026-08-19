@@ -9,6 +9,8 @@ services:
       # Replays are data, not image content. Drop a new JSON in ./replays and it
       # is served immediately, no rebuild.
       - ./replays:/usr/share/nginx/html/replays:ro
+      # Worlds are data too, and they change while a world is being lived.
+      - ./worlds:/usr/share/nginx/html/worlds:ro
     logging:
       driver: json-file
       options:

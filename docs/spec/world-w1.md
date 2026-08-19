@@ -190,3 +190,31 @@ se referme. Les dirigeants existent pour ça.
 À 92 points pour 500 tours, un quota gratuit d'environ 350 appels par jour fait
 vivre à peu près **1900 tours de monde par jour**. C'est ce chiffre qui décide
 si le projet tient, et il est mesuré, pas supposé.
+
+## La chronique
+
+Le monde n'existait que dans un terminal. La chronique le rend lisible, et elle
+le fait d'une façon qui découle directement de W4 : **le lecteur recompose le
+monde dans le navigateur avec le moteur qui l'a vécu**. Rien n'est stocké d'un
+rendu ; si le graphe et les fiches contredisaient le monde, ce serait le moteur
+qui aurait tort, et c'est exactement ce qu'on veut pouvoir constater.
+
+Trois échelles de lecture, parce qu'une civilisation ne se lit pas à une seule :
+
+- **le siècle** — quatre courbes, les mêmes quatre couleurs de faction que la
+  grille et la vue 3D. Une divergence ne se voit pas dans un tableau ; une ligne
+  qui décroche, si. Une civilisation éteinte cesse d'avoir une ligne plutôt que
+  de tomber à zéro et de mentir à plat jusqu'à la fin de l'ère ;
+- **l'année** — les fiches des quatre civilisations, les évènements notables, et
+  les décisions prises cette année-là avec le modèle qui a répondu et, le cas
+  échéant, le retard pris à cause d'un quota ;
+- **ce que les dirigeants ont dit** — toutes les explications, de la plus récente
+  à la plus ancienne. C'est le vrai récit de l'ère.
+
+Sur un écran étroit, le dessin change de proportions au lieu d'être étiré :
+aplatir un siècle de croissance dans 70 pixels rendait les pentes illisibles, et
+une échelle non uniforme aurait menti sur elles.
+
+Le module pèse 5,7 Ko compressés et n'est chargé qu'à l'ouverture de l'onglet,
+comme la vue 3D : qui ne regarde que des batailles ne télécharge jamais le
+moteur de monde.

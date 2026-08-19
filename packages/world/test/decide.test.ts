@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  chronicle,
   DRIFT_TICKS,
   MIN_GAP_TICKS,
   STANDING_GAP_TICKS,
@@ -274,3 +275,38 @@ describe("la pression monte avec l'age du monde, pas la severite d'un pillage", 
     for (let t = 0; t < 500; t += 1) expect(raidOn(destitute, 42, t).strength).toBe(0);
   });
 })
+
+describe("la chronique recompose le monde annee par annee", () => {
+  const journal = () => {
+    const j = newJournal(world({ civs: [newCiv("crimson"), newCiv("azure")] }));
+    j.livedTo = 40;
+    j.rulings.push({
+      tick: 12,
+      civ: "crimson",
+      kind: "FAMINE",
+      doctrine: { farming: 0.9, creed: "nourrir avant tout" },
+      reason: "les greniers etaient vides",
+      model: "test/model",
+      deferredBy: 3,
+    });
+    return j;
+  };
+
+  it("une entree par annee vecue, l'origine comprise", () => {
+    expect(chronicle(journal())).toHaveLength(41);
+  });
+
+  it("la derniere annee est exactement celle qu'un rejeu donne", () => {
+    const years = chronicle(journal());
+    const j = journal();
+    expect(years[years.length - 1]!.world).toEqual(replay(j.origin, j.rulings, j.livedTo).world);
+  });
+
+  it("chaque decision est rangee dans l'annee ou elle a ete prise", () => {
+    const year = chronicle(journal()).find((y) => y.tick === 12)!;
+    expect(year.rulings).toHaveLength(1);
+    expect(year.rulings[0]!.reason).toBe("les greniers etaient vides");
+    // Et elle a deja mordu sur le monde de cette annee-la.
+    expect(year.world.civs.find((c) => c.id === "crimson")!.doctrine.creed).toBe("nourrir avant tout");
+  });
+});

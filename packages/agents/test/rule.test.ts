@@ -149,3 +149,26 @@ describe("la posture envers les voisins", () => {
     expect(await askRuler(answering({ ...valid, posture: "CONQUER" }), general, newCiv("crimson"), point)).toBeNull();
   });
 });
+
+describe("l'explication est lue quel que soit le mot employe", () => {
+  // Cent ans de decisions sont revenus avec une raison vide : la consigne
+  // finale du prompt ne demandait plus d'expliquer. Le prompt le redemande, et
+  // comme le mot varie d'un modele a l'autre, les mots courants sont lus.
+  const base = { creed: "c", farming: 4, forestry: 2, mining: 2, trade: 1, military: 1 };
+
+  for (const key of ["reasoning", "reason", "rationale", "justification"]) {
+    it(`"${key}"`, async () => {
+      const ruling = await askRuler(answering({ ...base, [key]: "les greniers etaient vides" }), general, newCiv("crimson"), point);
+      expect(ruling?.reason).toBe("les greniers etaient vides");
+    });
+  }
+
+  it("le prompt demande explicitement d'expliquer", () => {
+    expect(userPromptWorld(newCiv("crimson"), point)).toMatch(/why you are deciding/i);
+  });
+
+  it("une raison absente ne fait pas jeter la decision pour autant", async () => {
+    const ruling = await askRuler(answering(base), general, newCiv("crimson"), point);
+    expect(ruling?.reason).toBe("");
+  });
+});

@@ -24,7 +24,8 @@
     "index-replays": "tsx scripts/index-replays.ts",
     "balance": "tsx scripts/balance.ts",
     "live": "tsx scripts/live.ts",
-    "world:probe": "tsx scripts/world-probe.ts"
+    "world:probe": "tsx scripts/world-probe.ts",
+    "index-worlds": "tsx scripts/index-worlds.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

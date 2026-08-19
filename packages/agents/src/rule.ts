@@ -16,6 +16,17 @@ import { RULING_JSON_SCHEMA, systemPromptWorld, userPromptWorld } from "./prompt
 const SHARE_KEYS = ["farming", "forestry", "mining", "trade", "military"] as const;
 
 /**
+ * What a model may call its explanation.
+ *
+ * Every ruling in a hundred-year run came back with an empty reason, and the
+ * cause was mine: rewriting the closing instruction dropped any mention of
+ * explaining why, so models stopped explaining. The prompt asks for it again —
+ * and since the word for it varies, all the obvious ones are read. A chronicle
+ * of blank reasons is a chronicle nobody can read.
+ */
+const REASON_KEYS = ["reasoning", "reason", "rationale", "why", "justification", "explanation"] as const;
+
+/**
  * Find the shares wherever the model chose to put them.
  *
  * The schema asks for five flat numbers. Models answered with them nested
@@ -28,7 +39,11 @@ const SHARE_KEYS = ["farming", "forestry", "mining", "trade", "military"] as con
  */
 const lift = (value: unknown): unknown => {
   if (typeof value !== "object" || value === null) return value;
-  const obj = value as Record<string, unknown>;
+  const obj = { ...(value as Record<string, unknown>) };
+  if (typeof obj.reasoning !== "string") {
+    const alias = REASON_KEYS.find((k) => typeof obj[k] === "string" && (obj[k] as string).trim());
+    if (alias) obj.reasoning = obj[alias];
+  }
   if (SHARE_KEYS.every((k) => typeof obj[k] === "number")) return obj;
 
   for (const nested of Object.values(obj)) {

@@ -7,6 +7,7 @@ COPY package.json package-lock.json ./
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/engine/package.json packages/engine/
 COPY packages/agents/package.json packages/agents/
+COPY packages/world/package.json packages/world/
 COPY packages/cli/package.json packages/cli/
 COPY apps/player/package.json apps/player/
 RUN npm ci
@@ -21,7 +22,7 @@ COPY apps/player/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Replays are mounted read-only at runtime rather than baked into the image, so
 # publishing a new battle never means rebuilding.
-VOLUME ["/usr/share/nginx/html/replays"]
+VOLUME ["/usr/share/nginx/html/replays", "/usr/share/nginx/html/worlds"]
 EXPOSE 80
 
 # 127.0.0.1, not localhost: /etc/hosts maps localhost to ::1 first and nginx

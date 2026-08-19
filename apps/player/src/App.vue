@@ -6,6 +6,7 @@ import EventLog from "./components/EventLog.vue";
 import GeneralPanel from "./components/GeneralPanel.vue";
 import ReportPanel from "./components/ReportPanel.vue";
 import FogView from "./components/FogView.vue";
+import { JournalSchema, type Journal } from "@abs/world";
 import { alliesOfAt, knowledgeOf } from "./fog";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
@@ -53,6 +54,55 @@ interface CatalogueEntry {
   hasReports: boolean;
 }
 const catalogue = ref<CatalogueEntry[]>([]);
+
+/**
+ * Battles and worlds are two ways of watching the same models, not two apps.
+ * A battle is a match with an end; a world is a place that keeps going. The
+ * chronicle only appears when a deployment actually serves a world.
+ */
+type Mode = "battle" | "world";
+const mode = ref<Mode>("battle");
+
+interface WorldEntry {
+  path: string;
+  world: string;
+  era: number;
+  livedTo: number;
+  rulings: number;
+  alive: number;
+  over: boolean;
+  survivor: string | null;
+}
+const worlds = ref<WorldEntry[]>([]);
+const worldPath = ref<string>("");
+const journal = ref<Journal | null>(null);
+// Three.js is lazy for weight; the chronicle is lazy for the same reason —
+// a reader who only watches battles never loads the world engine.
+const Chronicle = defineAsyncComponent(() => import("./components/Chronicle.vue"));
+
+async function loadWorlds() {
+  try {
+    const res = await fetch("worlds/index.json");
+    if (res.ok) worlds.value = await res.json();
+  } catch {
+    // No worlds served here. The chronicle tab simply does not appear.
+  }
+}
+
+async function openWorld(path: string) {
+  worldPath.value = path;
+  try {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const parsed = JournalSchema.safeParse(await res.json());
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "journal invalide");
+    journal.value = parsed.data;
+    error.value = null;
+  } catch (err) {
+    journal.value = null;
+    error.value = `Impossible de charger ${path} — ${(err as Error).message}`;
+  }
+}
 const currentPath = ref<string>("");
 /** A turn requested by URL, applied once the replay's length is known. */
 let pendingTurn = 0;
@@ -107,7 +157,7 @@ const step = (delta: number) => {
 };
 
 function onKey(e: KeyboardEvent) {
-  if (e.target instanceof HTMLInputElement) return;
+  if (e.target instanceof HTMLInputElement || mode.value !== "battle") return;
   const actions: Record<string, () => void> = {
     ArrowRight: () => step(1),
     ArrowLeft: () => step(-1),
@@ -159,9 +209,23 @@ watch([fogFaction, index, view3d], ([faction, turn, is3d]) => {
   history.replaceState(null, "", url);
 });
 
+watch([mode, worldPath], ([m, path]) => {
+  const url = new URL(location.href);
+  if (m === "world" && path) url.searchParams.set("world", path as string);
+  else url.searchParams.delete("world");
+  history.replaceState(null, "", url);
+});
+
 onMounted(async () => {
   window.addEventListener("keydown", onKey);
-  await loadCatalogue();
+  await Promise.all([loadCatalogue(), loadWorlds()]);
+
+  const wanted = new URLSearchParams(location.search).get("world");
+  if (wanted || worlds.value.length > 0) {
+    const first = wanted ?? worlds.value[0]!.path;
+    await openWorld(first);
+    if (wanted) mode.value = "world";
+  }
 
   const params = new URLSearchParams(location.search);
   if (params.get("mode") === "3d") view3d.value = true;
@@ -206,9 +270,26 @@ onUnmounted(() => {
           seconds of API latency. Saying so up front stops the scrubber from
           being read as a live feed.
         -->
-        <p class="recorded mono">BATAILLE ENREGISTRÉE — lecture différée, pas un direct</p>
+        <p class="recorded mono">
+          {{ mode === "battle" ? "BATAILLE ENREGISTRÉE — lecture différée, pas un direct" : "MONDE CONTINU — recomposé année par année dans votre navigateur" }}
+        </p>
       </div>
-      <label v-if="catalogue.length > 1" class="picker-inline mono">
+
+      <div v-if="worlds.length > 0" class="modeswitch" role="group" aria-label="Ce qu'on regarde">
+        <button type="button" class="mono" :aria-pressed="mode === 'battle'" @click="mode = 'battle'">Batailles</button>
+        <button type="button" class="mono" :aria-pressed="mode === 'world'" @click="mode = 'world'">Chronique</button>
+      </div>
+      <label v-if="mode === 'world' && worlds.length > 1" class="picker-inline mono">
+        <span class="visually-hidden">Monde affiché</span>
+        <select :value="worldPath" @change="openWorld(($event.target as HTMLSelectElement).value)">
+          <option v-for="w in worlds" :key="w.path" :value="w.path">
+            {{ w.world }} · ère {{ w.era }} · {{ w.livedTo }} ans ·
+            {{ w.over ? (w.survivor ? `${w.survivor} seule` : "éteint") : `${w.alive} vivantes` }}
+          </option>
+        </select>
+      </label>
+
+      <label v-if="mode === 'battle' && catalogue.length > 1" class="picker-inline mono">
         <span class="visually-hidden">Bataille affichée</span>
         <select :value="currentPath" @change="pick(($event.target as HTMLSelectElement).value)">
           <option v-for="entry in catalogue" :key="entry.path" :value="entry.path">
@@ -218,7 +299,7 @@ onUnmounted(() => {
         </select>
       </label>
 
-      <dl v-if="replay" class="summary mono">
+      <dl v-if="mode === 'battle' && replay" class="summary mono">
         <div>
           <dt>issue</dt>
           <dd>
@@ -239,12 +320,19 @@ onUnmounted(() => {
 
     <p v-if="error" class="card error" role="alert">{{ error }}</p>
 
-    <p v-if="!replay" class="card picker">
+    <Chronicle v-if="mode === 'world' && journal" :journal="journal" />
+
+    <p v-if="mode === 'world' && !journal" class="card picker">
+      Aucun monde n'est servi par ce déploiement. Faites-en vivre un avec
+      <code class="mono">npm run live</code>, puis <code class="mono">npm run index-worlds</code>.
+    </p>
+
+    <p v-if="mode === 'battle' && !replay" class="card picker">
       <label for="file">Charger un fichier de replay</label>
       <input id="file" type="file" accept="application/json" @change="onFile" />
     </p>
 
-    <main v-if="replay && current" class="layout">
+    <main v-if="mode === 'battle' && replay && current" class="layout">
       <section class="board">
         <div class="viewswitch" role="group" aria-label="Mode d'affichage">
           <button type="button" class="mono" :aria-pressed="!view3d" @click="view3d = false">Grille 2D</button>
@@ -529,13 +617,15 @@ h1 {
   font-size: 12px;
 }
 
-.viewswitch {
+.viewswitch,
+.modeswitch {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s2);
 }
 
-.viewswitch button {
+.viewswitch button,
+.modeswitch button {
   font-size: 12px;
 }
 
