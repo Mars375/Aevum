@@ -3,6 +3,7 @@ import { computed, ref, watch } from "vue";
 import { chronicle, JournalSchema, type Journal, type Year } from "@abs/world";
 import CivTrend from "./CivTrend.vue";
 import Intro from "./Intro.vue";
+import WorldStage from "./WorldStage.vue";
 
 /**
  * A world, read year by year.
@@ -208,6 +209,8 @@ const round = (n: number) => Math.round(n);
         <button class="link mono" @click="copyLink">{{ copied ? "copié" : "lien vers cette année" }}</button>
       </label>
     </section>
+
+    <WorldStage :years="years" :index="index" @seek="(i) => (index = i)" />
 
     <section class="civs">
       <article v-for="civ in year.world.civs" :key="civ.id" class="card civ" :class="[civ.id, { fallen: civ.fellOnTick !== null }]">
