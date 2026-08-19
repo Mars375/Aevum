@@ -34,8 +34,21 @@ export const JournalSchema = z.object({
   worldVersion: z.literal("w1"),
   /** The world at tick 0. Everything after is derived. */
   origin: WorldSchema,
+  /**
+   * How far this world has lived.
+   *
+   * Not derivable from the rulings, and assuming otherwise silently reset a
+   * 120-year world to year 0 on the first resume: a world can live centuries
+   * without a single ruler being woken, and those centuries are real.
+   */
+  livedTo: z.number().int().default(0),
   rulings: z.array(RulingSchema),
 });
 export type Journal = z.infer<typeof JournalSchema>;
 
-export const newJournal = (origin: World): Journal => ({ worldVersion: "w1", origin, rulings: [] });
+export const newJournal = (origin: World): Journal => ({
+  worldVersion: "w1",
+  origin,
+  livedTo: origin.tick,
+  rulings: [],
+});

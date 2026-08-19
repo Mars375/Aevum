@@ -94,6 +94,26 @@ export class RemoteProvider implements OrderProvider {
 
   /** Last thing each provider told us about our allowance. */
   private readonly limits = new Map<ProviderName, RateLimit>();
+  /**
+   * Why the last `ask` came back empty, and which model answered when it did.
+   *
+   * A battle records this per turn; `ask` recorded nothing, so the first live
+   * world reported twelve silent rulers and could not say whether they had been
+   * rate-limited, refused, or never called at all. Silence with no reason is
+   * indistinguishable from a bug.
+   */
+  private lastAskError: string | null = null;
+  private lastAskModel: string | null = null;
+
+  /** The model that answered the last successful `ask`, or null. */
+  lastModel(): string | null {
+    return this.lastAskModel;
+  }
+
+  /** Why the last `ask` returned null. Null when it succeeded. */
+  lastError(): string | null {
+    return this.lastAskError;
+  }
 
   /** Provider-reported allowance, for callers that want to pace themselves. */
   rateLimit(provider: ProviderName): RateLimit | undefined {
@@ -211,11 +231,24 @@ export class RemoteProvider implements OrderProvider {
    * extraction rather than opening a second, less careful path to the network.
    */
   async ask(general: GeneralConfig, sys: string, usr: string, schema: unknown): Promise<string | null> {
+    this.lastAskError = null;
+    this.lastAskModel = null;
+    const reasons: string[] = [];
+
     for (const model of [general.model, ...general.fallbacks]) {
-      if (this.opts.freeModelsOnly && !isFreeRef(model)) continue;
+      if (this.opts.freeModelsOnly && !isFreeRef(model)) {
+        reasons.push(`${model}: paid`);
+        continue;
+      }
       const ref = parseModelRef(model);
-      if (!this.opts.apiKeys[ref.provider]) continue;
-      if (!(await this.waitIfDrained(ref.provider, this.tokensFor(ref.provider), MAX_BACKOFF_MS))) continue;
+      if (!this.opts.apiKeys[ref.provider]) {
+        reasons.push(`${model}: no key`);
+        continue;
+      }
+      if (!(await this.waitIfDrained(ref.provider, this.tokensFor(ref.provider), MAX_BACKOFF_MS))) {
+        reasons.push(`${model}: budget drained`);
+        continue;
+      }
 
       for (let attempt = 1; attempt <= this.opts.attemptsPerModel; attempt += 1) {
         try {
@@ -245,20 +278,33 @@ export class RemoteProvider implements OrderProvider {
           if (res.status === 429 || res.status >= 500) {
             throw new RetryableError(`HTTP ${res.status}`, limit.resetTokensMs ?? limit.resetRequestsMs);
           }
-          if (!res.ok) break;
+          if (!res.ok) {
+            reasons.push(`${model}: HTTP ${res.status}`);
+            break;
+          }
 
           const payload = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
           const parsed = extractJson(payload.choices?.[0]?.message?.content ?? "");
-          if (parsed !== null) return JSON.stringify(parsed);
+          if (parsed !== null) {
+            this.lastAskModel = model;
+            return JSON.stringify(parsed);
+          }
           throw new RetryableError("no JSON object found");
         } catch (err) {
-          if (!(err instanceof RetryableError)) break;
+          const why = err instanceof Error ? err.message : String(err);
+          if (!(err instanceof RetryableError)) {
+            reasons.push(`${model}: ${why}`);
+            break;
+          }
           if (attempt < this.opts.attemptsPerModel) {
             await this.opts.sleepImpl(Math.min(err.retryAfterMs ?? 500 * 2 ** (attempt - 1), MAX_BACKOFF_MS));
+          } else {
+            reasons.push(`${model}: ${why}`);
           }
         }
       }
     }
+    this.lastAskError = reasons.join("; ") || "no model attempted";
     return null;
   }
 

@@ -138,3 +138,26 @@ describe("W4 — rejouer le journal reproduit l'etat", () => {
     expect(journal.rulings).toHaveLength(1);
   });
 });
+
+describe("un monde reprend la ou il en etait", () => {
+  // Trouve en faisant tourner le monde, pas en le relisant : la reprise se
+  // deduisait des decisions, et un monde de 120 ans sans aucune decision
+  // repartait silencieusement de l'an 0.
+  it("le journal dit jusqu'ou le monde a vecu, meme sans une seule decision", () => {
+    const journal = newJournal(world({ civs: [newCiv("crimson")] }));
+    const lived = replay(journal.origin, journal.rulings, 120).world;
+    journal.livedTo = lived.tick;
+
+    const resumed = replay(journal.origin, journal.rulings, journal.livedTo).world;
+    expect(resumed.tick).toBe(120);
+    expect(resumed).toEqual(lived);
+  });
+
+  it("reprendre puis continuer donne le meme monde que vivre d'une traite", () => {
+    const origin = world({ civs: [newCiv("crimson"), newCiv("azure")] });
+    const inOneGo = replay(origin, [], 200).world;
+    const halfway = replay(origin, [], 90).world;
+    const resumed = replay(halfway, [], 200).world;
+    expect(resumed).toEqual(inOneGo);
+  });
+});

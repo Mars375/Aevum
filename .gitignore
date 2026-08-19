@@ -11,3 +11,7 @@ replays/*.json
 # The catalogue is derived from whatever replays a deployment happens to hold,
 # so it is generated at deploy time rather than committed.
 replays/index.json
+
+# Les mondes sont des sorties, pas des sources. Un monde vit sur la machine
+# qui le fait vivre.
+worlds/

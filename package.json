@@ -22,7 +22,9 @@
     "healthcheck": "tsx scripts/healthcheck.ts",
     "tournament": "tsx scripts/tournament.ts",
     "index-replays": "tsx scripts/index-replays.ts",
-    "balance": "tsx scripts/balance.ts"
+    "balance": "tsx scripts/balance.ts",
+    "live": "tsx scripts/live.ts",
+    "world:probe": "tsx scripts/world-probe.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -85,6 +85,29 @@ une règle derrière elle :
    « rien ne s'est passé depuis quarante tours ». Les saisons viennent d'un
    hash pur de `(seed, tick)` et non de `Math.random()`, sans quoi W4 tomberait.
 
+### Ce que le premier monde vivant a appris
+
+Faire vivre un monde avec de vrais dirigeants a réfuté deux choses de plus,
+qu'aucune mesure hors ligne n'aurait pu montrer :
+
+4. **La reprise se déduisait des décisions.** Un monde de 120 ans où aucun
+   dirigeant n'avait eu à trancher repartait silencieusement de l'an 0. Le
+   journal doit dire jusqu'où le monde a vécu (`livedTo`) : les décisions ne le
+   disent pas, et des siècles sans décision sont des siècles réels.
+
+5. **Mon schéma supposait un seul encodage.** Les dirigeants répondaient très
+   bien, mais imbriquaient les parts sous `shares`, puis sous `employment`.
+   Neuf décisions de suite ont été jetées avant que le rejet ne soit rendu
+   visible — un silence sans motif ressemble à une panne réseau alors que
+   c'était une panne de validation. La lecture cherche désormais les cinq
+   nombres où qu'ils soient, plutôt que de courir après les noms d'enveloppe.
+   Même leçon que `CompositionChoiceSchema` : on lit ce que les modèles
+   envoient, on ne répare pas ce qu'ils auraient dû envoyer.
+
+Après correction : **20 décisions retenues sur 25 consultations** contre 6 sur
+18 avant, sur un monde de 60 ans, les cinq échecs restants étant des HTTP 429
+— du quota, pas un défaut.
+
 À 92 points pour 500 tours, un quota gratuit d'environ 350 appels par jour fait
 vivre à peu près **1900 tours de monde par jour**. C'est ce chiffre qui décide
 si le projet tient, et il est mesuré, pas supposé.
