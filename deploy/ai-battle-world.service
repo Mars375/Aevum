@@ -1,0 +1,22 @@
+# Une passe quotidienne sur le monde continu.
+#
+# Unite utilisateur et non systeme : elle ne fait rien qui demande les droits
+# du systeme, et elle a besoin du HOME de l'utilisateur pour trouver .env et
+# node. Le linger est deja actif sur cette machine, donc elle tourne sans
+# session ouverte.
+[Unit]
+Description=ai-battle-simulator — faire vivre le monde continu
+Documentation=file:%h/git/ai-battle-simulator/docs/spec/world-w2.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/git/ai-battle-simulator
+# systemd donne un PATH minimal : node et npm sont installes dans ~/.local/bin.
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/git/ai-battle-simulator/scripts/tend-world.sh terres 40
+# Une passe qui dure plus d'une heure est bloquee, pas lente : la couper libere
+# le verrou pour le lendemain plutot que d'empiler les passes.
+TimeoutStartSec=3600
+Nice=10

@@ -11,7 +11,42 @@ import CivTrend from "./CivTrend.vue";
  * Nothing is trusted from a rendering: if the chart and the cards disagree with
  * the world, the engine is what is wrong, and that is the point.
  */
-const props = defineProps<{ journal: Journal }>();
+const props = defineProps<{ journal: Journal; status?: TendStatus | null }>();
+
+/**
+ * What the machine tending this world last did.
+ *
+ * A world that advances on a timer can stop advancing without anything saying
+ * so: the page would keep showing a perfectly good chronicle that happens to be
+ * three weeks old. This makes the silence visible, which is the only reason the
+ * timer is safe to run unattended.
+ */
+export interface TendStatus {
+  ranAt: string;
+  world: string;
+  ok: boolean;
+  years: number;
+  error: string | null;
+}
+
+const DAY = 86_400_000;
+const staleness = computed(() => {
+  if (!props.status) return null;
+  const ran = Date.parse(props.status.ranAt);
+  if (Number.isNaN(ran)) return null;
+  const days = Math.floor((Date.now() - ran) / DAY);
+  return { days, when: new Date(ran).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) };
+});
+
+/** Two days: one missed pass is a hiccup, two is something to look at. */
+const tended = computed<{ tone: "ok" | "warn" | "fail"; text: string } | null>(() => {
+  const s = props.status;
+  const age = staleness.value;
+  if (!s || !age) return null;
+  if (!s.ok) return { tone: "fail", text: `La dernière passe a échoué le ${age.when}. Le monde ci-dessous s'arrête là.` };
+  if (age.days >= 2) return { tone: "warn", text: `Aucune avancée depuis ${age.days} jours — dernière passe le ${age.when}.` };
+  return { tone: "ok", text: `${s.years} années vécues le ${age.when}.` };
+});
 
 const years = computed<Year[]>(() => chronicle(props.journal));
 const index = ref(0);
@@ -79,6 +114,10 @@ const round = (n: number) => Math.round(n);
 
 <template>
   <div class="chronicle">
+    <p v-if="tended" class="card tended" :class="tended.tone" :role="tended.tone === 'ok' ? undefined : 'status'">
+      <span class="dot" aria-hidden="true"></span>{{ tended.text }}
+    </p>
+
     <header class="card head">
       <div>
         <h2>Ère {{ journal.era }}</h2>
@@ -184,6 +223,31 @@ const round = (n: number) => Math.round(n);
   flex-direction: column;
   gap: var(--s4);
 }
+
+.tended {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  font-size: 13px;
+  color: var(--muted);
+  padding: var(--s3) var(--s4);
+}
+
+/* State reads from the word first; the dot only confirms it. */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--muted);
+}
+
+.tended.ok .dot { background: var(--verdant); }
+.tended.warn { color: var(--amber); }
+.tended.warn .dot { background: var(--amber); }
+.tended.fail { color: var(--crimson); border-color: var(--crimson); }
+.tended.fail .dot { background: var(--crimson); }
 
 .head {
   display: flex;

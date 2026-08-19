@@ -18,3 +18,4 @@ worlds/
 
 # Le catalogue des mondes est derive de ce qu une machine a fait vivre.
 worlds/index.json
+worlds/status.json

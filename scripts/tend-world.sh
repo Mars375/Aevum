@@ -30,12 +30,27 @@ fi
 
 echo "$(date -Is) --- passe sur '$WORLD', $YEARS annees" >>"$LOG"
 
+# Wall-clock belongs here and never in the journal: the world is deterministic
+# and knows nothing of dates. This file is about the machine tending it, which
+# is a different question and deserves a different place.
+STATUS="worlds/status.json"
+write_status() {
+  printf '{\n  "ranAt": "%s",\n  "world": "%s",\n  "ok": %s,\n  "years": %s,\n  "error": %s\n}\n' \
+    "$(date -Is)" "$WORLD" "$1" "$2" "$3" >"$STATUS"
+}
+
 if npm run --silent live -- --ticks "$YEARS" --world "$WORLD" >>"$LOG" 2>&1; then
   npm run --silent index-worlds >>"$LOG" 2>&1
   # The container serves ./worlds read-only from the host, so a new journal is
   # visible without rebuilding anything. Only the catalogue needs regenerating.
+  write_status true "$YEARS" null
   echo "$(date -Is) passe terminee" >>"$LOG"
 else
+  # A pass that fails quietly is worse than no pass at all: the page would keep
+  # showing a frozen world and say nothing. The status file is what lets the
+  # chronicle admit it.
+  write_status false 0 "\"la passe a echoue, voir $LOG\""
+  npm run --silent index-worlds >>"$LOG" 2>&1 || true
   echo "$(date -Is) ECHEC — voir ci-dessus" >>"$LOG"
   exit 1
 fi

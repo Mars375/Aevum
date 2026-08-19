@@ -1,0 +1,15 @@
+# Une fois par jour, la nuit.
+[Unit]
+Description=ai-battle-simulator — passe quotidienne sur le monde
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+# Le monde n'a aucune raison de vivre a la seconde pres, et une heure fixe
+# partagee avec d'autres taches nocturnes ne sert personne.
+RandomizedDelaySec=1800
+# Si la machine etait eteinte a 4h, la passe est rattrapee au demarrage plutot
+# que perdue : une journee sautee est une journee que le monde n'a pas vecue.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

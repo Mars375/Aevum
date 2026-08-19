@@ -74,6 +74,8 @@ interface WorldEntry {
   survivor: string | null;
 }
 const worlds = ref<WorldEntry[]>([]);
+/** How the machine tending these worlds last fared. Absent when nobody tends them. */
+const tendStatus = ref<{ ranAt: string; world: string; ok: boolean; years: number; error: string | null } | null>(null);
 const worldPath = ref<string>("");
 const journal = ref<Journal | null>(null);
 // Three.js is lazy for weight; the chronicle is lazy for the same reason —
@@ -86,6 +88,12 @@ async function loadWorlds() {
     if (res.ok) worlds.value = await res.json();
   } catch {
     // No worlds served here. The chronicle tab simply does not appear.
+  }
+  try {
+    const res = await fetch("worlds/status.json");
+    if (res.ok) tendStatus.value = await res.json();
+  } catch {
+    // Nobody tends these worlds automatically; the chronicle says nothing.
   }
 }
 
@@ -320,7 +328,7 @@ onUnmounted(() => {
 
     <p v-if="error" class="card error" role="alert">{{ error }}</p>
 
-    <Chronicle v-if="mode === 'world' && journal" :journal="journal" />
+    <Chronicle v-if="mode === 'world' && journal" :journal="journal" :status="tendStatus" />
 
     <p v-if="mode === 'world' && !journal" class="card picker">
       Aucun monde n'est servi par ce déploiement. Faites-en vivre un avec
