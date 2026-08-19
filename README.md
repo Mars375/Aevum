@@ -163,7 +163,7 @@ single model again. That round trip is a test
 
 | Command | Does |
 | --- | --- |
-| `npm test` | 179 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
+| `npm test` | 190 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
 | `npm run typecheck` | `tsc --noEmit` across the workspace |
 | `npm run battle -- --scripted` | Offline battle with the baseline AI |
 | `npm run battle` | Remote battle, four free models, ~7 minutes |
@@ -171,7 +171,8 @@ single model again. That round trip is a test
 | `npm run battle -- --ruleset v2 --reports` | …and each general accounts for the battle, audited against the replay |
 | `npm run battle -- --resume` | Continue the replay at `--out` instead of restarting |
 | `npm run probe` | Re-measure the free-model catalogue |
-| `npm run tournament` | 4 rotations ranking the four contenders on wins, accuracy and report fidelity |
+| `npm run tournament` | 4 rotations ranking the four contenders on wins, accuracy and report fidelity. Resumes: rotations already completed are reloaded, not replayed |
+| `npm run balance` | Play hundreds of scripted battles offline and report the outcome distribution |
 | `npm run healthcheck` | Container and clone liveness |
 | `npm run index-replays` | Rebuild the catalogue the player's replay picker lists |
 | `npm run player:dev` | Replay viewer on :5173 |

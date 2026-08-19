@@ -9,7 +9,7 @@
  *
  *   npm run tournament
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   BattleConfigSchema,
@@ -20,6 +20,7 @@ import {
   ReplaySchema,
   type Archetype,
   type FactionId,
+  type GeneralConfig,
   type Replay,
 } from "@abs/contracts";
 import { resolveTurn } from "@abs/engine";
@@ -58,6 +59,8 @@ const SEED = Number(process.env.ABS_TOURNAMENT_SEED ?? 42);
 const ROTATIONS = Number(process.env.ABS_TOURNAMENT_ROTATIONS ?? CONTENDERS.length);
 /** Ask each general to account for its battle, and audit the account. */
 const WITH_REPORTS = process.env.ABS_TOURNAMENT_REPORTS !== "0";
+/** Ignore any completed rotation on disk and play the whole tournament again. */
+const RESTART = process.env.ABS_TOURNAMENT_RESTART === "1";
 const OUT = resolve("replays/tournament");
 mkdirSync(OUT, { recursive: true });
 
@@ -83,6 +86,30 @@ interface Row {
 const rows: Row[] = [];
 const replays: Replay[] = [];
 
+/**
+ * A rotation already played and written in full is reloaded rather than
+ * replayed.
+ *
+ * Battles have checkpointed and resumed for a while, but the tournament did
+ * not: a 12-rotation run interrupted at the ninth threw away nine rotations
+ * and started over — several hundred calls wasted against a free tier that
+ * collapses around 350. That is exactly the situation where resuming matters.
+ *
+ * A partial checkpoint is NOT reused: it fails its own schema or carries fewer
+ * turns than it should, and half a battle is not a result.
+ */
+function reload(path: string, expectedSeed: number): Replay | null {
+  if (!existsSync(path) || RESTART) return null;
+  try {
+    const replay = ReplaySchema.parse(JSON.parse(readFileSync(path, "utf8")));
+    if (replay.manifest.config.seed !== expectedSeed) return null; // a different tournament
+    if (replay.outcome.reason.includes("interrompue")) return null; // a partial checkpoint
+    return replay;
+  } catch {
+    return null;
+  }
+}
+
 for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
   // Rotation r gives faction i the contender (i + r) mod 4, so every contender
   // sits in every corner exactly once and no positional residue survives.
@@ -105,6 +132,14 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
 
   console.log(`\n=== rotation ${rotation + 1}/${ROTATIONS} (seed ${config.seed}) ===`);
   for (const g of generals) console.log(`  ${g.factionId.padEnd(8)} ${g.model}`);
+
+  const existing = reload(out, config.seed);
+  if (existing) {
+    console.log(`  déjà jouée, rechargée (${existing.turns.length} tours) — aucun appel dépensé`);
+    replays.push(existing);
+    tally(existing, generals, rotation);
+    continue;
+  }
 
   const provider = new RemoteProvider({
     apiKeys,
@@ -144,6 +179,11 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
   writeFileSync(out, JSON.stringify(replay, null, 2));
   replays.push(replay);
 
+  tally(replay, generals, rotation);
+}
+
+/** Record one rotation's rows. Shared by fresh and reloaded rotations alike. */
+function tally(replay: Replay, generals: readonly GeneralConfig[], rotation: number) {
   for (const g of generals) {
     const calls = replay.turns.flatMap((t) => t.decisions).filter((d) => d.factionId === g.factionId);
     const served = calls.filter((d) => d.telemetry.servedModel === g.model).length;
