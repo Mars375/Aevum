@@ -60,6 +60,36 @@ rotations ne suffisent probablement plus à moyenner ce bruit.
 arrivent groupés (quatre civilisations réveillées la même année). C'est un
 problème distinct et persistant.
 
+## Le préflight, et ce qu'il a montré en quatre appels
+
+Une rotation coûte deux cents appels et une nuit. `npm run preflight` en coûte
+quatre : une vraie question de dirigeant par modèle du roster, **chacun seul
+dans sa chaîne** pour qu'aucun repli ne le couvre. Premier essai :
+
+| modèle | | |
+| --- | --- | --- |
+| `mistral-large` | 3,8 s | 174 jetons |
+| `gpt-oss-120b` | 2,3 s | 954 jetons |
+| `gemma-4-26b` | — | **HTTP 429, réinitialisation dans 5 h 48** |
+| `laguna-s-2.1` | 6,8 s | 168 jetons |
+
+Deux choses, dont une qui renverse le diagnostic précédent :
+
+**`gpt-oss-120b` répond, et vite.** Son 4 % de service n'était donc pas une
+saturation subie : c'était le défaut de `ask`, qui cédait la main au premier
+ralentissement. Le correctif tient.
+
+**`gemma-4-26b` est maintenant celui qui manque** — plafond quotidien du palier
+gratuit d'OpenRouter, épuisé par les courses de la journée. Lancer la rotation
+maintenant mesurerait sa chaîne de repli. C'est exactement ce que le préflight
+existe pour empêcher, et il l'a empêché du premier coup.
+
+Au passage, une donnée qu'on ne pouvait qu'estimer jusqu'ici : une décision
+coûte **170 jetons de réponse** aux trois modèles ordinaires et **950** à
+`gpt-oss`, qui raisonne avant de répondre. Réduire la réservation de Groq pour
+gagner du débit l'aurait donc tronqué — l'optimisation évidente était la
+mauvaise.
+
 ## Ce qu'il faut pour trancher
 
 1. Rejouer la rotation **entrelacée** sur un quota frais.
