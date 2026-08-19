@@ -17,6 +17,15 @@
  *   - a rotation is one draw of seasons and bandits. Same seed across
  *     rotations, so the world is the same and only the governing changes.
  *
+ * Rotations are INTERLEAVED, not run one after another. The first version ran
+ * them in sequence, and the measurement paid for it: one model answered 5 of 5,
+ * 4 of 4 and 5 of 6 decisions in the first three rotations, then 0 of 8 in the
+ * fourth — the day's free quota was gone by the time its turn came, so the last
+ * rotation carried the whole cost of exhaustion. Rotating the position controls
+ * for which faction a model governs; nothing controlled for WHEN in the day it
+ * governed. Interleaving spreads exhaustion across all rotations instead of
+ * dropping it on the last.
+ *
  *   npm run eras -- --ticks 150 --rotations 4
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
