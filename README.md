@@ -159,6 +159,17 @@ single model again. That round trip is a test
 | `docs/reports/qa-audit.md` | Defects found, what was fixed, what is still open |
 | `docs/reports/tournament.md` | Which model commands best, and what the ranking cannot say |
 
+## Continuous integration
+
+Every check runs **offline**. The whole suite exercises the battle loop through
+`ScriptedProvider`, so CI needs no API key, spends no quota, and cannot be
+broken by a provider having a bad day — the reason that provider was worth
+building in the first place.
+
+It also fails the build if an API key pattern appears in the diff, or if `.env`
+ever becomes tracked. That turns a check I had been running by hand before
+every commit into one that cannot be forgotten.
+
 ## Commands
 
 | Command | Does |
