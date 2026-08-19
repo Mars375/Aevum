@@ -6,7 +6,7 @@ import EventLog from "./components/EventLog.vue";
 import GeneralPanel from "./components/GeneralPanel.vue";
 import ReportPanel from "./components/ReportPanel.vue";
 import FogView from "./components/FogView.vue";
-import { JournalSchema, type Journal } from "@abs/world";
+import { JournalSchema, WORLD_VERSION, worldVersionOf, type Journal } from "@abs/world";
 import { alliesOfAt, knowledgeOf } from "./fog";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
@@ -60,7 +60,7 @@ const catalogue = ref<CatalogueEntry[]>([]);
  * A battle is a match with an end; a world is a place that keeps going. The
  * chronicle only appears when a deployment actually serves a world.
  */
-type Mode = "battle" | "world";
+type Mode = "battle" | "world" | "reports";
 const mode = ref<Mode>("battle");
 
 interface WorldEntry {
@@ -74,6 +74,15 @@ interface WorldEntry {
   survivor: string | null;
 }
 const worlds = ref<WorldEntry[]>([]);
+/**
+ * Worlds and battles keep their own error.
+ *
+ * They used to share one, so a missing replay file shouted over a perfectly
+ * clear message about an archived world — a reader following a permalink was
+ * told about a battle they had not asked for. Two independent things deserve
+ * two independent failures.
+ */
+const worldError = ref<string | null>(null);
 /** How the machine tending these worlds last fared. Absent when nobody tends them. */
 const tendStatus = ref<{ ranAt: string; world: string; ok: boolean; years: number; error: string | null } | null>(null);
 const worldPath = ref<string>("");
@@ -81,6 +90,7 @@ const journal = ref<Journal | null>(null);
 // Three.js is lazy for weight; the chronicle is lazy for the same reason —
 // a reader who only watches battles never loads the world engine.
 const Chronicle = defineAsyncComponent(() => import("./components/Chronicle.vue"));
+const Reports = defineAsyncComponent(() => import("./components/Reports.vue"));
 
 async function loadWorlds() {
   try {
@@ -102,13 +112,28 @@ async function openWorld(path: string) {
   try {
     const res = await fetch(path);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const parsed = JournalSchema.safeParse(await res.json());
+    const raw = await res.json();
+
+    // An archived world is not a broken file, and saying "Invalid literal
+    // value, expected w3" to a reader who followed a permalink is telling them
+    // about zod instead of about the world. The rules a world lived under are
+    // part of what it was.
+    const version = worldVersionOf(raw);
+    if (version !== WORLD_VERSION) {
+      journal.value = null;
+      worldError.value =
+        `Ce monde a vécu sous les règles ${version ?? "inconnues"}, et le moteur tourne aujourd'hui en ${WORLD_VERSION}. ` +
+        `Il est conservé comme archive : le rejouer sous les règles d'aujourd'hui montrerait des années qu'il n'a jamais vécues.`;
+      return;
+    }
+
+    const parsed = JournalSchema.safeParse(raw);
     if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "journal invalide");
     journal.value = parsed.data;
-    error.value = null;
+    worldError.value = null;
   } catch (err) {
     journal.value = null;
-    error.value = `Impossible de charger ${path} — ${(err as Error).message}`;
+    worldError.value = `Impossible de charger ${path} — ${(err as Error).message}`;
   }
 }
 const currentPath = ref<string>("");
@@ -221,6 +246,8 @@ watch([mode, worldPath], ([m, path]) => {
   const url = new URL(location.href);
   if (m === "world" && path) url.searchParams.set("world", path as string);
   else url.searchParams.delete("world");
+  if (m === "reports") url.searchParams.set("mode", "rapports");
+  else if (url.searchParams.get("mode") === "rapports") url.searchParams.delete("mode");
   history.replaceState(null, "", url);
 });
 
@@ -237,6 +264,7 @@ onMounted(async () => {
 
   const params = new URLSearchParams(location.search);
   if (params.get("mode") === "3d") view3d.value = true;
+  if (params.get("mode") === "rapports" || params.get("rapport")) mode.value = "reports";
   const view = params.get("view");
   if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
   const turn = Number(params.get("turn"));
@@ -279,13 +307,20 @@ onUnmounted(() => {
           being read as a live feed.
         -->
         <p class="recorded mono">
-          {{ mode === "battle" ? "BATAILLE ENREGISTRÉE — lecture différée, pas un direct" : "MONDE CONTINU — recomposé année par année dans votre navigateur" }}
+          {{
+            mode === "battle"
+              ? "BATAILLE ENREGISTRÉE — lecture différée, pas un direct"
+              : mode === "world"
+                ? "MONDE CONTINU — recomposé année par année dans votre navigateur"
+                : "MESURES — ce que le projet a vérifié, y compris quand ça l'a contredit"
+          }}
         </p>
       </div>
 
       <div v-if="worlds.length > 0" class="modeswitch" role="group" aria-label="Ce qu'on regarde">
         <button type="button" class="mono" :aria-pressed="mode === 'battle'" @click="mode = 'battle'">Batailles</button>
         <button type="button" class="mono" :aria-pressed="mode === 'world'" @click="mode = 'world'">Chronique</button>
+        <button type="button" class="mono" :aria-pressed="mode === 'reports'" @click="mode = 'reports'">Rapports</button>
       </div>
       <label v-if="mode === 'world' && worlds.length > 1" class="picker-inline mono">
         <span class="visually-hidden">Monde affiché</span>
@@ -326,11 +361,14 @@ onUnmounted(() => {
       </dl>
     </header>
 
-    <p v-if="error" class="card error" role="alert">{{ error }}</p>
+    <p v-if="mode === 'battle' && error" class="card error" role="alert">{{ error }}</p>
+    <p v-if="mode === 'world' && worldError" class="card error" role="alert">{{ worldError }}</p>
 
     <Chronicle v-if="mode === 'world' && journal" :journal="journal" :status="tendStatus" />
 
-    <p v-if="mode === 'world' && !journal" class="card picker">
+    <Reports v-if="mode === 'reports'" />
+
+    <p v-if="mode === 'world' && !journal && !worldError" class="card picker">
       Aucun monde n'est servi par ce déploiement. Faites-en vivre un avec
       <code class="mono">npm run live</code>, puis <code class="mono">npm run index-worlds</code>.
     </p>

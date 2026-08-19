@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "first-era",
+    "title": "Première ère — ce que 400 ans ont produit",
+    "subtitle": "Statut : mesuré · Monde premier, ère 1, graine 42 · Carte kanban : t_baa4de0e"
+  },
+  {
+    "slug": "qa-audit",
+    "title": "Audit QA — expérience et méthodologie",
+    "subtitle": "Statut : audité le 2026-08-17, révisé le 2026-08-18 après correction ·"
+  },
+  {
+    "slug": "reference-battle",
+    "title": "Rapport d'exécution — bataille de référence",
+    "subtitle": "Statut : exécutée · Date : 2026-08-18 · Tâche kanban : t_f4c79504"
+  },
+  {
+    "slug": "rotation-w3",
+    "title": "Rotation w3 — une mesure ratée, et pourquoi",
+    "subtitle": "Statut : mesuré, non concluant · 4 rotations × 120 ans, graine 1789 · Carte : t_baa4de0e"
+  },
+  {
+    "slug": "rotation",
+    "title": "Rotation des modèles — le premier classement défendable",
+    "subtitle": "Statut : mesuré · 4 rotations × 120 ans, graine 1789 · Carte kanban : t_baa4de0e"
+  },
+  {
+    "slug": "tournament",
+    "title": "Tournoi — quel modèle commande le mieux ?",
+    "subtitle": "Statut : exécuté · Date : 2026-08-18 · Tâche kanban : t_32e3997f"
+  }
+]

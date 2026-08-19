@@ -13,7 +13,9 @@ COPY apps/player/package.json apps/player/
 RUN npm ci
 
 COPY . .
-RUN npm run player:build
+# Les rapports sont rendus a la construction : le lecteur ne telecharge ni
+# markdown ni parseur, seulement le fragment qu'un lecteur demande.
+RUN npm run build-reports && npm run player:build
 
 FROM nginx:1.27-alpine AS runtime
 

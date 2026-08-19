@@ -28,7 +28,8 @@
     "index-worlds": "tsx scripts/index-worlds.ts",
     "era-report": "tsx scripts/era-report.ts",
     "eras": "tsx scripts/eras.ts",
-    "preflight": "tsx scripts/preflight.ts"
+    "preflight": "tsx scripts/preflight.ts",
+    "build-reports": "tsx scripts/build-reports.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
