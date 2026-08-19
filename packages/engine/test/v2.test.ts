@@ -509,3 +509,48 @@ describe("faction traits are trades, never upgrades", () => {
     expect(state.squads.find((s) => s.id === "verdant-ranged")!.hp).toBe(ARCHETYPES.RANGED.hp);
   });
 });
+
+// ---------------------------------------------------------------------------
+/**
+ * Measured, not assumed: 200 scripted v1 battles end 9% in total annihilation,
+ * 26% with the top two factions unseparable, and 31% early — over a third
+ * teaching nothing about who commanded better. v1 is frozen, so the fix is a
+ * v2-only third criterion, which took draws from 16% to 2%.
+ */
+describe("the v2 tie-break separates what hp and squads cannot", () => {
+  const tiedOnHpAndSquads: WorldState = {
+    turn: 12,
+    squads: [squad("crimson-melee", "crimson", "MELEE", 2, 2, 6), squad("azure-melee", "azure", "MELEE", 12, 2, 6)],
+  };
+
+  it("still draws when even damage dealt is equal", () => {
+    const outcome = checkOutcomeV2(tiedOnHpAndSquads, 12, emptyDiplomacy(), new Map([["crimson", 8], ["azure", 8]]))!;
+    expect(outcome.kind).toBe("DRAW");
+    expect(outcome.reason).toContain("dégâts infligés à égalité");
+  });
+
+  it("awards it to whoever inflicted more, at equal hp and squads", () => {
+    const outcome = checkOutcomeV2(tiedOnHpAndSquads, 12, emptyDiplomacy(), new Map([["crimson", 12], ["azure", 5]]))!;
+    expect(outcome.kind).toBe("VICTORY");
+    expect(outcome.winner).toBe("crimson");
+    // The reason names the criterion that actually decided it, not a generic one.
+    expect(outcome.reason).toContain("à PV et escouades égaux");
+  });
+
+  it("never lets damage override a real hp lead", () => {
+    const uneven: WorldState = {
+      turn: 12,
+      squads: [squad("crimson-melee", "crimson", "MELEE", 2, 2, 9), squad("azure-melee", "azure", "MELEE", 12, 2, 3)],
+    };
+    const outcome = checkOutcomeV2(uneven, 12, emptyDiplomacy(), new Map([["crimson", 1], ["azure", 30]]))!;
+    expect(outcome.winner).toBe("crimson");
+    expect(outcome.reason).toContain("PV restants");
+  });
+
+  it("leaves v1 untouched — a frozen ruleset does not gain a criterion", () => {
+    // Same position, same tie: v1 must still call it a draw, because relabelling
+    // outcomes in replays already recorded is not a balance fix, it is a lie.
+    const outcome = checkOutcome(tiedOnHpAndSquads, 12)!;
+    expect(outcome.kind).toBe("DRAW");
+  });
+});

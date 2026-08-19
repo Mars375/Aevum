@@ -17,26 +17,50 @@ function tally(state: WorldState): Map<FactionId, Tally> {
   return alive;
 }
 
-function byTurnLimit(alive: Map<FactionId, Tally>, state: WorldState, maxTurns: number): Outcome {
+function byTurnLimit(
+  alive: Map<FactionId, Tally>,
+  state: WorldState,
+  maxTurns: number,
+  /** v2 only: total damage each faction dealt. Absent at v1, which is frozen. */
+  damageDealt?: ReadonlyMap<FactionId, number>,
+): Outcome {
+  const dealt = (f: FactionId) => damageDealt?.get(f) ?? 0;
   const ranked = [...alive.entries()].sort(
-    (a, b) => b[1].hp - a[1].hp || b[1].squads - a[1].squads || a[0].localeCompare(b[0]),
+    (a, b) =>
+      b[1].hp - a[1].hp ||
+      b[1].squads - a[1].squads ||
+      // At equal strength, the faction that inflicted more wins. A quarter of
+      // battles used to end unseparable on hp and squads alone, which is a
+      // measurement that teaches nothing about who commanded better.
+      dealt(b[0]) - dealt(a[0]) ||
+      a[0].localeCompare(b[0]),
   );
   const [first, second] = ranked as [[FactionId, Tally], [FactionId, Tally]];
 
-  if (first[1].hp === second[1].hp && first[1].squads === second[1].squads) {
+  const tied =
+    first[1].hp === second[1].hp && first[1].squads === second[1].squads && dealt(first[0]) === dealt(second[0]);
+  if (tied) {
     return {
       kind: "DRAW",
       winner: null,
       winners: [],
-      reason: `Limite de ${maxTurns} tours atteinte, départage impossible : ${first[1].hp} PV et ${first[1].squads} escouades à égalité.`,
+      reason: `Limite de ${maxTurns} tours atteinte, départage impossible : ${first[1].hp} PV, ${first[1].squads} escouades et ${dealt(first[0])} dégâts infligés à égalité.`,
       finalTurn: state.turn,
     };
   }
+
+  const margin =
+    first[1].hp !== second[1].hp
+      ? `${first[1].hp} PV restants contre ${second[1].hp}`
+      : first[1].squads !== second[1].squads
+        ? `${first[1].squads} escouades contre ${second[1].squads}, à PV égaux`
+        : `${dealt(first[0])} dégâts infligés contre ${dealt(second[0])}, à PV et escouades égaux`;
+
   return {
     kind: "VICTORY",
     winner: first[0],
     winners: [first[0]],
-    reason: `Limite de ${maxTurns} tours atteinte ; ${first[0]} l'emporte avec ${first[1].hp} PV restants contre ${second[1].hp}.`,
+    reason: `Limite de ${maxTurns} tours atteinte ; ${first[0]} l'emporte avec ${margin}.`,
     finalTurn: state.turn,
   };
 }
@@ -68,6 +92,8 @@ export function checkOutcome(state: WorldState, maxTurns: number): Outcome | nul
     };
   }
   if (state.turn < maxTurns) return null;
+  // No damage tally here on purpose: v1 is frozen, and adding a tie-break
+  // would silently relabel outcomes in replays already recorded.
   return byTurnLimit(alive, state, maxTurns);
 }
 
@@ -77,7 +103,12 @@ export function checkOutcome(state: WorldState, maxTurns: number): Outcome | nul
  * tie-break. Ranking a shared victory would quietly re-introduce the
  * competition an alliance exists to suspend.
  */
-export function checkOutcomeV2(state: WorldState, maxTurns: number, diplomacy: DiplomacyState): Outcome | null {
+export function checkOutcomeV2(
+  state: WorldState,
+  maxTurns: number,
+  diplomacy: DiplomacyState,
+  damageDealt?: ReadonlyMap<FactionId, number>,
+): Outcome | null {
   const alive = tally(state);
   const factions = [...alive.keys()].sort();
 
@@ -95,5 +126,5 @@ export function checkOutcomeV2(state: WorldState, maxTurns: number, diplomacy: D
   }
 
   if (state.turn < maxTurns) return null;
-  return byTurnLimit(alive, state, maxTurns);
+  return byTurnLimit(alive, state, maxTurns, damageDealt);
 }

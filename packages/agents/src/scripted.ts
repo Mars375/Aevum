@@ -31,6 +31,37 @@ export class ScriptedProvider implements OrderProvider {
 const cheb = (a: Vec2, b: Vec2) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 
 /**
+ * A seeded variant of the baseline, for measuring rule changes offline.
+ *
+ * `chargeNearest` is fully deterministic, so a thousand battles with it are one
+ * battle run a thousand times — useless for measuring a distribution of
+ * outcomes. This varies which of several near-equal targets a squad picks,
+ * driven by a seed, so a balance pass can see a spread while every individual
+ * battle stays exactly reproducible.
+ */
+export function seededCharge(seed: number) {
+  let state = (seed >>> 0) || 1;
+  const next = () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+
+  return (view: LocalView, general: GeneralConfig): Decision => {
+    const base = chargeNearest(view, general);
+    // Occasionally prefer the second-closest enemy. Enough to spread outcomes,
+    // not enough to stop being a sane baseline.
+    const orders = base.orders.map((order) => {
+      if (order.action !== "ATTACK" || next() > 0.25) return order;
+      const alt = view.enemySquads
+        .slice()
+        .sort((a, b) => cheb(a.position, order.target) - cheb(b.position, order.target))[1];
+      return alt ? { ...order, target: { ...alt.position } } : order;
+    });
+    return { ...base, orders, diplomacy: null };
+  };
+}
+
+/**
  * Walks each squad toward the closest enemy, attacking once in range.
  *
  * Destinations are reserved as they are assigned. Without that, both squads of

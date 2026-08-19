@@ -110,6 +110,8 @@ export async function runBattleV2({
     memories.set(f, []);
   }
 
+  /** Damage each faction has dealt, for the v2 tie-break. */
+  const damageDealt = new Map<FactionId, number>();
   let diplomacy: DiplomacyState = emptyDiplomacy();
   let state = initialState;
   const turns: TurnRecord[] = [];
@@ -117,7 +119,7 @@ export async function runBattleV2({
   // Seed sightings from the deployment: everyone starts by looking around.
   for (const f of factions) sightings.set(f, updateSightings(sightings.get(f)!, state, f, []));
 
-  let outcome = checkOutcomeV2(state, config.maxTurns, diplomacy);
+  let outcome = checkOutcomeV2(state, config.maxTurns, diplomacy, damageDealt);
 
   const id = battleId ?? `battle-v2-${(now?.() ?? new Date()).toISOString().replace(/[:.]/g, "-")}`;
   const manifest = {
@@ -193,6 +195,13 @@ export async function runBattleV2({
 
     const events = [...extraEvents, ...dip.events, ...result.events];
 
+    for (const e of result.events) {
+      if (e.type !== "ATTACK_HIT") continue;
+      const attacker = state.squads.find((s) => s.id === e.squadId)?.factionId
+        ?? (e.squadId.split("-")[0] as FactionId);
+      damageDealt.set(attacker, (damageDealt.get(attacker) ?? 0) + e.damage);
+    }
+
     // Memory is built from events the engine emitted, never from a model.
     for (const f of factions) {
       const lost = events
@@ -217,7 +226,7 @@ export async function runBattleV2({
         (withdrawn.length ? ` · ${withdrawn.length} withdrawn` : ""),
     );
 
-    outcome = checkOutcomeV2(state, config.maxTurns, diplomacy);
+    outcome = checkOutcomeV2(state, config.maxTurns, diplomacy, damageDealt);
     onTurn?.({
       manifest,
       initialState,

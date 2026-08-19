@@ -11,9 +11,27 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { BattleConfigSchema, FACTION_IDS, GRID_SIZE, MAX_TURNS, ReplaySchema, type FactionId, type Replay } from "@abs/contracts";
+import {
+  BattleConfigSchema,
+  CompositionChoiceSchema,
+  FACTION_IDS,
+  GRID_SIZE,
+  MAX_TURNS,
+  ReplaySchema,
+  type Archetype,
+  type FactionId,
+  type Replay,
+} from "@abs/contracts";
 import { resolveTurn } from "@abs/engine";
-import { DEFAULT_GENERALS, RemoteProvider, collectReports, runBattle } from "@abs/agents";
+import {
+  COMPOSITION_JSON_SCHEMA,
+  DEFAULT_GENERALS,
+  RemoteProvider,
+  collectReports,
+  compositionSystemPrompt,
+  compositionUserPrompt,
+  runBattleV2,
+} from "@abs/agents";
 
 try {
   process.loadEnvFile(resolve(process.cwd(), ".env"));
@@ -73,7 +91,16 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
     return { factionId, displayName: factionId, model: c.model, fallbacks: c.fallbacks };
   });
 
-  const config = BattleConfigSchema.parse({ seed: SEED + rotation, maxTurns: MAX_TURNS, gridSize: GRID_SIZE, generals });
+  // v2, on evidence: 200 scripted v1 battles end 9% in total annihilation and
+  // 26% unseparable, so over a third teach nothing about who commanded better.
+  // The same measurement on v2 gives 0% annihilation and 2% draws.
+  const config = BattleConfigSchema.parse({
+    rulesetVersion: "v2",
+    seed: SEED + rotation,
+    maxTurns: MAX_TURNS,
+    gridSize: GRID_SIZE,
+    generals,
+  });
   const out = resolve(OUT, `rotation-${rotation}.json`);
 
   console.log(`\n=== rotation ${rotation + 1}/${ROTATIONS} (seed ${config.seed}) ===`);
@@ -84,12 +111,25 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
     maxTokens: Number(process.env.ABS_MAX_TOKENS ?? 6000),
     timeoutMs: Number(process.env.ABS_REQUEST_TIMEOUT_MS ?? 60_000),
     freeModelsOnly: process.env.ABS_FREE_MODELS_ONLY !== "0",
+    ruleset: "v2",
   });
 
-  let replay = await runBattle({
+  let replay = await runBattleV2({
     config,
     provider,
     battleId: `tournament-r${rotation}`,
+    // Every contender buys its own army, which is part of what is being judged.
+    buyArmy: async (factionId, general) => {
+      const raw = await provider.ask(
+        general,
+        compositionSystemPrompt(factionId),
+        compositionUserPrompt(factionId),
+        COMPOSITION_JSON_SCHEMA,
+      );
+      if (!raw) return null;
+      const parsed = CompositionChoiceSchema.safeParse(JSON.parse(raw));
+      return parsed.success ? (parsed.data.squads as Archetype[]) : null;
+    },
     onTurn: (partial) => writeFileSync(out, JSON.stringify(partial, null, 2)),
     onProgress: (m) => {
       if (m.startsWith("turn ")) console.log(`  ${m}`);
