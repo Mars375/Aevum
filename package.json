@@ -27,7 +27,8 @@
     "world:probe": "tsx scripts/world-probe.ts",
     "index-worlds": "tsx scripts/index-worlds.ts",
     "era-report": "tsx scripts/era-report.ts",
-    "eras": "tsx scripts/eras.ts"
+    "eras": "tsx scripts/eras.ts",
+    "preflight": "tsx scripts/preflight.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

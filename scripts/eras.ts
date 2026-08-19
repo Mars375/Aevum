@@ -47,7 +47,16 @@ const arg = (name: string, fallback: string) => {
 
 const TICKS = Number(arg("ticks", "150"));
 const ROTATIONS = Number(arg("rotations", String(DEFAULT_GENERALS.length)));
-const SEED = Number(arg("seed", "1789"));
+/**
+ * Seeds, not just rotations.
+ *
+ * Four rotations put each model in each position, which separates the model
+ * from the seat it occupies. They do nothing about the noise of one particular
+ * draw of seasons, bandits and disasters — and w3 made that noise much larger
+ * (a model finished with 25 territories in one rotation and 4 in another).
+ * Averaging it needs different worlds, not more passes through the same one.
+ */
+const SEEDS = arg("seeds", "1789").split(",").map(Number);
 
 const FACTIONS = DEFAULT_GENERALS.map((g) => g.factionId) as FactionId[];
 const ROOT = resolve("worlds");
@@ -71,6 +80,7 @@ const provider = new RemoteProvider({ apiKeys, freeModelsOnly: true });
 
 interface Row {
   rotation: number;
+  seed: number;
   model: string;
   faction: FactionId;
   population: number;
@@ -91,53 +101,81 @@ interface Row {
 }
 const rows: Row[] = [];
 
-for (let r = 0; r < ROTATIONS; r += 1) {
-  const dir = resolve(ROOT, `rotation-${r}`);
-  mkdirSync(dir, { recursive: true });
-  const path = resolve(dir, "era-0001.json");
-  const generals = rotate(r);
+/** Years lived per visit. Small enough that a quota running dry lands on every course. */
+const SLICE = Number(arg("slice", "20"));
 
-  let journal: Journal;
-  try {
-    journal = JournalSchema.parse(JSON.parse(readFileSync(path, "utf8")));
-  } catch {
-    // Same seed in every rotation: the world is held constant so that what
-    // differs between rotations is only who governs what.
-    journal = newJournal(newWorld(FACTIONS, SEED));
-  }
+interface Run {
+  r: number;
+  seed: number;
+  path: string;
+  journal: Journal;
+  generals: GeneralConfig[];
+  world: World;
+}
 
-  const from: World = replay(journal.origin, journal.rulings, journal.livedTo).world;
-  const remaining = TICKS - from.tick;
-  console.log(`\n=== rotation ${r} — ${generals.map((g) => `${g.factionId}:${g.model}`).join("  ")}`);
-
-  let result;
-  if (remaining <= 0) {
-    console.log(`  deja vecue jusqu'a l'an ${from.tick}, rien a faire`);
-    result = { world: from, lived: 0, closed: false, ledger: new Map<string, { asked: number; answered: number; deferred: number }>() };
-  } else {
-    result = await liveWorld(from, {
+const runs: Run[] = [];
+for (const seed of SEEDS) {
+  for (let r = 0; r < ROTATIONS; r += 1) {
+    const dir = resolve(ROOT, `rotation-${seed}-${r}`);
+    mkdirSync(dir, { recursive: true });
+    const path = resolve(dir, "era-0001.json");
+    let journal: Journal;
+    try {
+      journal = JournalSchema.parse(JSON.parse(readFileSync(path, "utf8")));
+    } catch {
+      // One seed is held constant across its four rotations, so that within a
+      // seed the only thing differing is who governs what.
+      journal = newJournal(newWorld(FACTIONS, seed));
+    }
+    runs.push({
+      r,
+      seed,
+      path,
       journal,
-      generals,
+      generals: rotate(r),
+      world: replay(journal.origin, journal.rulings, journal.livedTo).world,
+    });
+  }
+}
+
+for (const run of runs) {
+  console.log(`graine ${run.seed} rotation ${run.r} — ${run.generals.map((g) => `${g.factionId}:${g.model}`).join("  ")}`);
+}
+
+let pass = 0;
+while (runs.some((run) => run.world.tick < TICKS)) {
+  pass += 1;
+  for (const run of runs) {
+    const remaining = Math.min(SLICE, TICKS - run.world.tick);
+    if (remaining <= 0) continue;
+    console.log(`\n--- passe ${pass}, graine ${run.seed} rotation ${run.r} : annees ${run.world.tick} a ${run.world.tick + remaining}`);
+    const result = await liveWorld(run.world, {
+      journal: run.journal,
+      generals: run.generals,
       provider,
       ticks: remaining,
-      onRuling: () => writeFileSync(path, JSON.stringify(journal, null, 2)),
+      onRuling: () => writeFileSync(run.path, JSON.stringify(run.journal, null, 2)),
       notify: (n) => {
         if (n.kind === "ruled" || n.kind === "era-closed") {
-          console.log(`  an ${String(n.tick).padStart(4)}  ${(n.civ ?? "").padEnd(8)} ${n.text.slice(0, 90)}`);
+          console.log(`  an ${String(n.tick).padStart(4)}  ${(n.civ ?? "").padEnd(8)} ${n.text.slice(0, 88)}`);
         }
       },
     });
-    writeFileSync(path, JSON.stringify(journal, null, 2));
+    run.world = result.world;
+    writeFileSync(run.path, JSON.stringify(run.journal, null, 2));
   }
+}
 
-  for (const g of generals) {
-    const civ = result.world.civs.find((c) => c.id === g.factionId)!;
-    // Read from the journal rather than the ledger: the journal records which
+for (const run of runs) {
+  for (const g of run.generals) {
+    const civ = run.world.civs.find((c) => c.id === g.factionId)!;
+    // Read from the journal rather than a ledger: the journal records which
     // model actually answered, and that is the only thing that makes a result
     // attributable to a model.
-    const mine = journal.rulings.filter((x) => x.civ === g.factionId);
+    const mine = run.journal.rulings.filter((x) => x.civ === g.factionId);
     rows.push({
-      rotation: r,
+      rotation: run.r,
+      seed: run.seed,
       model: g.model,
       faction: g.factionId,
       population: Math.round(civ.population),
@@ -149,7 +187,7 @@ for (let r = 0; r < ROTATIONS; r += 1) {
   }
 }
 
-console.log(`\n\n=== resultat, ${ROTATIONS} rotation(s) de ${TICKS} ans\n`);
+console.log(`\n\n=== resultat, ${SEEDS.length} graine(s) x ${ROTATIONS} rotations de ${TICKS} ans\n`);
 console.log("  modele                             pop. moy.  terres moy.  decisions  servies par lui");
 const models = [...new Set(rows.map((row) => row.model))];
 const ranked = models
@@ -178,13 +216,17 @@ for (const m of ranked) {
   );
 }
 
-console.log("\n  par rotation (terres)");
-console.log(`  modele                             ${FACTIONS.map((_, i) => `rot ${i}`.padStart(7)).join("")}`);
+console.log("\n  terres finales, une colonne par course");
+console.log(
+  `  modele                             ${runs.map((run) => `${run.seed % 100}/${run.r}`.padStart(7)).join("")}`,
+);
 for (const model of models) {
-  const cells = Array.from({ length: ROTATIONS }, (_, r) => {
-    const row = rows.find((x) => x.model === model && x.rotation === r);
-    return String(row?.territory ?? "-").padStart(7);
-  }).join("");
+  const cells = runs
+    .map((run) => {
+      const row = rows.find((x) => x.model === model && x.rotation === run.r && x.seed === run.seed);
+      return String(row?.territory ?? "-").padStart(7);
+    })
+    .join("");
   console.log(`  ${model.padEnd(34)}${cells}`);
 }
 

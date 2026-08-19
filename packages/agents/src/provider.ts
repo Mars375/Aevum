@@ -104,6 +104,20 @@ export class RemoteProvider implements OrderProvider {
    */
   private lastAskError: string | null = null;
   private lastAskModel: string | null = null;
+  /**
+   * Completion tokens the last `ask` actually used.
+   *
+   * Groq reserves the whole `max_tokens` against a per-minute budget whether or
+   * not the answer needs it, so the reservation — not the answer — is what
+   * throttles a world. Nothing recorded what a ruling really costs, so the
+   * budget could only be guessed at. Now it can be measured, and then tuned.
+   */
+  private askUsage: Array<{ model: string; completion: number }> = [];
+
+  /** What each answered `ask` actually cost, in completion tokens. */
+  usage(): ReadonlyArray<{ model: string; completion: number }> {
+    return this.askUsage;
+  }
 
   /** The model that answered the last successful `ask`, or null. */
   lastModel(): string | null {
@@ -301,10 +315,14 @@ export class RemoteProvider implements OrderProvider {
             break;
           }
 
-          const payload = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const payload = (await res.json()) as {
+            choices?: Array<{ message?: { content?: string } }>;
+            usage?: { completion_tokens?: number };
+          };
           const parsed = extractJson(payload.choices?.[0]?.message?.content ?? "");
           if (parsed !== null) {
             this.lastAskModel = model;
+            this.askUsage.push({ model, completion: payload.usage?.completion_tokens ?? 0 });
             return JSON.stringify(parsed);
           }
           throw new RetryableError("no JSON object found");
