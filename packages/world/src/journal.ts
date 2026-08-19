@@ -27,11 +27,27 @@ export const RulingSchema = z.object({
   reason: z.string(),
   /** Which model answered, or null when the doctrine answered by default. */
   model: z.string().nullable(),
+  /**
+   * Ticks between the decision being raised and being answered.
+   *
+   * Zero almost always. Above zero means a ruler was queued behind a quota,
+   * and that is worth recording: a civilisation governed late is not governed
+   * the same as one governed on time.
+   */
+  deferredBy: z.number().int().default(0),
 });
 export type Ruling = z.infer<typeof RulingSchema>;
 
 export const JournalSchema = z.object({
   worldVersion: z.literal("w1"),
+  /**
+   * Which world this is.
+   *
+   * A world ends when one civilisation is all that remains, and then another
+   * begins. Eras are numbered rather than overwritten so the ones that came
+   * before stay readable — a civilisation that fell in era 3 still happened.
+   */
+  era: z.number().int().default(1),
   /** The world at tick 0. Everything after is derived. */
   origin: WorldSchema,
   /**
@@ -46,8 +62,9 @@ export const JournalSchema = z.object({
 });
 export type Journal = z.infer<typeof JournalSchema>;
 
-export const newJournal = (origin: World): Journal => ({
+export const newJournal = (origin: World, era = 1): Journal => ({
   worldVersion: "w1",
+  era,
   origin,
   livedTo: origin.tick,
   rulings: [],

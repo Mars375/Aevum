@@ -35,6 +35,8 @@ export const DECISION_KINDS = [
   "BORDER",
   /** A neighbour took land by force. */
   "INVADED",
+  /** Bandits took what was not guarded. */
+  "RAIDED",
 ] as const;
 export type DecisionKind = (typeof DECISION_KINDS)[number];
 
@@ -44,6 +46,14 @@ export interface DecisionPoint {
   kind: DecisionKind;
   /** Higher wins when several fire at once — only one is asked per civ per tick. */
   urgency: number;
+  /**
+   * True when this describes a situation rather than an event.
+   *
+   * Marked where it is raised, because that is where the difference is known:
+   * "people are dying this year" is news, "we have been short of food for a
+   * century" is a condition. Conditions get the long gap.
+   */
+  standing: boolean;
   /** The facts that raised it. W3: a ruler is never asked without being told why. */
   evidence: string[];
 }
@@ -65,6 +75,17 @@ export const DRIFT_TICKS = 40;
  */
 export const MIN_GAP_TICKS = 8;
 
+/**
+ * Some conditions are not events, they are situations.
+ *
+ * "There is no free land left" stays true for centuries, and re-asking every
+ * eight ticks raised it fifty times in four hundred years — the same mistake as
+ * the famine loop, wearing different clothes. A permanent condition is not
+ * news; it gets the long gap, so a ruler revisits it occasionally rather than
+ * constantly.
+ */
+export const STANDING_GAP_TICKS = 40;
+
 /** Above this, the world is not waiting politely: ask now regardless of the gap. */
 export const URGENT = 90;
 
@@ -78,16 +99,18 @@ export function foodRunway(civ: Civ): number {
 function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[] {
   const mine = events.filter((e) => e.civ === civ.id);
   const out: DecisionPoint[] = [];
-  const raise = (kind: DecisionKind, urgency: number, evidence: string[]) =>
-    out.push({ tick, civ: civ.id, kind, urgency, evidence });
+  const raise = (kind: DecisionKind, urgency: number, evidence: string[], standing = false) =>
+    out.push({ tick, civ: civ.id, kind, urgency, evidence, standing });
 
   const runway = foodRunway(civ);
   if (mine.some((e) => e.kind === "STARVED")) {
     raise("FAMINE", 100, [`famine en cours`, `${civ.population} habitants`, `greniers a ${civ.stock.food}`]);
   } else if (runway < 2.5) {
     // Warned before the deaths, not after: a ruler asked too late can only
-    // choose which people to lose.
-    raise("FAMINE", 80, [`${runway.toFixed(1)} tours de vivres restants`, `${civ.population} habitants`]);
+    // choose which people to lose. But living permanently lean is a condition,
+    // not an alarm — asking every eight ticks about a century-old shortage put
+    // famine at 79% of all wake-ups.
+    raise("FAMINE", 80, [`${runway.toFixed(1)} tours de vivres restants`, `${civ.population} habitants`], true);
   }
 
   const hard = mine.find((e) => e.kind === "HARD_YEAR");
@@ -105,7 +128,12 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
   if (advance) raise("ADVANCE", 60, [advance.detail, `${civ.advances.length} progres acquis`]);
 
   if (mine.some((e) => e.kind === "SURPLUS")) {
-    raise("SURPLUS", 40, [`vivres ${civ.stock.food}`, `tresor ${civ.stock.wealth}`, "rien n'en est fait"]);
+    raise("SURPLUS", 40, [`vivres ${civ.stock.food}`, `tresor ${civ.stock.wealth}`, "rien n'en est fait"], true);
+  }
+
+  const raided = mine.find((e) => e.kind === "RAIDED");
+  if (raided) {
+    raise("RAIDED", 65, [raided.detail, `${civ.soldiers} soldats`, `posture ${civ.doctrine.posture}`]);
   }
 
   if (mine.some((e) => e.kind === "CEDED")) {
@@ -113,15 +141,15 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
   }
 
   if (mine.some((e) => e.kind === "LAND_FULL")) {
-    raise("BORDER", 55, ["plus une terre libre dans le monde", `${civ.population} habitants pour ${civ.territory} terres`]);
+    raise("BORDER", 55, ["plus une terre libre dans le monde", `${civ.population} habitants pour ${civ.territory} terres`], true);
   }
 
   if (mine.some((e) => e.kind === "LOST_LAND")) {
-    raise("DECLINE", 50, [`frontiere reduite a ${civ.territory}`, `${civ.population} habitants`]);
+    raise("DECLINE", 50, [`frontiere reduite a ${civ.territory}`, `${civ.population} habitants`], true);
   }
 
   if (civ.ticksSinceDecision >= DRIFT_TICKS) {
-    raise("DRIFT", 10, [`${civ.ticksSinceDecision} tours sans decision`, `population ${civ.population}`]);
+    raise("DRIFT", 10, [`${civ.ticksSinceDecision} tours sans decision`, `population ${civ.population}`], true);
   }
 
   return out;
@@ -143,7 +171,8 @@ export function detectDecisions(world: World, events: TickEvent[]): DecisionPoin
     candidates.sort((a, b) => b.urgency - a.urgency || a.kind.localeCompare(b.kind));
     const best = candidates[0]!;
     // Silence, unless the world has got strictly worse than "handled".
-    if (civ.ticksSinceDecision < MIN_GAP_TICKS && best.urgency < URGENT) continue;
+    const gap = best.standing ? STANDING_GAP_TICKS : MIN_GAP_TICKS;
+    if (civ.ticksSinceDecision < gap && best.urgency < URGENT) continue;
     out.push(best);
   }
   return out;

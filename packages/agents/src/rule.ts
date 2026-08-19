@@ -121,5 +121,8 @@ export async function askRuler(
     },
     reason: reasoning.trim(),
     model: provider.lastModel?.() ?? general.model,
+    // Stamped by the caller, which is the only thing that knows how long this
+    // decision waited for a model to be free.
+    deferredBy: 0,
   };
 }

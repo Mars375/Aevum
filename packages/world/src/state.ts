@@ -118,6 +118,17 @@ export function newCiv(id: Civ["id"]): Civ {
 
 export const isAlive = (c: Civ): boolean => c.fellOnTick === null;
 
+export const living = (world: World): Civ[] => world.civs.filter(isAlive);
+
+/**
+ * A world that does not end still has to stop.
+ *
+ * The one thing that terminates it is being the only one left: with nobody to
+ * trade with, raid, or be raided by, what remains is not a civilisation but a
+ * solitaire. That is when the era closes and a new world opens.
+ */
+export const isOver = (world: World): boolean => living(world).length <= 1;
+
 /** Total workable land, sized so it runs out while the world is still young. */
 export const DEFAULT_LAND = 80;
 

@@ -2,11 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   DRIFT_TICKS,
   MIN_GAP_TICKS,
+  STANDING_GAP_TICKS,
   detectDecisions,
   foodRunway,
   newCiv,
+  isOver,
+  living,
   newJournal,
   newWorld,
+  raidOn,
   replay,
   tickWorld,
   type World,
@@ -37,7 +41,7 @@ describe("W2 — une civilisation eteinte n'est jamais consultee", () => {
 describe("W3 — chaque point porte ce qui l'a declenche", () => {
   it("la famine cite les vivres et la population", () => {
     const hungry = world({
-      civs: [{ ...newCiv("crimson"), ticksSinceDecision: MIN_GAP_TICKS, stock: { food: 10, timber: 0, ore: 0, wealth: 50 } }],
+      civs: [{ ...newCiv("crimson"), ticksSinceDecision: STANDING_GAP_TICKS, stock: { food: 10, timber: 0, ore: 0, wealth: 50 } }],
     });
     const point = detectDecisions(hungry, [])[0]!;
     expect(point.kind).toBe("FAMINE");
@@ -82,7 +86,10 @@ describe("un dirigeant qui vient de repondre n'est pas rappele pour la meme chos
   });
 
   it("reparle une fois le delai passe", () => {
-    expect(detectDecisions(hungry(MIN_GAP_TICKS), [])).toHaveLength(1);
+    // Une penurie qui dure est une situation, pas une alerte : elle attend le
+    // delai long. Une famine qui tue, elle, passe outre (test suivant).
+    expect(detectDecisions(hungry(MIN_GAP_TICKS), [])).toEqual([]);
+    expect(detectDecisions(hungry(STANDING_GAP_TICKS), [])).toHaveLength(1);
   });
 
   it("mais une famine qui tue deja passe outre le delai", () => {
@@ -96,7 +103,7 @@ describe("un dirigeant qui vient de repondre n'est pas rappele pour la meme chos
 describe("l'autonomie alimentaire previent avant les morts, pas apres", () => {
   it("une reserve courte declenche une famine sans qu'un seul habitant soit mort", () => {
     const thin = world({
-      civs: [{ ...newCiv("crimson"), ticksSinceDecision: MIN_GAP_TICKS, stock: { food: 100, timber: 0, ore: 0, wealth: 50 } }],
+      civs: [{ ...newCiv("crimson"), ticksSinceDecision: STANDING_GAP_TICKS, stock: { food: 100, timber: 0, ore: 0, wealth: 50 } }],
     });
     expect(foodRunway(thin.civs[0]!)).toBeLessThan(2.5);
     expect(detectDecisions(thin, [])[0]!.kind).toBe("FAMINE");
@@ -125,6 +132,7 @@ describe("W4 — rejouer le journal reproduit l'etat", () => {
       doctrine: { farming: 0.8, military: 0.2 },
       reason: "nourrir avant d'armer",
       model: null,
+      deferredBy: 0,
     });
     const a = replay(journal.origin, journal.rulings, 50).world;
     const b = replay(journal.origin, journal.rulings, 50).world;
@@ -158,3 +166,111 @@ describe("un monde reprend la ou il en etait", () => {
     expect(resumed).toEqual(inOneGo);
   });
 });
+
+describe("les bandits pressent sans decapiter", () => {
+  const rich = (over: Partial<ReturnType<typeof newCiv>> = {}) => ({
+    ...newCiv("crimson"),
+    population: 400,
+    soldiers: 0,
+    stock: { food: 2000, timber: 100, ore: 100, wealth: 4000 },
+    ...over,
+  });
+
+  it("un pillage coute une part, jamais tout", () => {
+    let w = world({ civs: [rich()] });
+    let worstLoss = 0;
+    for (let i = 0; i < 200; i += 1) {
+      const before = w.civs[0]!.population;
+      const stepped = tickWorld(w);
+      if (stepped.events.some((e) => e.kind === "RAIDED")) {
+        worstLoss = Math.max(worstLoss, (before - stepped.world.civs[0]!.population) / before);
+      }
+      w = stepped.world;
+    }
+    // Une civilisation ne perd jamais plus d'une fraction de ses gens en un
+    // seul raid : les bandits entretiennent la pression, ils ne la terminent pas.
+    expect(worstLoss).toBeLessThanOrEqual(0.06);
+  });
+
+  it("un pillage ne peut pas eteindre une civilisation a lui seul", () => {
+    let w = world({ civs: [rich({ population: 3 })] });
+    for (let i = 0; i < 100; i += 1) w = tickWorld(w).world;
+    // Elle peut mourir de faim, jamais du seul passage des bandits.
+    const events = tickWorld(world({ civs: [rich({ population: 3 })] })).events;
+    expect(events.some((e) => e.kind === "RAIDED" && e.detail.includes("3 morts"))).toBe(false);
+  });
+
+  it("ils viennent pour la richesse, pas pour la misere", () => {
+    const poor = { ...newCiv("crimson"), stock: { food: 200, timber: 0, ore: 0, wealth: 0 } };
+    const count = (civ: typeof poor) => {
+      let w = world({ civs: [civ] });
+      let n = 0;
+      for (let i = 0; i < 300; i += 1) {
+        const stepped = tickWorld(w);
+        if (stepped.events.some((e) => e.kind === "RAIDED" || e.kind === "REPELLED")) n += 1;
+        w = { ...stepped.world, civs: [{ ...civ, ticksSinceDecision: 0 }] }; // etat fige
+      }
+      return n;
+    };
+    expect(count(rich())).toBeGreaterThan(count(poor));
+  });
+
+  it("les memes bandits reviennent au meme tour, a chaque relecture", () => {
+    const a = tickWorld(world({ civs: [rich()] })).events.map((e) => e.kind);
+    const b = tickWorld(world({ civs: [rich()] })).events.map((e) => e.kind);
+    expect(a).toEqual(b);
+  });
+});
+
+describe("le monde s'arrete quand il ne reste qu'une civilisation", () => {
+  it("quatre vivantes : il continue", () => {
+    expect(isOver(world({ civs: [newCiv("crimson"), newCiv("azure"), newCiv("verdant"), newCiv("amber")] }))).toBe(false);
+  });
+
+  it("une seule vivante : il est fini", () => {
+    const w = world({
+      civs: [newCiv("crimson"), { ...newCiv("azure"), fellOnTick: 4 }, { ...newCiv("verdant"), fellOnTick: 9 }, { ...newCiv("amber"), fellOnTick: 12 }],
+    });
+    expect(isOver(w)).toBe(true);
+    expect(living(w)).toHaveLength(1);
+  });
+
+  it("aucune vivante : il est fini aussi, personne n'a gagne", () => {
+    expect(isOver(world({ civs: [{ ...newCiv("crimson"), fellOnTick: 1 }] }))).toBe(true);
+  });
+});
+
+describe("la pression monte avec l'age du monde, pas la severite d'un pillage", () => {
+  const rich = () => ({
+    ...newCiv("crimson"),
+    population: 400,
+    soldiers: 0,
+    stock: { food: 2000, timber: 100, ore: 100, wealth: 4000 },
+  });
+
+  it("un monde vieux est visite plus souvent", () => {
+    const visits = (from: number) => {
+      let n = 0;
+      for (let t = from; t < from + 400; t += 1) if (raidOn(rich(), 42, t).strength > 0) n += 1;
+      return n;
+    };
+    expect(visits(800)).toBeGreaterThan(visits(0));
+  });
+
+  it("mais un pillage ne prend jamais plus que son plafond, quel que soit l'age", () => {
+    for (const tick of [0, 500, 2000, 10_000]) {
+      for (let t = tick; t < tick + 50; t += 1) {
+        // Le plafond est absolu : c'est ce qui garantit qu'un village ne se
+        // fait pas raser d'un coup, meme dans un monde tres vieux.
+        expect(raidOn(rich(), 42, t).strength).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it("une civilisation sans rien a prendre est laissee tranquille", () => {
+    const destitute = { ...newCiv("crimson"), population: 300, stock: { food: 100, timber: 0, ore: 0, wealth: 0 } };
+    // Trouve en mesurant : sans cette regle, la pression ecrasait les quatre
+    // civilisations a vingt ames et les y maintenait indefiniment.
+    for (let t = 0; t < 500; t += 1) expect(raidOn(destitute, 42, t).strength).toBe(0);
+  });
+})

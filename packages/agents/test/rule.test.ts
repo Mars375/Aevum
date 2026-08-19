@@ -9,6 +9,7 @@ const point: DecisionPoint = {
   civ: "crimson",
   kind: "FAMINE",
   urgency: 80,
+  standing: false,
   evidence: ["2.1 tours de vivres restants", "340 habitants"],
 };
 

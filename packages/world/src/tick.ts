@@ -30,7 +30,11 @@ export interface TickEvent {
     | "LAND_FULL"
     | "SEIZED"
     | "CEDED"
-    | "TRADED";
+    | "TRADED"
+    /** Bandits took what a civilisation failed to guard. */
+    | "RAIDED"
+    /** Bandits came and were driven off. */
+    | "REPELLED";
   detail: string;
 }
 
@@ -87,6 +91,82 @@ export function season(seed: number, tick: number): number {
   return 0.55 + unit ** 0.7 * 0.8;
 }
 
+/**
+ * A raw unit value from (seed, tick, salt). Same mix as `season`, different
+ * salt, so the harvest and the bandits are not the same die rolled twice.
+ */
+function noise(seed: number, tick: number, salt: number): number {
+  let h = (seed * 0x27d4eb2d) ^ (tick * 0x165667b1) ^ (salt * 0x9e3779b1);
+  h = Math.imul(h ^ (h >>> 16), 0x7feb352d);
+  h ^= h >>> 15;
+  return (h >>> 0) / 0x100000000;
+}
+
+/** Civilisation ids are names, not numbers; this makes one a salt. */
+const saltOf = (id: string): number => {
+  let h = 0;
+  for (let i = 0; i < id.length; i += 1) h = Math.imul(h ^ id.charCodeAt(i), 0x01000193);
+  return h >>> 0;
+};
+
+/**
+ * Bandits.
+ *
+ * A world with no pressure but its own harvest settles into a long calm, and a
+ * calm world is one nobody watches. Bandits keep it moving without any
+ * civilisation having to be the aggressor.
+ *
+ * Two rules make them a pressure rather than a guillotine:
+ *   - they are drawn to wealth. A rich, unguarded civilisation is raided often;
+ *     a poor one is left alone, so raids do not simply finish off whoever is
+ *     already losing.
+ *   - what they take is a share of what is there, never a fixed amount. A
+ *     village loses a village's worth and survives it; the same raid on an
+ *     empire takes an empire's worth. Nothing is ever destroyed at a stroke.
+ */
+const RAID_MAX_POP_LOSS = 0.06;
+const RAID_MAX_WEALTH_LOSS = 0.25;
+const RAID_MAX_FOOD_LOSS = 0.2;
+
+export interface Raid {
+  /** 0 when the bandits never came. */
+  strength: number;
+  repelled: boolean;
+}
+
+/**
+ * How much harder the world presses as an era ages.
+ *
+ * Without this, three civilisations settle into a guarded equilibrium and hold
+ * it for a thousand years — measured, not guessed: an era that never resolves
+ * is an era nobody finishes watching. Pressure rises slowly and then stops
+ * rising, so a young world is survivable and an old one is not comfortable.
+ */
+export const pressure = (tick: number): number => 1 + Math.min(1.5, tick / 400);
+
+export function raidOn(civ: Civ, seed: number, tick: number): Raid {
+  const draw = noise(seed, tick, saltOf(civ.id));
+  // Wealth per head is what attracts them: a large poor civilisation is not a
+  // more tempting target than a small rich one.
+  const perHead = civ.stock.wealth / Math.max(1, civ.population);
+  // Bandits do not ride out for nothing. A civilisation with no surplus is left
+  // alone — without this the pressure ground every civilisation down to twenty
+  // souls and held them there forever, which is a worse stagnation than the one
+  // it was meant to cure.
+  if (perHead < 0.3) return { strength: 0, repelled: false };
+
+  const chance = Math.min(0.35, (0.03 + perHead * 0.02) * pressure(tick));
+  if (draw > chance) return { strength: 0, repelled: false };
+
+  // Age raises how often they come, never how much they take in one visit: the
+  // ceilings below are absolute, so a village always loses a village's share
+  // and survives it.
+  const strength = 0.35 + noise(seed, tick, saltOf(civ.id) ^ 0x5bf03635) * 0.65;
+  const guard = civ.doctrine.posture === "GUARD" ? 1.6 : 1;
+  const defence = (civ.soldiers * guard) / Math.max(1, civ.population / 20);
+  return { strength, repelled: defence >= strength };
+}
+
 function produce(civ: Civ, harvest: number): Stock {
   const s = shares(civ.doctrine);
   const workers = civ.population;
@@ -108,7 +188,7 @@ function produce(civ: Civ, harvest: number): Stock {
   };
 }
 
-function tickCiv(civ: Civ, tick: number, harvest: number, freeLand: number): { civ: Civ; events: TickEvent[] } {
+function tickCiv(civ: Civ, tick: number, harvest: number, freeLand: number, seed: number): { civ: Civ; events: TickEvent[] } {
   const events: TickEvent[] = [];
   const say = (kind: TickEvent["kind"], detail: string) => events.push({ tick, civ: civ.id, kind, detail });
 
@@ -170,6 +250,26 @@ function tickCiv(civ: Civ, tick: number, harvest: number, freeLand: number): { c
 
   soldiers = Math.max(0, Math.round(soldiers + population * s.military * 0.05 - soldiers * 0.02));
 
+  const raid = raidOn({ ...civ, population, soldiers, stock, territory }, seed, tick);
+  if (raid.strength > 0 && raid.repelled) {
+    // Driving them off still costs soldiers. A garrison that never bleeds is a
+    // garrison nobody has a reason to fund.
+    soldiers = Math.max(0, soldiers - Math.ceil(soldiers * 0.05 * raid.strength));
+    say("REPELLED", "bandits repousses");
+  } else if (raid.strength > 0) {
+    const lostPop = Math.min(
+      Math.floor(population * RAID_MAX_POP_LOSS * raid.strength),
+      Math.max(0, population - 1),
+    );
+    const lostWealth = round2(stock.wealth * RAID_MAX_WEALTH_LOSS * raid.strength);
+    const lostFood = round2(stock.food * RAID_MAX_FOOD_LOSS * raid.strength);
+    population -= lostPop;
+    soldiers = Math.max(0, soldiers - Math.ceil(soldiers * 0.15 * raid.strength));
+    stock.wealth = round2(stock.wealth - lostWealth);
+    stock.food = round2(stock.food - lostFood);
+    say("RAIDED", `pillage : ${lostPop} morts, ${Math.round(lostWealth)} richesse et ${Math.round(lostFood)} vivres emportes`);
+  }
+
   const advances = [...civ.advances];
   for (const a of ADVANCES) {
     if (advances.includes(a.name)) continue;
@@ -207,7 +307,7 @@ export function tickWorld(world: World): TickResult {
     .sort((a, b) => a.id.localeCompare(b.id))
     .map((civ) => {
       if (!isAlive(civ)) return civ;
-      const r = tickCiv(civ, tick, harvest, freeLand);
+      const r = tickCiv(civ, tick, harvest, freeLand, world.seed);
       events.push(...r.events);
       return r.civ;
     });

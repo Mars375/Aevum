@@ -57,6 +57,55 @@ une IA évoluer » serait promettre un apprentissage qui n'aura pas lieu. Ce qui
   modèle ;
 - **quel modèle la gouverne**, si le monde en change.
 
+## Les bandits, et la fin d'une ère
+
+Un monde dont la seule adversité est sa propre récolte se stabilise. Mesuré :
+avec des doctrines figées, trois civilisations tenaient un équilibre gardé
+pendant mille ans. Les bandits mettent la pression sans qu'aucune civilisation
+ait à être l'agresseur.
+
+Deux règles en font une pression et non une guillotine :
+
+- **ils viennent pour la richesse.** La fréquence dépend de la richesse *par
+  habitant* : une grande civilisation pauvre n'est pas une cible plus tentante
+  qu'une petite riche, et une civilisation qui n'a rien à prendre est laissée
+  tranquille ;
+- **ils prennent une part, jamais un montant.** Au plus 6 % des habitants, 25 %
+  du trésor, 20 % des vivres. Un village perd ce que perd un village et y
+  survit ; le même raid sur un empire coûte ce que coûte un empire. Rien n'est
+  détruit d'un coup, et un pillage seul ne peut pas éteindre une civilisation.
+
+L'âge du monde augmente **la fréquence des visites, jamais la sévérité d'une
+visite** — les plafonds sont absolus. Cette distinction a été apprise en la
+ratant : faire monter la sévérité a broyé les quatre civilisations à vingt âmes
+et les y a maintenues indéfiniment, une stagnation pire que celle qu'elle
+devait guérir.
+
+**Une ère se termine quand il ne reste qu'une civilisation.** Sans personne avec
+qui commercer, que piller ou par qui l'être, ce qui reste n'est plus une
+civilisation mais une patience. L'ère se ferme, une autre s'ouvre avec une
+graine dérivée de la précédente, et les journaux des ères passées restent
+lisibles : une civilisation tombée à l'ère 3 a bel et bien existé.
+
+## L'équité face au quota
+
+Le quota est partagé et injuste par nature : un modèle bridé gouvernerait moins
+qu'un autre, et sa civilisation prendrait du retard pour une raison qui n'a rien
+à voir avec le monde. Deux règles l'empêchent :
+
+- **le monde avance en pas verrouillé.** Toutes les civilisations vivent la même
+  année en même temps ; aucune ne court en avant parce que son modèle a répondu
+  plus vite. Les décisions de l'année N sont toutes tentées avant l'année N+1 ;
+- **une décision qu'on ne peut pas servir est différée, jamais abandonnée.** Elle
+  reste en tête de file et repart dès qu'un modèle répond. Une civilisation
+  bridée est gouvernée *en retard*, pas *pas du tout* — et `deferredBy` note
+  l'attente dans le journal, parce qu'être gouverné dix ans trop tard n'est pas
+  la même chose qu'être gouverné à l'heure.
+
+Le tableau imprimé en fin de course (consultée / gouvernée / différée par
+civilisation) rend l'écart visible comme un nombre plutôt que comme une
+impression.
+
 ## Mesures
 
 Mesuré hors ligne par `scripts/world-probe.ts`, sans dépenser un seul appel —
@@ -69,7 +118,8 @@ jamais traverse plus de crises).
 | rendements initiaux | 2000 | 44 | 45,5x — mais **toutes mortes au tour 12** |
 | rendements corrigés | 2000 | 1576 | 1,3x — soit aucune économie |
 | + délai entre décisions | 2000 | 56 | 35,7x — mais 79 % de simple dérive |
-| + saisons déterministes | 2000 | **92** | **21,7x** |
+| + saisons déterministes | 2000 | 92 | 21,7x |
+| + terre finie, bandits, délai long pour les situations | 2000 | **107** | **18,7x** |
 
 Trois de mes hypothèses ont été réfutées par cette mesure, et chacune a laissé
 une règle derrière elle :
