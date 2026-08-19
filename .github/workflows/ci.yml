@@ -1,0 +1,57 @@
+name: CI
+
+# Every check here runs OFFLINE. The whole test suite exercises the battle loop
+# through ScriptedProvider, so CI needs no API key, spends no quota, and cannot
+# be broken by a provider having a bad day. That property is the reason the
+# scripted provider was worth building.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Two commits, so the secret scan below can diff against the parent.
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build the player
+        run: npm run player:build
+
+      - name: Healthcheck
+        # Advisory network check inside; it never fails the build on its own.
+        run: npm run healthcheck
+
+      - name: No API key in the diff
+        # Turns the check I have run by hand before every commit into something
+        # that cannot be forgotten. Patterns for all four providers.
+        run: |
+          if git diff HEAD~1 HEAD | grep -nE 'sk-or-v1-[A-Za-z0-9]{20,}|gsk_[A-Za-z0-9]{30,}|nvapi-[A-Za-z0-9_-]{30,}|MISTRAL_API_KEY=[A-Za-z0-9]{20,}'; then
+            echo "::error::An API key pattern appears in this diff."
+            exit 1
+          fi
+          echo "No key pattern found."
+
+      - name: .env is not tracked
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "::error::.env is tracked by git."
+            exit 1
+          fi
+          echo ".env is untracked, as it should be."
