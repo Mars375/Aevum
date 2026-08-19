@@ -1,18 +1,49 @@
 # AI Battle Simulator
 
-Four language models each command a faction on a 16×16 tactical grid. A
-deterministic engine resolves their orders and writes a replay you watch
-afterwards.
+Four language models govern four civilisations in a world that does not end —
+and, in the older rulesets, command four factions on a tactical grid. A
+deterministic engine does everything else, and writes a record you can replay.
 
-Nobody plays. You watch — and you read why each general gave the orders it did.
+Nobody plays. You watch, and you read why each ruler decided what it did.
+
+## From clone to a living world
 
 ```
 npm install
+cp .env.example .env             # one provider key is enough; all four are free
+npm run live -- --ticks 100 --silent   # a century, no model, no network, no key
+npm run live -- --ticks 40             # the same world, governed by real models
+npm run player:dev                     # open it in the browser, "Chronique" tab
+```
+
+The `--silent` run is the honest first step: it exercises the whole engine
+without a key and without a single call, so a broken install fails in seconds
+rather than after a quota.
+
+A world lives in `worlds/<name>/era-NNNN.json` and resumes wherever it stopped —
+running out of quota is the normal way a session ends, not a failure. To let it
+advance on its own, `deploy/install-timer.sh` installs a nightly pass (and
+`--remove` takes it back out).
+
+## Battles, the older question
+
+```
 npm run battle -- --scripted     # offline baseline, no key, no network
 npm run battle                   # ruleset v1: four remote models, ~7 minutes
 npm run battle -- --ruleset v2   # army budget, fog of war, bounded diplomacy
 npm run battle -- --resume       # continue an interrupted battle
-npm run player:dev               # open the replay in the browser
+```
+
+## Measuring without spending
+
+Every design claim in `docs/` was measured, and most of the measurements cost
+nothing:
+
+```
+npm run world:probe              # how many calls a world would need. Zero spent
+npm run era-report worlds/monde/era-0001.json   # read an era back
+npm run eras -- --ticks 120      # rotate the models across positions. Costs calls
+npm test                         # 305 tests, all offline
 ```
 
 ## How it is put together
@@ -21,13 +52,20 @@ npm run player:dev               # open the replay in the browser
 | --- | --- | --- |
 | `@abs/contracts` | zod schemas shared by everything | import the engine, the network or Vue |
 | `@abs/engine` | resolves a turn, decides the outcome | make a single network call |
-| `@abs/agents` | talks to the four providers, drives the battle loop | decide who wins |
+| `@abs/world` | ticks the continuous world, detects decision points | make a single network call |
+| `@abs/agents` | talks to the four providers, drives the battle and world loops | decide who wins |
 | `@abs/cli` | runs a battle, writes the replay | — |
 | `@abs/player` | Vue 3 replay viewer, 2D grid and optional 3D | run the engine |
 
 The split that matters: **the model decides, the engine resolves.** An illegal
 order is rejected and recorded, never quietly rewritten into something workable.
 That is what makes a replay auditable.
+
+The second split, which the continuous world rests on: **the engine ticks
+continuously and for free; a model is consulted only at decision points.** One
+call per civilisation per tick would spend a day's free quota in minutes, and a
+world that stops for want of quota is not continuous. Measured: about 18× fewer
+calls than asking every year.
 
 ## Six things the measurements forced
 
