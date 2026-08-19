@@ -123,8 +123,24 @@ Dans l'ordre d'évaluation :
    alliées, et elles sont au moins deux. La bataille s'arrête, l'alliance gagne
    **conjointement**. Aucun départage : le classement du tournoi compte une
    victoire partagée.
-4. **Limite de tours** — départage par PV totaux, puis nombre d'escouades, puis
-   nul.
+4. **Limite de tours** — départage par PV totaux, puis nombre d'escouades,
+   puis **dégâts infligés**, puis nul.
+
+   Le troisième critère n'était pas dans la spec initiale ; il vient d'une
+   mesure. Sur 200 batailles scriptées, **16 % se terminaient sur un nul** parce
+   que PV et nombre d'escouades tombaient à égalité — une bataille qui n'apprend
+   rien sur qui commandait le mieux. Départager à égalité de force par ce qui a
+   été infligé fait tomber les nuls à **2 %**, et récompense l'agressivité qui
+   n'a pas payé en éliminations plutôt que de la traiter comme équivalente à la
+   passivité.
+
+   Le critère est **v2 uniquement**. Le v1 conserve son départage à deux
+   niveaux : le modifier relabelliserait des issues dans des replays déjà
+   enregistrés, ce qui n'est pas un correctif d'équilibrage mais une réécriture
+   du passé. Un test le vérifie.
+
+   La raison de victoire **nomme le critère qui a réellement tranché**, pour
+   qu'un lecteur voie qu'une bataille s'est jouée aux dégâts et non à la survie.
 
 Une capitulation retire la faction sans la déclarer vaincue par une autre : elle
 est simplement éliminée.
@@ -156,6 +172,7 @@ est simplement éliminée.
 | `I17` Mémoire bornée | Le résumé transmis ne dépasse jamais 8 entrées, quelle que soit la durée. |
 | `I18` Mémoire non hallucinée | Chaque entrée du résumé correspond à un événement réellement journalisé. |
 | `I19` Terminaison v2 | Une bataille v2 s'arrête toujours, alliances et capitulations comprises. |
-| `I20` Compatibilité | Un replay `v1` se rejoue à l'identique sous le moteur v2. |
+| `I20` Compatibilité | Un replay `v1` se rejoue à l'identique sous le moteur v2, départage compris. |
+| `I21` Départage gradué | Les dégâts infligés ne départagent jamais deux factions séparables par leurs PV ou leur nombre d'escouades. |
 
 `I20` est le plus important : il interdit de casser le passé pour avancer.
