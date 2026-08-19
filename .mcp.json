@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--browser=chromium",
+        "--executable-path=/home/orion/.cache/ms-playwright/chromium_headless_shell-1234/chrome-linux/headless_shell",
+        "--headless",
+        "--no-sandbox"
+      ]
+    }
+  }
+}

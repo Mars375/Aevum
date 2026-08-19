@@ -114,12 +114,26 @@ describe("RemoteProvider routing", () => {
 });
 
 describe("the mixed roster keeps its two structural promises", () => {
-  it("gives every faction a distinct primary, never reused as another's first fallback", async () => {
+  it("never lets a primary appear anywhere in another faction's chain", async () => {
+    // Stronger than the original rule, which only guarded the FIRST fallback:
+    // a contender reachable deeper in someone else's chain can still turn one
+    // general into a copy of another, which is defect D1 all over again.
     const { DEFAULT_GENERALS } = await import("@abs/agents");
     const primaries = DEFAULT_GENERALS.map((g) => g.model);
     expect(new Set(primaries).size).toBe(4);
     for (const g of DEFAULT_GENERALS) {
-      expect(primaries, `${g.fallbacks[0]} is some faction's primary`).not.toContain(g.fallbacks[0]);
+      for (const fb of g.fallbacks) {
+        expect(primaries, `${g.factionId} can fall back onto a rival's own model (${fb})`).not.toContain(fb);
+      }
+    }
+  });
+
+  it("keeps every primary off the exhausted provider", async () => {
+    // NVIDIA returns 429 with no reset header, and minimax-m3 played 0 of 45
+    // turns as a primary. A dead provider may cost a hop, never a contender.
+    const { DEFAULT_GENERALS, parseModelRef: parse } = await import("@abs/agents");
+    for (const g of DEFAULT_GENERALS) {
+      expect(parse(g.model).provider, `${g.factionId} leads with NVIDIA`).not.toBe("nvidia");
     }
   });
 
