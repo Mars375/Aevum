@@ -310,3 +310,23 @@ describe("faction traits reach the generals", () => {
     expect(userPromptV2(view)).toContain("Retranchés");
   });
 });
+
+/**
+ * The first battle to produce a report produced one with no dated claims: a
+ * summary, and nothing checkable. Fidelity came back "non mesurable", which is
+ * honest and useless. The dated turns ARE the report.
+ */
+describe("a report without dated claims is not a report", () => {
+  it("asks for a minimum, not merely a maximum", async () => {
+    const { reportSystemPrompt, REPORT_JSON_SCHEMA } = await import("@abs/agents");
+    expect(reportSystemPrompt()).toContain("BETWEEN TWO AND SIX");
+    expect(reportSystemPrompt()).toContain("worth nothing");
+    expect((REPORT_JSON_SCHEMA.properties.claims as { minItems: number }).minItems).toBe(2);
+    expect((REPORT_JSON_SCHEMA.properties.claims as { maxItems: number }).maxItems).toBe(6);
+  });
+
+  it("still warns that the account will be checked", async () => {
+    const { reportSystemPrompt } = await import("@abs/agents");
+    expect(reportSystemPrompt()).toContain("CHECKED AGAINST THE BATTLE RECORD");
+  });
+});

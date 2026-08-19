@@ -148,12 +148,14 @@ function pick(path: string) {
 
 // The point of view belongs in the URL too: "look at turn 7 through amber's
 // eyes" is exactly the kind of thing one person sends another.
-watch([fogFaction, index], ([faction, turn]) => {
+watch([fogFaction, index, view3d], ([faction, turn, is3d]) => {
   const url = new URL(location.href);
-  if (faction) url.searchParams.set("view", faction);
+  if (faction) url.searchParams.set("view", faction as string);
   else url.searchParams.delete("view");
-  if (turn > 0) url.searchParams.set("turn", String(turn));
+  if ((turn as number) > 0) url.searchParams.set("turn", String(turn));
   else url.searchParams.delete("turn");
+  if (is3d) url.searchParams.set("mode", "3d");
+  else url.searchParams.delete("mode");
   history.replaceState(null, "", url);
 });
 
@@ -162,6 +164,7 @@ onMounted(async () => {
   await loadCatalogue();
 
   const params = new URLSearchParams(location.search);
+  if (params.get("mode") === "3d") view3d.value = true;
   const view = params.get("view");
   if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
   const turn = Number(params.get("turn"));

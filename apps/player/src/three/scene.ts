@@ -217,7 +217,10 @@ export class BattleScene {
     this.renderer.setSize(width, height, false);
 
     const aspect = width / height;
-    const half = this.gridSize / 2 + 1;
+    // An isometric board is a rotated square: its diagonal is what has to fit,
+    // not its side. Framing on gridSize/2 left a wide empty margin on every
+    // side — visible the moment the view was finally looked at.
+    const half = (this.gridSize / 2) * 0.78;
     this.camera.left = -half * aspect;
     this.camera.right = half * aspect;
     this.camera.top = half;

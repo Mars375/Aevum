@@ -27,7 +27,9 @@ export const REPORT_JSON_SCHEMA = {
     summary: { type: "string", description: "Two or three sentences on how the battle went for you." },
     claims: {
       type: "array",
-      description: "The turns that mattered, most important first. At most six.",
+      minItems: 2,
+      maxItems: 6,
+      description: "Between two and six turns that mattered, most important first. Required — a report with no dated claims cannot be checked and is worth nothing.",
       items: {
         type: "object",
         additionalProperties: false,
@@ -47,8 +49,11 @@ export function reportSystemPrompt(): string {
   return [
     "The battle is over. Write your account of it as the general who commanded.",
     "",
-    "Structure it as a short summary plus the turns that mattered — at most six, most important first.",
+    "Structure it as a short summary plus BETWEEN TWO AND SIX turns that mattered, most important first.",
     "For each, give the turn number, what you ordered, why, and what came of it.",
+    "",
+    "The dated turns are the report. A summary with no turns attached cannot be checked against",
+    "anything and is worth nothing — do not submit one.",
     "",
     "YOUR ACCOUNT WILL BE CHECKED AGAINST THE BATTLE RECORD, turn by turn, mechanically.",
     "Claiming an attack on a turn where you only moved, or a loss that was somebody else's,",
@@ -127,6 +132,10 @@ export async function collectReports(
       log(`  ${general.factionId}: report did not parse, discarded`);
       continue;
     }
+    // A summary with no dated claims cannot be checked against the replay, so
+    // it is not a report — it is a press release. Kept, because discarding it
+    // would hide that the general answered, but flagged loudly.
+    if (parsed.data.claims.length === 0) log(`  ${general.factionId}: report has no dated claims — nothing to verify`);
     reports.push(parsed.data);
   }
 
