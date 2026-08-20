@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyRuling, census, disasterOn, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
+import { applyRuling, census, disasterOn, foodRunway, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
 
 /** The board is built for exactly the civilisations a fixture asks for. */
 const world = (over: Partial<World> = {}): World => {
@@ -534,5 +534,54 @@ describe("monter la garde n'est pas gratuit", () => {
     const contreCommerce = tickWorld(face("TRADE")).events.some((e) => e.kind === "SEIZED");
     expect(contreGarde).toBe(false);
     expect(contreCommerce).toBe(true);
+  });
+});
+
+describe("on ne fait pas d'enfants sur un grenier a moitie vide", () => {
+  /**
+   * A quatre annees de vivres, une civilisation grandissait jusqu'au plafond
+   * que sa terre pouvait nourrir et s'y installait au ras de l'alarme : 22 % du
+   * temps sous le seuil de famine, et 38 % des decisions levees etaient des
+   * famines. La famine n'etait plus un evenement mais l'etat d'equilibre.
+   */
+  const fed = (years: number) =>
+    holding(
+      {
+        civs: [
+          {
+            ...newCiv("crimson"),
+            population: 100,
+            stock: { food: 100 * years, timber: 0, ore: 0, wealth: 100 },
+          },
+        ],
+      },
+      { plain: 8 },
+    );
+
+  it("quatre annees de reserve ne suffisent plus a croitre", () => {
+    const after = tickWorld(fed(4));
+    expect(after.events.some((e) => e.kind === "GREW")).toBe(false);
+  });
+
+  it("six suffisent", () => {
+    const after = tickWorld(fed(7));
+    expect(after.events.some((e) => e.kind === "GREW")).toBe(true);
+  });
+
+  it("une civilisation a l'equilibre garde une reserve loin de l'alarme", () => {
+    let w = world();
+    let sousLeSeuil = 0;
+    let observations = 0;
+    for (let i = 0; i < 200; i += 1) {
+      w = tickWorld(w).world;
+      if (i < 60) continue;
+      for (const civ of w.civs) {
+        if (civ.fellOnTick !== null) continue;
+        observations += 1;
+        if (foodRunway(civ) < 2.5) sousLeSeuil += 1;
+      }
+    }
+    // Mesure avant le changement : 22 %. La famine doit redevenir un accident.
+    expect(sousLeSeuil / observations).toBeLessThan(0.1);
   });
 });

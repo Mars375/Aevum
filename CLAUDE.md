@@ -12,7 +12,7 @@ Garder ce fichier court est le but. S'il grossit, il ne sera plus lu.
 
 Des modèles de langage gouvernent quatre civilisations dans un monde qui ne
 s'arrête pas. Un moteur déterministe fait tout le reste. Trois jeux de règles
-coexistent : **v1** et **v2** sont des batailles tactiques, gelées ; **w6** est
+coexistent : **v1** et **v2** sont des batailles tactiques, gelées ; **w7** est
 le monde continu, et c'est là que le travail se fait.
 
 Le partage qui commande tout : **le modèle décide, le moteur tranche.** Un ordre
@@ -25,7 +25,7 @@ par tour épuiserait un quota quotidien en minutes.
 
 ## Les invariants qu'on ne casse pas
 
-Les six du monde sont dans `docs/spec/world-w6.md`. Les deux qui se cassent le
+Les six du monde sont dans `docs/spec/world-w7.md`. Les deux qui se cassent le
 plus facilement :
 
 - **W4 — rejouer le journal reproduit l'état.** Il est tombé une fois, en
@@ -65,7 +65,13 @@ plus facilement :
    taille de chaque voisin bordé — leurs raisons parlent de frontières, mais
    onze postures sur douze restaient la garde. C'était le **prix** qui manquait,
    pas le renseignement : garder était gratuit, donc strictement meilleur.
-8. **Faire vivre le monde en silence avant de mesurer ne l'améliore pas.**
+8. **Une règle d'équilibrage peut faire du monde une question unique.** La
+   croissance démarrait à quatre années de vivres, donc les civilisations
+   vivaient au ras de l'alarme : 22 % des années sous le seuil, 38 % des
+   décisions étaient des famines. À six, la famine redevient un accident et le
+   mélange se diversifie. **Regarder la répartition des types de décision est le
+   diagnostic le moins cher qui existe** — `npm run world:probe` le donne.
+9. **Faire vivre le monde en silence avant de mesurer ne l'améliore pas.**
    L'idée était que le moteur étant gratuit, amener le monde au moment
    intéressant rendrait chaque appel plus utile. Mesuré : 230 décisions au lieu
    de 129 pour la même fenêtre, dont 46 % de famine — deux fois plus cher, et
@@ -88,7 +94,7 @@ mode normal.
 
 | | |
 | --- | --- |
-| les règles et les six invariants | `docs/spec/world-w6.md` |
+| les règles et les six invariants | `docs/spec/world-w7.md` |
 | tout ce qui a été mesuré | `docs/reports/` |
 | les conventions et le défaut qui a enseigné chacune | skill `project-conventions` |
 | l'état d'avancement | carte kanban `t_baa4de0e` |
