@@ -3,7 +3,6 @@ import { computed, ref, watch } from "vue";
 import { chronicle, JournalSchema, type Journal, type Year } from "@abs/world";
 import CivTrend from "./CivTrend.vue";
 import EmpireShare from "./EmpireShare.vue";
-import Intro from "./Intro.vue";
 import WorldStage from "./WorldStage.vue";
 
 /**
@@ -171,12 +170,7 @@ const round = (n: number) => Math.round(n);
       <span class="dot" aria-hidden="true"></span>{{ tended.text }}
     </p>
 
-    <Intro
-      :era="journal.era"
-      :years="journal.livedTo"
-      :rulings="journal.rulings.length"
-      :alive="year.world.civs.filter((c) => c.fellOnTick === null).length"
-    />
+    <WorldStage :years="years" :index="index" @seek="(i) => (index = i)" />
 
     <header class="card head">
       <div>
@@ -214,8 +208,6 @@ const round = (n: number) => Math.round(n);
         <button class="link mono" @click="copyLink">{{ copied ? "copié" : "lien vers cette année" }}</button>
       </label>
     </section>
-
-    <WorldStage :years="years" :index="index" @seek="(i) => (index = i)" />
 
     <section class="civs">
       <article v-for="civ in year.world.civs" :key="civ.id" class="card civ" :class="[civ.id, { fallen: civ.fellOnTick !== null }]">

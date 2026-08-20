@@ -22,11 +22,14 @@ import { FactionIdSchema } from "@abs/contracts";
  * free to mine without hills. w2 gave land four kinds, each carrying one kind
  * of work. w3 added disaster and vows.
  *
- * w4 puts the land on a board. Until now a civilisation simply *had* seven
- * plains, as if land were a stock you accumulate; there was no elsewhere for it
- * to come from. Now every place exists in its own right, starts unowned, and
- * has neighbours — so land is taken from somewhere, from someone, and only
- * where a civilisation already reaches.
+ * w4 put the land on a board: every place exists in its own right, starts
+ * unowned, and has neighbours, so land is taken from somewhere and from
+ * someone.
+ *
+ * w5 makes the water run. Rivers were scattered independently, so they read as
+ * ponds and behaved as ponds — a rare tile you happened to own. A river that
+ * flows crosses the board, splits it, and gives a frontier something to follow:
+ * the same scarcity, but placed where it means something.
  *
  * So the version is bumped rather than the old worlds quietly re-interpreted.
  * The same discipline as I20 in the battle rules — a recorded run must keep
@@ -34,7 +37,7 @@ import { FactionIdSchema } from "@abs/contracts";
  * records, with the reports written from them; they are no longer replayable,
  * and the code says so instead of silently producing different numbers.
  */
-export const WORLD_VERSION = "w4";
+export const WORLD_VERSION = "w5";
 
 export const RESOURCES = ["food", "timber", "ore", "wealth"] as const;
 export const ResourceSchema = z.enum(RESOURCES);
@@ -318,13 +321,54 @@ export function placeName(seed: number, index: number, kind: LandKind): string {
   return a + b + s[(h >>> 14) % s.length]!;
 }
 
-/** Which kinds the board is made of, and in what proportion. */
+/**
+ * The dry land, before the water is drawn.
+ *
+ * Rivers are carved afterwards rather than sprinkled here: a watercourse is a
+ * line, not a probability. The weights below therefore describe only what a
+ * place is when no river passes through it.
+ */
 const KIND_WEIGHTS: Array<[LandKind, number]> = [
-  ["plain", 0.46],
-  ["forest", 0.24],
-  ["hill", 0.18],
-  ["river", 0.12],
+  ["plain", 0.52],
+  ["forest", 0.27],
+  ["hill", 0.21],
 ];
+
+/**
+ * Carve a river across the board.
+ *
+ * It starts somewhere along the top edge and walks to the bottom, drifting
+ * sideways as it goes — never diagonally, so every cell of its course touches
+ * the next and the water is genuinely continuous. Deterministic like
+ * everything else: the same seed draws the same river, for ever.
+ *
+ * That continuity is the whole point. Scattered river tiles were a rare
+ * resource you happened to own; a river is a line two civilisations can meet
+ * on, follow, or be cut off by.
+ */
+function carveRiver(board: Place[], size: number, seed: number, salt: number): void {
+  const roll = (n: number) => {
+    let h = (seed * 0x27d4eb2f) ^ ((n + salt * 977) * 0x165667b1);
+    h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+    h ^= h >>> 13;
+    return (h >>> 0) / 0x100000000;
+  };
+
+  let x = 1 + Math.floor(roll(0) * (size - 2));
+  for (let y = 0; y < size; y += 1) {
+    board[at(size, x, y)]!.kind = "river";
+    // Drift at most one column per row, and stay off the very edges so the
+    // course cannot hug a border for its whole length.
+    const drift = roll(y + 1);
+    if (drift < 0.3 && x > 1) {
+      x -= 1;
+      board[at(size, x, y)]!.kind = "river";
+    } else if (drift > 0.7 && x < size - 2) {
+      x += 1;
+      board[at(size, x, y)]!.kind = "river";
+    }
+  }
+}
 
 /**
  * Lay out a world.
@@ -349,16 +393,49 @@ export function newWorld(ids: Civ["id"][], seed: number, size = 9): World {
       }
       roll -= w;
     }
-    board.push({ kind, owner: null, name: placeName(seed, i, kind) });
+    board.push({ kind, owner: null, name: "" });
   }
 
-  // Founders start one place each, spread to the corners: nobody begins next to
-  // anybody, so the first century is expansion into empty land and the meeting
-  // happens later, on purpose.
+  // The water is drawn once the land is, and names come last so a place is
+  // named for what it finally is rather than for what it was going to be.
+  carveRiver(board, size, seed, 1);
+  board.forEach((place, i) => {
+    place.name = placeName(seed, i, place.kind);
+  });
+
+  /**
+   * Founders start one place each, spread to the corners: nobody begins next to
+   * anybody, so the first century is expansion into empty land and the meeting
+   * happens later, on purpose.
+   *
+   * And always on ground that can feed. A civilisation founded on stone or
+   * under trees, with no field within reach, starves whatever its ruler
+   * decides — measured before the fix: four founders in forty worlds were dead
+   * of hunger by year 60, and one drowned by year 18 for having been placed on
+   * the river itself.
+   *
+   * A start that no decision can undo is not terrain luck. It is noise in
+   * every measurement made afterwards, and it cannot be removed by rotating
+   * the models: whoever draws that corner loses, and the loss says nothing
+   * about them. So a founder takes the corner when it is a plain, and the
+   * nearest field otherwise. The watercourse stays whole; only the founder
+   * moves.
+   */
   const corners = [at(size, 1, 1), at(size, size - 2, 1), at(size, 1, size - 2), at(size, size - 2, size - 2)];
   const civs = ids.map(newCiv);
   civs.forEach((civ, i) => {
-    const home = corners[i % corners.length]!;
+    let home = corners[i % corners.length]!;
+    if (board[home]!.kind !== "plain") {
+      const free = (n: number) => board[n]!.owner === null;
+      // A field beside the corner, then one at two steps: near enough that the
+      // four founders still start apart, far enough that a stony corner is not
+      // a sentence.
+      const near = neighbours(size, home).filter(free);
+      const far = near.flatMap((n) => neighbours(size, n)).filter(free);
+      const field = [...near, ...far].find((n) => board[n]!.kind === "plain");
+      if (field !== undefined) home = field;
+      else if (board[home]!.kind === "river") home = near.find((n) => board[n]!.kind !== "river") ?? home;
+    }
     board[home]!.owner = civ.id;
     civ.capital = home;
   });

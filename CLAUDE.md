@@ -12,7 +12,7 @@ Garder ce fichier court est le but. S'il grossit, il ne sera plus lu.
 
 Des modèles de langage gouvernent quatre civilisations dans un monde qui ne
 s'arrête pas. Un moteur déterministe fait tout le reste. Trois jeux de règles
-coexistent : **v1** et **v2** sont des batailles tactiques, gelées ; **w4** est
+coexistent : **v1** et **v2** sont des batailles tactiques, gelées ; **w5** est
 le monde continu, et c'est là que le travail se fait.
 
 Le partage qui commande tout : **le modèle décide, le moteur tranche.** Un ordre
@@ -25,7 +25,7 @@ par tour épuiserait un quota quotidien en minutes.
 
 ## Les invariants qu'on ne casse pas
 
-Les six du monde sont dans `docs/spec/world-w4.md`. Les deux qui se cassent le
+Les six du monde sont dans `docs/spec/world-w5.md`. Les deux qui se cassent le
 plus facilement :
 
 - **W4 — rejouer le journal reproduit l'état.** Il est tombé une fois, en
@@ -40,7 +40,7 @@ plus facilement :
 ## Ce qui a déjà été réfuté — ne pas refaire
 
 1. **Un horizon long n'est pas une meilleure mesure.** Le bruit du plateau passe
-   de 0,21 à 60 ans à 0,56 à 320. Mais un horizon court coupe la moitié
+   de 0,17 à 60 ans à 0,52 à 320. Mais un horizon court coupe la moitié
    intéressante : le plateau ne se remplit qu'à **l'an 148**, et guerres,
    capitales prises et extinctions arrivent après. Les deux effets sont réels et
    se contredisent — voir `docs/reports/board-noise.md`.
@@ -77,7 +77,7 @@ mode normal.
 
 | | |
 | --- | --- |
-| les règles et les six invariants | `docs/spec/world-w4.md` |
+| les règles et les six invariants | `docs/spec/world-w5.md` |
 | tout ce qui a été mesuré | `docs/reports/` |
 | les conventions et le défaut qui a enseigné chacune | skill `project-conventions` |
 | l'état d'avancement | carte kanban `t_baa4de0e` |

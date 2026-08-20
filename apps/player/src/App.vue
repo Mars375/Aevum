@@ -60,7 +60,7 @@ const catalogue = ref<CatalogueEntry[]>([]);
  * A battle is a match with an end; a world is a place that keeps going. The
  * chronicle only appears when a deployment actually serves a world.
  */
-type Mode = "battle" | "world" | "reports";
+type Mode = "battle" | "world" | "reports" | "rules";
 const mode = ref<Mode>("world");
 
 interface WorldEntry {
@@ -91,6 +91,7 @@ const journal = ref<Journal | null>(null);
 // a reader who only watches battles never loads the world engine.
 const Chronicle = defineAsyncComponent(() => import("./components/Chronicle.vue"));
 const Reports = defineAsyncComponent(() => import("./components/Reports.vue"));
+const Rules = defineAsyncComponent(() => import("./components/Rules.vue"));
 
 async function loadWorlds() {
   try {
@@ -247,7 +248,8 @@ watch([mode, worldPath], ([m, path]) => {
   if (m === "world" && path) url.searchParams.set("world", path as string);
   else url.searchParams.delete("world");
   if (m === "reports") url.searchParams.set("mode", "rapports");
-  else if (url.searchParams.get("mode") === "rapports") url.searchParams.delete("mode");
+  else if (m === "rules") url.searchParams.set("mode", "regles");
+  else if (["rapports", "regles"].includes(url.searchParams.get("mode") ?? "")) url.searchParams.delete("mode");
   history.replaceState(null, "", url);
 });
 
@@ -264,7 +266,8 @@ onMounted(async () => {
 
   const params = new URLSearchParams(location.search);
   if (params.get("mode") === "3d") view3d.value = true;
-  if (params.get("mode") === "rapports" || params.get("rapport")) mode.value = "reports";
+  if (params.get("mode") === "regles") mode.value = "rules";
+  else if (params.get("mode") === "rapports" || params.get("rapport")) mode.value = "reports";
   else if (params.get("replay") || params.get("turn")) mode.value = "battle";
   const view = params.get("view");
   if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
@@ -313,7 +316,9 @@ onUnmounted(() => {
               ? "ARCHIVES — les batailles tactiques, un chapitre antérieur, gelé"
               : mode === "world"
                 ? "MONDE CONTINU — recomposé année par année dans votre navigateur"
-                : "MESURES — ce que le projet a vérifié, y compris quand ça l'a contredit"
+                : mode === "rules"
+                  ? "RÈGLES — ce qu'un dirigeant décide, et ce que le monde fait de son côté"
+                  : "MESURES — ce que le projet a vérifié, y compris quand ça l'a contredit"
           }}
         </p>
       </div>
@@ -321,6 +326,7 @@ onUnmounted(() => {
       <div v-if="worlds.length > 0" class="modeswitch" role="group" aria-label="Ce qu'on regarde">
         <button type="button" class="mono" :aria-pressed="mode === 'world'" @click="mode = 'world'">Chronique</button>
         <button type="button" class="mono" :aria-pressed="mode === 'battle'" @click="mode = 'battle'">Archives</button>
+        <button type="button" class="mono" :aria-pressed="mode === 'rules'" @click="mode = 'rules'">Règles</button>
         <button type="button" class="mono" :aria-pressed="mode === 'reports'" @click="mode = 'reports'">Rapports</button>
       </div>
       <label v-if="mode === 'world' && worlds.length > 1" class="picker-inline mono">
@@ -368,6 +374,8 @@ onUnmounted(() => {
     <Chronicle v-if="mode === 'world' && journal" :journal="journal" :status="tendStatus" />
 
     <Reports v-if="mode === 'reports'" />
+
+    <Rules v-if="mode === 'rules'" />
 
     <p v-if="mode === 'world' && !journal && !worldError" class="card picker">
       Aucun monde n'est servi par ce déploiement. Faites-en vivre un avec
