@@ -44,8 +44,12 @@ export interface LiveOptions {
   /** Null lives the world with no model at all: the engine alone, doctrines frozen. */
   provider: RulerProvider | null;
   ticks: number;
-  /** Called after every ruling so a caller can persist without losing years to a crash. */
-  onRuling?: (journal: Journal) => void;
+  /**
+   * Called after every ruling so a caller can persist without losing years to
+   * a crash. The world is handed over too, so a caller can stamp what it saves
+   * rather than guess at it.
+   */
+  onRuling?: (journal: Journal, world: World) => void;
   notify?: (notice: LiveNotice) => void;
 }
 
@@ -138,7 +142,7 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
       journal.rulings.push(ruling);
       journal.livedTo = world.tick;
       world = applyRuling(world, ruling);
-      opts.onRuling?.(journal);
+      opts.onRuling?.(journal, world);
       notify({
         kind: "ruled",
         tick: point.tick,

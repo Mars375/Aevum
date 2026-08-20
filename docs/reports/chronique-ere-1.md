@@ -1,83 +1,50 @@
-# Chronique de la première ère — la chute d'un empire prudent
+# Chronique de la première ère — RETIRÉE
 
-Statut : récit d'un monde, 290 ans, 93 décisions · Monde `monde`, ère 1, règles w4
+Statut : **retirée le 20 août 2026, ses dates étaient fausses**
 
-Ceci n'est pas une mesure. C'est une histoire, et elle vaut d'être racontée
-parce que le moteur ne l'a pas écrite : elle est sortie de quatre modèles
-répondant chacun à des questions qu'aucun d'eux ne pouvait voir venir.
+Ce rapport racontait la chute de crimson : plus grande civilisation du monde
+jusqu'à l'an 216, première frontière cédée en 199, siège tombé trois fois,
+famine permanente à partir de 229.
 
-## Deux siècles de prudence
+Loïc a relevé l'incohérence : comment être la plus grande en 216 si la frontière
+cède en 199 ? La vérification lui a donné raison, et le défaut était plus grave
+qu'une erreur de rédaction.
 
-Jusqu'à l'an 216, **crimson est la plus grande civilisation du monde** : 2213
-habitants quand azure en compte 1017 et verdant 656. Elle y est arrivée sans
-prendre un seul lieu par la force. Sur ses quarante décisions, la posture
-`GUARD` revient trente-cinq fois. Elle laboure, elle garde, elle grandit.
+## Ce qui n'allait pas
 
-Le monde est encore vide, et cela suffit. Le plateau ne se remplit qu'à l'an
-148 ; jusque-là, s'étendre ne coûte que du bois.
+Le journal du monde `monde` porte une décision `INVADED` en l'an 199 et trois
+`CAPITAL` en 205, 206 et 224. Mais en rejouant ce même journal, la première
+terre perdue par crimson est en **227** et sa première capitale tombe en **250**.
+Ces décisions répondent à des évènements qui, dans l'histoire recalculée,
+n'existent pas.
 
-## L'an 199 : la première frontière cède
+La cause : un monde se vit en plusieurs séances, et chaque reprise reconstruit
+l'état en rejouant le journal. Un défaut de rejeu — une décision différée
+appliquée à l'année où la question avait été posée et non répondue — a été
+corrigé **entre deux séances**. Les reprises d'avant le correctif repartaient
+donc d'un état qui n'était pas celui qui avait été vécu, et la suite s'est
+écrite dessus.
 
-`INVADED`. Puis, aux ans 205 et 206, deux fois `CAPITAL` — son siège tombe, se
-déplace, retombe. À l'an 224, une troisième fois.
+Le journal est un enregistrement de décisions prises dans une histoire, rejouées
+dans une autre. Aucune de ses dates n'est fiable.
 
-Entre 227 et 235, azure lui prend neuf lieux en neuf ans : Morwick,
-Brenfell-la-Plaine, Velost-les-Champs, Selmar, Velvale… Verdant prend le reste
-à partir de 242. L'empire qui avait dominé deux siècles est démembré en une
-décennie, par deux voisins qui, eux, avaient armé.
+## Ce que ça a produit de bon
 
-## L'an 229 et après : la famine permanente
+Un garde-fou qui manquait. Un journal porte désormais **l'empreinte du monde à
+l'année où il s'est arrêté** (`packages/world/src/fingerprint.ts`). À la
+reprise, l'état est recalculé et comparé ; s'ils diffèrent, le runner refuse de
+continuer au lieu d'écrire des décisions dans une histoire qui n'a pas eu lieu.
 
-À partir de là, la chronique de crimson ne dit plus qu'une chose. `FAMINE` en
-229, 231, 233, 234, 235, 236, 237, 239, 241, 244, 245, 246, 252, 253, 254, 256,
-257, 258, 260, 277, 278, 279, 280.
+C'est exactement le contrôle qui aurait signalé ce problème à la seconde où il
+est apparu, plutôt que trois cents ans plus tard par un lecteur attentif.
 
-**Crimson consomme à elle seule 40 des 93 décisions du monde** — 43 % — quand
-azure en demande 15. Le signal observé ailleurs se vérifie ici en grand : une
-civilisation qui va mal réveille sans cesse son dirigeant, et une civilisation
-bien gouvernée est celle qu'on n'a pas besoin de consulter.
+Le journal incohérent est conservé sous `worlds/monde-incoherent/` comme pièce
+à conviction. Une chronique honnête sera écrite à partir d'un monde vécu d'un
+bout à l'autre sous le même moteur.
 
-## La conversion trop tardive
+## La leçon, qui vaut plus que le récit
 
-Crimson ne passe en `PRESSURE` qu'à l'an 244 — **quinze ans après le début des
-famines, quarante-cinq ans après la première invasion.** Elle y revient ensuite
-sept fois, sans effet : le moteur exige des soldats nettement supérieurs à la
-défense adverse, et elle n'en a plus.
-
-Ses deux derniers credos disent exactement cela, et personne ne les lui a
-soufflés :
-
-> « La plaine est notre seul salut ; jusqu'à ce qu'elle soit nôtre, nous
-> mangeons ce que nous devons et ne nous battons que pour garder le peu qui
-> nous reste. » — an 279
-
-> « Le fleuve nous a donné la richesse, mais la plaine nous donnera la vie.
-> Nous prenons ce qu'il faut pour manger, et le tenons avec l'acier. » — an 280
-
-À l'an 290, il reste à crimson **un lieu et quarante-sept habitants**. Verdant
-en tient 58 sur 81.
-
-## Ce que cette histoire ne prouve pas
-
-Crimson était gouvernée par `mistral-large`. Il serait facile — et faux — d'en
-conclure que ce modèle joue trop prudemment.
-
-C'est **un monde, une graine, une trajectoire**. Le plateau distribue les
-départs inégalement, les catastrophes tombent où elles tombent, et le même
-modèle a fini premier dans la rotation w4 mesurée sur douze courses. Une
-histoire ne se lit pas comme une mesure ; elle donne à voir *comment* une
-civilisation meurt, pas *qui* décide le mieux.
-
-Ce qu'elle montre en revanche, et qu'aucun tableau ne montrait :
-
-- **La prudence paie tant que le monde est vide, et se paie quand il se
-  referme.** Le basculement est daté : l'an 148, quand le dernier lieu neutre
-  est pris.
-- **Les postures ont un coût d'inertie.** Passer en `PRESSURE` quand on n'a
-  plus de soldats ne sert à rien, et le moteur ne pardonne pas ce retard.
-- **Le credo hérité enregistre la trajectoire.** Celui de crimson passe de la
-  garde tranquille à « nous prenons ce qu'il faut pour manger » — sans qu'aucune
-  règle ne le demande. C'est la seule chose de ce projet qui évolue vraiment, et
-  elle a enregistré une chute.
-
-À lire dans le lecteur, onglet **Chronique**, en déroulant depuis l'an 140.
+Ce projet vérifie ses chiffres et refuse ses propres conclusions quand la mesure
+les contredit. Il ne vérifiait pas **la continuité de ses données entre deux
+séances** — et c'est précisément là que le défaut s'est logé. Une histoire est
+une affirmation comme une autre : elle a besoin de son contrôle.

@@ -21,6 +21,7 @@ import { DEFAULT_GENERALS, RemoteProvider, liveWorld } from "@abs/agents";
 import {
   JournalSchema,
   WORLD_VERSION,
+  fingerprint,
   isOver,
   living,
   newJournal,
@@ -91,6 +92,20 @@ if (era === 0) {
 
 const from = replay(journal.origin, journal.rulings, journal.livedTo).world;
 
+// A world is lived in several sittings, and each one rebuilds the state by
+// replaying the journal. If that replay ever disagrees with what was actually
+// lived, continuing would write decisions into a history that never happened.
+if (journal.fingerprint !== null && journal.fingerprint !== fingerprint(from)) {
+  console.error(
+    `Ce monde ne se rejoue plus comme il a ete vecu.\n` +
+      `  attendu ${journal.fingerprint}, recalcule ${fingerprint(from)} a l'an ${from.tick}\n` +
+      `Les regles ou le moteur ont change entre deux seances. Le journal reste lisible comme\n` +
+      `archive, mais le continuer ecrirait des decisions dans une histoire qui n'a pas eu lieu.\n` +
+      `Ouvrir un monde neuf avec --world <autre-nom>.`,
+  );
+  process.exit(1);
+}
+
 const apiKeys = {
   openrouter: process.env.OPENROUTER_API_KEY,
   groq: process.env.GROQ_API_KEY,
@@ -102,7 +117,11 @@ if (!SILENT && !canAsk) {
   console.error("Aucune cle de fournisseur. Le monde vivra sans dirigeants ; utilisez --silent pour l'assumer.");
 }
 
-const save = () => writeFileSync(pathFor(era), JSON.stringify(journal, null, 2));
+let lastWorld = from;
+const save = () => {
+  journal.fingerprint = fingerprint(lastWorld);
+  writeFileSync(pathFor(era), JSON.stringify(journal, null, 2));
+};
 
 const start = from.tick;
 const result = await liveWorld(from, {
@@ -110,7 +129,10 @@ const result = await liveWorld(from, {
   generals: DEFAULT_GENERALS,
   provider: canAsk ? new RemoteProvider({ apiKeys, freeModelsOnly: true }) : null,
   ticks: TICKS,
-  onRuling: save,
+  onRuling: (j, world) => {
+    lastWorld = world;
+    save();
+  },
   notify: (n) => {
     if (n.kind === "unruled") return;
     const where = `an ${String(n.tick).padStart(4)}`;
@@ -119,6 +141,7 @@ const result = await liveWorld(from, {
   },
 });
 
+lastWorld = result.world;
 save();
 
 console.log(`\nere ${era}, annees ${start} -> ${result.world.tick} (${result.lived} vecues)${result.closed ? " — close" : ""}`);

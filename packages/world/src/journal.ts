@@ -65,6 +65,14 @@ export const JournalSchema = z.object({
    * without a single ruler being woken, and those centuries are real.
    */
   livedTo: z.number().int().default(0),
+  /**
+   * The world's fingerprint at `livedTo`, written by whoever last lived it.
+   *
+   * A resume recomputes the state and compares. They must match, or the world
+   * is being continued from a history it did not have — see fingerprint.ts for
+   * the run that made this necessary.
+   */
+  fingerprint: z.string().nullable().default(null),
   rulings: z.array(RulingSchema),
 });
 export type Journal = z.infer<typeof JournalSchema>;
@@ -74,5 +82,6 @@ export const newJournal = (origin: World, era = 1): Journal => ({
   era,
   origin,
   livedTo: origin.tick,
+  fingerprint: null,
   rulings: [],
 });

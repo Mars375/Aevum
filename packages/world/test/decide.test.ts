@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   chronicle,
+  fingerprint,
   DRIFT_TICKS,
   MIN_GAP_TICKS,
   STANDING_GAP_TICKS,
@@ -377,3 +378,37 @@ describe("W4 tient aussi quand une decision a ete differee", () => {
     expect(years[years.length - 1]!.world).toEqual(replay(j.origin, j.rulings, j.livedTo).world);
   });
 });
+
+describe("un monde prouve qu'il se rejoue comme il a ete vecu", () => {
+  /**
+   * Le monde 'monde' a atteint l'an 290 en portant une decision sur une
+   * invasion en l'an 199, alors qu'un rejeu placait sa premiere terre perdue en
+   * 227 : un defaut de rejeu avait ete corrige entre deux seances, et chaque
+   * reprise repartait d'une histoire qui n'avait pas eu lieu. Rien ne s'en
+   * plaignait. Ceci s'en plaint.
+   */
+  const lived = (ticks: number) => {
+    let w = world({ civs: [newCiv("crimson"), newCiv("azure")] });
+    for (let i = 0; i < ticks; i += 1) w = tickWorld(w).world;
+    return w;
+  };
+
+  it("la meme histoire donne la meme empreinte", () => {
+    expect(fingerprint(lived(50))).toBe(fingerprint(lived(50)));
+  });
+
+  it("une annee de plus la change", () => {
+    expect(fingerprint(lived(50))).not.toBe(fingerprint(lived(51)));
+  });
+
+  it("un seul lieu qui change de main la change aussi", () => {
+    const w = lived(40);
+    const moved = { ...w, board: w.board.map((p, i) => (i === 0 ? { ...p, owner: "azure" as const } : p)) };
+    expect(fingerprint(moved)).not.toBe(fingerprint(w));
+  });
+
+  it("mais elle ne depend pas de l'ordre du tableau des civilisations", () => {
+    const w = lived(40);
+    expect(fingerprint({ ...w, civs: [...w.civs].reverse() })).toBe(fingerprint(w));
+  });
+})
