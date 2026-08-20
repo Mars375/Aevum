@@ -31,7 +31,8 @@
     "preflight": "tsx scripts/preflight.ts",
     "build-reports": "tsx scripts/build-reports.ts",
     "rank-eras": "tsx scripts/rank-eras.ts",
-    "board-fairness": "tsx scripts/board-fairness.ts"
+    "board-fairness": "tsx scripts/board-fairness.ts",
+    "narrate": "tsx scripts/narrate.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

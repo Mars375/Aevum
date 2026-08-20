@@ -41,6 +41,10 @@ write_status() {
 
 if npm run --silent live -- --ticks "$YEARS" --world "$WORLD" >>"$LOG" 2>&1; then
   npm run --silent index-worlds >>"$LOG" 2>&1
+  # La chronique est regeneree a chaque passe : elle suit le monde au lieu
+  # d'etre ecrite apres coup, ce qui est la seule facon qu'elle ne derive pas.
+  npm run --silent narrate -- "$WORLD" >>"$LOG" 2>&1
+  npm run --silent build-reports >>"$LOG" 2>&1
   # The container serves ./worlds read-only from the host, so a new journal is
   # visible without rebuilding anything. Only the catalogue needs regenerating.
   write_status true "$YEARS" null
@@ -50,7 +54,11 @@ else
   # showing a frozen world and say nothing. The status file is what lets the
   # chronicle admit it.
   write_status false 0 "\"la passe a echoue, voir $LOG\""
-  npm run --silent index-worlds >>"$LOG" 2>&1 || true
+  npm run --silent index-worlds >>"$LOG" 2>&1
+  # La chronique est regeneree a chaque passe : elle suit le monde au lieu
+  # d'etre ecrite apres coup, ce qui est la seule facon qu'elle ne derive pas.
+  npm run --silent narrate -- "$WORLD" >>"$LOG" 2>&1
+  npm run --silent build-reports >>"$LOG" 2>&1 || true
   echo "$(date -Is) ECHEC — voir ci-dessus" >>"$LOG"
   exit 1
 fi
