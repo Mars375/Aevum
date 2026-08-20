@@ -54,6 +54,34 @@ La richesse est inutilisable comme critère : son bruit relatif dépasse 0,85
 partout, et 1,35 sur les courses courtes. Les lieux tenus sont la mesure la plus
 stable, la population la suit de près.
 
+## La mise en route muette : une bonne idée, réfutée
+
+Le moteur est gratuit, donc faire vivre le monde en silence jusqu'à ce qu'il
+devienne intéressant — le plateau se remplit vers l'an 130 — devait rendre
+chaque appel plus utile. C'était l'idée. Elle est fausse.
+
+Douze mondes, soixante années gouvernées à chaque fois :
+
+| mise en route | décisions levées | ce qu'elles demandent |
+| ---: | ---: | --- |
+| aucune | 129 | **progrès 50 %**, famine 22 %, pillage 22 % |
+| 120 ans | 230 | famine 46 %, trésorerie 23 %, catastrophe 21 %, frontière 3 % |
+| 180 ans | 244 | **famine 70 %**, trésorerie 20 % |
+
+La fenêtre tardive coûte **deux fois plus cher** et pose surtout des questions
+**forcées** : une famine n'a qu'une réponse, et quatre modèles la donnent tous.
+La fenêtre précoce, elle, est dominée par les progrès techniques — « vous venez
+de débloquer quelque chose, qu'en faites-vous » — qui est une vraie question
+ouverte.
+
+Et elle ne produit toujours aucune conquête, pour une raison qu'il fallait
+voir : **une conquête demande qu'un dirigeant choisisse la pression**, et une
+mise en route muette ne décide rien par définition. On ne peut pas préparer un
+conflit sans joueurs.
+
+Le bouton `--warmup` reste, parce qu'il est mesuré et qu'il sert à observer un
+monde mûr. Il ne sert pas à mesurer des modèles, et son défaut est zéro.
+
 ## Le protocole qui en découle
 
 Des courses **courtes et nombreuses**, plutôt que longues et rares :

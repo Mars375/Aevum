@@ -54,6 +54,29 @@ const arg = (name: string, fallback: string) => {
  * better measurement, only a more expensive one. Short courses, many of them.
  */
 const TICKS = Number(arg("ticks", "60"));
+/**
+ * Années vécues en silence avant que les modèles ne prennent la main.
+ *
+ * L'idée semblait bonne : le moteur est gratuit, donc amener le monde jusqu'au
+ * moment intéressant — le plateau se remplit vers l'an 130 — devait rendre
+ * chaque appel plus utile. **Mesuré, c'est faux**, et le défaut par défaut est
+ * donc zéro.
+ *
+ * Sur douze mondes, soixante années gouvernées :
+ *
+ *   sans mise en route : 129 décisions, dont 50 % de progrès techniques
+ *   après 120 ans muets : 230 décisions, dont 46 % de famine et 3 % de frontière
+ *   après 180 ans muets : 244 décisions, dont 70 % de famine
+ *
+ * La fenêtre tardive coûte deux fois plus cher et pose surtout des questions
+ * forcées — une famine n'a qu'une réponse. Et elle ne produit toujours pas de
+ * conquêtes, parce qu'une conquête demande qu'un dirigeant choisisse la
+ * pression, ce qu'une mise en route muette ne peut pas faire par définition.
+ *
+ * Le bouton reste, parce qu'il est mesuré et qu'il peut servir à observer un
+ * monde mûr. Il ne sert pas à mesurer des modèles.
+ */
+const WARMUP = Number(arg("warmup", "0"));
 const ROTATIONS = Number(arg("rotations", String(DEFAULT_GENERALS.length)));
 /**
  * Seeds, not just rotations.
@@ -157,14 +180,15 @@ for (const run of runs) {
  * so a model's mean is only as sharp as the number of courses behind it. Saying
  * so up front turns "let's run a rotation" into a decision with a number on it.
  */
-const toLive = runs.reduce((n, run) => n + Math.max(0, TICKS - run.world.tick), 0);
+const toLive = runs.reduce((n, run) => n + Math.max(0, WARMUP + TICKS - Math.max(run.world.tick, WARMUP)), 0);
 // About one decision per civilisation per fifteen years, measured across worlds.
 const expected = Math.round((toLive / 15) * FACTIONS.length);
 const BOARD_SD = 5.6;
 const courses = runs.length;
 const stderr = BOARD_SD / Math.sqrt(courses);
 console.log(
-  `\n${courses} courses, ${toLive} annees a vivre, environ ${expected} appels (~${Math.round(expected / FACTIONS.length)} par modele).\n` +
+  `\n${courses} courses, ${WARMUP} ans de mise en route muette puis ${TICKS} ans gouvernes,\n` +
+    `${toLive} annees payantes, environ ${expected} appels (~${Math.round(expected / FACTIONS.length)} par modele).\n` +
     `Erreur type attendue : ${stderr.toFixed(1)} lieux, donc un ecart credible entre deux modeles\n` +
     `demande environ ${(stderr * 2).toFixed(1)} lieux. En dessous, la carte parle plus fort que le dirigeant.\n`,
 );
@@ -173,10 +197,10 @@ console.log(
 const STARVED_BELOW = 0.5;
 
 let pass = 0;
-while (runs.some((run) => run.world.tick < TICKS)) {
+while (runs.some((run) => run.world.tick < WARMUP + TICKS)) {
   pass += 1;
   for (const run of runs) {
-    const remaining = Math.min(SLICE, TICKS - run.world.tick);
+    const remaining = Math.min(SLICE, WARMUP + TICKS - run.world.tick);
     if (remaining <= 0) continue;
     console.log(`\n--- passe ${pass}, graine ${run.seed} rotation ${run.r} : annees ${run.world.tick} a ${run.world.tick + remaining}`);
     const result = await liveWorld(run.world, {
@@ -184,6 +208,7 @@ while (runs.some((run) => run.world.tick < TICKS)) {
       generals: run.generals,
       provider,
       ticks: remaining,
+      warmup: Math.max(0, WARMUP - run.world.tick),
       onRuling: () => writeFileSync(run.path, JSON.stringify(run.journal, null, 2)),
       notify: (n) => {
         if (n.kind === "ruled" || n.kind === "era-closed") {

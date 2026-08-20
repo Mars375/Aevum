@@ -45,6 +45,23 @@ export interface LiveOptions {
   provider: RulerProvider | null;
   ticks: number;
   /**
+   * Années vécues sans consulter personne avant que les dirigeants ne prennent
+   * la main.
+   *
+   * Deux mesures se contredisaient. Un horizon court est propre — le bruit du
+   * plateau vaut 0,17 à soixante ans contre 0,52 à trois cents — mais il coupe
+   * la moitié intéressante : le plateau ne se remplit qu'aux alentours de l'an
+   * 130, et les frontières fermées, les conquêtes et les sièges pris arrivent
+   * après. Sur une rotation de soixante ans, aucune décision de conquête n'a
+   * jamais été levée.
+   *
+   * La sortie est que le premier siècle ne coûte rien : le moteur est
+   * déterministe et gratuit. On le fait donc vivre en silence jusqu'au moment
+   * où le monde devient intéressant, et les modèles héritent d'une situation
+   * déjà nouée au lieu de gouverner un désert.
+   */
+  warmup?: number;
+  /**
    * Called after every ruling so a caller can persist without losing years to
    * a crash. The world is handed over too, so a caller can stamp what it saves
    * rather than guess at it.
@@ -90,7 +107,29 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
   let lived = 0;
   let closed = false;
 
+  const warmup = Math.max(0, opts.warmup ?? 0);
   for (let i = 0; i < ticks; i += 1) {
+    // Pendant la mise en route, le monde vit seul : les points de décision sont
+    // détectés et l'horloge de chacun remise à zéro, mais personne n'est appelé.
+    if (i < warmup) {
+      const stepped = tickWorld(world);
+      world = stepped.world;
+      lived += 1;
+      const raised = detectDecisions(world, stepped.events).map((p) => p.civ);
+      if (raised.length > 0) {
+        world = {
+          ...world,
+          civs: world.civs.map((c) => (raised.includes(c.id) ? { ...c, ticksSinceDecision: 0 } : c)),
+        };
+      }
+      if (isOver(world)) {
+        closed = true;
+        notify({ kind: "era-closed", tick: world.tick, text: "il ne reste qu'une civilisation" });
+        break;
+      }
+      continue;
+    }
+
     const stepped = tickWorld(world);
     world = stepped.world;
     lived += 1;

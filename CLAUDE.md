@@ -60,6 +60,12 @@ plus facilement :
 6. **Réduire `max_tokens` pour gagner du débit tronquerait les modèles qui
    raisonnent.** Mesuré : 170 jetons de réponse pour trois modèles, 950 pour
    `gpt-oss`.
+7. **Faire vivre le monde en silence avant de mesurer ne l'améliore pas.**
+   L'idée était que le moteur étant gratuit, amener le monde au moment
+   intéressant rendrait chaque appel plus utile. Mesuré : 230 décisions au lieu
+   de 129 pour la même fenêtre, dont 46 % de famine — deux fois plus cher, et
+   surtout des questions forcées. Aucune conquête non plus : elle demande qu'un
+   dirigeant choisisse la pression, et un monde muet ne décide rien.
 
 ## Avant de dépenser du quota
 
