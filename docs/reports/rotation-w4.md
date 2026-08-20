@@ -41,6 +41,63 @@ mieux » : *mistral, servi à 96 %, fait mieux que gemma servi à 70 %.* Sur un
 palier gratuit, être servable fait partie du résultat — mais ce n'est pas la
 même chose que bien décider.
 
+## La même donnée, lue en tenant compte de l'appariement
+
+Comparer des moyennes sur douze courses jette le fait le plus fort du montage :
+**dans une course, les quatre modèles partagent le même plateau, la même graine,
+les mêmes saisons et les mêmes catastrophes.** Les comparer là supprime la
+variance du monde au lieu d'essayer de la moyenner.
+
+Rangs moyens sur les lieux tenus (1 = meilleur) :
+
+| modèle | rang moyen |
+| --- | ---: |
+| `mistral-large` | 1,92 |
+| `gpt-oss-120b` | 2,38 |
+| `laguna-s-2.1` | 2,50 |
+| `gemma-4-26b` | 3,21 |
+
+Face à face, dans le même monde :
+
+| | victoires | |
+| --- | :---: | --- |
+| mistral-large | **9 – 3** | gemma-4 |
+| laguna-s | **8 – 2** | gemma-4 |
+| mistral-large | **8 – 3** | laguna-s |
+| gpt-oss | **7 – 2** | gemma-4 |
+| mistral-large | 7 – 4 | gpt-oss |
+| gpt-oss | 6 – 5 | laguna-s |
+
+Ce que ça ajoute : **gemma-4 perd contre les trois autres**, pas seulement
+contre mistral. Et mistral passe devant laguna. Aucune de ces avances n'atteint
+deux écarts-types — ce sont des tendances, pas des verdicts — mais quatre paires
+penchent dans le même sens et le rang moyen les confirme. C'est plus que ce que
+la comparaison des moyennes avait pu extraire de la même donnée, sans un appel
+de plus.
+
+## Et pourtant : « le mieux » n'a jamais été défini
+
+Le même appariement, sur d'autres mesures :
+
+| mesure | premier | dernier |
+| --- | --- | --- |
+| lieux tenus | mistral-large | gemma-4 |
+| population | mistral-large *(indistinct)* | gpt-oss |
+| progrès techniques | **gpt-oss** | gemma-4 |
+
+Sur la population, **toutes les paires sont indistinctes** et gemma remonte
+deuxième. Sur les progrès, l'ordre s'inverse en tête : gpt-oss passe premier.
+
+Ce n'est pas une contradiction, c'est un aveu : **ce projet n'a jamais dit ce
+que « gouverner le mieux » veut dire.** Tenir le plus de terre, nourrir le plus
+de gens et avancer le plus vite sont trois objectifs différents, et rien
+n'oblige un dirigeant à les servir ensemble — une civilisation qui conquiert
+nourrit moins bien, celle qui bâtit s'étend moins.
+
+Dépenser cinq cents appels pour départager trois modèles sur les lieux tenus
+reviendrait à trancher très précisément une question qu'on n'a pas choisie. Le
+travail qui vient avant n'est pas une mesure : c'est de décider ce qu'on mesure.
+
 ## Le bruit gouverné est plus fort que le bruit du plateau
 
 Mesuré d'avance sur 30 mondes muets à 60 ans : écart-type **1,4 lieu**.

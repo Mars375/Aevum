@@ -29,7 +29,8 @@
     "era-report": "tsx scripts/era-report.ts",
     "eras": "tsx scripts/eras.ts",
     "preflight": "tsx scripts/preflight.ts",
-    "build-reports": "tsx scripts/build-reports.ts"
+    "build-reports": "tsx scripts/build-reports.ts",
+    "rank-eras": "tsx scripts/rank-eras.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
