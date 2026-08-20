@@ -47,7 +47,7 @@ Two traps worth naming explicitly, because both have happened here:
 ## Les six invariants du monde continu (W1-W6)
 
 Le paquet `packages/world` porte ses propres invariants, décrits dans
-`docs/spec/world-w5.md`. Un changement dans `world/` doit être relu contre
+`docs/spec/world-w6.md`. Un changement dans `world/` doit être relu contre
 eux autant qu'un changement de moteur l'est contre I1-I21.
 
 - **W1** — un point de décision est fonction de l'état et des évènements du

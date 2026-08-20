@@ -358,3 +358,44 @@ describe("un champ nul veut dire absent, pas invalide", () => {
     expect(await askRuler(answering({ ...valid, farming: null }), general, newCiv("crimson"), point)).toBeNull();
   });
 });
+
+describe("un dirigeant voit ce que font ses voisins", () => {
+  /**
+   * 79 % des postures choisies etaient la garde. Le commerce n'enrichit que
+   * s'il est mutuel et la pression ne reussit qu'avec l'avantage militaire :
+   * deux choix qui dependent entierement du voisin, et qu'on demandait a
+   * l'aveugle. Se garder etait la seule reponse defendable.
+   */
+  const boardedWorld = async () => {
+    const { census, newWorld } = await import("@abs/world");
+    const base = newWorld(["crimson", "azure"], 42);
+    // Les deux se touchent, pour qu'il y ait une frontiere a decrire.
+    const board = base.board.map((p, i) => ({
+      ...p,
+      owner: i === 0 ? ("crimson" as const) : i === 1 ? ("azure" as const) : null,
+    }));
+    return census({
+      ...base,
+      board,
+      civs: base.civs.map((c) =>
+        c.id === "azure" ? { ...c, soldiers: 42, doctrine: { ...c.doctrine, posture: "PRESSURE" as const } } : c,
+      ),
+    });
+  };
+
+  it("il apprend la posture, les soldats et la taille de chaque voisin borde", async () => {
+    const world = await boardedWorld();
+    const civ = world.civs.find((c) => c.id === "crimson")!;
+    const prompt = userPromptWorld(civ, point, world);
+    expect(prompt).toContain("azure");
+    expect(prompt).toContain("PRESSURE");
+    expect(prompt).toContain("42 soldiers");
+  });
+
+  it("et celui qui ne borde personne l'apprend aussi", async () => {
+    const { census, newWorld } = await import("@abs/world");
+    const world = census(newWorld(["crimson", "azure"], 42));
+    const civ = world.civs.find((c) => c.id === "crimson")!;
+    expect(userPromptWorld(civ, point, world)).toContain("border no one yet");
+  });
+});

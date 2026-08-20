@@ -46,8 +46,8 @@ export function systemPromptWorld(): string {
     "",
     "Land in this world is finite. While some is unclaimed, you grow past your neighbours without ever meeting them; once it runs out, every acre you gain is one a neighbour loses.",
     "Choose how you carry yourself towards them:",
-    "- TRADE enriches you, but only if a neighbour is trading too. Goodwill declared at someone arming against you earns nothing.",
-    "- GUARD takes land from nobody and makes you expensive to attack.",
+    "- TRADE enriches you, but only if a neighbour is trading too. You are told what your neighbours have chosen — read it before you choose.",
+    "- GUARD takes land from nobody and makes you half again as costly to attack, but people on watch are people not working: it costs you 6% of everything you produce.",
     "- PRESSURE takes a neighbour's land by force, if your soldiers clearly outnumber their defence. It costs you soldiers even when it works.",
     "",
     "The world is not only unkind by season. Rivers flood, crowded cities take plague, and forests burn.",
@@ -87,9 +87,26 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint, world?: World): 
             const f = frontier(world, civ.id);
             const free = world.board.filter((p) => p.owner === null).length;
             const seat = civ.capital !== null ? world.board[civ.capital]?.name : null;
-            return `${seat ? `- your seat is ${seat}\n` : ""}- your frontier touches ${f.neutral} unclaimed place(s)${
-              f.neighbours.length ? ` and borders ${f.neighbours.join(", ")}` : " and no neighbour yet"
-            }. ${free} place(s) in the world are still unclaimed.`;
+            /**
+             * Un voisin est visible : on voit s'il arme ou s'il commerce.
+             *
+             * Mesuré avant : 79 % des dirigeants choisissaient la garde. Le
+             * commerce n'enrichit que s'il est mutuel et la pression ne réussit
+             * qu'avec l'avantage militaire — deux choix qui dépendent
+             * entièrement du voisin, et qu'on demandait à l'aveugle. Se garder
+             * était la seule réponse défendable faute d'information.
+             */
+            const seen = f.neighbours.map((id) => {
+              const other = world.civs.find((c) => c.id === id)!;
+              return `${id} (${other.doctrine.posture}, ${other.soldiers} soldiers, ${other.territory} places)`;
+            });
+            return (
+              `${seat ? `- your seat is ${seat}\n` : ""}- your frontier touches ${f.neutral} unclaimed place(s). ` +
+              `${free} place(s) in the world are still unclaimed.\n` +
+              (seen.length
+                ? `- you border ${seen.join("; ")}`
+                : "- you border no one yet: nobody can trade with you, and nobody can take from you")
+            );
           })(),
         ]
       : []),

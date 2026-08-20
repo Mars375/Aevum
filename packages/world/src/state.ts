@@ -26,6 +26,11 @@ import { FactionIdSchema } from "@abs/contracts";
  * unowned, and has neighbours, so land is taken from somewhere and from
  * someone.
  *
+ * w6 prices the safe choice. Guarding gave a defence bonus and cost nothing, so
+ * it was strictly better than the alternatives: 79% of every posture ever
+ * chosen was GUARD, and the diplomatic layer sat idle. People on watch are
+ * people not working — saying so turns a default into a decision.
+ *
  * w5 makes the water run. Rivers were scattered independently, so they read as
  * ponds and behaved as ponds — a rare tile you happened to own. A river that
  * flows crosses the board, splits it, and gives a frontier something to follow:
@@ -37,7 +42,7 @@ import { FactionIdSchema } from "@abs/contracts";
  * records, with the reports written from them; they are no longer replayable,
  * and the code says so instead of silently producing different numbers.
  */
-export const WORLD_VERSION = "w5";
+export const WORLD_VERSION = "w6";
 
 export const RESOURCES = ["food", "timber", "ore", "wealth"] as const;
 export const ResourceSchema = z.enum(RESOURCES);

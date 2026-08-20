@@ -92,11 +92,24 @@ function produce(civ: Civ, harvest: number): Stock {
    * world, it is a bookkeeping error.
    */
   const floor = civ.territory > 0 ? 0.15 : 0;
+
+  /**
+   * Monter la garde n'est pas gratuit.
+   *
+   * Mesuré sur quatre cents choix de posture : 79 % de garde, 12 % de commerce,
+   * 8 % de pression. Elle donnait la moitié de défense en plus et ne coûtait
+   * rien — strictement meilleure que les deux autres, donc le seul choix
+   * défendable, donc pas un choix. Des gens de guet sont des gens qui ne
+   * travaillent pas : c'est ce que dit ce facteur, et il transforme un défaut
+   * en décision.
+   */
+  const watch = civ.doctrine.posture === "GUARD" ? 0.94 : 1;
+
   const carried = (share: number, parcels: number, rate: number) => {
     const assigned = workers * share;
     const capacity = parcels * WORKERS_PER_LAND;
     const effective = Math.min(assigned, capacity) + Math.max(0, assigned - capacity) * floor;
-    return effective * rate;
+    return effective * rate * watch;
   };
 
   // A farmer feeds several people — that is the whole reason a civilisation can

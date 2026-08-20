@@ -480,3 +480,59 @@ describe("une civilisation eteinte laisse la place", () => {
     expect(w.board.some((p) => p.owner === "crimson")).toBe(false);
   });
 });
+
+describe("monter la garde n'est pas gratuit", () => {
+  // Assez de champs pour que la civilisation soit viable : sur un seul lieu
+  // elle perdrait des vivres quelle que soit sa posture, et la comparaison ne
+  // dirait rien du prix de la garde.
+  const posted = (posture: "GUARD" | "TRADE" | "PRESSURE") =>
+    holding(
+      {
+        civs: [
+          {
+            ...newCiv("crimson"),
+            population: 200,
+            doctrine: { ...newCiv("crimson").doctrine, posture, farming: 1, forestry: 0, mining: 0, trade: 0, military: 0 },
+          },
+        ],
+      },
+      { plain: 10 },
+    );
+
+  const harvest = (posture: "GUARD" | "TRADE" | "PRESSURE") => {
+    const before = posted(posture);
+    return tickWorld(before).world.civs[0]!.stock.food - before.civs[0]!.stock.food;
+  };
+
+  it("une civilisation qui garde recolte moins que celle qui commerce", () => {
+    // 79% des postures choisies etaient la garde : elle donnait la defense en
+    // plus et ne coutait rien, donc elle n'etait pas un choix.
+    expect(harvest("GUARD")).toBeLessThan(harvest("TRADE"));
+  });
+
+  it("mais une civilisation qui garde se nourrit quand meme", () => {
+    // Le prix porte sur la production ; compare en net il s'amplifie, puisque
+    // les bouches a nourrir ne diminuent pas. Ce qui compte est qu'il reste un
+    // handicap et non une condamnation.
+    expect(harvest("GUARD")).toBeGreaterThan(0);
+  });
+
+  it("et la garde continue de rendre cher a attaquer", () => {
+    // La contrepartie tient toujours : sans elle, le prix n'aurait pas de sens.
+    const base = newWorld(["crimson", "azure"], 42);
+    const face = (posture: "GUARD" | "TRADE") =>
+      census({
+        ...base,
+        board: base.board.map((p, i) => ({ ...p, owner: i === 0 ? ("crimson" as const) : i <= 2 ? ("azure" as const) : null })),
+        civs: base.civs.map((c) =>
+          c.id === "crimson"
+            ? { ...c, soldiers: 30, population: 300, stock: { food: 5000, timber: 0, ore: 0, wealth: 900 }, doctrine: { ...c.doctrine, posture: "PRESSURE" as const } }
+            : { ...c, soldiers: 20, population: 300, stock: { food: 5000, timber: 0, ore: 0, wealth: 900 }, doctrine: { ...c.doctrine, posture } },
+        ),
+      });
+    const contreGarde = tickWorld(face("GUARD")).events.some((e) => e.kind === "SEIZED");
+    const contreCommerce = tickWorld(face("TRADE")).events.some((e) => e.kind === "SEIZED");
+    expect(contreGarde).toBe(false);
+    expect(contreCommerce).toBe(true);
+  });
+});

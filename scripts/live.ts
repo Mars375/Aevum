@@ -47,6 +47,12 @@ const NAME = arg("world", "default");
 const TICKS = Number(arg("ticks", "100"));
 const SEED = Number(arg("seed", "42"));
 const SILENT = flag("silent");
+/**
+ * Années vécues sans consulter personne avant que les dirigeants ne prennent la
+ * main. Gratuites, et utiles pour observer un monde déjà noué — mais mesurées
+ * comme mauvaises pour comparer des modèles, voir docs/reports/board-noise.md.
+ */
+const WARMUP = Number(arg("warmup", "0"));
 
 const DIR = resolve("worlds", NAME);
 mkdirSync(DIR, { recursive: true });
@@ -129,6 +135,7 @@ const result = await liveWorld(from, {
   generals: DEFAULT_GENERALS,
   provider: canAsk ? new RemoteProvider({ apiKeys, freeModelsOnly: true }) : null,
   ticks: TICKS,
+  warmup: WARMUP,
   onRuling: (j, world) => {
     lastWorld = world;
     save();
