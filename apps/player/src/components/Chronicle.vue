@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { chronicle, JournalSchema, type Journal, type Year } from "@abs/world";
 import CivTrend from "./CivTrend.vue";
+import EmpireShare from "./EmpireShare.vue";
 import Intro from "./Intro.vue";
 import WorldStage from "./WorldStage.vue";
 
@@ -193,6 +194,10 @@ const round = (n: number) => Math.round(n);
         </button>
       </div>
     </header>
+
+    <section class="card">
+      <EmpireShare :years="years" :at="year.tick" @seek="(t) => (index = t)" />
+    </section>
 
     <section class="card">
       <CivTrend :years="years" :metric="metric" :at="year.tick" @seek="(t) => (index = t)" />

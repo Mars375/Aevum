@@ -61,7 +61,7 @@ const catalogue = ref<CatalogueEntry[]>([]);
  * chronicle only appears when a deployment actually serves a world.
  */
 type Mode = "battle" | "world" | "reports";
-const mode = ref<Mode>("battle");
+const mode = ref<Mode>("world");
 
 interface WorldEntry {
   path: string;
@@ -265,6 +265,7 @@ onMounted(async () => {
   const params = new URLSearchParams(location.search);
   if (params.get("mode") === "3d") view3d.value = true;
   if (params.get("mode") === "rapports" || params.get("rapport")) mode.value = "reports";
+  else if (params.get("replay") || params.get("turn")) mode.value = "battle";
   const view = params.get("view");
   if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
   const turn = Number(params.get("turn"));
@@ -309,7 +310,7 @@ onUnmounted(() => {
         <p class="recorded mono">
           {{
             mode === "battle"
-              ? "BATAILLE ENREGISTRÉE — lecture différée, pas un direct"
+              ? "ARCHIVES — les batailles tactiques, un chapitre antérieur, gelé"
               : mode === "world"
                 ? "MONDE CONTINU — recomposé année par année dans votre navigateur"
                 : "MESURES — ce que le projet a vérifié, y compris quand ça l'a contredit"
@@ -318,8 +319,8 @@ onUnmounted(() => {
       </div>
 
       <div v-if="worlds.length > 0" class="modeswitch" role="group" aria-label="Ce qu'on regarde">
-        <button type="button" class="mono" :aria-pressed="mode === 'battle'" @click="mode = 'battle'">Batailles</button>
         <button type="button" class="mono" :aria-pressed="mode === 'world'" @click="mode = 'world'">Chronique</button>
+        <button type="button" class="mono" :aria-pressed="mode === 'battle'" @click="mode = 'battle'">Archives</button>
         <button type="button" class="mono" :aria-pressed="mode === 'reports'" @click="mode = 'reports'">Rapports</button>
       </div>
       <label v-if="mode === 'world' && worlds.length > 1" class="picker-inline mono">
@@ -376,6 +377,13 @@ onUnmounted(() => {
     <p v-if="mode === 'battle' && !replay" class="card picker">
       <label for="file">Charger un fichier de replay</label>
       <input id="file" type="file" accept="application/json" @change="onFile" />
+    </p>
+
+    <p v-if="mode === 'battle'" class="card archive-note">
+      Les règles <strong>v1</strong> et <strong>v2</strong> sont gelées : quatre modèles commandaient
+      des escouades sur une grille, et c'est de là que ce projet est parti. Le monde continu leur a
+      succédé parce qu'il répond mieux à la même question, et pour bien moins d'appels — 98 % de
+      service contre moins de 50 %. Ces batailles restent jouables et lisibles telles quelles.
     </p>
 
     <main v-if="mode === 'battle' && replay && current" class="layout">
@@ -673,6 +681,19 @@ h1 {
 .viewswitch button,
 .modeswitch button {
   font-size: 12px;
+}
+
+.archive-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 74ch;
+  line-height: 1.6;
+}
+
+.archive-note strong {
+  color: var(--fg);
+  font-weight: 600;
 }
 
 .alliances {

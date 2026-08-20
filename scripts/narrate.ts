@@ -15,7 +15,7 @@
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { JournalSchema, chronicle, type Year } from "@abs/world";
+import { JournalSchema, chronicle, turningPoints, type Year } from "@abs/world";
 
 const name = process.argv[2] ?? "monde";
 const era = process.argv[3] ?? "0001";
@@ -49,55 +49,15 @@ say(
 );
 say();
 
-// --- les tournants, détectés et non choisis ---------------------------------
-interface Turn {
-  tick: number;
-  text: string;
-}
-const turns: Turn[] = [];
-
-let boardFull = 0;
-for (const y of years) {
-  if (!boardFull && y.world.board.every((p) => p.owner !== null)) {
-    boardFull = y.tick;
-    turns.push({ tick: y.tick, text: `Le dernier lieu libre est pris. À partir d'ici, s'étendre est prendre.` });
-  }
-  for (const e of y.events) {
-    if (e.kind === "SEIZED" && turns.every((t) => !t.text.startsWith("Première conquête"))) {
-      turns.push({ tick: y.tick, text: `Première conquête du monde : ${e.detail}, par ${e.civ}.` });
-    }
-    if (e.kind === "CAPITAL_LOST") turns.push({ tick: y.tick, text: `${e.civ} perd son siège — ${e.detail}` });
-    if (e.kind === "COLLAPSED") turns.push({ tick: y.tick, text: `**${e.civ} s'éteint.**` });
-  }
-}
-
-/**
- * Le meneur change de main — mais seulement quand ça veut dire quelque chose.
- *
- * La première version datait un tournant à l'an 3, quand chacun tenait un ou
- * deux lieux : un écart d'un lieu entre deux villages n'est pas une bascule,
- * c'est du bruit qu'on habille en récit. Il faut une avance nette et un monde
- * déjà formé.
- */
-const MARGIN = 3;
-let leader = "";
-for (const y of years) {
-  const [top, second] = [...y.world.civs].sort((a, b) => b.territory - a.territory || a.id.localeCompare(b.id));
-  if (!top || !second) continue;
-  if (top.territory - second.territory < MARGIN) continue;
-  if (top.id !== leader) {
-    if (leader) turns.push({ tick: y.tick, text: `${top.id} passe devant ${leader} et mène le monde.` });
-    leader = top.id;
-  }
-}
+// --- les tournants ---------------------------------------------------------
+// Definis une seule fois, dans @abs/world, et partages avec la frise du
+// lecteur : deux definitions de « tournant » finiraient par diverger.
+const turns = turningPoints(years);
 
 say(`## Les tournants`);
 say();
 if (turns.length === 0) say(`Rien n'est encore arrivé qui mérite d'être daté.`);
-else {
-  turns.sort((a, b) => a.tick - b.tick);
-  for (const t of turns) say(`- **an ${t.tick}** — ${t.text}`);
-}
+else for (const t of turns) say(`- **an ${t.tick}** — ${t.kind === "EXTINCTION" ? `**${t.text}**` : t.text}`);
 say();
 
 // --- chaque civilisation ----------------------------------------------------
