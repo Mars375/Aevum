@@ -1,40 +1,40 @@
 # Chronique du monde « demo », ère 1
 
-Statut : **généré**, jamais rédigé · 400 années · 0 décisions · règles w4
+Statut : **généré**, jamais rédigé · 400 années · 0 décisions · règles w5
 
 Chaque date et chaque nom de lieu de cette page est lu dans le journal rejoué. Rien n'y est interprété : c'est la raison d'être de ce fichier, une chronique écrite à la main ayant déjà raconté une invasion que le journal plaçait vingt-huit ans plus tard.
 
 ## Les tournants
 
-- **an 148** — Le dernier lieu libre est pris. À partir d'ici, s'étendre est prendre.
-- **an 217** — **verdant s'éteint.**
-- **an 221** — **azure s'éteint.**
+- **an 91** — verdant passe devant crimson et mène le monde.
+- **an 121** — amber passe devant verdant et mène le monde.
+- **an 129** — Le dernier lieu libre est pris. À partir d'ici, s'étendre est prendre.
 
 ## Chaque civilisation
 
 ### crimson
 
-Vivante à l'an 400 : 1129 habitants sur 48 lieux, 98 soldats, 5 progrès.
+Vivante à l'an 400 : 458 habitants sur 12 lieux, 32 soldats, 5 progrès.
 
-Son apogée fut l'an 292, à 48 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 78, à 12 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ### azure
 
-**Éteinte à l'an 221.**
+Vivante à l'an 400 : 579 habitants sur 11 lieux, 24 soldats, 4 progrès.
 
-Son apogée fut l'an 139, à 17 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 86, à 11 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ### verdant
 
-**Éteinte à l'an 217.**
+Vivante à l'an 400 : 670 habitants sur 27 lieux, 52 soldats, 5 progrès.
 
-Son apogée fut l'an 137, à 15 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 129, à 27 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ### amber
 
-Vivante à l'an 400 : 1337 habitants sur 33 lieux, 124 soldats, 5 progrès.
+Vivante à l'an 400 : 1103 habitants sur 31 lieux, 46 soldats, 4 progrès.
 
-Son apogée fut l'an 237, à 33 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 129, à 31 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ## Ce que cette page ne dit pas
 
