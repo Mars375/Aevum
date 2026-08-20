@@ -1,5 +1,5 @@
 import { LAND_KINDS, isAlive, neighbours, type Civ, type World } from "./state.js";
-import type { TickEvent } from "./tick.js";
+import type { TickEvent } from "./events.js";
 
 /**
  * When must a ruler be woken?

@@ -1,6 +1,7 @@
 import { applyRuling } from "./apply.js";
 import type { Journal, Ruling } from "./journal.js";
-import { tickWorld, type TickEvent } from "./tick.js";
+import { tickWorld } from "./tick.js";
+import type { TickEvent } from "./events.js";
 import type { World } from "./state.js";
 
 /**

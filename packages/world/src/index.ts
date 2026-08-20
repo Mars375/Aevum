@@ -1,4 +1,7 @@
 export * from "./state.js";
+export * from "./events.js";
+export * from "./chance.js";
+export * from "./borders.js";
 export * from "./tick.js";
 export * from "./decide.js";
 export * from "./journal.js";

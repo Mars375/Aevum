@@ -1,6 +1,7 @@
 import { census, type World } from "./state.js";
 import type { Ruling } from "./journal.js";
-import { tickWorld, type TickEvent } from "./tick.js";
+import { tickWorld } from "./tick.js";
+import type { TickEvent } from "./events.js";
 
 /** Apply a ruling. Unspecified doctrine fields keep their previous value. */
 export function applyRuling(world: World, ruling: Ruling): World {
