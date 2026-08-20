@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyRuling, census, disasterOn, foodRunway, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
+import { applyRuling, census, detectDecisions, disasterOn, foodRunway, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
 
 /** The board is built for exactly the civilisations a fixture asks for. */
 const world = (over: Partial<World> = {}): World => {
@@ -583,5 +583,81 @@ describe("on ne fait pas d'enfants sur un grenier a moitie vide", () => {
     }
     // Mesure avant le changement : 22 %. La famine doit redevenir un accident.
     expect(sousLeSeuil / observations).toBeLessThan(0.1);
+  });
+});
+
+describe("une attaque perdue d'avance a quand meme lieu", () => {
+  /**
+   * Le moteur refusait en silence quand l'agresseur n'avait pas l'avantage : un
+   * dirigeant qui declarait la pression avec dix soldats contre cinq mille ne
+   * faisait rien et n'apprenait rien. Ce n'etait pas une regle du monde, c'etait
+   * une tutelle. Le projet ne cherche pas a faire prosperer les civilisations,
+   * il cherche a voir jusqu'ou elles vont.
+   */
+  const assaut = (soldatsAttaquant: number, soldatsDefenseur: number) => {
+    const base = newWorld(["crimson", "azure"], 42);
+    return census({
+      ...base,
+      board: base.board.map((p, i) => ({
+        ...p,
+        owner: i === 0 ? ("crimson" as const) : i === 1 || i === 2 ? ("azure" as const) : null,
+      })),
+      civs: base.civs.map((c) =>
+        c.id === "crimson"
+          ? {
+              ...c,
+              soldiers: soldatsAttaquant,
+              population: 300,
+              // De quoi nourrir et payer les armees : une armee qui meurt de
+              // faim avant la bataille ne dit rien de la bataille.
+              stock: { food: 400_000, timber: 0, ore: 0, wealth: 400_000 },
+              doctrine: { ...c.doctrine, posture: "PRESSURE" as const },
+            }
+          : {
+              ...c,
+              soldiers: soldatsDefenseur,
+              population: 300,
+              stock: { food: 400_000, timber: 0, ore: 0, wealth: 400_000 },
+            },
+      ),
+    });
+  };
+
+  it("dix soldats contre cinq mille : l'armee marche, et se brise", () => {
+    const w = assaut(10, 5000);
+    const after = tickWorld(w);
+    expect(after.events.some((e) => e.kind === "ROUTED" && e.civ === "crimson")).toBe(true);
+    expect(after.world.civs.find((c) => c.id === "crimson")!.soldiers).toBeLessThan(10);
+    // Et le lieu ne change pas de main : le choix etait libre, pas gratuit.
+    expect(after.events.some((e) => e.kind === "SEIZED")).toBe(false);
+  });
+
+  it("le defenseur tient, mais ne sort pas indemne", () => {
+    const w = assaut(400, 500);
+    const before = w.civs.find((c) => c.id === "azure")!.soldiers;
+    const after = tickWorld(w);
+    if (!after.events.some((e) => e.kind === "HELD")) return;
+    expect(after.world.civs.find((c) => c.id === "azure")!.soldiers).toBeLessThan(before);
+  });
+
+  it("et le dirigeant apprend ce qui est arrive, sans qu'on lui dise qu'il a eu tort", () => {
+    const fresh = assaut(10, 5000);
+    // Une civilisation qui vient de naitre compte comme « deja consultee » : le
+    // delai anti-repetition la protege. Dans un vrai monde elle a des annees au
+    // compteur, et ce delai evite qu'un dirigeant qui s'entete soit reveille
+    // chaque annee.
+    const w = {
+      ...fresh,
+      civs: fresh.civs.map((c) => ({ ...c, ticksSinceDecision: 20 })),
+    };
+    const after = tickWorld(w);
+    const point = detectDecisions(after.world, after.events).find((p) => p.civ === "crimson");
+    expect(point?.kind).toBe("ROUTED");
+    expect(point!.evidence.join(" ")).toMatch(/assaut brise/);
+  });
+
+  it("avec l'avantage, la conquete reussit comme avant", () => {
+    const after = tickWorld(assaut(500, 20));
+    expect(after.events.some((e) => e.kind === "SEIZED" && e.civ === "crimson")).toBe(true);
   });
 });

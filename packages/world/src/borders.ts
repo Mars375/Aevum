@@ -109,7 +109,39 @@ export function contact(world: World, events: TickEvent[]): World {
     if (defender.territory <= 1) continue;
     // Guarding is worth something, or nobody would ever choose it over pressing.
     const defence = defender.soldiers * (defender.doctrine.posture === "GUARD" ? 1.5 : 1);
-    if (attacker.soldiers <= defence * 1.2) continue;
+
+    /**
+     * Une attaque perdue d'avance a quand même lieu.
+     *
+     * Le moteur refusait en silence quand l'agresseur n'avait pas l'avantage :
+     * un dirigeant qui déclarait la pression avec dix soldats contre cinq mille
+     * ne faisait rien, et n'apprenait rien. Ce n'était pas une règle du monde,
+     * c'était une tutelle — le moteur protégeait les civilisations de leurs
+     * propres décisions.
+     *
+     * Le projet ne cherche pas à les faire prospérer, il cherche à voir jusqu'où
+     * elles vont. Une armée trop faible marche donc quand même, et se fait
+     * détruire : le choix reste au dirigeant, et la note lui revient.
+     */
+    if (attacker.soldiers <= defence * 1.2) {
+      const lost = Math.min(attacker.soldiers, Math.max(1, Math.ceil(attacker.soldiers * 0.6)));
+      attacker.soldiers -= lost;
+      // Une défense ne sort jamais indemne, même victorieuse.
+      defender.soldiers = Math.max(0, defender.soldiers - Math.ceil(attacker.soldiers * 0.1));
+      events.push({
+        tick,
+        civ: attacker.id,
+        kind: "ROUTED",
+        detail: `assaut brise sur ${target.place.name}, tenue par ${defender.id} : ${lost} soldats perdus`,
+      });
+      events.push({
+        tick,
+        civ: defender.id,
+        kind: "HELD",
+        detail: `assaut de ${attacker.id} repousse devant ${target.place.name}`,
+      });
+      continue;
+    }
 
     // The place changes hands and both sides pay for it. A seizure that costs
     // the taker nothing would make PRESSURE the only rational posture.

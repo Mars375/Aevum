@@ -48,7 +48,7 @@ export function systemPromptWorld(): string {
     "Choose how you carry yourself towards them:",
     "- TRADE enriches you, but only if a neighbour is trading too. You are told what your neighbours have chosen — read it before you choose.",
     "- GUARD takes land from nobody and makes you half again as costly to attack, but people on watch are people not working: it costs you 6% of everything you produce.",
-    "- PRESSURE takes a neighbour's land by force, if your soldiers clearly outnumber their defence. It costs you soldiers even when it works.",
+    "- PRESSURE marches on a neighbour you border. If your soldiers clearly outnumber their defence you take a place; if they do not, your army is broken and most of it does not come back. Nothing stops you from trying either way.",
     "",
     "The world is not only unkind by season. Rivers flood, crowded cities take plague, and forests burn.",
     "Each disaster is invited by the ground that suffers it, so the land you covet carries a risk as well as a yield.",

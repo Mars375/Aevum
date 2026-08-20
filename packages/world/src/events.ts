@@ -26,6 +26,9 @@ export interface TickEvent {
     | "SEIZED"
     | "CEDED"
     | "TRADED"
+    /** Une attaque a eu lieu et a echoue. Le choix etait au dirigeant. */
+    | "ROUTED"
+    | "HELD"
     /** Bandits took what a civilisation failed to guard. */
     | "RAIDED"
     /** Bandits came and were driven off. */

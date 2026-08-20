@@ -1,4 +1,4 @@
-# Monde continu — w7
+# Monde continu — w8
 
 Les règles v1 et v2 décrivent une **partie** : elle commence, elle se résout,
 elle désigne un vainqueur. Celle-ci décrit un **lieu**. Rien ne s'y termine.

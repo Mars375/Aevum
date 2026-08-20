@@ -1,40 +1,42 @@
 # Chronique du monde « demo », ère 1
 
-Statut : **généré**, jamais rédigé · 400 années · 0 décisions · règles w5
+Statut : **généré**, jamais rédigé · 400 années · 0 décisions · règles w7
 
 Chaque date et chaque nom de lieu de cette page est lu dans le journal rejoué. Rien n'y est interprété : c'est la raison d'être de ce fichier, une chronique écrite à la main ayant déjà raconté une invasion que le journal plaçait vingt-huit ans plus tard.
 
 ## Les tournants
 
-- **an 91** — verdant passe devant crimson et mène le monde.
-- **an 121** — amber passe devant verdant et mène le monde.
-- **an 129** — Le dernier lieu libre est pris. À partir d'ici, s'étendre est prendre.
+- **an 178** — amber passe devant verdant et mène le monde.
+- **an 183** — Le dernier lieu libre est pris. À partir d'ici, s'étendre est prendre.
+- **an 309** — verdant passe devant amber et mène le monde.
+- **an 315** — **amber s'éteint.**
+- **an 371** — azure passe devant verdant et mène le monde.
 
 ## Chaque civilisation
 
 ### crimson
 
-Vivante à l'an 400 : 458 habitants sur 12 lieux, 32 soldats, 5 progrès.
+Vivante à l'an 400 : 298 habitants sur 8 lieux, 16 soldats, 5 progrès.
 
-Son apogée fut l'an 78, à 12 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 110, à 8 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ### azure
 
-Vivante à l'an 400 : 579 habitants sur 11 lieux, 24 soldats, 4 progrès.
+Vivante à l'an 400 : 1139 habitants sur 45 lieux, 52 soldats, 4 progrès.
 
-Son apogée fut l'an 86, à 11 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 397, à 45 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ### verdant
 
-Vivante à l'an 400 : 670 habitants sur 27 lieux, 52 soldats, 5 progrès.
+Vivante à l'an 400 : 583 habitants sur 28 lieux, 45 soldats, 5 progrès.
 
-Son apogée fut l'an 129, à 27 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 183, à 28 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ### amber
 
-Vivante à l'an 400 : 1103 habitants sur 31 lieux, 46 soldats, 4 progrès.
+**Éteinte à l'an 315.**
 
-Son apogée fut l'an 129, à 31 lieux. Elle a demandé 0 décision sur les 0 du monde.
+Son apogée fut l'an 183, à 32 lieux. Elle a demandé 0 décision sur les 0 du monde.
 
 ## Ce que cette page ne dit pas
 

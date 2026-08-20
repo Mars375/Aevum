@@ -37,6 +37,8 @@ export const DECISION_KINDS = [
   "INVADED",
   /** Bandits took what was not guarded. */
   "RAIDED",
+  /** Un assaut a echoue. Ce que le dirigeant en fait le regarde. */
+  "ROUTED",
   /** The doctrine asks for work the ground cannot carry. */
   "MISMATCH",
   /** Disaster struck. */
@@ -175,6 +177,12 @@ function pointsFor(civ: Civ, tick: number, events: TickEvent[]): DecisionPoint[]
     // Worth waking a ruler for even in a calm year: a promise nobody is told
     // about breaking is a promise that was never binding.
     raise("VOW_BROKEN", 60, [broken.detail, "vos successeurs heriteront de ce manquement"]);
+  }
+
+  const routed = mine.find((e) => e.kind === "ROUTED");
+  if (routed) {
+    // On ne dit pas au dirigeant qu'il a eu tort : on lui dit ce qui est arrive.
+    raise("ROUTED", 72, [routed.detail, `${civ.soldiers} soldats restants`, `posture ${civ.doctrine.posture}`]);
   }
 
   const raided = mine.find((e) => e.kind === "RAIDED");

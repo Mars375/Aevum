@@ -26,6 +26,11 @@ import { FactionIdSchema } from "@abs/contracts";
  * unowned, and has neighbours, so land is taken from somewhere and from
  * someone.
  *
+ * w8 stops protecting civilisations from their own decisions. An attack that
+ * could not win was silently refused: a ruler who declared pressure with ten
+ * soldiers against five thousand did nothing, and learned nothing. That was not
+ * a rule of the world, it was a guardian. The army marches now, and breaks.
+ *
  * w7 leaves a granary. Populations grew until the land could feed no more and
  * then sat at the alarm: a fifth of all lived years were below the famine line,
  * and famine was not an event but the resting state of the world. Growth now
@@ -47,7 +52,7 @@ import { FactionIdSchema } from "@abs/contracts";
  * records, with the reports written from them; they are no longer replayable,
  * and the code says so instead of silently producing different numbers.
  */
-export const WORLD_VERSION = "w7";
+export const WORLD_VERSION = "w8";
 
 export const RESOURCES = ["food", "timber", "ore", "wealth"] as const;
 export const ResourceSchema = z.enum(RESOURCES);
