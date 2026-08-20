@@ -320,11 +320,60 @@ describe("la chronique recompose le monde annee par annee", () => {
     expect(years[years.length - 1]!.world).toEqual(replay(j.origin, j.rulings, j.livedTo).world);
   });
 
-  it("chaque decision est rangee dans l'annee ou elle a ete prise", () => {
-    const year = chronicle(journal()).find((y) => y.tick === 12)!;
+  it("chaque decision est rangee dans l'annee ou elle a MORDU", () => {
+    // Celle-ci a ete posee en l'an 12 et repondue trois ans plus tard : elle
+    // apparait donc en l'an 15, avec l'etat du monde qu'elle a produit. Le
+    // retard voyage avec elle, pour que le lecteur puisse dire les deux.
+    const years = chronicle(journal());
+    expect(years.find((y) => y.tick === 12)!.rulings).toHaveLength(0);
+
+    const year = years.find((y) => y.tick === 15)!;
     expect(year.rulings).toHaveLength(1);
     expect(year.rulings[0]!.reason).toBe("les greniers etaient vides");
-    // Et elle a deja mordu sur le monde de cette annee-la.
+    expect(year.rulings[0]!.deferredBy).toBe(3);
     expect(year.world.civs.find((c) => c.id === "crimson")!.doctrine.creed).toBe("nourrir avant tout");
+  });
+});
+
+describe("W4 tient aussi quand une decision a ete differee", () => {
+  /**
+   * Le monde 'monde' se declarait amber eteinte en l'an 194 alors qu'un rejeu
+   * de son propre journal la montrait vivante en 290 : quatre decisions
+   * avaient attendu un modele, et le rejeu les appliquait a l'annee ou elles
+   * avaient ete POSEES et non a celle ou elles avaient ete REPONDUES.
+   */
+  const origin = () => world({ civs: [newCiv("crimson"), newCiv("azure")] });
+
+  const deferred = (by: number) => [
+    {
+      tick: 10,
+      civ: "crimson" as const,
+      kind: "FAMINE" as const,
+      doctrine: { farming: 0.95, forestry: 0.05, mining: 0, trade: 0, military: 0 },
+      reason: "tout au ble",
+      model: null,
+      deferredBy: by,
+    },
+  ];
+
+  it("une decision differee mord l'annee ou elle a ete repondue", () => {
+    const start = origin();
+    const late = replay(start, deferred(6), 40).world;
+    const onTime = replay(start, deferred(0), 40).world;
+    // Six annees de doctrine differente ne peuvent pas donner le meme monde.
+    expect(JSON.stringify(late.civs)).not.toBe(JSON.stringify(onTime.civs));
+  });
+
+  it("et rejouer deux fois donne toujours le meme monde", () => {
+    const start = origin();
+    expect(replay(start, deferred(6), 40).world).toEqual(replay(start, deferred(6), 40).world);
+  });
+
+  it("la chronique et le rejeu s'accordent, decision differee comprise", () => {
+    const j = newJournal(origin());
+    j.livedTo = 40;
+    j.rulings.push(...deferred(6));
+    const years = chronicle(j);
+    expect(years[years.length - 1]!.world).toEqual(replay(j.origin, j.rulings, j.livedTo).world);
   });
 });

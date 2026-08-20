@@ -21,8 +21,13 @@ export interface Year {
 }
 
 export function chronicle(journal: Journal): Year[] {
+  // Same rule as replay(): a ruling bites the year it was answered. See the
+  // note in apply.ts for the world that contradicted its own journal.
   const byTick = new Map<number, Ruling[]>();
-  for (const r of journal.rulings) byTick.set(r.tick, [...(byTick.get(r.tick) ?? []), r]);
+  for (const r of journal.rulings) {
+    const effective = r.tick + r.deferredBy;
+    byTick.set(effective, [...(byTick.get(effective) ?? []), r]);
+  }
 
   const years: Year[] = [{ tick: journal.origin.tick, world: journal.origin, events: [], rulings: [] }];
   let world = journal.origin;

@@ -39,8 +39,25 @@ export function replay(
   const events: TickEvent[] = [];
   // Rulings are keyed by the tick they were made on, so they can be looked up
   // rather than scanned once per tick.
+  /**
+   * A ruling takes effect when it was ANSWERED, not when it was asked.
+   *
+   * `tick` records the year the question was raised — which is what a chronicle
+   * wants to show — and `deferredBy` how many years it waited for a model. The
+   * engine needs the other end: applying a deferred ruling at the year it was
+   * asked would put a decision into force before the ruler had made it.
+   *
+   * Found by a world contradicting its own journal: `monde` reported amber
+   * extinct in year 194 while replaying the same journal showed it alive at
+   * 290. Four rulings had been deferred, and every year after the first one
+   * diverged. That is invariant W4 — replaying the journal reproduces the
+   * state — failing silently, which is the worst way for it to fail.
+   */
   const byTick = new Map<number, Ruling[]>();
-  for (const r of rulings) byTick.set(r.tick, [...(byTick.get(r.tick) ?? []), r]);
+  for (const r of rulings) {
+    const effective = r.tick + r.deferredBy;
+    byTick.set(effective, [...(byTick.get(effective) ?? []), r]);
+  }
 
   while (world.tick < untilTick) {
     const stepped = tickWorld(world);
