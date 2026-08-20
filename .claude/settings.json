@@ -8,7 +8,18 @@
             "type": "command",
             "command": "node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{let p=\"\";try{p=(JSON.parse(s).tool_input||{}).file_path||\"\"}catch{};if(/(^|\\/)\\.env$/.test(p))process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"Refuse: .env porte les quatre cles API du projet (OpenRouter, Groq, NVIDIA, Mistral). Une fuite y serait irreversible. Modifier .env.example a la place.\"}}))})'",
             "timeout": 15,
-            "statusMessage": "V\u00e9rification des secrets\u2026"
+            "statusMessage": "Vérification des secrets…"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const c=((()=>{try{return JSON.parse(s)}catch{return{}}})().tool_input||{}).command||\"\";if(!/npm run (eras|tournament)\\b/.test(c))process.exit(0);const fs=require(\"fs\");let ok=false;try{const st=fs.statSync(process.env.HOME+\"/.local/state/ai-battle-simulator/preflight.stamp\");ok=Date.now()-st.mtimeMs<6*3600e3}catch{};if(ok)process.exit(0);process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"ask\",permissionDecisionReason:\"Cette commande depense environ 200 appels. Aucun preflight reussi depuis moins de six heures — et les trois mesures ratees de ce projet ont toutes commence ainsi : depenser avant de verifier que les modeles repondent POUR EUX-MEMES. Lancer d abord: npm run preflight\"}}))})'",
+            "timeout": 15,
+            "statusMessage": "Preflight avant depense…"
           }
         ]
       }
@@ -19,9 +30,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const j=(()=>{try{return JSON.parse(s)}catch{return{}}})();const p=(j.tool_input||{}).file_path||(j.tool_response||{}).filePath||\"\";process.exit(/packages\\/(engine|contracts)\\//.test(p)?0:1)})' || exit 0; cd /home/orion/git/ai-battle-simulator || exit 0; LOG=$(mktemp); FAIL=0; npx tsc --noEmit >\"$LOG\" 2>&1 || FAIL=1; npx vitest run >>\"$LOG\" 2>&1 || FAIL=1; if [ \"$FAIL\" = 1 ]; then node -e 'const fs=require(\"fs\");const out=fs.readFileSync(process.argv[1],\"utf8\").split(\"\\n\").filter(l=>/error|FAIL|\u00d7|AssertionError|Tests /.test(l)).slice(0,25).join(\"\\n\");process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:\"Le moteur ou les contrats viennent de changer et la verification a ECHOUE. Les 21 invariants I1-I21 portent l auditabilite des replays, I20 garantissant qu un replay v1 se rejoue a l identique. Corriger avant d aller plus loin.\\n\\n\"+out}}))' \"$LOG\"; fi; rm -f \"$LOG\"; exit 0",
+            "command": "node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const j=(()=>{try{return JSON.parse(s)}catch{return{}}})();const p=(j.tool_input||{}).file_path||(j.tool_response||{}).filePath||\"\";process.exit(/packages\\/(engine|contracts|world)\\//.test(p)?0:1)})' || exit 0; cd /home/orion/git/ai-battle-simulator || exit 0; LOG=$(mktemp); FAIL=0; npx tsc --noEmit >\"$LOG\" 2>&1 || FAIL=1; npx vitest run >>\"$LOG\" 2>&1 || FAIL=1; if [ \"$FAIL\" = 1 ]; then node -e 'const fs=require(\"fs\");const out=fs.readFileSync(process.argv[1],\"utf8\").split(\"\\n\").filter(l=>/error|FAIL|×|AssertionError|Tests /.test(l)).slice(0,25).join(\"\\n\");process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:\"Le moteur, les contrats ou le monde viennent de changer et la verification a ECHOUE. Les 21 invariants I1-I21 portent l auditabilite des replays de bataille, I20 garantissant qu un replay v1 se rejoue a l identique ; les six W1-W6 portent celle du monde continu, W4 exigeant qu un rejeu du journal reproduise l etat. Corriger avant d aller plus loin.\\n\\n\"+out}}))' \"$LOG\"; fi; rm -f \"$LOG\"; exit 0",
             "timeout": 180,
-            "statusMessage": "V\u00e9rification des invariants du moteur\u2026"
+            "statusMessage": "Vérification des invariants du moteur…"
           }
         ]
       }

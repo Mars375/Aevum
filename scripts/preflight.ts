@@ -11,6 +11,7 @@
  *
  *   npm run preflight
  */
+import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { DEFAULT_GENERALS, RemoteProvider, askRuler } from "@abs/agents";
 import { newCiv, type DecisionPoint } from "@abs/world";
@@ -66,4 +67,15 @@ if (ready < DEFAULT_GENERALS.length) {
   console.log("Lancer une rotation maintenant produirait le resultat d'une chaine de repli, pas celui d'un modele.\n");
   process.exit(1);
 }
+/**
+ * A stamp, so a guard can tell whether this ran recently.
+ *
+ * Only written on a full pass: the point of the check is that every model
+ * answers for itself, and a partial pass is exactly the state that has cost
+ * this project three measurements.
+ */
+const dir = `${process.env.HOME}/.local/state/ai-battle-simulator`;
+mkdirSync(dir, { recursive: true });
+writeFileSync(`${dir}/preflight.stamp`, new Date().toISOString());
+
 console.log("La rotation peut partir.\n");
