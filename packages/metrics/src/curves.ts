@@ -125,16 +125,23 @@ function errorCorrectionEntries(observations: readonly LearningObservation[]): A
 }> {
   const ordered = [...observations].sort((a, b) => a.effectiveTick - b.effectiveTick || a.civId.localeCompare(b.civId));
   const scored: Array<{ observation: LearningObservation; eligible: boolean; pass: boolean }> = [];
-  const failures = new Map<string, Set<string>>();
+  const failures = new Map<string, Map<string, Set<string>>>();
   for (const observation of ordered) {
     if (!observation.eligibleForNumerator || observation.modelId === null) continue;
     const key = `${observation.runId}\u0000${observation.modelId}\u0000${observation.civId}`;
-    const seen = failures.get(key) ?? new Set<string>();
-    const kinds = negativeKinds(observation);
-    if (kinds.some((kind) => seen.has(kind))) {
+    const seen = failures.get(key) ?? new Map<string, Set<string>>();
+    const events = observation.triggerEvents.filter((event) => NEGATIVE_EVENTS.has(event.kind));
+    if (events.some((event) => {
+      const occurrences = seen.get(event.kind);
+      return occurrences !== undefined && occurrences.size > 0 && !occurrences.has(event.id);
+    })) {
       scored.push({ observation, eligible: true, pass: changedRelevant(observation) });
     }
-    for (const kind of kinds) seen.add(kind);
+    for (const event of events) {
+      const occurrences = seen.get(event.kind) ?? new Set<string>();
+      occurrences.add(event.id);
+      seen.set(event.kind, occurrences);
+    }
     failures.set(key, seen);
   }
   return scored;
@@ -156,7 +163,7 @@ function doctrineClaims(observation: LearningObservation): boolean[] {
     ["trade", /\b(trade|trading|commerce|wealth|tresor)/],
     ["military", /\b(militar|soldier|army|soldat|armee)/],
   ];
-  const clauses = reason.split(/\b(?:and|but|while|et|mais|tandis que)\b|[,;.]/);
+  const clauses = reason.split(/\b(?:and|et)\b\s*(?=\b(?:more\b|increase\b|raise\b|plus\b|davantage\b|renfor|less\b|reduce\b|lower\b|moins\b|redu|diminu))|\b(?:but|while|mais|tandis que)\b|[,;.]/);
   for (const clause of clauses) {
     for (const [key, pattern] of work) {
       if (!pattern.test(clause)) continue;

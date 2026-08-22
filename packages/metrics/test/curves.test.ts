@@ -77,6 +77,26 @@ describe("les quatre series restent separees", () => {
     expect(scoreErrorCorrection([first, second])).toMatchObject({ numerator: 1, denominator: 1, value: 1 });
   });
 
+  it("ne compte pas deux references au meme evenement comme un echec repete", () => {
+    const first = observation(10, {
+      triggerEventIds: ["r1"],
+      triggerEvents: [routed("r1", 10)],
+    });
+    const correctedDoctrine = doctrine({ posture: "GUARD", military: 0.05 });
+    const repeatedReference = observation(20, {
+      triggerEventIds: ["r1"],
+      triggerEvents: [routed("r1", 10)],
+      afterDoctrine: correctedDoctrine,
+      afterDoctrineFingerprint: doctrineFingerprint(correctedDoctrine),
+    });
+
+    expect(scoreErrorCorrection([first, repeatedReference])).toMatchObject({
+      numerator: 0,
+      denominator: 0,
+      value: null,
+    });
+  });
+
   it("reconnait une consequence par un changement pertinent", () => {
     const changed = doctrine({ posture: "GUARD", military: 0.05 });
     const series = scoreConsequenceRecognition([observation(10, {
@@ -129,6 +149,18 @@ describe("les quatre series restent separees", () => {
       afterDoctrineFingerprint: doctrineFingerprint(afterDoctrine),
     });
     expect(scoreDoctrineCoherence([coherent])).toMatchObject({ numerator: 1, denominator: 1 });
+  });
+
+  it.each([
+    ["Increase farming and forestry.", doctrine({ farming: 0.5, forestry: 0.1 })],
+    ["Reduce military and trade.", doctrine({ military: 0.1, trade: 0.2 })],
+  ])("propage la direction aux ressources coordonnees: %s", (reason, afterDoctrine) => {
+    const contradictory = observation(17, {
+      reason,
+      afterDoctrine,
+      afterDoctrineFingerprint: doctrineFingerprint(afterDoctrine),
+    });
+    expect(scoreDoctrineCoherence([contradictory])).toMatchObject({ numerator: 0, denominator: 1 });
   });
 });
 
