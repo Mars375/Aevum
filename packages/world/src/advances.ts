@@ -4,9 +4,10 @@ export interface Advance {
   name: string;
   /** Objective acquisition condition, kept beside the executable predicate. */
   threshold: string;
-  /** w8 records progress but deliberately grants no resolution modifier. */
-  engineEffect: "milestone-only";
-  tradeoff: "none";
+  /** Resolution change, if any, interpreted by tickWorld(). */
+  engineEffect: "milestone-only" | "farming-yield+10-percent";
+  /** Cost paid for the effect, interpreted by tickWorld(). */
+  tradeoff: "none" | "mining-yield-10-percent";
   worldVersion: `w${number}`;
   when: (civ: Civ) => boolean;
 }
@@ -29,4 +30,12 @@ export const ADVANCES: Advance[] = [
   { name: "metallurgy", threshold: "ore >= 300", engineEffect: "milestone-only", tradeoff: "none", worldVersion: "w8", when: (c) => c.stock.ore >= 300 },
   { name: "coinage", threshold: "wealth >= 500", engineEffect: "milestone-only", tradeoff: "none", worldVersion: "w8", when: (c) => c.stock.wealth >= 500 },
   { name: "engineering", threshold: "masonry and metallurgy", engineEffect: "milestone-only", tradeoff: "none", worldVersion: "w8", when: (c) => c.advances.includes("masonry") && c.advances.includes("metallurgy") },
+  {
+    name: "steel-ploughs",
+    threshold: "metallurgy and ore >= 300",
+    engineEffect: "farming-yield+10-percent",
+    tradeoff: "mining-yield-10-percent",
+    worldVersion: "w9",
+    when: (c) => c.advances.includes("metallurgy") && c.stock.ore >= 300,
+  },
 ];

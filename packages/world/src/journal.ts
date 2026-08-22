@@ -65,7 +65,9 @@ export const JournalSchema = z.object({
    */
   era: z.number().int().default(1),
   /** The world at tick 0. Everything after is derived. */
-  origin: WorldSchema,
+  origin: WorldSchema.refine((world) => world.worldVersion === WORLD_VERSION, {
+    message: `journal origin must use ${WORLD_VERSION}`,
+  }),
   /**
    * How far this world has lived.
    *

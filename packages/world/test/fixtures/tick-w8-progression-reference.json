@@ -1,0 +1,103 @@
+{
+  "capturedFrom": "902da60",
+  "input": {
+    "worldVersion": "w8",
+    "tick": 0,
+    "seed": 17,
+    "land": 9,
+    "size": 3,
+    "board": [
+      { "kind": "hill", "owner": null, "name": "Selost-le-Haut" },
+      { "kind": "river", "owner": null, "name": "Rhomar" },
+      { "kind": "plain", "owner": null, "name": "Ithireth-la-Plaine" },
+      { "kind": "plain", "owner": "crimson", "name": "Selgan-la-Plaine" },
+      { "kind": "river", "owner": null, "name": "Velmar" },
+      { "kind": "forest", "owner": null, "name": "Morpor-la-Forêt" },
+      { "kind": "plain", "owner": null, "name": "Ithireth-les-Champs" },
+      { "kind": "river", "owner": null, "name": "Vasvale-les-Rives" },
+      { "kind": "forest", "owner": null, "name": "Ithidun-la-Forêt" }
+    ],
+    "free": { "plain": 2, "forest": 2, "hill": 1, "river": 3 },
+    "civs": [
+      {
+        "id": "crimson",
+        "identity": { "displayName": "Crimson", "values": [], "origin": "" },
+        "population": 100,
+        "lands": { "plain": 1, "forest": 0, "hill": 0, "river": 0 },
+        "territory": 1,
+        "stock": { "food": 700, "timber": 100, "ore": 310, "wealth": 100 },
+        "doctrine": {
+          "farming": 1,
+          "forestry": 0,
+          "mining": 0,
+          "trade": 0,
+          "military": 0,
+          "posture": "TRADE",
+          "creed": "",
+          "claim": "plain",
+          "vow": null
+        },
+        "soldiers": 0,
+        "advances": ["metallurgy"],
+        "capital": 3,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null
+      }
+    ]
+  },
+  "expected": {
+    "world": {
+      "worldVersion": "w8",
+      "tick": 1,
+      "seed": 17,
+      "land": 9,
+      "size": 3,
+      "board": [
+        { "kind": "hill", "owner": null, "name": "Selost-le-Haut" },
+        { "kind": "river", "owner": null, "name": "Rhomar" },
+        { "kind": "plain", "owner": null, "name": "Ithireth-la-Plaine" },
+        { "kind": "plain", "owner": "crimson", "name": "Selgan-la-Plaine" },
+        { "kind": "river", "owner": null, "name": "Velmar" },
+        { "kind": "forest", "owner": null, "name": "Morpor-la-Forêt" },
+        { "kind": "plain", "owner": "crimson", "name": "Ithireth-les-Champs" },
+        { "kind": "river", "owner": null, "name": "Vasvale-les-Rives" },
+        { "kind": "forest", "owner": null, "name": "Ithidun-la-Forêt" }
+      ],
+      "free": { "plain": 1, "forest": 2, "hill": 1, "river": 3 },
+      "civs": [
+        {
+          "id": "crimson",
+          "identity": { "displayName": "Crimson", "values": [], "origin": "" },
+          "population": 102,
+          "lands": { "plain": 2, "forest": 0, "hill": 0, "river": 0 },
+          "territory": 2,
+          "stock": { "food": 682.91, "timber": 40, "ore": 310, "wealth": 100 },
+          "doctrine": {
+            "farming": 1,
+            "forestry": 0,
+            "mining": 0,
+            "trade": 0,
+            "military": 0,
+            "posture": "TRADE",
+            "creed": "",
+            "claim": "plain",
+            "vow": null
+          },
+          "soldiers": 0,
+          "advances": ["metallurgy", "irrigation"],
+          "capital": 3,
+          "ticksSinceDecision": 1,
+          "vowBrokenOn": null,
+          "fellOnTick": null
+        }
+      ]
+    },
+    "events": [
+      { "tick": 1, "civ": "crimson", "kind": "HARD_YEAR", "detail": "mauvaise recolte (0.69x)" },
+      { "tick": 1, "civ": "crimson", "kind": "GREW", "detail": "abondance, population 102" },
+      { "tick": 1, "civ": "crimson", "kind": "ADVANCE", "detail": "progres : irrigation" },
+      { "tick": 1, "civ": "crimson", "kind": "EXPANDED", "detail": "Ithireth-les-Champs occupee, plaine" }
+    ]
+  }
+}

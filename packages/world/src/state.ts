@@ -26,6 +26,9 @@ import { FactionIdSchema, IdentitySchema, type FactionId, type Identity } from "
  * unowned, and has neighbours, so land is taken from somewhere and from
  * someone.
  *
+ * w9 adds the first progression rule with a resolution effect: steel ploughs
+ * improve farming while diverting metalworking capacity away from mining.
+ *
  * w8 stops protecting civilisations from their own decisions. An attack that
  * could not win was silently refused: a ruler who declared pressure with ten
  * soldiers against five thousand did nothing, and learned nothing. That was not
@@ -53,6 +56,9 @@ import { FactionIdSchema, IdentitySchema, type FactionId, type Identity } from "
  * and the code says so instead of silently producing different numbers.
  */
 export const WORLD_VERSION = "w8";
+export const WORLD_VERSIONS = ["w8", "w9"] as const;
+export const WorldVersionSchema = z.enum(WORLD_VERSIONS);
+export type WorldVersion = z.infer<typeof WorldVersionSchema>;
 
 export const RESOURCES = ["food", "timber", "ore", "wealth"] as const;
 export const ResourceSchema = z.enum(RESOURCES);
@@ -249,7 +255,7 @@ export const CivSchema = CivFieldsSchema.transform((civ) => ({
 export type Civ = z.infer<typeof CivSchema>;
 
 export const WorldSchema = z.object({
-  worldVersion: z.literal(WORLD_VERSION),
+  worldVersion: WorldVersionSchema,
   tick: z.number().int(),
   seed: z.number().int(),
   /**

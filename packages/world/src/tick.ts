@@ -129,6 +129,11 @@ function tickCiv(
   const say = (kind: TickEvent["kind"], detail: string) => events.push({ tick, civ: civ.id, kind, detail });
 
   const gained = produce(civ, harvest);
+  for (const advance of ADVANCES) {
+    if (!advanceAvailableIn(advance, worldVersion) || !civ.advances.includes(advance.name)) continue;
+    if (advance.engineEffect === "farming-yield+10-percent") gained.food *= 1.1;
+    if (advance.tradeoff === "mining-yield-10-percent") gained.ore *= 0.9;
+  }
   if (harvest < 0.75) say("HARD_YEAR", `mauvaise recolte (${harvest.toFixed(2)}x)`);
   const s = shares(civ.doctrine);
 

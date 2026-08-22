@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ADVANCES, advanceAvailableIn, applyRuling, census, detectDecisions, disasterOn, foodRunway, newCiv, newWorld, season, shares, tickWorld, vowHeld, type Advance, type World } from "../src/index.js";
+import progressionReference from "./fixtures/tick-w8-progression-reference.json";
+import { ADVANCES, JournalSchema, WorldSchema, applyRuling, census, detectDecisions, disasterOn, foodRunway, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
 
 /** The board is built for exactly the civilisations a fixture asks for. */
 const world = (over: Partial<World> = {}): World => {
@@ -135,7 +136,7 @@ describe("les parts de doctrine sont normalisees", () => {
 
 describe("les progres de w8 restent des jalons", () => {
   it("declarent leur seuil, leur version et leur absence d'effet", () => {
-    for (const advance of ADVANCES) {
+    for (const advance of ADVANCES.filter(({ worldVersion }) => worldVersion === "w8")) {
       expect(advance.threshold).toBeTruthy();
       expect(advance.worldVersion).toBe("w8");
       expect(advance.engineEffect).toBe("milestone-only");
@@ -143,17 +144,9 @@ describe("les progres de w8 restent des jalons", () => {
     }
   });
 
-  it("un futur progres n'est jamais acquis pendant un rejeu w8", () => {
-    const future: Advance = {
-      name: "future",
-      threshold: "food >= 0",
-      engineEffect: "milestone-only",
-      tradeoff: "none",
-      worldVersion: "w9",
-      when: () => true,
-    };
-    expect(advanceAvailableIn(future, "w8")).toBe(false);
-    expect(advanceAvailableIn(future, "w9")).toBe(true);
+  it("reproduit exactement l'etat et les evenements de reference anterieurs a w9", () => {
+    const input = WorldSchema.parse(progressionReference.input);
+    expect(tickWorld(input)).toEqual(progressionReference.expected);
   });
 
   it("leurs etiquettes ne changent pas la resolution d'un tour", () => {
@@ -181,6 +174,59 @@ describe("les progres de w8 restent des jalons", () => {
     const withoutLabels = tickWorld(base).world.civs[0]!;
     const withLabels = tickWorld(advanced).world.civs[0]!;
     expect({ ...withLabels, advances: [] }).toEqual({ ...withoutLabels, advances: [] });
+  });
+});
+
+describe("la progression de w9 passe par tickWorld", () => {
+  it("acquiert les charrues d'acier puis applique leur effet et leur compromis", () => {
+    const input = WorldSchema.parse({
+      ...progressionReference.input,
+      worldVersion: "w9",
+      board: progressionReference.input.board.map((place) =>
+        place.kind === "hill" ? { ...place, owner: "crimson" } : place,
+      ),
+      civs: progressionReference.input.civs.map((civ) => ({
+        ...civ,
+        doctrine: { ...civ.doctrine, farming: 0.5, mining: 0.5 },
+      })),
+    });
+
+    const acquired = tickWorld(census(input));
+    expect(acquired.world.civs[0]!.advances).toContain("steel-ploughs");
+    expect(acquired.events).toContainEqual({
+      tick: 1,
+      civ: "crimson",
+      kind: "ADVANCE",
+      detail: "progres : steel-ploughs",
+    });
+
+    const w9Result = tickWorld(acquired.world);
+    const w8Control = tickWorld(WorldSchema.parse({
+      ...acquired.world,
+      worldVersion: "w8",
+      civs: acquired.world.civs.map((civ) => ({
+        ...civ,
+        advances: civ.advances.filter((advance) => advance !== "steel-ploughs"),
+      })),
+    }));
+    const before = acquired.world.civs[0]!.stock;
+    const population = acquired.world.civs[0]!.population;
+    const w9Stock = w9Result.world.civs[0]!.stock;
+    const w8Stock = w8Control.world.civs[0]!.stock;
+    const w9FoodProduced = w9Stock.food - before.food + population * 0.8;
+    const w8FoodProduced = w8Stock.food - before.food + population * 0.8;
+
+    expect(w9FoodProduced).toBeCloseTo(w8FoodProduced * 1.1, 2);
+    expect(w9Stock.ore - before.ore).toBeCloseTo((w8Stock.ore - before.ore) * 0.9, 2);
+    expect(w9Result.events).toEqual(w8Control.events);
+  });
+
+  it("n'accepte pas un monde w9 sous l'en-tete d'un journal w8", () => {
+    expect(JournalSchema.safeParse({
+      worldVersion: "w8",
+      origin: { ...progressionReference.input, worldVersion: "w9" },
+      rulings: [],
+    }).success).toBe(false);
   });
 });
 
