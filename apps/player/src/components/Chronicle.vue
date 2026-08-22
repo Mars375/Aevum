@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { FACTION_IDS, type FactionId } from "@abs/contracts";
 import { chronicle, turningPoints, type Journal, type Year } from "@abs/world";
+import CivilisationProfile from "./CivilisationProfile.vue";
 import CivTrend from "./CivTrend.vue";
 import EmpireShare from "./EmpireShare.vue";
+import type { PublishedLearningCurve } from "./LearningCurve.vue";
 import TurningPoint from "./TurningPoint.vue";
 import WorldStage from "./WorldStage.vue";
 
@@ -14,7 +17,7 @@ import WorldStage from "./WorldStage.vue";
  * Nothing is trusted from a rendering: if the chart and the cards disagree with
  * the world, the engine is what is wrong, and that is the point.
  */
-const props = defineProps<{ journal: Journal; status?: TendStatus | null }>();
+const props = defineProps<{ journal: Journal; status?: TendStatus | null; learningCurves?: PublishedLearningCurve[] }>();
 
 /**
  * What the machine tending this world last did.
@@ -88,6 +91,44 @@ const seekTick = (tick: number) => {
   if (at >= 0) index.value = at;
 };
 const metric = ref<"population" | "territory" | "soldiers" | "wealth">("population");
+
+const askedCiv = new URLSearchParams(location.search).get("civ");
+const selectedCiv = ref<FactionId | null>(askedCiv && (FACTION_IDS as readonly string[]).includes(askedCiv) ? askedCiv as FactionId : null);
+watch(selectedCiv, (civ) => {
+  const url = new URL(location.href);
+  if (civ) url.searchParams.set("civ", civ);
+  else url.searchParams.delete("civ");
+  history.replaceState(null, "", url);
+});
+const profileCiv = computed(() => selectedCiv.value ? year.value.world.civs.find((civ) => civ.id === selectedCiv.value) ?? null : null);
+const profileHistory = computed(() => ({
+  turnings: selectedCiv.value ? turns.value.filter((turn) => turn.civ === null || turn.civ === selectedCiv.value) : [],
+}));
+const profileCurve = computed(() => {
+  if (!selectedCiv.value) return null;
+  const models = new Set(
+    props.journal.rulings
+      .filter((ruling) => ruling.civ === selectedCiv.value && ruling.service)
+      .map((ruling) => ruling.service!.requestedModel),
+  );
+  if (models.size !== 1) return null;
+  const model = [...models][0];
+  const modelCivs = new Set(
+    props.journal.rulings
+      .filter((ruling) => ruling.service?.requestedModel === model)
+      .map((ruling) => ruling.civ),
+  );
+  if (modelCivs.size !== 1 || !modelCivs.has(selectedCiv.value)) return null;
+  return props.learningCurves?.find((curve) => curve.modelId === model) ?? null;
+});
+
+function showProfile(civ: FactionId) {
+  selectedCiv.value = civ;
+  requestAnimationFrame(() => document.querySelector(".profile-shell")?.scrollIntoView({
+    block: "start",
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+  }));
+}
 
 const METRICS = [
   { key: "population", label: "Population" },
@@ -209,8 +250,22 @@ const round = (n: number) => Math.round(n);
           </p>
           <blockquote v-if="civ.doctrine.creed" class="creed">« {{ civ.doctrine.creed }} »</blockquote>
           <p v-else class="creed muted">Aucun dirigeant n'a encore écrit de credo.</p>
+          <button type="button" class="profile-link mono" :aria-pressed="selectedCiv === civ.id" @click="showProfile(civ.id)">
+            {{ selectedCiv === civ.id ? "Profil affiché" : "Voir le profil" }}
+          </button>
         </article>
       </div>
+    </section>
+
+    <section v-if="profileCiv" class="profile-shell" :class="profileCiv.id" aria-label="Profil sélectionné">
+      <button type="button" class="close-profile mono" @click="selectedCiv = null">Fermer le profil</button>
+      <CivilisationProfile
+        :identity="profileCiv.identity"
+        :doctrine="profileCiv.doctrine"
+        :history="profileHistory"
+        :curve="profileCurve"
+        @seek="seekTick"
+      />
     </section>
 
     <section class="trajectories" aria-labelledby="trajectories-title">
@@ -674,6 +729,31 @@ dd {
   font-family: var(--display);
   font-size: 15px;
   font-style: normal;
+}
+
+.profile-link {
+  width: 100%;
+  margin-top: var(--s4);
+  font-size: 11px;
+}
+
+.profile-shell {
+  position: relative;
+  scroll-margin-top: 104px;
+  border-top: 2px solid var(--faction, var(--accent));
+}
+
+.profile-shell.crimson { --faction: var(--crimson); }
+.profile-shell.azure { --faction: var(--azure); }
+.profile-shell.verdant { --faction: var(--verdant); }
+.profile-shell.amber { --faction: var(--amber); }
+
+.close-profile {
+  position: absolute;
+  z-index: 2;
+  top: var(--s4);
+  right: 0;
+  font-size: 10px;
 }
 
 .trajectory-heading {

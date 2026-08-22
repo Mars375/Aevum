@@ -26,6 +26,12 @@ const COLOURS: Record<string, string> = {
   verdant: "var(--verdant)",
   amber: "var(--amber)",
 };
+const DASH: Record<string, string | undefined> = {
+  crimson: undefined,
+  azure: "8 3",
+  verdant: "2 3",
+  amber: "10 3 2 3",
+};
 
 /**
  * A narrow screen gets a squarer drawing, not a squashed one.
@@ -131,7 +137,7 @@ const summary = computed(() =>
       <!-- The year being read, so the chart and the cards always agree. -->
       <line :x1="px(at)" :y1="PAD.top" :x2="px(at)" :y2="H - PAD.bottom" class="cursor" />
 
-      <path v-for="s in series" :key="s.id" :d="path(s.points)" :stroke="COLOURS[s.id]" class="line" />
+      <path v-for="s in series" :key="s.id" :d="path(s.points)" :stroke="COLOURS[s.id]" :stroke-dasharray="DASH[s.id]" class="line" />
       <circle
         v-for="s in series.filter((x) => x.fellOn !== null)"
         :key="`${s.id}-fell`"
@@ -143,6 +149,9 @@ const summary = computed(() =>
       />
     </svg>
     <figcaption class="mono">{{ LABEL[metric] }} — cliquer pour aller à une année</figcaption>
+    <ul class="series-key mono" aria-label="Civilisations distinguées par initiale et motif de trait">
+      <li v-for="s in series" :key="`${s.id}-key`"><strong>{{ s.id.slice(0, 1).toUpperCase() }}</strong> {{ s.id }} · {{ s.id === "crimson" ? "trait plein" : s.id === "azure" ? "tirets longs" : s.id === "verdant" ? "pointillés" : "tiret-point" }}</li>
+    </ul>
   </figure>
 </template>
 
@@ -192,4 +201,7 @@ figcaption {
   color: var(--muted);
   margin-top: var(--s1);
 }
+
+.series-key { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin: var(--s2) 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 10px; }
+.series-key strong { color: var(--fg); }
 </style>

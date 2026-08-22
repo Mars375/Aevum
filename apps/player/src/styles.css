@@ -140,6 +140,16 @@ input[type="range"] {
   border: 0;
 }
 
+/* Metric states are written out; colour only reinforces the published label. */
+.data-state {
+  color: var(--muted);
+}
+
+.data-state.unranked,
+.data-state.insufficient_data {
+  color: var(--accent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

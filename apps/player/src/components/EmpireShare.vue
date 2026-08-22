@@ -87,10 +87,16 @@ const summary = computed(() => turns.value.map((t) => `an ${t.tick}, ${t.text}`)
       @click="onClick"
       @keydown="onKey"
     >
+      <defs>
+        <pattern v-for="(id, i) in ids" :id="`share-${id}`" :key="id" width="8" height="8" patternUnits="userSpaceOnUse" :patternTransform="`rotate(${i % 2 === 0 ? 45 : -45})`">
+          <rect width="8" height="8" :fill="COLOURS[id]" />
+          <line v-if="i > 0" x1="0" y1="0" :x2="i === 2 ? 0 : 8" y2="8" stroke="#050b12" :stroke-width="i === 1 ? 1 : 2" opacity="0.35" />
+        </pattern>
+      </defs>
       <!-- Ce que personne ne tient : le fond, qui disparaît quand le monde se referme. -->
       <rect :x="PAD.left" :y="PAD.top" :width="W - PAD.left - PAD.right" :height="H - PAD.top - PAD.bottom" fill="#161b30" />
 
-      <path v-for="b in bands" :key="b.id" :d="b.d" :fill="COLOURS[b.id]" opacity="0.85" />
+      <path v-for="b in bands" :key="b.id" :d="b.d" :fill="`url(#share-${b.id})`" opacity="0.85" />
 
       <g v-for="(t, i) in turns" :key="i">
         <line :x1="px(t.tick)" :y1="PAD.top" :x2="px(t.tick)" :y2="H - PAD.bottom" class="turn" :class="t.kind" />
@@ -107,6 +113,9 @@ const summary = computed(() => turns.value.map((t) => `an ${t.tick}, ${t.text}`)
       part du plateau tenue — le gris est ce que personne n'a pris.
       <span v-if="turns.length"> Les traits verticaux datent les tournants.</span>
     </figcaption>
+    <ul class="share-key mono" aria-label="Civilisations distinguées par initiale et motif de surface">
+      <li v-for="id in ids" :key="`${id}-key`"><strong>{{ id.slice(0, 1).toUpperCase() }}</strong> {{ id }}</li>
+    </ul>
   </figure>
 </template>
 
@@ -160,4 +169,7 @@ figcaption {
   font-size: 11px;
   color: var(--muted);
 }
+
+.share-key { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: 10px; }
+.share-key strong { color: var(--fg); }
 </style>
