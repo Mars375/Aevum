@@ -19,7 +19,8 @@
       "@abs/contracts": ["packages/contracts/src/index.ts"],
       "@abs/engine": ["packages/engine/src/index.ts"],
       "@abs/agents": ["packages/agents/src/index.ts"],
-      "@abs/world": ["packages/world/src/index.ts"]
+      "@abs/world": ["packages/world/src/index.ts"],
+      "@abs/metrics": ["packages/metrics/src/index.ts"]
     }
   },
   "include": ["packages/*/src/**/*.ts", "packages/*/test/**/*.ts", "scripts/**/*.ts"]
