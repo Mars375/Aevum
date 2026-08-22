@@ -9,6 +9,7 @@ import FogView from "./components/FogView.vue";
 import { JournalSchema, WORLD_VERSION, worldVersionOf, type Journal } from "@abs/world";
 import type { PublishedLearningCurve } from "./components/LearningCurve.vue";
 import { alliesOfAt, knowledgeOf } from "./fog";
+import { createRequestGuard } from "./request-guard";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
 const Battle3D = defineAsyncComponent(() => import("./components/Battle3D.vue"));
@@ -105,6 +106,7 @@ const tendStatus = ref<{ ranAt: string; world: string; ok: boolean; years: numbe
 const worldPath = ref<string>("");
 const journal = ref<Journal | null>(null);
 const learningCurves = ref<PublishedLearningCurve[]>([]);
+const worldRequests = createRequestGuard();
 // Three.js is lazy for weight; the chronicle is lazy for the same reason —
 // a reader who only watches battles never loads the world engine.
 const Chronicle = defineAsyncComponent(() => import("./components/Chronicle.vue"));
@@ -129,6 +131,7 @@ async function loadWorlds() {
 }
 
 async function openWorld(path: string) {
+  const request = worldRequests.begin();
   worldPath.value = path;
   worldLoading.value = true;
   learningCurves.value = [];
@@ -136,6 +139,7 @@ async function openWorld(path: string) {
     const res = await fetch(path);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const raw = await res.json();
+    if (!worldRequests.isCurrent(request)) return;
 
     // An archived world is not a broken file, and saying "Invalid literal
     // value, expected w3" to a reader who followed a permalink is telling them
@@ -159,8 +163,10 @@ async function openWorld(path: string) {
       ?? (path.endsWith(".json") ? path.replace(/\.json$/, ".learning.json") : `${path}.learning.json`);
     try {
       const reportResponse = await fetch(reportPath);
+      if (!worldRequests.isCurrent(request)) return;
       if (reportResponse.ok) {
         const report = await reportResponse.json();
+        if (!worldRequests.isCurrent(request)) return;
         const journalName = path.split("/").at(-1);
         // Source buttons can only seek honestly when every metric observation
         // belongs to the journal currently on screen.
@@ -172,10 +178,11 @@ async function openWorld(path: string) {
       // The world remains readable; the profile states that metric data is insufficient.
     }
   } catch (err) {
+    if (!worldRequests.isCurrent(request)) return;
     journal.value = null;
     worldError.value = `Impossible de charger ${path} — ${(err as Error).message}`;
   } finally {
-    worldLoading.value = false;
+    if (worldRequests.isCurrent(request)) worldLoading.value = false;
   }
 }
 

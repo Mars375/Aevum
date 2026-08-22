@@ -51,9 +51,6 @@ export interface PublishedLearningCurve {
   classification: LearningSignal;
 }
 
-export function emitObservation(emit: (event: "selectObservation", tick: number) => void, tick: number) {
-  emit("selectObservation", tick);
-}
 </script>
 
 <script setup lang="ts">
@@ -81,7 +78,7 @@ type MetricKey = (typeof METRICS)[number]["key"];
 const selected = ref<MetricKey>("consequenceRecognition");
 const observations = computed(() => props.series[selected.value]);
 const measurable = computed(() => observations.value.filter((point) => point.value !== null));
-const hasData = computed(() => observations.value.length > 0);
+const hasMeasurableData = computed(() => measurable.value.length > 0);
 const label = computed(() => METRICS.find((metric) => metric.key === selected.value)!.label);
 const visibleMarkers = computed(() => {
   const ids = new Set(observations.value.flatMap((point) => point.eventSourceIds));
@@ -89,8 +86,9 @@ const visibleMarkers = computed(() => {
 });
 
 const status = computed(() => {
+  if (observations.value.length > 0 && !hasMeasurableData.value) return "données insuffisantes";
   if (props.classification === "UNRANKED") return "non classable";
-  if (!hasData.value || props.classification === "INSUFFICIENT_DATA") return "données insuffisantes";
+  if (!hasMeasurableData.value || props.classification === "INSUFFICIENT_DATA") return "données insuffisantes";
   return props.classification === "ADAPTATION_OBSERVED" ? "adaptation observée" : "aucune preuve d'adaptation";
 });
 
@@ -128,10 +126,10 @@ const interval = (point: MetricSeries) => point.uncertainty.lower === null || po
 function onMarkerKey(event: KeyboardEvent, tick: number) {
   if (event.key !== "Enter" && event.key !== " ") return;
   event.preventDefault();
-  emitObservation(emit, tick);
+  emit("selectObservation", tick);
 }
 
-const selectObservation = (tick: number) => emitObservation(emit, tick);
+const selectObservation = (tick: number) => emit("selectObservation", tick);
 </script>
 
 <template>
@@ -161,7 +159,7 @@ const selectObservation = (tick: number) => emitObservation(emit, tick);
       </button>
     </div>
 
-    <p v-if="!hasData" class="empty">Aucune ligne n'est tracée sans observation mesurée.</p>
+    <p v-if="!hasMeasurableData" class="empty">Aucune ligne n'est tracée sans observation mesurée.</p>
 
     <figure v-else>
       <svg :viewBox="`0 0 ${W} ${H}`" role="img" :aria-label="`${label}. ${status}. ${measurable.length} fenêtres mesurables.`">

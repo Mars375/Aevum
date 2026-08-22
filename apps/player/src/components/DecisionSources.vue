@@ -1,15 +1,9 @@
-<script lang="ts">
-export function emitSourceSeek(emit: (event: "seek", tick: number) => void, tick: number) {
-  emit("seek", tick);
-}
-</script>
-
 <script setup lang="ts">
 import type { ObservationEvent } from "./LearningCurve.vue";
 
 defineProps<{ observations: ObservationEvent[] }>();
 const emit = defineEmits<{ seek: [tick: number] }>();
-const seek = (tick: number) => emitSourceSeek(emit, tick);
+const seek = (tick: number) => emit("seek", tick);
 </script>
 
 <template>

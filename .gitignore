@@ -3,6 +3,7 @@ dist/
 .env
 .env.local
 *.log
+.superpowers/
 
 # Real battle replays are build output, not source. The reference battle is
 # committed explicitly under replays/reference/ with `git add -f`.
