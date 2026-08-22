@@ -1,6 +1,25 @@
 import { describe, expect, it } from "vitest";
 import legacyJournal from "./fixtures/journal-v0.2.0.json";
-import { chronicle, fingerprint, JournalSchema, replay, RulingSchema } from "../src/index.js";
+import {
+  chronicle,
+  fingerprint,
+  JournalSchema,
+  newJournal,
+  newWorld,
+  replay,
+  RulingSchema,
+  WorldSchema,
+} from "../src/index.js";
+
+describe("construction d'un journal", () => {
+  it("refuse une origine w9 sans fabriquer un faux journal w8", () => {
+    const w8 = newWorld(["crimson", "azure"], 42);
+    const w9 = WorldSchema.parse({ ...w8, worldVersion: "w9" });
+
+    expect(() => newJournal(w9)).toThrowError("cannot create a w8 journal from a w9 world");
+    expect(JournalSchema.safeParse(newJournal(w8)).success).toBe(true);
+  });
+});
 
 describe("compatibilite des journaux v0.2.0", () => {
   it("ajoute seulement des valeurs par defaut aux anciens journaux", () => {

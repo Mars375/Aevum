@@ -89,11 +89,17 @@ export const JournalSchema = z.object({
 type ParsedJournal = z.infer<typeof JournalSchema>;
 export type Journal = Omit<ParsedJournal, "rulings"> & { rulings: Ruling[] };
 
-export const newJournal = (origin: World, era = 1): Journal => ({
-  worldVersion: WORLD_VERSION,
-  era,
-  origin,
-  livedTo: origin.tick,
-  fingerprint: null,
-  rulings: [],
-});
+export const newJournal = (origin: World, era = 1): Journal => {
+  if (origin.worldVersion !== WORLD_VERSION) {
+    throw new Error(`cannot create a ${WORLD_VERSION} journal from a ${origin.worldVersion} world`);
+  }
+
+  return {
+    worldVersion: WORLD_VERSION,
+    era,
+    origin,
+    livedTo: origin.tick,
+    fingerprint: null,
+    rulings: [],
+  };
+};
