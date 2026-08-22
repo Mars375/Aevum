@@ -1,0 +1,93 @@
+{
+  "worldVersion": "w8",
+  "era": 1,
+  "origin": {
+    "worldVersion": "w8",
+    "tick": 0,
+    "seed": 42,
+    "land": 16,
+    "size": 4,
+    "board": [
+      { "kind": "plain", "owner": null, "name": "Ashfell" },
+      { "kind": "river", "owner": null, "name": "Brenwick" },
+      { "kind": "river", "owner": null, "name": "Thavale-sur-Eau" },
+      { "kind": "forest", "owner": null, "name": "Rhoost-la-Forêt" },
+      { "kind": "plain", "owner": "crimson", "name": "Seldun-les-Champs" },
+      { "kind": "river", "owner": null, "name": "Dunfell" },
+      { "kind": "river", "owner": null, "name": "Ferrfell" },
+      { "kind": "forest", "owner": null, "name": "Karash" },
+      { "kind": "plain", "owner": null, "name": "Rhowick-les-Champs" },
+      { "kind": "river", "owner": null, "name": "Thadun" },
+      { "kind": "river", "owner": null, "name": "Karash-les-Rives" },
+      { "kind": "plain", "owner": "azure", "name": "Vasost-la-Plaine" },
+      { "kind": "hill", "owner": null, "name": "Karost-les-Monts" },
+      { "kind": "river", "owner": null, "name": "Brendun" },
+      { "kind": "plain", "owner": null, "name": "Vaspor-la-Plaine" },
+      { "kind": "plain", "owner": null, "name": "Seldun-la-Plaine" }
+    ],
+    "free": { "plain": 0, "forest": 0, "hill": 0, "river": 0 },
+    "civs": [
+      {
+        "id": "crimson",
+        "population": 100,
+        "lands": { "plain": 0, "forest": 0, "hill": 0, "river": 0 },
+        "territory": 0,
+        "stock": { "food": 200, "timber": 80, "ore": 40, "wealth": 50 },
+        "doctrine": {
+          "farming": 0.4,
+          "forestry": 0.2,
+          "mining": 0.2,
+          "trade": 0.15,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "claim": "plain",
+          "vow": null
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 4,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null
+      },
+      {
+        "id": "azure",
+        "population": 100,
+        "lands": { "plain": 0, "forest": 0, "hill": 0, "river": 0 },
+        "territory": 0,
+        "stock": { "food": 200, "timber": 80, "ore": 40, "wealth": 50 },
+        "doctrine": {
+          "farming": 0.4,
+          "forestry": 0.2,
+          "mining": 0.2,
+          "trade": 0.15,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "claim": "plain",
+          "vow": null
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 11,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null
+      }
+    ]
+  },
+  "livedTo": 3,
+  "fingerprint": null,
+  "rulings": [
+    {
+      "tick": 2,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": { "posture": "TRADE" },
+      "reason": "Seek exchange.",
+      "model": "model/a",
+      "deferredBy": 0
+    }
+  ]
+}

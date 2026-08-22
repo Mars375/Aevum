@@ -1,27 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { chronicle, JournalSchema, newJournal, newWorld, RulingSchema } from "../src/index.js";
-
-const legacyJournal = () => {
-  const raw = JSON.parse(JSON.stringify(newJournal(newWorld(["crimson", "azure"], 42)))) as Record<string, any>;
-  raw.livedTo = 3;
-  raw.rulings = [
-    {
-      tick: 2,
-      civ: "crimson",
-      kind: "DRIFT",
-      doctrine: { posture: "TRADE" },
-      reason: "Seek exchange.",
-      model: "model/a",
-      deferredBy: 0,
-    },
-  ];
-  for (const civ of raw.origin.civs) delete civ.identity;
-  return raw;
-};
+import legacyJournal from "./fixtures/journal-v0.2.0.json";
+import { chronicle, fingerprint, JournalSchema, replay, RulingSchema } from "../src/index.js";
 
 describe("compatibilite des journaux v0.2.0", () => {
   it("ajoute seulement des valeurs par defaut aux anciens journaux", () => {
-    const journal = JournalSchema.parse(legacyJournal());
+    expect(legacyJournal.origin.civs.every((civ) => !("identity" in civ))).toBe(true);
+    expect(legacyJournal.rulings.every((ruling) => !("context" in ruling) && !("service" in ruling) && !("consequenceRef" in ruling))).toBe(true);
+
+    const journal = JournalSchema.parse(legacyJournal);
     expect(journal.origin.civs[0]!.identity).toEqual({
       displayName: "Crimson",
       values: [],
@@ -35,22 +21,28 @@ describe("compatibilite des journaux v0.2.0", () => {
   });
 
   it("survit a un aller-retour JSON", () => {
-    const parsed = JournalSchema.parse(legacyJournal());
+    const parsed = JournalSchema.parse(legacyJournal);
     expect(JournalSchema.parse(JSON.parse(JSON.stringify(parsed)))).toEqual(parsed);
   });
 
-  it("produit les memes annees sans champs de preuve", () => {
-    const parsed = JournalSchema.parse(legacyJournal());
-    const explicit = JournalSchema.parse({
-      ...legacyJournal(),
-      rulings: legacyJournal().rulings.map((r: object) => ({
-        ...r,
-        context: [],
-        service: null,
-        consequenceRef: null,
-      })),
+  it("conserve la projection historique de la chronique et du rejeu", () => {
+    const parsed = JournalSchema.parse(legacyJournal);
+    expect(chronicle(parsed).map(({ tick, world, rulings }) => ({
+      tick,
+      fingerprint: fingerprint(world),
+      rulingTicks: rulings.map((ruling) => ruling.tick),
+    }))).toEqual([
+      { tick: 0, fingerprint: "8ddc1b39", rulingTicks: [] },
+      { tick: 1, fingerprint: "5c2e5a92", rulingTicks: [] },
+      { tick: 2, fingerprint: "2d7ff6c6", rulingTicks: [2] },
+      { tick: 3, fingerprint: "50b47134", rulingTicks: [] },
+    ]);
+
+    const replayed = replay(parsed.origin, parsed.rulings, parsed.livedTo).world;
+    expect({ tick: replayed.tick, fingerprint: fingerprint(replayed) }).toEqual({
+      tick: 3,
+      fingerprint: "76aefdfe",
     });
-    expect(chronicle(parsed)).toEqual(chronicle(explicit));
   });
 });
 
