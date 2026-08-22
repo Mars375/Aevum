@@ -1,6 +1,11 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  LearningObservationSchema,
+  ReplaySchema,
+  ServiceEvidenceSchema,
+} from "../src/index.js";
 
 /**
  * The dependency rules the README states, enforced instead of asserted.
@@ -93,6 +98,61 @@ describe("aucune cle ne peut se glisser dans une source", () => {
   it("dans aucun paquet, ni dans le lecteur, ni dans les scripts", () => {
     for (const dir of ["packages", "apps/player/src", "scripts"]) {
       expect(offenders(dir, KEY), dir).toEqual([]);
+    }
+  });
+});
+
+describe("les preuves de service restent publiques et bien formees", () => {
+  const service = {
+    requestedModel: "requested/model",
+    servedModel: "served/model",
+    provider: "openrouter",
+    fallbackCount: 1,
+    attempts: 2,
+    latencyMs: 340,
+    servedByFallback: true,
+  };
+
+  it("conserve les metadonnees necessaires a l'audit", () => {
+    expect(ServiceEvidenceSchema.parse(service)).toEqual(service);
+  });
+
+  it("refuse les secrets et les corps de prompt", () => {
+    expect(ServiceEvidenceSchema.safeParse({ ...service, apiKey: "secret" }).success).toBe(false);
+    expect(ServiceEvidenceSchema.safeParse({ ...service, prompt: "private body" }).success).toBe(false);
+  });
+
+  it("refuse les compteurs impossibles", () => {
+    expect(ServiceEvidenceSchema.safeParse({ ...service, fallbackCount: -1 }).success).toBe(false);
+    expect(ServiceEvidenceSchema.safeParse({ ...service, attempts: 1.5 }).success).toBe(false);
+    expect(ServiceEvidenceSchema.safeParse({ ...service, latencyMs: -1 }).success).toBe(false);
+  });
+});
+
+describe("les observations d'adaptation sont des faits bornes", () => {
+  const observation = {
+    modelId: "model/a",
+    civId: "crimson",
+    triggerEventIds: ["event-1"],
+    decisionTick: 12,
+    nextDecisionTick: 20,
+    beforeDoctrineFingerprint: "before",
+    afterDoctrineFingerprint: "after",
+    objectiveDeltas: { population: -4, food: 18 },
+  };
+
+  it("refuse les annees negatives et les civilisations inconnues", () => {
+    expect(LearningObservationSchema.safeParse({ ...observation, decisionTick: -1 }).success).toBe(false);
+    expect(LearningObservationSchema.safeParse({ ...observation, nextDecisionTick: -1 }).success).toBe(false);
+    expect(LearningObservationSchema.safeParse({ ...observation, civId: "violet" }).success).toBe(false);
+  });
+});
+
+describe("les frontieres des batailles archivees ne changent pas", () => {
+  it("lit toujours les replays v1 et v2 de reference", () => {
+    for (const file of ["battle-seed42.json", "battle-v2-seed42.json"]) {
+      const raw = JSON.parse(readFileSync(resolve(ROOT, "replays/reference", file), "utf8"));
+      expect(ReplaySchema.safeParse(raw).success, file).toBe(true);
     }
   });
 });

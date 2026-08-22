@@ -28,6 +28,45 @@ export const FACTION_IDS = ["crimson", "azure", "verdant", "amber"] as const;
 export const FactionIdSchema = z.enum(FACTION_IDS);
 export type FactionId = z.infer<typeof FactionIdSchema>;
 
+/** Public, persistent identity. These words describe a civilisation; they do not resolve turns. */
+export const IdentitySchema = z.object({
+  displayName: z.string().min(1),
+  values: z.array(z.string().min(1)).default([]),
+  origin: z.string().default(""),
+}).strict();
+export type Identity = z.infer<typeof IdentitySchema>;
+
+/** Auditable provider metadata deliberately excludes requests, prompts and credentials. */
+export const ServiceEvidenceSchema = z.object({
+  requestedModel: z.string().min(1),
+  servedModel: z.string().min(1),
+  provider: z.string().min(1),
+  fallbackCount: z.number().int().min(0),
+  attempts: z.number().int().min(1),
+  latencyMs: z.number().int().min(0),
+  servedByFallback: z.boolean(),
+}).strict().refine((service) => service.fallbackCount < service.attempts, {
+  message: "fallbackCount must be lower than attempts",
+  path: ["fallbackCount"],
+});
+export type ServiceEvidence = z.infer<typeof ServiceEvidenceSchema>;
+
+/** One objective before/after pair from which adaptation metrics can be derived. */
+export const LearningObservationSchema = z.object({
+  modelId: z.string().min(1),
+  civId: FactionIdSchema,
+  triggerEventIds: z.array(z.string().min(1)),
+  decisionTick: z.number().int().min(0),
+  nextDecisionTick: z.number().int().min(0).nullable(),
+  beforeDoctrineFingerprint: z.string().min(1),
+  afterDoctrineFingerprint: z.string().min(1),
+  objectiveDeltas: z.record(z.number()),
+}).strict().refine(
+  (observation) => observation.nextDecisionTick === null || observation.nextDecisionTick >= observation.decisionTick,
+  { message: "nextDecisionTick must not precede decisionTick", path: ["nextDecisionTick"] },
+);
+export type LearningObservation = z.infer<typeof LearningObservationSchema>;
+
 export const ArchetypeSchema = z.enum(["MELEE", "RANGED", "SCOUT", "HEAVY"]);
 export type Archetype = z.infer<typeof ArchetypeSchema>;
 

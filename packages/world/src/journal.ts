@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FactionIdSchema } from "@abs/contracts";
+import { FactionIdSchema, ServiceEvidenceSchema } from "@abs/contracts";
 import { DoctrineSchema, WORLD_VERSION, WorldSchema, type World } from "./state.js";
 import { DECISION_KINDS } from "./decide.js";
 
@@ -18,7 +18,7 @@ import { DECISION_KINDS } from "./decide.js";
  */
 
 export const RulingSchema = z.object({
-  tick: z.number().int(),
+  tick: z.number().int().min(0),
   civ: FactionIdSchema,
   kind: z.enum(DECISION_KINDS),
   /** What the ruler changed. Absent fields are left as they were. */
@@ -34,9 +34,18 @@ export const RulingSchema = z.object({
    * and that is worth recording: a civilisation governed late is not governed
    * the same as one governed on time.
    */
-  deferredBy: z.number().int().default(0),
+  deferredBy: z.number().int().min(0).default(0),
+  /** Facts shown to the ruler, without retaining the prompt body. */
+  context: z.array(z.string()).default([]),
+  /** Who actually answered. Null preserves rulings recorded before service evidence. */
+  service: ServiceEvidenceSchema.nullable().default(null),
+  /** Stable event id for a consequence already visible at decision time, when known. */
+  consequenceRef: z.string().min(1).nullable().default(null),
 });
-export type Ruling = z.infer<typeof RulingSchema>;
+type ParsedRuling = z.infer<typeof RulingSchema>;
+type EvidenceFields = "context" | "service" | "consequenceRef";
+/** Evidence is optional when constructing a ruling and populated whenever a journal is parsed. */
+export type Ruling = Omit<ParsedRuling, EvidenceFields> & Partial<Pick<ParsedRuling, EvidenceFields>>;
 
 /** Read the header of a journal file without parsing the rest. */
 export function worldVersionOf(raw: unknown): string | null {
@@ -75,7 +84,8 @@ export const JournalSchema = z.object({
   fingerprint: z.string().nullable().default(null),
   rulings: z.array(RulingSchema),
 });
-export type Journal = z.infer<typeof JournalSchema>;
+type ParsedJournal = z.infer<typeof JournalSchema>;
+export type Journal = Omit<ParsedJournal, "rulings"> & { rulings: Ruling[] };
 
 export const newJournal = (origin: World, era = 1): Journal => ({
   worldVersion: WORLD_VERSION,

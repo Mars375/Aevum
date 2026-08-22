@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FactionIdSchema } from "@abs/contracts";
+import { FactionIdSchema, IdentitySchema, type FactionId, type Identity } from "@abs/contracts";
 
 /**
  * A world that does not end.
@@ -183,8 +183,10 @@ export const DoctrineSchema = z.object({
 });
 export type Doctrine = z.infer<typeof DoctrineSchema>;
 
-export const CivSchema = z.object({
+const CivFieldsSchema = z.object({
   id: FactionIdSchema,
+  /** Declarative identity only; engine resolution continues to read doctrine. */
+  identity: IdentitySchema.optional(),
   population: z.number(),
   /**
    * Land held, by kind, and its total.
@@ -219,6 +221,10 @@ export const CivSchema = z.object({
   /** Set when a civilisation collapses. It stays in the world as a ruin. */
   fellOnTick: z.number().int().nullable().default(null),
 });
+export const CivSchema = CivFieldsSchema.transform((civ) => ({
+  ...civ,
+  identity: civ.identity ?? defaultIdentity(civ.id),
+}));
 export type Civ = z.infer<typeof CivSchema>;
 
 export const WorldSchema = z.object({
@@ -261,9 +267,19 @@ export const DEFAULT_DOCTRINE: Doctrine = {
   vow: null,
 };
 
+/** Legacy journals did not carry identity, so their faction id is the stable fallback. */
+export function defaultIdentity(id: FactionId): Identity {
+  return {
+    displayName: id.charAt(0).toUpperCase() + id.slice(1),
+    values: [],
+    origin: "",
+  };
+}
+
 export function newCiv(id: Civ["id"]): Civ {
   return {
     id,
+    identity: defaultIdentity(id),
     population: 100,
     // Filled from the board at founding: what a civilisation can do is now
     // decided by where it happens to start, not by a gift of one of each.
