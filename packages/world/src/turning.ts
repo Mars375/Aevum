@@ -15,6 +15,8 @@ export interface Turning {
   kind: "BOARD_FULL" | "FIRST_WAR" | "CAPITAL" | "EXTINCTION" | "LEAD";
   civ: string | null;
   text: string;
+  /** Stable engine evidence when this turning comes from an event. */
+  sourceEventId?: string;
 }
 
 /** Un meneur n'en est un qu'avec une avance nette : un lieu d'ecart est du bruit. */
@@ -40,10 +42,10 @@ export function turningPoints(years: Year[]): Turning[] {
     for (const e of y.events) {
       if (e.kind === "SEIZED" && !firstWar) {
         firstWar = true;
-        out.push({ tick: y.tick, kind: "FIRST_WAR", civ: e.civ, text: `Première conquête du monde : ${e.detail}, par ${e.civ}.` });
+        out.push({ tick: y.tick, kind: "FIRST_WAR", civ: e.civ, text: `Première conquête du monde : ${e.detail}, par ${e.civ}.`, sourceEventId: e.id });
       }
-      if (e.kind === "CAPITAL_LOST") out.push({ tick: y.tick, kind: "CAPITAL", civ: e.civ, text: `${e.civ} perd son siège — ${e.detail}` });
-      if (e.kind === "COLLAPSED") out.push({ tick: y.tick, kind: "EXTINCTION", civ: e.civ, text: `${e.civ} s'éteint.` });
+      if (e.kind === "CAPITAL_LOST") out.push({ tick: y.tick, kind: "CAPITAL", civ: e.civ, text: `${e.civ} perd son siège — ${e.detail}`, sourceEventId: e.id });
+      if (e.kind === "COLLAPSED") out.push({ tick: y.tick, kind: "EXTINCTION", civ: e.civ, text: `${e.civ} s'éteint.`, sourceEventId: e.id });
     }
 
     const [top, second] = [...y.world.civs].sort((a, b) => b.territory - a.territory || a.id.localeCompare(b.id));

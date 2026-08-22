@@ -1,8 +1,9 @@
+import { MAX_MEMORY_ENTRIES, type FactionId, type Identity } from "@abs/contracts";
 import { applyRuling } from "./apply.js";
 import type { Journal, Ruling } from "./journal.js";
 import { tickWorld } from "./tick.js";
-import type { TickEvent } from "./events.js";
-import { census, type World } from "./state.js";
+import { lifeEvent, type LifeEvent } from "./events.js";
+import { census, doctrineFingerprint, type Civ, type World } from "./state.js";
 
 /**
  * The years of a world, one entry each, ready to be read.
@@ -16,7 +17,7 @@ import { census, type World } from "./state.js";
 export interface Year {
   tick: number;
   world: World;
-  events: TickEvent[];
+  events: LifeEvent[];
   /** Decisions taken at the end of this year, after its events. */
   rulings: Ruling[];
 }
@@ -40,7 +41,47 @@ export function chronicle(journal: Journal): Year[] {
     world = stepped.world;
     const rulings = byTick.get(world.tick) ?? [];
     for (const ruling of rulings) world = applyRuling(world, ruling);
-    years.push({ tick: world.tick, world, events: stepped.events, rulings });
+    const events = stepped.events.map(lifeEvent);
+    years.push({ tick: world.tick, world, events, rulings });
   }
   return years;
+}
+
+/** Bounded memory of engine facts. Rulings are used to replay, never quoted as facts. */
+export function memoryFor(
+  journal: Journal,
+  civ: FactionId,
+  tick: number,
+  maxEntries = MAX_MEMORY_ENTRIES,
+): LifeEvent[] {
+  const requested = Number.isFinite(maxEntries) ? Math.floor(maxEntries) : MAX_MEMORY_ENTRIES;
+  const limit = Math.min(MAX_MEMORY_ENTRIES, Math.max(0, requested));
+  if (limit === 0) return [];
+  return chronicle(journal)
+    .filter((year) => year.tick <= tick)
+    .flatMap((year) => year.events)
+    .filter((event) => event.civ === civ)
+    .slice(-limit);
+}
+
+export interface HistoricalIdentity extends Identity {
+  civId: FactionId;
+  doctrineFingerprint: string;
+  fellOnTick: number | null;
+}
+
+/** The latest recorded identity, including civilisations that have fallen. */
+export function identityOf(civ: FactionId | Civ, history: readonly Year[]): HistoricalIdentity | null {
+  const civId = typeof civ === "string" ? civ : civ.id;
+  const latest = [...history]
+    .sort((a, b) => b.tick - a.tick)
+    .map((year) => year.world.civs.find((candidate) => candidate.id === civId))
+    .find((candidate): candidate is Civ => candidate !== undefined) ?? (typeof civ === "string" ? null : civ);
+  if (!latest) return null;
+  return {
+    civId,
+    ...latest.identity,
+    doctrineFingerprint: doctrineFingerprint(latest.doctrine),
+    fellOnTick: latest.fellOnTick,
+  };
 }

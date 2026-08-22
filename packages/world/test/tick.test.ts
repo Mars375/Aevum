@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyRuling, census, detectDecisions, disasterOn, foodRunway, newCiv, newWorld, season, shares, tickWorld, vowHeld, type World } from "../src/index.js";
+import { ADVANCES, advanceAvailableIn, applyRuling, census, detectDecisions, disasterOn, foodRunway, newCiv, newWorld, season, shares, tickWorld, vowHeld, type Advance, type World } from "../src/index.js";
 
 /** The board is built for exactly the civilisations a fixture asks for. */
 const world = (over: Partial<World> = {}): World => {
@@ -134,6 +134,28 @@ describe("les parts de doctrine sont normalisees", () => {
 });
 
 describe("les progres de w8 restent des jalons", () => {
+  it("declarent leur seuil, leur version et leur absence d'effet", () => {
+    for (const advance of ADVANCES) {
+      expect(advance.threshold).toBeTruthy();
+      expect(advance.worldVersion).toBe("w8");
+      expect(advance.engineEffect).toBe("milestone-only");
+      expect(advance.tradeoff).toBe("none");
+    }
+  });
+
+  it("un futur progres n'est jamais acquis pendant un rejeu w8", () => {
+    const future: Advance = {
+      name: "future",
+      threshold: "food >= 0",
+      engineEffect: "milestone-only",
+      tradeoff: "none",
+      worldVersion: "w9",
+      when: () => true,
+    };
+    expect(advanceAvailableIn(future, "w8")).toBe(false);
+    expect(advanceAvailableIn(future, "w9")).toBe(true);
+  });
+
   it("leurs etiquettes ne changent pas la resolution d'un tour", () => {
     const base = holding(
       {

@@ -57,6 +57,30 @@ une IA évoluer » serait promettre un apprentissage qui n'aura pas lieu. Ce qui
   modèle ;
 - **quel modèle la gouverne**, si le monde en change.
 
+### Identité, événements et mémoire
+
+L'identité déclarative d'une civilisation vient de l'origine du journal. Sa
+projection historique conserve aussi l'année de sa chute : une civilisation
+éteinte reste une entrée mesurable, elle n'est pas retirée du monde.
+
+La chronique attribue à chaque fait émis par le moteur un identifiant stable,
+calculé à partir de sa version de contrat, de l'année, de la civilisation, de
+sa catégorie, de son détail et de son ordre d'émission. Cette projection porte
+`engine-only`. Une conséquence qui suit une décision sans causalité mécanique
+prouvée sera qualifiée `observed-after` par la couche de mesure, jamais par le
+moteur.
+
+La mémoire d'une civilisation est reconstruite par `chronicle()` depuis
+l'origine et les décisions du journal. Elle ne reprend ni raisons ni credo
+écrits par un modèle comme des faits et garde au plus `MAX_MEMORY_ENTRIES`
+événements. Elle est donc bornée sans introduire un second état persistant.
+
+Les cinq progrès de w8 restent des jalons sans effet sur la résolution. Leur
+seuil, leur absence d'effet et de coût, et leur version sont désormais déclarés
+ensemble. Tout progrès qui modifierait le moteur devra annoncer un effet et un
+compromis sous une version w9 ou ultérieure ; aucun journal w8 ne l'acquiert
+rétroactivement.
+
 ## Les bandits, et la fin d'une ère
 
 Un monde dont la seule adversité est sa propre récolte se stabilise. Mesuré :

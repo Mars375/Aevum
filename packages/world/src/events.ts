@@ -43,6 +43,38 @@ export interface TickEvent {
   detail: string;
 }
 
+/** A replay-derived event. The engine still emits the unadorned TickEvent. */
+export interface LifeEvent extends TickEvent {
+  id: string;
+  worldVersion: "w8";
+  /** Consequences are facts of resolution, not claims that a ruling caused them. */
+  attribution: "engine-only";
+  /** Position in the engine's deterministic event order for this year. */
+  order: number;
+}
+
+/**
+ * Stable identity for one engine-emitted fact.
+ *
+ * The explicit tick and civilisation keep callers from deriving identity from
+ * presentation text around an event. `detail` remains part of the fact because
+ * two losses of different amounts in the same year are different evidence.
+ */
+export function eventId(event: TickEvent, tick: number, civ: Civ["id"]): string {
+  const ordered = "order" in event && typeof event.order === "number" ? event.order : 0;
+  return ["world-event-v1", tick, civ, ordered, event.kind, encodeURIComponent(event.detail)].join(":");
+}
+
+export function lifeEvent(event: TickEvent, order: number): LifeEvent {
+  const ordered = { ...event, order };
+  return {
+    ...ordered,
+    id: eventId(ordered, event.tick, event.civ),
+    worldVersion: "w8",
+    attribution: "engine-only",
+  };
+}
+
 export interface TickResult {
   world: World;
   events: TickEvent[];

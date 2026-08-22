@@ -1,7 +1,7 @@
 import { census, isAlive, type Civ, type Doctrine, type Stock, type World } from "./state.js";
 import { disasterOn, raidOn, season } from "./chance.js";
 import { LAND_LABEL, contact, reachable, value } from "./borders.js";
-import { ADVANCES } from "./advances.js";
+import { ADVANCES, advanceAvailableIn } from "./advances.js";
 import type { TickEvent, TickResult } from "./events.js";
 
 /**
@@ -123,6 +123,7 @@ function tickCiv(
   tick: number,
   harvest: number,
   seed: number,
+  worldVersion: World["worldVersion"],
 ): { civ: Civ; events: TickEvent[]; wants: "expand" | "abandon" | null } {
   const events: TickEvent[] = [];
   const say = (kind: TickEvent["kind"], detail: string) => events.push({ tick, civ: civ.id, kind, detail });
@@ -224,6 +225,7 @@ function tickCiv(
 
   const advances = [...civ.advances];
   for (const a of ADVANCES) {
+    if (!advanceAvailableIn(a, worldVersion)) continue;
     if (advances.includes(a.name)) continue;
     if (a.when({ ...civ, stock, territory, advances })) {
       advances.push(a.name);
@@ -273,7 +275,7 @@ export function tickWorld(world: World): TickResult {
     .sort((a, b) => a.id.localeCompare(b.id))
     .map((civ) => {
       if (!isAlive(civ)) return civ;
-      const r = tickCiv(civ, tick, harvest, world.seed);
+      const r = tickCiv(civ, tick, harvest, world.seed, world.worldVersion);
       events.push(...r.events);
       wanted.set(civ.id, r.wants);
       return r.civ;

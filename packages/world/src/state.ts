@@ -183,6 +183,27 @@ export const DoctrineSchema = z.object({
 });
 export type Doctrine = z.infer<typeof DoctrineSchema>;
 
+/** Canonical metric fingerprint; proportional workforce shares are equivalent. */
+export function doctrineFingerprint(doctrine: Doctrine): string {
+  const workforce = [doctrine.farming, doctrine.forestry, doctrine.mining, doctrine.trade, doctrine.military];
+  const total = workforce.reduce((sum, value) => sum + value, 0);
+  const shares = (total > 0 ? workforce.map((value) => value / total) : [1, 0, 0, 0, 0])
+    .map((value) => Math.round(value * 1e12) / 1e12);
+  const text = JSON.stringify({
+    shares,
+    posture: doctrine.posture,
+    creed: doctrine.creed,
+    vow: doctrine.vow,
+    claim: doctrine.claim,
+  });
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return `doctrine-v1-${(hash >>> 0).toString(16).padStart(8, "0")}`;
+}
+
 const CivFieldsSchema = z.object({
   id: FactionIdSchema,
   /** Declarative identity only; engine resolution continues to read doctrine. */
