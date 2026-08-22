@@ -27,22 +27,21 @@ describe("compatibilite des journaux v0.2.0", () => {
 
   it("conserve la projection historique de la chronique et du rejeu", () => {
     const parsed = JournalSchema.parse(legacyJournal);
-    expect(chronicle(parsed).map(({ tick, world, rulings }) => ({
+    const years = chronicle(parsed);
+    expect(years.map(({ tick, world, rulings }) => ({
       tick,
       fingerprint: fingerprint(world),
       rulingTicks: rulings.map((ruling) => ruling.tick),
     }))).toEqual([
-      { tick: 0, fingerprint: "8ddc1b39", rulingTicks: [] },
-      { tick: 1, fingerprint: "5c2e5a92", rulingTicks: [] },
-      { tick: 2, fingerprint: "2d7ff6c6", rulingTicks: [2] },
-      { tick: 3, fingerprint: "50b47134", rulingTicks: [] },
+      { tick: 0, fingerprint: "22ced0e3", rulingTicks: [] },
+      { tick: 1, fingerprint: "7ec18ecc", rulingTicks: [] },
+      { tick: 2, fingerprint: "b6fac6ba", rulingTicks: [2] },
+      { tick: 3, fingerprint: "76aefdfe", rulingTicks: [] },
     ]);
 
     const replayed = replay(parsed.origin, parsed.rulings, parsed.livedTo).world;
-    expect({ tick: replayed.tick, fingerprint: fingerprint(replayed) }).toEqual({
-      tick: 3,
-      fingerprint: "76aefdfe",
-    });
+    expect(years.at(-1)!.world).toEqual(replayed);
+    expect({ tick: replayed.tick, fingerprint: fingerprint(replayed) }).toEqual({ tick: 3, fingerprint: "76aefdfe" });
   });
 });
 

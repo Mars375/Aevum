@@ -2,7 +2,7 @@ import { applyRuling } from "./apply.js";
 import type { Journal, Ruling } from "./journal.js";
 import { tickWorld } from "./tick.js";
 import type { TickEvent } from "./events.js";
-import type { World } from "./state.js";
+import { census, type World } from "./state.js";
 
 /**
  * The years of a world, one entry each, ready to be read.
@@ -30,8 +30,10 @@ export function chronicle(journal: Journal): Year[] {
     byTick.set(effective, [...(byTick.get(effective) ?? []), r]);
   }
 
-  const years: Year[] = [{ tick: journal.origin.tick, world: journal.origin, events: [], rulings: [] }];
-  let world = journal.origin;
+  // Like replay(), start from the board's canonical projection. Old journals
+  // can carry the original uncensused constructor output.
+  let world = census(journal.origin);
+  const years: Year[] = [{ tick: world.tick, world, events: [], rulings: [] }];
 
   while (world.tick < journal.livedTo) {
     const stepped = tickWorld(world);
