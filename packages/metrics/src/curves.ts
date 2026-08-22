@@ -29,23 +29,10 @@ const RELEVANT_BY_EVENT: Partial<Record<TickEvent["kind"], DoctrineKey[]>> = {
   COLLAPSED: ["farming", "military", "posture"],
 };
 
-const RELEVANT_BY_DECISION: Partial<Record<LearningObservation["decisionKind"], DoctrineKey[]>> = {
-  FAMINE: ["farming"],
-  TREASURY: ["military", "trade"],
-  DECLINE: ["military", "posture"],
-  INVADED: ["military", "posture"],
-  RAIDED: ["military", "posture"],
-  ROUTED: ["military", "posture"],
-  MISMATCH: ["farming", "forestry", "mining", "trade", "claim"],
-  DISASTER: ["claim", "farming"],
-  VOW_BROKEN: ["vow"],
-  CAPITAL: ["military", "posture"],
-};
-
 const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
 
 function relevantKeys(observation: LearningObservation): DoctrineKey[] {
-  const keys = new Set<DoctrineKey>(RELEVANT_BY_DECISION[observation.decisionKind] ?? []);
+  const keys = new Set<DoctrineKey>();
   for (const event of observation.triggerEvents) {
     for (const key of RELEVANT_BY_EVENT[event.kind] ?? []) keys.add(key);
   }
@@ -57,8 +44,23 @@ const changedRelevant = (observation: LearningObservation): boolean =>
 
 const negativeKinds = (observation: LearningObservation): string[] => {
   const events = observation.triggerEvents.filter((event) => NEGATIVE_EVENTS.has(event.kind)).map((event) => event.kind);
-  return events.length > 0 ? [...new Set(events)] : RELEVANT_BY_DECISION[observation.decisionKind] ? [observation.decisionKind] : [];
+  return [...new Set(events)];
 };
+
+function serviceMetadata(observations: readonly LearningObservation[]): {
+  serviceRate: number | null;
+  fallbackRate: number | null;
+  unknownServiceCount: number;
+} {
+  const unknownServiceCount = observations.filter((observation) => observation.service.evidence === "UNKNOWN").length;
+  const knownCount = observations.length - unknownServiceCount;
+  if (knownCount === 0) return { serviceRate: null, fallbackRate: null, unknownServiceCount };
+  return {
+    serviceRate: observations.filter((observation) => observation.service.selfServed).length / observations.length,
+    fallbackRate: observations.filter((observation) => observation.service.servedByFallback).length / observations.length,
+    unknownServiceCount,
+  };
+}
 
 function wilson(numerator: number, denominator: number): { lower: number | null; upper: number | null } {
   if (denominator === 0) return { lower: null, upper: null };
@@ -76,10 +78,13 @@ function makeSeries(
   scored: Array<{ eligible: boolean; pass: boolean }>,
 ): MetricSeries {
   const ticks = observations.map((observation) => observation.effectiveTick);
-  const denominator = scored.length;
-  const numerator = scored.filter((entry) => entry.eligible && entry.pass).length;
+  const eligible = scored.filter((entry) => entry.eligible);
+  const denominator = eligible.length;
+  const numerator = eligible.filter((entry) => entry.pass).length;
   const uncertainty = wilson(numerator, denominator);
   const seeds = new Set(observations.map((observation) => observation.seed));
+  const runs = new Set(observations.map((observation) => observation.runId));
+  const service = serviceMetadata(observations);
   return {
     metric,
     window: {
@@ -90,17 +95,12 @@ function makeSeries(
     denominator,
     value: denominator > 0 ? numerator / denominator : null,
     sampleCount: observations.length,
-    serviceRate: observations.length > 0
-      ? observations.filter((observation) => observation.service.selfServed).length / observations.length
-      : 0,
-    fallbackRate: observations.length > 0
-      ? observations.filter((observation) => observation.service.servedByFallback).length / observations.length
-      : 0,
+    ...service,
     uncertainty: {
       method: "WILSON_95",
       ...uncertainty,
       seedCount: seeds.size,
-      runCount: seeds.size,
+      runCount: runs.size,
     },
     eventSourceIds: [...new Set(observations.flatMap((observation) => observation.triggerEventIds))].sort(),
   };
@@ -127,11 +127,12 @@ function errorCorrectionEntries(observations: readonly LearningObservation[]): A
   const scored: Array<{ observation: LearningObservation; eligible: boolean; pass: boolean }> = [];
   const failures = new Map<string, Set<string>>();
   for (const observation of ordered) {
-    const key = `${observation.seed}\u0000${observation.modelId}\u0000${observation.civId}`;
+    if (!observation.eligibleForNumerator || observation.modelId === null) continue;
+    const key = `${observation.runId}\u0000${observation.modelId}\u0000${observation.civId}`;
     const seen = failures.get(key) ?? new Set<string>();
     const kinds = negativeKinds(observation);
     if (kinds.some((kind) => seen.has(kind))) {
-      scored.push({ observation, eligible: observation.eligibleForNumerator, pass: changedRelevant(observation) });
+      scored.push({ observation, eligible: true, pass: changedRelevant(observation) });
     }
     for (const kind of kinds) seen.add(kind);
     failures.set(key, seen);
@@ -155,12 +156,15 @@ function doctrineClaims(observation: LearningObservation): boolean[] {
     ["trade", /\b(trade|trading|commerce|wealth|tresor)/],
     ["military", /\b(militar|soldier|army|soldat|armee)/],
   ];
-  for (const [key, pattern] of work) {
-    if (!pattern.test(reason)) continue;
-    const before = observation.beforeDoctrine[key];
-    const after = observation.afterDoctrine[key];
-    if (/\b(more|increase|raise|plus|davantage|renfor)/.test(reason)) claims.push(after > before);
-    else if (/\b(less|reduce|lower|moins|redu|diminu)/.test(reason)) claims.push(after < before);
+  const clauses = reason.split(/\b(?:and|but|while|et|mais|tandis que)\b|[,;.]/);
+  for (const clause of clauses) {
+    for (const [key, pattern] of work) {
+      if (!pattern.test(clause)) continue;
+      const before = observation.beforeDoctrine[key];
+      const after = observation.afterDoctrine[key];
+      if (/\b(more|increase|raise|plus|davantage|renfor)/.test(clause)) claims.push(after > before);
+      else if (/\b(less|reduce|lower|moins|redu|diminu)/.test(clause)) claims.push(after < before);
+    }
   }
   return claims;
 }
@@ -204,7 +208,7 @@ export function scoreNarrativeFidelity(observations: readonly LearningObservatio
   return makeSeries("narrative-fidelity", observations, scored);
 }
 
-const DEFAULT_OPTIONS: Required<Omit<LearningCurveOptions, "pairedRunKey">> = {
+const DEFAULT_OPTIONS: Required<Omit<LearningCurveOptions, "pairedRunKey" | "pairedRunIds">> = {
   windowSize: 40,
   minimumServiceRate: 0.7,
   maximumFallbackRate: 0.3,
@@ -217,14 +221,23 @@ export function buildLearningCurve(
   observations: readonly LearningObservation[],
   options: LearningCurveOptions,
 ): LearningCurve {
+  const { pairedRunKey, pairedRunIds, ...scoringOptions } = options;
   if (!Number.isInteger(options.windowSize) || options.windowSize <= 0) throw new Error("windowSize must be a positive integer");
   const seeds = [...new Set(observations.map((observation) => observation.seed))].sort((a, b) => a - b);
-  if (seeds.length > 1 && !options.pairedRunKey) {
-    throw new Error("different seeds require an explicit pairedRunKey");
+  const runIds = [...new Set(observations.map((observation) => observation.runId))].sort();
+  if (runIds.length > 1 && !pairedRunKey) {
+    throw new Error("multiple runs require an explicit pairedRunKey");
+  }
+  if (runIds.length > 1 || pairedRunIds !== undefined) {
+    const declared = [...new Set(pairedRunIds ?? [])].sort();
+    if (declared.length !== (pairedRunIds?.length ?? 0)) throw new Error("pairedRunIds must not contain duplicates");
+    if (declared.length !== runIds.length || declared.some((runId, index) => runId !== runIds[index])) {
+      throw new Error("pairedRunIds must exactly match the complete paired group");
+    }
   }
   const models = [...new Set(observations.map((observation) => observation.modelId))];
   if (models.length > 1) throw new Error("buildLearningCurve accepts one requested model at a time");
-  const resolved = { ...DEFAULT_OPTIONS, ...options };
+  const resolved = { ...DEFAULT_OPTIONS, ...scoringOptions };
   const buckets = new Map<number, LearningObservation[]>();
   for (const observation of observations) {
     const start = Math.floor(observation.effectiveTick / resolved.windowSize) * resolved.windowSize;
@@ -248,20 +261,22 @@ export function buildLearningCurve(
     };
   });
   const sampleCount = observations.length;
-  const serviceRate = sampleCount > 0 ? observations.filter((observation) => observation.service.selfServed).length / sampleCount : 0;
-  const fallbackRate = sampleCount > 0 ? observations.filter((observation) => observation.service.servedByFallback).length / sampleCount : 0;
+  const { serviceRate, fallbackRate, unknownServiceCount } = serviceMetadata(observations);
   const unrankedReasons: string[] = [];
-  if (serviceRate < resolved.minimumServiceRate) unrankedReasons.push("SERVICE_RATE_BELOW_THRESHOLD");
-  if (fallbackRate > resolved.maximumFallbackRate) unrankedReasons.push("FALLBACK_RATE_ABOVE_THRESHOLD");
+  if (unknownServiceCount > 0) unrankedReasons.push("SERVICE_EVIDENCE_UNKNOWN");
+  if (serviceRate !== null && serviceRate < resolved.minimumServiceRate) unrankedReasons.push("SERVICE_RATE_BELOW_THRESHOLD");
+  if (fallbackRate !== null && fallbackRate > resolved.maximumFallbackRate) unrankedReasons.push("FALLBACK_RATE_ABOVE_THRESHOLD");
 
   return {
     modelId: models[0] ?? null,
+    runIds,
     seeds,
-    pairedRunKey: options.pairedRunKey ?? null,
+    pairedRunKey: pairedRunKey ?? null,
     options: resolved,
     sampleCount,
     serviceRate,
     fallbackRate,
+    unknownServiceCount,
     eventSources: [...new Map(observations.flatMap((observation) => observation.triggerEvents).map((event) => [event.id, event])).values()]
       .sort((a, b) => a.tick - b.tick || a.id.localeCompare(b.id)),
     series: {

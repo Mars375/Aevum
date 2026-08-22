@@ -1,4 +1,4 @@
-import { doctrineFingerprint, type Doctrine, type Ruling, type Year } from "@abs/world";
+import { applyRuling, doctrineFingerprint, tickWorld, type Doctrine, type Ruling, type World, type Year } from "@abs/world";
 import type { LearningObservation, ObservationEvent, ObservationService } from "./types.js";
 
 const objectiveState = (year: Year, civId: LearningObservation["civId"]) => {
@@ -29,39 +29,71 @@ const deltas = (
 
 function serviceOf(ruling: Ruling): ObservationService {
   const evidence = ruling.service ?? null;
-  const requestedModel = evidence?.requestedModel ?? ruling.model ?? "UNSERVED";
   return {
-    requestedModel,
-    servedModel: evidence?.servedModel ?? ruling.model,
+    evidence: evidence ? "KNOWN" : "UNKNOWN",
+    requestedModel: evidence?.requestedModel ?? null,
+    servedModel: evidence?.servedModel ?? null,
     provider: evidence?.provider ?? null,
-    selfServed: evidence
-      ? evidence.servedModel === evidence.requestedModel && !evidence.servedByFallback
-      : ruling.model !== null,
+    selfServed: evidence !== null
+      && evidence.servedModel === evidence.requestedModel
+      && !evidence.servedByFallback
+      && evidence.fallbackCount === 0,
     servedByFallback: evidence?.servedByFallback ?? false,
-    attempts: evidence?.attempts ?? 1,
+    fallbackCount: evidence?.fallbackCount ?? null,
+    attempts: evidence?.attempts ?? 0,
     deferredBy: ruling.deferredBy,
   };
+}
+
+function worldsAroundRulings(
+  orderedYears: readonly Year[],
+  indexed: ReadonlyArray<{ ruling: Ruling; index: number; effectiveTick: number }>,
+): Map<number, { before: World; after: World }> {
+  const transitions = new Map<number, { before: World; after: World }>();
+  const byTick = new Map<number, typeof indexed[number][]>();
+  for (const entry of indexed) byTick.set(entry.effectiveTick, [...(byTick.get(entry.effectiveTick) ?? []), entry]);
+  for (const [effectiveTick, entries] of byTick) {
+    const recorded = orderedYears.find((year) => year.tick === effectiveTick);
+    if (!recorded) continue;
+    const previous = [...orderedYears].reverse().find((year) => year.tick < effectiveTick);
+    let world = previous?.world ?? recorded.world;
+    while (world.tick < effectiveTick) {
+      world = tickWorld(world).world;
+      if (world.tick < effectiveTick) {
+        for (const entry of byTick.get(world.tick) ?? []) world = applyRuling(world, entry.ruling);
+      }
+    }
+    for (const entry of entries) {
+      const before = world;
+      world = applyRuling(world, entry.ruling);
+      transitions.set(entry.index, { before, after: world });
+    }
+  }
+  return transitions;
 }
 
 /**
  * Derive auditable before/after facts from a replayed chronicle.
  * "Observed-after" is deliberate: temporal order does not prove causality.
  */
-export function buildObservations(years: Year[], rulings: Ruling[]): LearningObservation[] {
+export function buildObservations(years: Year[], rulings: Ruling[], runId: string): LearningObservation[] {
+  if (runId.length === 0) throw new Error("runId must not be empty");
   const orderedYears = [...years].sort((a, b) => a.tick - b.tick);
   const yearAt = new Map(orderedYears.map((year) => [year.tick, year]));
   const eventAtId = new Map(orderedYears.flatMap((year) => year.events).map((event) => [event.id, event]));
   const indexed = rulings.map((ruling, index) => ({ ruling, index, effectiveTick: ruling.tick + ruling.deferredBy }))
     .sort((a, b) => a.effectiveTick - b.effectiveTick || a.index - b.index);
+  const transitions = worldsAroundRulings(orderedYears, indexed);
 
   return indexed.flatMap(({ ruling, index, effectiveTick }) => {
     const decisionYear = yearAt.get(effectiveTick);
     if (!decisionYear) return [];
-    const previousYear = [...orderedYears].reverse().find((year) => year.tick < effectiveTick);
     const followingYear = orderedYears.find((year) => year.tick > effectiveTick);
-    const beforeCiv = previousYear?.world.civs.find((civ) => civ.id === ruling.civ)
+    const transition = transitions.get(index);
+    const beforeCiv = transition?.before.civs.find((civ) => civ.id === ruling.civ)
       ?? decisionYear.world.civs.find((civ) => civ.id === ruling.civ);
-    const afterCiv = decisionYear.world.civs.find((civ) => civ.id === ruling.civ);
+    const afterCiv = transition?.after.civs.find((civ) => civ.id === ruling.civ)
+      ?? decisionYear.world.civs.find((civ) => civ.id === ruling.civ);
     if (!beforeCiv || !afterCiv) return [];
 
     const next = indexed.find((candidate) => candidate.index !== index
@@ -69,10 +101,9 @@ export function buildObservations(years: Year[], rulings: Ruling[]): LearningObs
       && (candidate.effectiveTick > effectiveTick
         || (candidate.effectiveTick === effectiveTick && candidate.index > index)));
     const referenced = ruling.consequenceRef ? eventAtId.get(ruling.consequenceRef) : undefined;
-    const sameYear = decisionYear.events.filter((event) => event.civ === ruling.civ);
-    const sources = referenced
-      ? [referenced, ...sameYear.filter((event) => event.id !== referenced.id)]
-      : sameYear;
+    const sources = referenced && referenced.civ === ruling.civ && referenced.tick <= ruling.tick
+      ? [referenced]
+      : [];
     const triggerEvents: ObservationEvent[] = sources.map(({ id, tick, kind, detail }) => ({ id, tick, kind, detail }));
     const service = serviceOf(ruling);
     const beforeDoctrine: Doctrine = structuredClone(beforeCiv.doctrine);
@@ -80,6 +111,7 @@ export function buildObservations(years: Year[], rulings: Ruling[]): LearningObs
 
     return [{
       modelId: service.requestedModel,
+      runId,
       civId: ruling.civ,
       seed: decisionYear.world.seed,
       triggerEventIds: triggerEvents.map((event) => event.id),
@@ -96,7 +128,11 @@ export function buildObservations(years: Year[], rulings: Ruling[]): LearningObs
       reason: ruling.reason,
       context: [...(ruling.context ?? [])],
       attribution: "observed-after" as const,
-      eligibleForNumerator: ruling.deferredBy === 0 && service.attempts === 1,
+      eligibleForNumerator: service.evidence === "KNOWN"
+        && service.selfServed
+        && !service.servedByFallback
+        && service.attempts === 1
+        && ruling.deferredBy === 0,
       service,
     }];
   });

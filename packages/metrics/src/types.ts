@@ -10,17 +10,21 @@ export type MetricName =
 export interface ObservationEvent extends Pick<LifeEvent, "id" | "tick" | "kind" | "detail"> {}
 
 export interface ObservationService {
-  requestedModel: string;
+  evidence: "KNOWN" | "UNKNOWN";
+  requestedModel: string | null;
   servedModel: string | null;
   provider: string | null;
   selfServed: boolean;
   servedByFallback: boolean;
+  fallbackCount: number | null;
   attempts: number;
   deferredBy: number;
 }
 
 /** The shared bounded fact plus the journal evidence needed by pure scorers. */
-export interface LearningObservation extends ContractLearningObservation {
+export interface LearningObservation extends Omit<ContractLearningObservation, "modelId"> {
+  modelId: string | null;
+  runId: string;
   seed: number;
   effectiveTick: number;
   decisionKind: DecisionKind;
@@ -54,8 +58,9 @@ export interface MetricSeries {
   denominator: number;
   value: number | null;
   sampleCount: number;
-  serviceRate: number;
-  fallbackRate: number;
+  serviceRate: number | null;
+  fallbackRate: number | null;
+  unknownServiceCount: number;
   uncertainty: MetricUncertainty;
   eventSourceIds: string[];
 }
@@ -68,16 +73,19 @@ export interface LearningCurveOptions {
   minimumWindows?: number;
   minimumImprovement?: number;
   pairedRunKey?: string;
+  pairedRunIds?: readonly string[];
 }
 
 export interface LearningCurve {
   modelId: string | null;
+  runIds: string[];
   seeds: number[];
   pairedRunKey: string | null;
-  options: Required<Omit<LearningCurveOptions, "pairedRunKey">>;
+  options: Required<Omit<LearningCurveOptions, "pairedRunKey" | "pairedRunIds">>;
   sampleCount: number;
-  serviceRate: number;
-  fallbackRate: number;
+  serviceRate: number | null;
+  fallbackRate: number | null;
+  unknownServiceCount: number;
   eventSources: ObservationEvent[];
   series: {
     consequenceRecognition: MetricSeries[];

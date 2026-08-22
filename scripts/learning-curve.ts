@@ -1,5 +1,5 @@
 /** Offline adaptation report from one or more replayable world journals. */
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { basename } from "node:path";
 import {
   buildLearningCurve,
@@ -41,8 +41,8 @@ function parseArguments(args: string[]): Arguments {
   return { paths, format, windowSize, minimumServiceRate, pairedRunKey };
 }
 
-function percent(value: number): string {
-  return `${(value * 100).toFixed(1)}%`;
+function percent(value: number | null): string {
+  return value === null ? "inconnu" : `${(value * 100).toFixed(1)}%`;
 }
 
 function markdown(curves: Array<LearningCurve & { classification: ReturnType<typeof classifyLearningSignal> }>, sources: string[]): string {
@@ -57,8 +57,8 @@ function markdown(curves: Array<LearningCurve & { classification: ReturnType<typ
       `## ${curve.modelId ?? "aucun modele"}`,
       "",
       `- Etat: **${curve.classification}**`,
-      `- Service propre: ${percent(curve.serviceRate)}; replis: ${percent(curve.fallbackRate)}; echantillon: ${curve.sampleCount}`,
-      `- Graines: ${curve.seeds.join(", ") || "aucune"}; appariement: ${curve.pairedRunKey ?? "aucun"}`,
+      `- Service propre: ${percent(curve.serviceRate)}; replis: ${percent(curve.fallbackRate)}; preuves inconnues: ${curve.unknownServiceCount}; echantillon: ${curve.sampleCount}`,
+      `- Courses: ${curve.runIds.join(", ") || "aucune"}; graines: ${curve.seeds.join(", ") || "aucune"}; appariement: ${curve.pairedRunKey ?? "aucun"}`,
       `- Motifs non classables: ${curve.unrankedReasons.join(", ") || "aucun"}`,
       "",
       "| Serie | Fenetre | Numerateur | Denominateur | Valeur | IC Wilson 95% | Service | Repli |",
@@ -82,19 +82,23 @@ function markdown(curves: Array<LearningCurve & { classification: ReturnType<typ
 try {
   const args = parseArguments(process.argv.slice(2));
   const observations: LearningObservation[] = [];
-  for (const path of args.paths) {
+  const canonicalPaths = args.paths.map((path) => realpathSync(path));
+  if (new Set(canonicalPaths).size !== canonicalPaths.length) throw new Error("duplicate journal paths are not distinct runs");
+  const runIds = canonicalPaths.map((path) => `run:${path}`);
+  for (const [index, path] of canonicalPaths.entries()) {
     const journal = JournalSchema.parse(JSON.parse(readFileSync(path, "utf8")));
-    observations.push(...buildObservations(chronicle(journal), journal.rulings));
+    observations.push(...buildObservations(chronicle(journal), journal.rulings, runIds[index]!));
   }
-  const byModel = new Map<string, LearningObservation[]>();
+  const byModel = new Map<string | null, LearningObservation[]>();
   for (const observation of observations) {
     byModel.set(observation.modelId, [...(byModel.get(observation.modelId) ?? []), observation]);
   }
-  const curves = [...byModel].sort((a, b) => a[0].localeCompare(b[0])).map(([, modelObservations]) => {
+  const curves = [...byModel].sort((a, b) => (a[0] ?? "").localeCompare(b[0] ?? "")).map(([, modelObservations]) => {
     const curve = buildLearningCurve(modelObservations, {
       windowSize: args.windowSize,
       minimumServiceRate: args.minimumServiceRate,
       pairedRunKey: args.pairedRunKey,
+      pairedRunIds: runIds.length > 1 ? runIds : undefined,
     });
     return { ...curve, classification: classifyLearningSignal(curve) };
   });
