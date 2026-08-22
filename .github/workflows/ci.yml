@@ -1,22 +1,53 @@
 name: CI
 
-# Every check here runs OFFLINE. The whole test suite exercises the battle loop
-# through ScriptedProvider, so CI needs no API key, spends no quota, and cannot
-# be broken by a provider having a bad day. That property is the reason the
-# scripted provider was worth building.
 on:
   push:
-    branches: [master, main]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
-          # Two commits, so the secret scan below can diff against the parent.
-          fetch-depth: 2
+          fetch-depth: 0
+
+      - name: Scan the event diff for API keys
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          base="$BASE_SHA"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            base="$(git hash-object -t tree /dev/null)"
+          fi
+
+          diff_file="$(mktemp)"
+          trap 'rm -f "$diff_file"' EXIT
+          if ! git diff --no-ext-diff --unified=0 "$base" "$HEAD_SHA" -- >"$diff_file"; then
+            echo "::error::Could not generate the event diff."
+            exit 1
+          fi
+
+          if grep -qE "sk-or-v1-[A-Za-z0-9_-]{20,}|gsk_[A-Za-z0-9_-]{20,}|nvapi-[A-Za-z0-9_-]{20,}|MISTRAL_API_KEY[[:space:]]*=[[:space:]]*[\"']?[A-Za-z0-9_-]{20,}" "$diff_file"; then
+            echo "::error::An API key pattern appears in the event diff."
+            exit 1
+          fi
+
+      - name: Ensure .env stays ignored and untracked
+        run: |
+          if ! git check-ignore -q .env; then
+            echo "::error::.env is not ignored by git."
+            exit 1
+          fi
+          if git ls-files --error-unmatch -- .env >/dev/null 2>&1; then
+            echo "::error::.env is tracked by git."
+            exit 1
+          fi
 
       - uses: actions/setup-node@v4
         with:
@@ -24,43 +55,11 @@ jobs:
           cache: npm
 
       - run: npm ci
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Tests
-        run: npm test
-
-      - name: Build the player
-        run: npm run player:build
-
-      - name: Healthcheck
-        # Advisory network check inside; it never fails the build on its own.
-        run: npm run healthcheck
-
-      - name: The world holds together over three centuries
-        # Free, offline and fast: three hundred years of engine, which is the
-        # cheapest way to catch a rule that only misbehaves at scale. Costs no
-        # quota, because nothing here consults a model.
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run player:build
+      - run: npm run healthcheck
+      - name: Probe the continuous world offline
         run: npm run world:probe -- 300
-
-      - name: The reports still render
+      - name: Rebuild the report catalogue
         run: npm run build-reports
-
-      - name: No API key in the diff
-        # Turns the check I have run by hand before every commit into something
-        # that cannot be forgotten. Patterns for all four providers.
-        run: |
-          if git diff HEAD~1 HEAD | grep -nE 'sk-or-v1-[A-Za-z0-9]{20,}|gsk_[A-Za-z0-9]{30,}|nvapi-[A-Za-z0-9_-]{30,}|MISTRAL_API_KEY=[A-Za-z0-9]{20,}'; then
-            echo "::error::An API key pattern appears in this diff."
-            exit 1
-          fi
-          echo "No key pattern found."
-
-      - name: .env is not tracked
-        run: |
-          if git ls-files --error-unmatch .env 2>/dev/null; then
-            echo "::error::.env is tracked by git."
-            exit 1
-          fi
-          echo ".env is untracked, as it should be."

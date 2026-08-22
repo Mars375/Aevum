@@ -1,6 +1,7 @@
 import { census, isAlive, type Civ, type Doctrine, type Stock, type World } from "./state.js";
 import { disasterOn, raidOn, season } from "./chance.js";
 import { LAND_LABEL, contact, reachable, value } from "./borders.js";
+import { ADVANCES } from "./advances.js";
 import type { TickEvent, TickResult } from "./events.js";
 
 /**
@@ -37,15 +38,6 @@ export function shares(d: Doctrine): Record<"farming" | "forestry" | "mining" | 
     military: raw.military / total,
   };
 }
-
-/** Advances are milestones, not victories: passing one changes nothing about whether the world continues. */
-const ADVANCES: Array<{ name: string; when: (c: Civ) => boolean }> = [
-  { name: "irrigation", when: (c) => c.stock.food >= 600 },
-  { name: "masonry", when: (c) => c.stock.timber >= 400 && c.territory >= 8 },
-  { name: "metallurgy", when: (c) => c.stock.ore >= 300 },
-  { name: "coinage", when: (c) => c.stock.wealth >= 500 },
-  { name: "engineering", when: (c) => c.advances.includes("masonry") && c.advances.includes("metallurgy") },
-];
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 

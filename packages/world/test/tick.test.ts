@@ -133,6 +133,35 @@ describe("les parts de doctrine sont normalisees", () => {
   });
 });
 
+describe("les progres de w8 restent des jalons", () => {
+  it("leurs etiquettes ne changent pas la resolution d'un tour", () => {
+    const base = holding(
+      {
+        civs: [
+          {
+            ...newCiv("crimson"),
+            population: 300,
+            soldiers: 20,
+            stock: { food: 5000, timber: 500, ore: 500, wealth: 500 },
+          },
+        ],
+      },
+      { plain: 4, forest: 2, hill: 2, river: 2 },
+    );
+    const advanced = {
+      ...base,
+      civs: base.civs.map((civ) => ({
+        ...civ,
+        advances: ["irrigation", "masonry", "metallurgy", "coinage", "engineering"],
+      })),
+    };
+
+    const withoutLabels = tickWorld(base).world.civs[0]!;
+    const withLabels = tickWorld(advanced).world.civs[0]!;
+    expect({ ...withLabels, advances: [] }).toEqual({ ...withoutLabels, advances: [] });
+  });
+});
+
 describe("la terre n'est pas interchangeable", () => {
   const withLands = (lands: { plain: number; forest: number; hill: number; river: number }, doctrine = {}) =>
     holding({ civs: [{ ...newCiv("crimson"), doctrine: { ...newCiv("crimson").doctrine, ...doctrine } }] }, lands);

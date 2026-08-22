@@ -1,0 +1,9 @@
+<h1>Release R1 — monde continu</h1>
+<p>Audit hors ligne du 22 août 2026.</p>
+<h2>Constat et correction</h2>
+<p><code>tick.ts</code> appliquait sous l'identifiant <code>w8</code> une partie d'effets annoncés comme <code>w9</code> dans <code>advances.ts</code>. Les effets économiques et d'expansion étaient actifs, mais pas ceux de combat et de commerce définis dans le même module. Au-delà de cette incohérence interne, rejouer un journal w8 aurait changé ses résultats et rompu W4.</p>
+<p>R1 conserve donc les progrès comme les jalons sans effet décrits par w8. Leur table de seuils reste extraite dans <code>advances.ts</code>, et un test vérifie désormais que les étiquettes de progrès ne changent pas la résolution d'un tour.</p>
+<h2>Vérifications observées</h2>
+<ul><li><code>npm test</code> : 15 fichiers, 346 tests réussis, dont les rejeux w8 et les suites v1/v2.</li><li><code>npm run typecheck</code> : réussi.</li><li><code>npm run index-worlds</code> : chemin sans données réussi, avec <code>Aucun monde a indexer.</code></li><li><code>git diff --check</code> : réussi.</li></ul>
+<h2>Incertitude restante</h2>
+<p>Ce worktree ne contient aucun répertoire <code>worlds/</code>. Le chemin d'indexation vide est vérifié, mais aucun journal réel ni catalogue généré n'a pu être rejoué et comparé ici. Les rapports préexistants ont été conservés sans modification.</p>

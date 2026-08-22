@@ -93,6 +93,14 @@ function onClick(e: MouseEvent) {
   emit("seek", Math.max(0, Math.min(bounds.value.lastTick, tick)));
 }
 
+function onKey(e: KeyboardEvent) {
+  const current = Math.max(0, props.years.findIndex((year) => year.tick === props.at));
+  const target = e.key === "Home" ? 0 : e.key === "End" ? props.years.length - 1 : e.key === "ArrowLeft" ? current - 1 : e.key === "ArrowRight" ? current + 1 : null;
+  if (target === null) return;
+  e.preventDefault();
+  emit("seek", props.years[Math.max(0, Math.min(props.years.length - 1, target))]!.tick);
+}
+
 const summary = computed(() =>
   series.value
     .map((s) => {
@@ -108,8 +116,10 @@ const summary = computed(() =>
     <svg
       :viewBox="`0 0 ${W} ${H}`"
       role="img"
+      tabindex="0"
       :aria-label="`Évolution de ${LABEL[metric]} sur ${bounds.lastTick} ans. ${summary}`"
       @click="onClick"
+      @keydown="onKey"
     >
       <line :x1="PAD.left" :y1="H - PAD.bottom" :x2="W - PAD.right" :y2="H - PAD.bottom" class="axis" />
       <line :x1="PAD.left" :y1="PAD.top" :x2="PAD.left" :y2="H - PAD.bottom" class="axis" />

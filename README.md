@@ -6,6 +6,8 @@ deterministic engine does everything else, and writes a record you can replay.
 
 Nobody plays. You watch, and you read why each ruler decided what it did.
 
+Release candidate **R1 / 0.2.0** is prepared in this tree and is not published.
+
 ## From clone to a living world
 
 ```
@@ -43,7 +45,7 @@ nothing:
 npm run world:probe              # how many calls a world would need. Zero spent
 npm run era-report worlds/monde/era-0001.json   # read an era back
 npm run eras -- --ticks 120      # rotate the models across positions. Costs calls
-npm test                         # 305 tests, all offline
+npm test                         # full test suite, all offline
 ```
 
 ## How it is put together
@@ -188,6 +190,7 @@ single model again. That round trip is a test
 | `docs/spec/mvp.md` | Scope, audience, what is deliberately out |
 | `docs/spec/rules.md` | Ruleset v1 — the engine's source of truth, with 11 invariants |
 | `docs/spec/rules-v2.md` | Ruleset v2 — budget, fog, diplomacy, and 9 more invariants |
+| `docs/spec/release-r1.md` | Product and experience brief for the R1 / 0.2.0 candidate |
 | `docs/spec/reports.md` | Battle reports, and why the replay grades them instead of a model |
 | `docs/spec/visual-identity.md` | The 3D view, and why 2D stays the default |
 | `scripts/screenshot.sh` | Capture the deployed player at 375, 900 and 1440 px |
@@ -196,6 +199,7 @@ single model again. That round trip is a test
 | `docs/reports/reference-battle.md` | The delivered battle, and four runs of measurements |
 | `docs/reports/qa-audit.md` | Defects found, what was fixed, what is still open |
 | `docs/reports/tournament.md` | Which model commands best, and what the ranking cannot say |
+| `docs/reports/release-r1-verification.md` | Commands, observed results and remaining limits for the R1 candidate |
 
 ## Continuous integration
 
@@ -212,7 +216,7 @@ every commit into one that cannot be forgotten.
 
 | Command | Does |
 | --- | --- |
-| `npm test` | 190 tests: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
+| `npm test` | Offline suite: engine invariants, replay round-trip, provider routing, regression tests for every fixed defect |
 | `npm run typecheck` | `tsc --noEmit` across the workspace |
 | `npm run battle -- --scripted` | Offline battle with the baseline AI |
 | `npm run battle` | Remote battle, four free models, ~7 minutes |

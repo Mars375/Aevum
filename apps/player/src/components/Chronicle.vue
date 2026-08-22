@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { chronicle, JournalSchema, type Journal, type Year } from "@abs/world";
+import { chronicle, turningPoints, type Journal, type Year } from "@abs/world";
 import CivTrend from "./CivTrend.vue";
 import EmpireShare from "./EmpireShare.vue";
+import TurningPoint from "./TurningPoint.vue";
 import WorldStage from "./WorldStage.vue";
 
 /**
@@ -79,21 +80,13 @@ watch(index, () => {
   history.replaceState(null, "", url);
 });
 
-const copied = ref(false);
-async function copyLink() {
-  const url = new URL(location.href);
-  url.searchParams.set("annee", String(year.value.tick));
-  try {
-    await navigator.clipboard.writeText(url.toString());
-    copied.value = true;
-    setTimeout(() => (copied.value = false), 1800);
-  } catch {
-    // Clipboard refused (no permission, insecure context). The URL bar already
-    // carries the year, so nothing is lost — we just say nothing.
-  }
-}
-
 const year = computed(() => years.value[Math.min(index.value, years.value.length - 1)]!);
+const turns = computed(() => turningPoints(years.value));
+const latestTurn = computed(() => turns.value.at(-1)?.tick ?? null);
+const seekTick = (tick: number) => {
+  const at = years.value.findIndex((item) => item.tick === tick);
+  if (at >= 0) index.value = at;
+};
 const metric = ref<"population" | "territory" | "soldiers" | "wealth">("population");
 
 const METRICS = [
@@ -152,130 +145,109 @@ const EVENT_LABEL: Record<string, string> = {
   VOW_BROKEN: "serment rompu",
 };
 
-/** The events worth a line in a chronicle. Growth every year is not history. */
-const NOTABLE = new Set([
-  "STARVED", "ADVANCE", "COLLAPSED", "SEIZED", "CEDED", "RAIDED", "LAND_FULL", "SHORTAGE", "DISASTER", "VOW_BROKEN",
-]);
-const notable = computed(() => year.value.events.filter((e) => NOTABLE.has(e.kind)));
-
-/** Everything a ruler has ever said, newest first — the era's real narrative. */
-const rulings = computed(() => [...props.journal.rulings].sort((a, b) => b.tick - a.tick));
+const register = computed(() =>
+  years.value
+    .flatMap((item) => [
+      ...item.events.map((event) => ({ tick: item.tick, civ: event.civ, kind: EVENT_LABEL[event.kind] ?? event.kind, detail: event.detail, ruling: false })),
+      ...item.rulings.map((ruling) => ({
+        tick: item.tick,
+        civ: ruling.civ,
+        kind: `décision · ${ruling.kind.toLowerCase()}`,
+        detail: ruling.reason || "sans explication",
+        ruling: true,
+      })),
+    ])
+    .sort((a, b) => b.tick - a.tick),
+);
 
 const round = (n: number) => Math.round(n);
 </script>
 
 <template>
-  <div class="chronicle">
-    <p v-if="tended" class="card tended" :class="tended.tone" :role="tended.tone === 'ok' ? undefined : 'status'">
-      <span class="dot" aria-hidden="true"></span>{{ tended.text }}
+  <main class="chronicle">
+    <p v-if="tended" class="tended mono" :class="tended.tone" :role="tended.tone === 'ok' ? undefined : 'status'">
+      <span class="state-word">{{ tended.tone === "ok" ? "ÉTAT" : tended.tone === "warn" ? "RETARD" : "ARRÊT" }}</span>
+      {{ tended.text }}
     </p>
 
-    <WorldStage :years="years" :index="index" @seek="(i) => (index = i)" />
+    <WorldStage :years="years" :index="index" :turning-tick="latestTurn" @seek="(i) => (index = i)" />
 
-    <header class="card head">
-      <div>
-        <h2>Ère {{ journal.era }}</h2>
-        <p class="mono muted">année {{ year.tick }} sur {{ journal.livedTo }}</p>
-      </div>
-      <div class="metrics">
-        <button
-          v-for="m in METRICS"
-          :key="m.key"
-          :aria-pressed="metric === m.key"
-          @click="metric = m.key"
-        >
-          {{ m.label }}
-        </button>
-      </div>
-    </header>
+    <p class="live" role="status" aria-live="polite">An {{ year.tick }}, ère {{ journal.era }}.</p>
 
-    <section class="card">
-      <EmpireShare :years="years" :at="year.tick" @seek="(t) => (index = t)" />
-    </section>
+    <TurningPoint :journal="journal" :years="years" :at="year.tick" @seek="seekTick" />
 
-    <section class="card">
-      <CivTrend :years="years" :metric="metric" :at="year.tick" @seek="(t) => (index = t)" />
-      <label class="scrub">
-        <span class="visually-hidden">Année</span>
-        <input
-          type="range"
-          min="0"
-          :max="years.length - 1"
-          v-model.number="index"
-          :aria-valuetext="`an ${year.tick}`"
-        />
-        <output class="mono">an {{ year.tick }}</output>
-        <button class="link mono" @click="copyLink">{{ copied ? "copié" : "lien vers cette année" }}</button>
-      </label>
-    </section>
-
-    <section class="civs">
-      <article v-for="civ in year.world.civs" :key="civ.id" class="card civ" :class="[civ.id, { fallen: civ.fellOnTick !== null }]">
-        <h3>
-          {{ civ.id }}
-          <span v-if="civ.fellOnTick !== null" class="mono dead">éteinte an {{ civ.fellOnTick }}</span>
-          <span v-else class="mono posture">{{ POSTURE[civ.doctrine.posture] }}</span>
-        </h3>
-        <dl class="mono">
-          <div><dt>population</dt><dd>{{ round(civ.population) }}</dd></div>
-          <div><dt>terres</dt><dd>{{ civ.territory }}</dd></div>
-          <div><dt>soldats</dt><dd>{{ civ.soldiers }}</dd></div>
-          <div><dt>vivres</dt><dd>{{ round(civ.stock.food) }}</dd></div>
-          <div><dt>richesse</dt><dd>{{ round(civ.stock.wealth) }}</dd></div>
-          <div><dt>progrès</dt><dd>{{ civ.advances.length }}</dd></div>
-        </dl>
-        <ul class="lands mono" :aria-label="`Terres : ${LAND_KINDS.map((k) => `${civ.lands[k]} ${LAND_LABEL[k]}`).join(', ')}`">
-          <li v-for="k in LAND_KINDS" :key="k" :class="k" :style="{ flexGrow: civ.lands[k] }" :title="`${civ.lands[k]} ${LAND_LABEL[k]}`">
-            <span v-if="civ.lands[k] > 0">{{ civ.lands[k] }}</span>
-          </li>
-        </ul>
-        <p class="claims mono">convoite : {{ LAND_LABEL[civ.doctrine.claim] }}</p>
-        <p v-if="civ.doctrine.vow" class="vow mono" :class="{ broken: civ.vowBrokenOn !== null }">
-          serment (an {{ civ.doctrine.vow.sworn }}) : {{ VOW_LABEL[civ.doctrine.vow.metric] }} ≥ {{ civ.doctrine.vow.floor }}
-          <span v-if="civ.vowBrokenOn !== null">— rompu an {{ civ.vowBrokenOn }}</span>
-          <span v-else>— tenu</span>
-        </p>
-
-        <p v-if="civ.doctrine.creed" class="creed">« {{ civ.doctrine.creed }} »</p>
-        <p v-else class="creed muted">Aucun dirigeant n'a encore écrit de credo.</p>
-      </article>
-    </section>
-
-    <section class="card">
-      <h3>Année {{ year.tick }}</h3>
-      <ul v-if="notable.length > 0" class="events mono">
-        <li v-for="(e, i) in notable" :key="i" :class="e.civ">
-          <span class="kind">{{ EVENT_LABEL[e.kind] ?? e.kind }}</span>
-          <span class="who">{{ e.civ }}</span>
-          <span class="what">{{ e.detail }}</span>
-        </li>
-      </ul>
-      <p v-else class="muted">Une année sans histoire.</p>
-
-      <div v-if="year.rulings.length > 0" class="decisions">
-        <h4>Décisions de cette année</h4>
-        <article v-for="(r, i) in year.rulings" :key="i" class="ruling" :class="r.civ">
-          <p class="mono meta">
-            {{ r.civ }} · {{ r.kind }} · {{ r.model ?? "doctrine en place" }}
-            <span v-if="r.deferredBy > 0" class="late">gouvernée {{ r.deferredBy }} ans trop tard</span>
+    <section class="civilizations" aria-labelledby="civs-title">
+      <header class="section-heading">
+        <p class="eyebrow mono">État comparé · an {{ year.tick }}</p>
+        <h2 id="civs-title">Les quatre civilisations</h2>
+      </header>
+      <div class="civs">
+        <article v-for="civ in year.world.civs" :key="civ.id" class="civ" :class="[civ.id, { fallen: civ.fellOnTick !== null }]">
+          <h3>
+            <span class="sigil mono" aria-hidden="true">{{ civ.id.slice(0, 1).toUpperCase() }}</span>
+            {{ civ.id }}
+            <span v-if="civ.fellOnTick !== null" class="mono dead">éteinte · an {{ civ.fellOnTick }}</span>
+            <span v-else class="mono posture">posture · {{ POSTURE[civ.doctrine.posture] }}</span>
+          </h3>
+          <dl class="mono">
+            <div><dt>population</dt><dd>{{ round(civ.population) }}</dd></div>
+            <div><dt>terres</dt><dd>{{ civ.territory }}</dd></div>
+            <div><dt>soldats</dt><dd>{{ civ.soldiers }}</dd></div>
+            <div><dt>vivres</dt><dd>{{ round(civ.stock.food) }}</dd></div>
+            <div><dt>richesse</dt><dd>{{ round(civ.stock.wealth) }}</dd></div>
+            <div><dt>progrès</dt><dd>{{ civ.advances.length }}</dd></div>
+          </dl>
+          <ul class="lands mono" :aria-label="`Terres : ${LAND_KINDS.map((k) => `${civ.lands[k]} ${LAND_LABEL[k]}`).join(', ')}`">
+            <li v-for="k in LAND_KINDS" :key="k" :class="k" :style="{ flexGrow: civ.lands[k] }" :title="`${civ.lands[k]} ${LAND_LABEL[k]}`">
+              <span v-if="civ.lands[k] > 0">{{ civ.lands[k] }}</span>
+            </li>
+          </ul>
+          <p class="claims mono">convoite · {{ LAND_LABEL[civ.doctrine.claim] }}</p>
+          <p v-if="civ.doctrine.vow" class="vow mono" :class="{ broken: civ.vowBrokenOn !== null }">
+            serment · {{ VOW_LABEL[civ.doctrine.vow.metric] }} ≥ {{ civ.doctrine.vow.floor }} ·
+            <span v-if="civ.vowBrokenOn !== null">rompu an {{ civ.vowBrokenOn }}</span><span v-else>tenu</span>
           </p>
-          <p v-if="r.reason">{{ r.reason }}</p>
+          <blockquote v-if="civ.doctrine.creed" class="creed">« {{ civ.doctrine.creed }} »</blockquote>
+          <p v-else class="creed muted">Aucun dirigeant n'a encore écrit de credo.</p>
         </article>
       </div>
     </section>
 
-    <section class="card">
-      <h3>Ce que les dirigeants ont dit</h3>
-      <p v-if="rulings.length === 0" class="muted">Aucune décision : ce monde a vécu sans être gouverné.</p>
-      <ol v-else class="log">
-        <li v-for="(r, i) in rulings" :key="i" :class="r.civ">
-          <button class="jump mono" @click="index = Math.min(r.tick, years.length - 1)">an {{ r.tick }}</button>
-          <span class="mono who">{{ r.civ }}</span>
-          <span class="said">{{ r.reason || "— sans explication —" }}</span>
-        </li>
-      </ol>
+    <section class="trajectories" aria-labelledby="trajectories-title">
+      <header class="section-heading trajectory-heading">
+        <div>
+          <p class="eyebrow mono">Trajectoires · ère {{ journal.era }}</p>
+          <h2 id="trajectories-title">Ce que le temps déplace</h2>
+        </div>
+        <div class="metrics" role="group" aria-label="Métrique de trajectoire">
+          <button v-for="m in METRICS" :key="m.key" :aria-pressed="metric === m.key" @click="metric = m.key">{{ m.label }}</button>
+        </div>
+      </header>
+      <div class="charts">
+        <div class="chart share-chart"><EmpireShare :years="years" :at="year.tick" @seek="seekTick" /></div>
+        <div class="chart"><CivTrend :years="years" :metric="metric" :at="year.tick" @seek="seekTick" /></div>
+      </div>
     </section>
-  </div>
+
+    <section class="register" aria-labelledby="register-title">
+      <details>
+        <summary>
+          <span><span class="eyebrow mono">Journal exhaustif</span><strong id="register-title">Registre des événements et décisions</strong></span>
+          <span class="mono count">{{ register.length }} inscriptions · ouvrir</span>
+        </summary>
+        <p v-if="register.length === 0" class="muted">Aucun événement ni décision n'est enregistré pour cette ère.</p>
+        <ol v-else class="log">
+          <li v-for="(row, i) in register" :key="`${row.tick}-${row.kind}-${i}`" :class="[row.civ, { ruling: row.ruling }]">
+            <button class="jump mono" @click="seekTick(row.tick)">an {{ row.tick }}</button>
+            <span class="mono who">{{ row.civ }}</span>
+            <span class="mono kind">{{ row.kind }}</span>
+            <q v-if="row.ruling" class="said">{{ row.detail }}</q>
+            <span v-else class="said">{{ row.detail }}</span>
+          </li>
+        </ol>
+      </details>
+    </section>
+  </main>
 </template>
 
 <style scoped>
@@ -573,6 +545,263 @@ dd {
   .log li {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+}
+
+/* R1 editorial composition. Earlier selectors above remain useful for the
+   metric details; these rules remove the equal-card rhythm around them. */
+.chronicle {
+  gap: 0;
+}
+
+.tended {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin: 0;
+  padding: var(--s2) 0;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.state-word {
+  color: var(--fg);
+  letter-spacing: 0.1em;
+}
+
+.tended.warn,
+.tended.fail {
+  color: var(--accent);
+}
+
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.civilizations,
+.trajectories,
+.register {
+  padding: clamp(var(--s6), 7vw, 88px) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-heading {
+  margin-bottom: var(--s6);
+}
+
+.section-heading .eyebrow,
+.register .eyebrow {
+  display: block;
+  margin: 0 0 var(--s2);
+  color: var(--accent);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.section-heading h2 {
+  font-family: var(--display);
+  font-size: clamp(32px, 5vw, 62px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.civs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.civ {
+  min-width: 0;
+  padding: var(--s5);
+  border-left: 1px solid var(--border-soft);
+  border-bottom: 2px solid var(--faction, var(--border));
+}
+
+.civ:first-child {
+  border-left: 0;
+}
+
+.civ.crimson { --faction: var(--crimson); border-left-color: var(--border-soft); }
+.civ.azure { --faction: var(--azure); border-left-color: var(--border-soft); }
+.civ.verdant { --faction: var(--verdant); border-left-color: var(--border-soft); }
+.civ.amber { --faction: var(--amber); border-left-color: var(--border-soft); }
+
+.civ.fallen {
+  opacity: 0.62;
+  background-image: repeating-linear-gradient(-45deg, transparent 0 7px, var(--border-soft) 7px 8px);
+}
+
+.civ h3 {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.sigil {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--faction);
+  color: var(--faction);
+  font-size: 11px;
+}
+
+.posture,
+.dead {
+  width: 100%;
+  padding-left: 34px;
+}
+
+.civ dl {
+  grid-template-columns: 1fr;
+  margin-top: var(--s5);
+}
+
+.civ .creed {
+  margin: var(--s4) 0 0;
+  padding: var(--s3) 0 0;
+  border-top: 1px solid var(--border-soft);
+  font-family: var(--display);
+  font-size: 15px;
+  font-style: normal;
+}
+
+.trajectory-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--s5);
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: var(--s6);
+}
+
+.chart {
+  min-width: 0;
+  padding-top: var(--s4);
+  border-top: 1px solid var(--border-soft);
+}
+
+.register details {
+  border-top: 1px solid var(--accent-dim);
+}
+
+.register summary {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  cursor: pointer;
+}
+
+.register summary strong {
+  display: block;
+  font-family: var(--display);
+  font-size: clamp(22px, 3vw, 34px);
+  font-weight: 400;
+}
+
+.register .count {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.log {
+  max-height: 38rem;
+  margin-top: var(--s4);
+}
+
+.log li {
+  grid-template-columns: 6rem 6rem 10rem minmax(0, 1fr);
+  min-height: 44px;
+  align-items: center;
+}
+
+.log li.ruling {
+  border-left: 2px solid var(--accent);
+  padding-left: var(--s3);
+}
+
+.log .kind {
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.log .said {
+  font-family: var(--sans);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.jump {
+  min-height: 44px;
+}
+
+@media (max-width: 1000px) {
+  .civs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .civ:nth-child(3) {
+    border-left: 0;
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+  }
+
+  .log li {
+    grid-template-columns: 6rem 6rem minmax(8rem, 0.5fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .section-heading,
+  .trajectory-heading {
+    display: block;
+    margin-bottom: var(--s5);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: var(--s4);
+  }
+
+  .civs {
+    grid-template-columns: 1fr;
+  }
+
+  .civ,
+  .civ:nth-child(3) {
+    padding: var(--s4) 0;
+    border-left: 0;
+  }
+
+  .register summary {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .log li {
+    grid-template-columns: 1fr;
+    gap: var(--s1);
+    padding: var(--s3) 0;
   }
 }
 </style>

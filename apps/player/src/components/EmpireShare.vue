@@ -66,6 +66,14 @@ function onClick(e: MouseEvent) {
   emit("seek", nearest(Math.max(0, Math.min(lastTick.value, tick))).tick);
 }
 
+function onKey(e: KeyboardEvent) {
+  const current = Math.max(0, props.years.findIndex((year) => year.tick === props.at));
+  const target = e.key === "Home" ? 0 : e.key === "End" ? props.years.length - 1 : e.key === "ArrowLeft" ? current - 1 : e.key === "ArrowRight" ? current + 1 : null;
+  if (target === null) return;
+  e.preventDefault();
+  emit("seek", props.years[Math.max(0, Math.min(props.years.length - 1, target))]!.tick);
+}
+
 const summary = computed(() => turns.value.map((t) => `an ${t.tick}, ${t.text}`).join(" "));
 </script>
 
@@ -74,8 +82,10 @@ const summary = computed(() => turns.value.map((t) => `an ${t.tick}, ${t.text}`)
     <svg
       :viewBox="`0 0 ${W} ${H}`"
       role="img"
+      tabindex="0"
       :aria-label="`Part du monde tenue par chaque civilisation sur ${lastTick} ans. ${summary || 'Aucun tournant date.'}`"
       @click="onClick"
+      @keydown="onKey"
     >
       <!-- Ce que personne ne tient : le fond, qui disparaît quand le monde se referme. -->
       <rect :x="PAD.left" :y="PAD.top" :width="W - PAD.left - PAD.right" :height="H - PAD.top - PAD.bottom" fill="#161b30" />

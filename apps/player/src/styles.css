@@ -1,27 +1,20 @@
-/*
- * Data-Dense Dashboard, dark. High-contrast palette so 12px metadata still
- * clears 4.5:1 against the card background.
- *
- * Fonts are a system stack rather than a webfont: the container serves replays
- * offline behind nginx, and a Google Fonts request would either block or fail
- * there. The monospace-forward look survives without the network round trip.
- */
 :root {
-  --bg: #020617;
-  --card: #0e1223;
-  --card-raised: #161b30;
-  --border: #334155;
-  --border-soft: #1e2537;
-  --fg: #f8fafc;
-  --muted: #94a3b8;
-  --accent: #fbbf24;
+  --bg: #050b12;
+  --card: #0b131d;
+  --card-raised: #111d29;
+  --border: #40505d;
+  --border-soft: #22313d;
+  --map-border: #52616b;
+  --fg: #f2eee4;
+  --muted: #a5afb4;
+  --accent: #d5a66f;
+  --accent-dim: #795d3e;
 
   --crimson: #f87171;
   --azure: #60a5fa;
   --verdant: #4ade80;
   --amber: #fbbf24;
 
-  /* Density 8: dashboard spacing, 4-32px. */
   --s1: 4px;
   --s2: 8px;
   --s3: 12px;
@@ -30,10 +23,12 @@
   --s6: 32px;
 
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Fira Code", "DejaVu Sans Mono", Menlo, Consolas, monospace;
-  --sans: system-ui, -apple-system, "Segoe UI", "Fira Sans", Roboto, sans-serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --display: Iowan Old Style, Baskerville, "Times New Roman", Times, serif;
 
-  --radius: 6px;
-  --t: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --radius: 2px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t: 220ms var(--ease-out);
 }
 
 *,
@@ -51,7 +46,12 @@ body {
   /* The page itself must never scroll sideways. Anything genuinely wide —
      a table, a diagram — scrolls inside its own container instead. */
   overflow-x: clip;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 18% 8%, #172637 0, transparent 34rem),
+    radial-gradient(circle at 82% 26%, #101b27 0, transparent 42rem),
+    repeating-linear-gradient(117deg, #ffffff05 0 1px, transparent 1px 7px);
+  background-attachment: fixed;
   color: var(--fg);
   font-family: var(--sans);
   font-size: 16px;
@@ -89,8 +89,12 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background: #1f2740;
-  border-color: #4a5a75;
+  background: #192938;
+  border-color: #63727d;
+}
+
+button:active:not(:disabled) {
+  background: #203444;
 }
 
 button:disabled {
@@ -103,11 +107,20 @@ button[aria-pressed="true"] {
   color: var(--accent);
 }
 
+button[aria-current="page"] {
+  color: var(--accent);
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
   padding: var(--s4);
+}
+
+input[type="range"] {
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
 .mono {
@@ -133,5 +146,22 @@ button[aria-pressed="true"] {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --border: #81909a;
+    --border-soft: #566570;
+    --muted: #d1d7d9;
+    --map-border: #aeb8be;
+  }
+
+  :focus-visible {
+    outline-width: 3px;
   }
 }

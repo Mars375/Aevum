@@ -17,7 +17,7 @@
   {
     "slug": "chronique-monde",
     "title": "Chronique du monde « monde », ère 1",
-    "subtitle": "Statut : généré, jamais rédigé · 67 années · 14 décisions · règles w4"
+    "subtitle": "Statut : généré, jamais rédigé · 80 années · 24 décisions · règles w8"
   },
   {
     "slug": "first-era",
@@ -38,6 +38,16 @@
     "slug": "reference-battle",
     "title": "Rapport d'exécution — bataille de référence",
     "subtitle": "Statut : exécutée · Date : 2026-08-18 · Tâche kanban : t_f4c79504"
+  },
+  {
+    "slug": "release-r1-verification",
+    "title": "Vérification de la candidate R1 / 0.2.0",
+    "subtitle": "Date : 22 août 2026"
+  },
+  {
+    "slug": "release-r1-world",
+    "title": "Release R1 — monde continu",
+    "subtitle": "Audit hors ligne du 22 août 2026."
   },
   {
     "slug": "rotation-w3",

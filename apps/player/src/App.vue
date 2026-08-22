@@ -74,6 +74,18 @@ interface WorldEntry {
   survivor: string | null;
 }
 const worlds = ref<WorldEntry[]>([]);
+const activeWorld = computed(() => worlds.value.find((world) => world.path === worldPath.value) ?? worlds.value[0] ?? null);
+const livingCivs = computed(() => activeWorld.value?.alive ?? journal.value?.origin.civs.filter((civ) => civ.fellOnTick === null).length ?? null);
+const lastAdvance = computed(() => {
+  if (!tendStatus.value || (activeWorld.value && tendStatus.value.world !== activeWorld.value.world)) return "dernière avancée inconnue";
+  const date = Date.parse(tendStatus.value.ranAt);
+  if (Number.isNaN(date)) return "dernière avancée inconnue";
+  return `${tendStatus.value.ok ? "dernière avancée" : "avancée interrompue"} le ${new Date(date).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })}`;
+});
 /**
  * Worlds and battles keep their own error.
  *
@@ -83,6 +95,8 @@ const worlds = ref<WorldEntry[]>([]);
  * two independent failures.
  */
 const worldError = ref<string | null>(null);
+const worldsLoading = ref(true);
+const worldLoading = ref(false);
 /** How the machine tending these worlds last fared. Absent when nobody tends them. */
 const tendStatus = ref<{ ranAt: string; world: string; ok: boolean; years: number; error: string | null } | null>(null);
 const worldPath = ref<string>("");
@@ -105,11 +119,14 @@ async function loadWorlds() {
     if (res.ok) tendStatus.value = await res.json();
   } catch {
     // Nobody tends these worlds automatically; the chronicle says nothing.
+  } finally {
+    worldsLoading.value = false;
   }
 }
 
 async function openWorld(path: string) {
   worldPath.value = path;
+  worldLoading.value = true;
   try {
     const res = await fetch(path);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -135,6 +152,8 @@ async function openWorld(path: string) {
   } catch (err) {
     journal.value = null;
     worldError.value = `Impossible de charger ${path} — ${(err as Error).message}`;
+  } finally {
+    worldLoading.value = false;
   }
 }
 const currentPath = ref<string>("");
@@ -247,9 +266,9 @@ watch([mode, worldPath], ([m, path]) => {
   const url = new URL(location.href);
   if (m === "world" && path) url.searchParams.set("world", path as string);
   else url.searchParams.delete("world");
-  if (m === "reports") url.searchParams.set("mode", "rapports");
+  if (m === "reports") url.searchParams.set("mode", "a-propos");
   else if (m === "rules") url.searchParams.set("mode", "regles");
-  else if (["rapports", "regles"].includes(url.searchParams.get("mode") ?? "")) url.searchParams.delete("mode");
+  else if (["rapports", "a-propos", "regles"].includes(url.searchParams.get("mode") ?? "")) url.searchParams.delete("mode");
   history.replaceState(null, "", url);
 });
 
@@ -267,7 +286,7 @@ onMounted(async () => {
   const params = new URLSearchParams(location.search);
   if (params.get("mode") === "3d") view3d.value = true;
   if (params.get("mode") === "regles") mode.value = "rules";
-  else if (params.get("mode") === "rapports" || params.get("rapport")) mode.value = "reports";
+  else if (["rapports", "a-propos"].includes(params.get("mode") ?? "") || params.get("rapport")) mode.value = "reports";
   else if (params.get("replay") || params.get("turn")) mode.value = "battle";
   const view = params.get("view");
   if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
@@ -302,33 +321,37 @@ onUnmounted(() => {
 
 <template>
   <div class="app">
-    <header class="top">
-      <div class="title">
+    <header class="mast">
+      <div class="brand">
         <h1>AI Battle Simulator</h1>
-        <!--
-          The MVP is explicit that nobody watches a battle live: every call costs
-          seconds of API latency. Saying so up front stops the scrubber from
-          being read as a live feed.
-        -->
-        <p class="recorded mono">
-          {{
-            mode === "battle"
-              ? "ARCHIVES — les batailles tactiques, un chapitre antérieur, gelé"
-              : mode === "world"
-                ? "MONDE CONTINU — recomposé année par année dans votre navigateur"
-                : mode === "rules"
-                  ? "RÈGLES — ce qu'un dirigeant décide, et ce que le monde fait de son côté"
-                  : "MESURES — ce que le projet a vérifié, y compris quand ça l'a contredit"
-          }}
-        </p>
+        <p>Un monde gouverné par quatre modèles, rejouable à l'identique</p>
       </div>
 
-      <div v-if="worlds.length > 0" class="modeswitch" role="group" aria-label="Ce qu'on regarde">
-        <button type="button" class="mono" :aria-pressed="mode === 'world'" @click="mode = 'world'">Chronique</button>
-        <button type="button" class="mono" :aria-pressed="mode === 'battle'" @click="mode = 'battle'">Archives</button>
-        <button type="button" class="mono" :aria-pressed="mode === 'rules'" @click="mode = 'rules'">Règles</button>
-        <button type="button" class="mono" :aria-pressed="mode === 'reports'" @click="mode = 'reports'">Rapports</button>
-      </div>
+      <p v-if="mode === 'world'" class="world-signal mono">
+        <span>{{ activeWorld?.world ?? "monde non servi" }}</span>
+        <span v-if="journal">ère {{ journal.era }} · an {{ journal.livedTo }} · {{ livingCivs ?? 0 }} civilisations vivantes</span>
+        <span>{{ lastAdvance }}</span>
+      </p>
+
+      <nav class="modeswitch" aria-label="Navigation principale">
+        <button type="button" :aria-current="mode === 'world' ? 'page' : undefined" @click="mode = 'world'">Chronique</button>
+        <button type="button" :aria-current="mode === 'battle' ? 'page' : undefined" @click="mode = 'battle'">Archives</button>
+        <button type="button" :aria-current="mode === 'rules' ? 'page' : undefined" @click="mode = 'rules'">Règles</button>
+        <button type="button" :aria-current="mode === 'reports' ? 'page' : undefined" @click="mode = 'reports'">À propos</button>
+      </nav>
+    </header>
+
+    <p class="section-deck mono">
+      {{
+        mode === "battle"
+          ? "ARCHIVES · batailles tactiques v1 et v2, conservées sous leurs règles"
+          : mode === "world"
+            ? "CHRONIQUE · les dirigeants décident aux points d'arbitrage ; le moteur résout toutes les autres années"
+            : mode === "rules"
+              ? "RÈGLES · ce qu'un dirigeant décide et ce que le moteur tranche"
+              : "À PROPOS · méthode, limites, mesures et rapports"
+      }}
+    </p>
       <label v-if="mode === 'world' && worlds.length > 1" class="picker-inline mono">
         <span class="visually-hidden">Monde affiché</span>
         <select :value="worldPath" @change="openWorld(($event.target as HTMLSelectElement).value)">
@@ -366,20 +389,32 @@ onUnmounted(() => {
         <div><dt>règles</dt><dd>{{ replay.manifest.rulesetVersion }}</dd></div>
         <div><dt>graine</dt><dd>{{ replay.manifest.config.seed }}</dd></div>
       </dl>
-    </header>
 
     <p v-if="mode === 'battle' && error" class="card error" role="alert">{{ error }}</p>
     <p v-if="mode === 'world' && worldError" class="card error" role="alert">{{ worldError }}</p>
 
+    <p v-if="mode === 'world' && (worldsLoading || worldLoading)" class="loading-state mono" role="status">
+      Recomposition du monde
+    </p>
+
     <Chronicle v-if="mode === 'world' && journal" :journal="journal" :status="tendStatus" />
 
-    <Reports v-if="mode === 'reports'" />
+    <main v-if="mode === 'reports'" class="about">
+      <header class="about-intro">
+        <p class="eyebrow mono">À propos</p>
+        <h2>Une chronique vérifiable, pas un verdict sur les modèles.</h2>
+        <p>
+          Le journal conserve leurs décisions. Le moteur déterministe recompose ici chaque année, sans rappeler
+          aucun modèle. Les rapports ci-dessous publient aussi les limites et les mesures qui ont contredit nos hypothèses.
+        </p>
+      </header>
+      <Reports />
+    </main>
 
     <Rules v-if="mode === 'rules'" />
 
-    <p v-if="mode === 'world' && !journal && !worldError" class="card picker">
-      Aucun monde n'est servi par ce déploiement. Faites-en vivre un avec
-      <code class="mono">npm run live</code>, puis <code class="mono">npm run index-worlds</code>.
+    <p v-if="mode === 'world' && !journal && !worldError && !worldsLoading && !worldLoading" class="card picker">
+      Aucun journal de monde n'est servi ici. La méthode, les règles et les archives restent consultables.
     </p>
 
     <p v-if="mode === 'battle' && !replay" class="card picker">
@@ -518,36 +553,68 @@ onUnmounted(() => {
 
 <style scoped>
 .app {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: var(--s5) var(--s4);
+  padding: 0 var(--s5) var(--s6);
   display: flex;
   flex-direction: column;
-  gap: var(--s4);
+  gap: var(--s5);
 }
 
-.top {
+.mast {
+  min-height: 88px;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--s4);
-  align-items: flex-start;
+  gap: var(--s5);
+  align-items: center;
   justify-content: space-between;
   min-width: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
-.top > * {
+.mast > * {
   min-width: 0;
 }
 
 h1 {
-  font-size: clamp(20px, 3vw, 28px);
+  font-family: var(--display);
+  font-size: clamp(22px, 2.2vw, 31px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
 }
 
-.recorded {
-  margin: var(--s1) 0 0;
-  font-size: 11px;
-  letter-spacing: 0.08em;
+.brand p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.world-signal {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: right;
+}
+
+.world-signal span:first-child {
+  color: var(--fg);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.section-deck {
+  margin: calc(var(--s3) * -1) 0 0;
   color: var(--accent);
+  font-size: 10px;
+  letter-spacing: 0.11em;
 }
 
 .summary,
@@ -607,6 +674,51 @@ h1 {
   align-items: center;
   gap: var(--s3);
   margin: 0;
+}
+
+.loading-state {
+  min-height: 42vh;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  border-block: 1px solid var(--border-soft);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s6);
+}
+
+.about-intro {
+  padding: clamp(var(--s5), 5vw, 64px) 0 var(--s5);
+  border-bottom: 1px solid var(--border);
+}
+
+.about-intro .eyebrow {
+  margin: 0 0 var(--s2);
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.about-intro h2 {
+  max-width: 20ch;
+  font-family: var(--display);
+  font-size: clamp(30px, 5vw, 58px);
+  font-weight: 400;
+  line-height: 1.02;
+}
+
+.about-intro > p:last-child {
+  max-width: 68ch;
+  margin: var(--s4) 0 0;
+  color: var(--muted);
 }
 
 .layout {
@@ -683,12 +795,25 @@ h1 {
 .modeswitch {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s2);
+  gap: 2px;
 }
 
-.viewswitch button,
-.modeswitch button {
+.viewswitch button {
   font-size: 12px;
+}
+
+.modeswitch button {
+  min-width: auto;
+  padding: var(--s2) var(--s3);
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  font-size: 13px;
+}
+
+.modeswitch button[aria-current="page"] {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
 }
 
 .archive-note {
@@ -735,8 +860,62 @@ h1 {
 }
 
 @media (max-width: 900px) {
+  .app {
+    padding-inline: var(--s4);
+  }
+
+  .mast {
+    position: static;
+    flex-wrap: wrap;
+    padding: var(--s3) 0;
+    gap: var(--s3);
+  }
+
+  .world-signal {
+    margin-left: auto;
+  }
+
+  .modeswitch {
+    order: 3;
+    width: 100%;
+  }
+
+  .modeswitch button {
+    flex: 1;
+  }
+
   .layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .app {
+    padding-inline: var(--s3);
+    gap: var(--s4);
+  }
+
+  .brand p {
+    max-width: 32ch;
+    white-space: normal;
+  }
+
+  .world-signal {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+    border-left: 1px solid var(--accent);
+    padding-left: var(--s3);
+  }
+
+  .modeswitch {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .modeswitch button {
+    padding-inline: var(--s1);
+    font-size: 11px;
   }
 }
 </style>
