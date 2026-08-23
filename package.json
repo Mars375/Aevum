@@ -33,7 +33,9 @@
     "rank-eras": "tsx scripts/rank-eras.ts",
     "board-fairness": "tsx scripts/board-fairness.ts",
     "narrate": "tsx scripts/narrate.ts",
-    "learning-curve": "tsx scripts/learning-curve.ts"
+    "learning-curve": "tsx scripts/learning-curve.ts",
+    "season-report": "tsx scripts/season-report.ts",
+    "verify-season-1": "tsx scripts/verify-season-1.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

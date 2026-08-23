@@ -23,6 +23,7 @@ export default defineConfig({
       "@abs/engine": r("./packages/engine/src/index.ts"),
       "@abs/agents": r("./packages/agents/src/index.ts"),
       "@abs/world": r("./packages/world/src/index.ts"),
+      "@abs/metrics": r("./packages/metrics/src/index.ts"),
     },
   },
   test: {

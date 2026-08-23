@@ -63,5 +63,11 @@ jobs:
       - run: npm run healthcheck
       - name: Probe the continuous world offline
         run: npm run world:probe -- 300
+      - name: Rebuild the Season 1 methodology report
+        run: npm run season-report -- worlds/aevum-season-1/era-0001.json worlds/aevum-season-1/era-0001.learning.json --out=docs/reports/aevum-season-1.md
       - name: Rebuild the report catalogue
         run: npm run build-reports
+      - name: Rebuild the world catalogue
+        run: npm run index-worlds
+      - name: Verify the Season 1 release candidate
+        run: npm run verify-season-1

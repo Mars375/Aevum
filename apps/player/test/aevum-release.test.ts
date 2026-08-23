@@ -5,6 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { afterEach, describe, expect, it } from "vitest";
+import { verifyPublishedSeason, verifyReleaseInventory } from "../../../scripts/verify-season-1.js";
 
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "../../..");
 const TSX = resolve(ROOT, "node_modules/tsx/dist/loader.mjs");
@@ -176,5 +177,54 @@ describe("pipeline de publication Aevum", () => {
     const staleIndex = json(join(root, "worlds/index.json")) as unknown as Array<Record<string, unknown>>;
     expect(staleIndex[0]?.learningCurvePath).toBeUndefined();
     expect(existsSync(guardLog)).toBe(false);
+  });
+
+  it("refuse chaque derive d'un artefact de publication", () => {
+    const { root, guardLog, fixture } = workspace();
+    const worldDir = join(root, "worlds/aevum-season-1");
+    const journal = join(worldDir, "era-0001.json");
+    const metric = join(worldDir, "era-0001.learning.json");
+    const markdown = join(root, "docs/reports/aevum-season-1.md");
+    mkdirSync(worldDir, { recursive: true });
+    mkdirSync(dirname(markdown), { recursive: true });
+    expectSuccess(run(root, guardLog, "scripts/live.ts", [`--scripted=${fixture}`, "--out", journal], true));
+    expectSuccess(run(root, guardLog, "scripts/season-report.ts", [journal, metric, `--out=${markdown}`]));
+    expectSuccess(run(root, guardLog, "scripts/build-reports.ts", []));
+    expectSuccess(run(root, guardLog, "scripts/index-worlds.ts", []));
+
+    const journalBytes = readFileSync(journal);
+    const metricBytes = readFileSync(metric);
+    verifyPublishedSeason(root);
+
+    writeFileSync(journal, "{}\n");
+    expect(() => verifyPublishedSeason(root)).toThrow();
+    writeFileSync(journal, journalBytes);
+
+    const missingSource = json(metric);
+    missingSource.sources = ["missing.json"];
+    writeFileSync(metric, `${JSON.stringify(missingSource, null, 2)}\n`);
+    expect(() => verifyPublishedSeason(root)).toThrow(/source/);
+    writeFileSync(metric, metricBytes);
+
+    const wrongRate = json(metric);
+    wrongRate.serviceSummary.serviceRate = 0;
+    writeFileSync(metric, `${JSON.stringify(wrongRate, null, 2)}\n`);
+    expect(() => verifyPublishedSeason(root)).toThrow(/service summary/);
+    writeFileSync(metric, metricBytes);
+
+    rmSync(join(root, "apps/player/public/worlds/aevum-season-1/era-0001.json"));
+    expect(() => verifyPublishedSeason(root)).toThrow(/report link/);
+    mkdirSync(join(root, "apps/player/public/worlds/aevum-season-1"), { recursive: true });
+    writeFileSync(join(root, "apps/player/public/worlds/aevum-season-1/era-0001.json"), journalBytes);
+
+    const drifted = json(journal);
+    drifted.fingerprint = "00000000";
+    writeFileSync(journal, `${JSON.stringify(drifted, null, 2)}\n`);
+    expect(() => verifyPublishedSeason(root)).toThrow(/fingerprint/);
+    expect(existsSync(guardLog)).toBe(false);
+  });
+
+  it("verifie l'inventaire de renommage et les contrats de secrets", () => {
+    expect(() => verifyReleaseInventory(ROOT)).not.toThrow();
   });
 });

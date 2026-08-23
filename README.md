@@ -8,6 +8,27 @@ Nobody plays. You watch, and you read why each ruler decided what it did.
 
 Release candidate **R1 / 0.2.0** is prepared in this tree and is not published.
 
+## Verifying the Season 1 candidate
+
+The release gate is offline and rebuilds its evidence before checking it:
+
+```
+npm ci
+npm run season-report -- worlds/aevum-season-1/era-0001.json worlds/aevum-season-1/era-0001.learning.json --out=docs/reports/aevum-season-1.md
+npm run build-reports
+npm run index-worlds
+npm run verify-season-1
+```
+
+`verify-season-1` replays the journal and validates its fingerprint, metric
+source and service rates, generated links and indexes, rename inventory and
+secret boundaries. A success proves the committed scripted artefact locally; it
+does not prove that a remote model governed the era. The complete evidence and
+open limits are recorded in
+`docs/reports/aevum-season-1-verification.md`. Publishing, tagging and renaming
+the remote are separate release actions and are deliberately not performed by
+this gate.
+
 ## From clone to a living world
 
 ```
@@ -228,6 +249,8 @@ every commit into one that cannot be forgotten.
 | `npm run tournament` | 4 rotations ranking the four contenders on wins, accuracy and report fidelity. Resumes: rotations already completed are reloaded, not replayed |
 | `npm run balance` | Play hundreds of scripted battles offline and report the outcome distribution |
 | `npm run healthcheck` | Container and clone liveness |
+| `npm run season-report -- <journal> <sidecar> --out=<report>` | Rebuild a season report from its journal and metric sidecar |
+| `npm run verify-season-1` | Replay and validate the complete local Season 1 release candidate without model calls |
 | `npm run index-replays` | Rebuild the catalogue the player's replay picker lists |
 | `npm run player:dev` | Replay viewer on :5173 |
 | `docker compose up -d --build` | Serve the player and `./replays` on :8088 |
