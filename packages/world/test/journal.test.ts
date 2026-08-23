@@ -27,6 +27,7 @@ describe("compatibilite des journaux v0.2.0", () => {
     expect(legacyJournal.rulings.every((ruling) => !("context" in ruling) && !("service" in ruling) && !("consequenceRef" in ruling))).toBe(true);
 
     const journal = JournalSchema.parse(legacyJournal);
+    expect(journal.execution).toBeNull();
     expect(journal.origin.civs[0]!.identity).toEqual({
       displayName: "Crimson",
       values: [],
@@ -61,6 +62,23 @@ describe("compatibilite des journaux v0.2.0", () => {
     const replayed = replay(parsed.origin, parsed.rulings, parsed.livedTo).world;
     expect(years.at(-1)!.world).toEqual(replayed);
     expect({ tick: replayed.tick, fingerprint: fingerprint(replayed) }).toEqual({ tick: 3, fingerprint: "76aefdfe" });
+  });
+});
+
+describe("provenance d'execution", () => {
+  const world = newWorld(["crimson", "azure"], 42);
+  const digest = `sha256:${"a".repeat(64)}`;
+
+  it("conserve une identite scriptée valide", () => {
+    const journal = newJournal(world, 1, { mode: "SCRIPTED_NO_REMOTE_MODEL", fixtureDigest: digest });
+    expect(JournalSchema.parse(JSON.parse(JSON.stringify(journal))).execution).toEqual(journal.execution);
+  });
+
+  it("refuse les combinaisons mode et fixture incoherentes", () => {
+    const base = newJournal(world);
+    expect(JournalSchema.safeParse({ ...base, execution: { mode: "SCRIPTED_NO_REMOTE_MODEL", fixtureDigest: null } }).success).toBe(false);
+    expect(JournalSchema.safeParse({ ...base, execution: { mode: "SILENT_ENGINE_ONLY", fixtureDigest: digest } }).success).toBe(false);
+    expect(JournalSchema.safeParse({ ...base, execution: { mode: "REMOTE_MODELS", fixtureDigest: digest } }).success).toBe(false);
   });
 });
 

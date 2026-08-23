@@ -13,6 +13,7 @@
   },
   "execution": {
     "mode": "SCRIPTED_NO_REMOTE_MODEL",
+    "fixtureDigest": "sha256:eee64718a1fffc895a36b78c287f8aac88389566879c6e9e50560757c6b76359",
     "remoteModelCalls": 0
   },
   "serviceSummary": {

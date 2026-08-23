@@ -15,15 +15,16 @@
  *   npm run live -- --ticks 200 --silent   live with no model at all
  *   npm run live -- --world alpha          keep several worlds side by side
  */
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
   DEFAULT_GENERALS,
   RemoteProvider,
   ScriptedRulerProvider,
+  ScriptedCampaignSchema,
   liveWorld,
-  type RulerProvider,
-  type ScriptedRuling,
+  type ProvenancedRulerProvider,
 } from "@abs/agents";
 import {
   JournalSchema,
@@ -37,28 +38,110 @@ import {
   worldVersionOf,
   type Journal,
 } from "@abs/world";
-import { buildLearningReport, type ExecutionMode } from "./learning-curve.js";
+import { buildLearningReport } from "./learning-curve.js";
 
-const arg = (name: string, fallback: string) => {
-  const i = process.argv.indexOf(`--${name}`);
-  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1]! : fallback;
-};
-const flag = (name: string) => process.argv.includes(`--${name}`);
+interface Arguments {
+  world: string;
+  ticks?: number;
+  seed?: number;
+  silent: boolean;
+  out?: string;
+  resume: boolean;
+  scripted?: string;
+  warmup: number;
+}
 
-const NAME = arg("world", "default");
-const TICKS = Number(arg("ticks", "100"));
-const SEED = Number(arg("seed", "42"));
-const SILENT = flag("silent");
-const OUT = arg("out", "");
-const RESUME = flag("resume");
-const SCRIPTED = arg("scripted", "");
-if (SILENT && SCRIPTED) throw new Error("--silent and --scripted are distinct modes and cannot be combined");
+function parseArguments(args: string[]): Arguments {
+  const values = new Map<string, string>();
+  const flags = new Set<string>();
+  const valueOptions = new Set(["world", "ticks", "seed", "out", "scripted", "warmup"]);
+  const flagOptions = new Set(["silent", "resume"]);
+  for (let i = 0; i < args.length; i += 1) {
+    const token = args[i]!;
+    if (!token.startsWith("--")) throw new Error(`unexpected argument: ${token}`);
+    const equal = token.indexOf("=");
+    const name = token.slice(2, equal >= 0 ? equal : undefined);
+    if (flagOptions.has(name)) {
+      if (equal >= 0) throw new Error(`--${name} does not take a value`);
+      if (flags.has(name)) throw new Error(`duplicate option: --${name}`);
+      flags.add(name);
+      continue;
+    }
+    if (!valueOptions.has(name)) throw new Error(`unknown option: --${name}`);
+    if (values.has(name)) throw new Error(`duplicate option: --${name}`);
+    const value = equal >= 0 ? token.slice(equal + 1) : args[++i];
+    if (!value || value.startsWith("--")) throw new Error(`--${name} requires a value`);
+    values.set(name, value);
+  }
+  const number = (name: "ticks" | "seed" | "warmup", fallback?: number): number | undefined => {
+    const raw = values.get(name);
+    if (raw === undefined) return fallback;
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 0) {
+      throw new Error(`--${name} must be a non-negative integer`);
+    }
+    return parsed;
+  };
+  const world = values.get("world") ?? "default";
+  if (!/^[A-Za-z0-9._-]+$/.test(world)) throw new Error("--world must be a safe non-empty name");
+  return {
+    world,
+    ticks: number("ticks"),
+    seed: number("seed"),
+    silent: flags.has("silent"),
+    out: values.get("out"),
+    resume: flags.has("resume"),
+    scripted: values.get("scripted"),
+    warmup: number("warmup", 0)!,
+  };
+}
+
+const args = parseArguments(process.argv.slice(2));
+if (args.silent && args.scripted) throw new Error("--silent and --scripted are distinct modes and cannot be combined");
+if (args.resume && !args.out) throw new Error("--resume requires --out");
+
+const NAME = args.world;
+const SILENT = args.silent;
+const OUT = args.out ?? "";
+const RESUME = args.resume;
+const SCRIPTED = args.scripted;
 /**
  * Années vécues sans consulter personne avant que les dirigeants ne prennent la
  * main. Gratuites, et utiles pour observer un monde déjà noué — mais mesurées
  * comme mauvaises pour comparer des modèles, voir docs/reports/board-noise.md.
  */
-const WARMUP = Number(arg("warmup", "0"));
+const WARMUP = args.warmup;
+
+let script: ReturnType<typeof ScriptedCampaignSchema.parse> | null = null;
+let provider: ProvenancedRulerProvider | null = null;
+if (SCRIPTED) {
+  const bytes = readFileSync(resolve(SCRIPTED));
+  const fixtureDigest = `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  script = ScriptedCampaignSchema.parse(JSON.parse(bytes.toString("utf8")));
+  if (args.seed !== undefined && args.seed !== script.seed) {
+    throw new Error(`seed ${args.seed} does not match scripted fixture seed ${script.seed}`);
+  }
+  provider = new ScriptedRulerProvider((general, point) => {
+    if (general.factionId === script!.survivor) return script!.survivorDoctrine;
+    return point.tick < script!.transitionTick ? script!.beforeTransition : script!.afterTransition;
+  }, fixtureDigest);
+} else if (!SILENT) {
+  try {
+    process.loadEnvFile(resolve(process.cwd(), ".env"));
+  } catch {
+    /* fall through to the real environment */
+  }
+  const apiKeys = {
+    openrouter: process.env.OPENROUTER_API_KEY,
+    groq: process.env.GROQ_API_KEY,
+    nvidia: process.env.NVIDIA_API_KEY,
+    mistral: process.env.MISTRAL_API_KEY,
+  };
+  if (Object.values(apiKeys).some(Boolean)) provider = new RemoteProvider({ apiKeys, freeModelsOnly: true });
+  else console.error("Aucune cle de fournisseur. Le monde vivra sans dirigeants ; utilisez --silent pour l'assumer.");
+}
+const execution = provider?.execution ?? { mode: "SILENT_ENGINE_ONLY", fixtureDigest: null } as const;
+const TICKS = args.ticks ?? script?.ticks ?? 100;
 
 const DIR = resolve("worlds", NAME);
 mkdirSync(DIR, { recursive: true });
@@ -77,7 +160,15 @@ function latestEra(): number {
 }
 
 /** A new era is a new world, seeded from the one before so the sequence stays reproducible. */
-const openEra = (era: number): Journal => newJournal(newWorld(FACTIONS, SEED + era * 7919), era);
+let baseSeed = args.seed ?? script?.seed ?? 42;
+const openEra = (era: number): Journal => newJournal(newWorld(FACTIONS, baseSeed + era * 7919), era, execution);
+
+function assertExecution(journal: Journal): void {
+  if (journal.execution === null) throw new Error("resumed journal has no immutable execution provenance");
+  if (JSON.stringify(journal.execution) !== JSON.stringify(execution)) {
+    throw new Error(`execution ${JSON.stringify(execution)} does not match resumed journal ${JSON.stringify(journal.execution)}`);
+  }
+}
 
 let era = explicitPath ? 1 : latestEra();
 let journal: Journal;
@@ -88,9 +179,11 @@ if (explicitPath && RESUME) {
   if (version !== WORLD_VERSION) throw new Error(`${explicitPath} uses ${version ?? "unknown"}, expected ${WORLD_VERSION}`);
   journal = JournalSchema.parse(raw);
   era = journal.era;
-  if (journal.origin.seed !== SEED) throw new Error(`seed ${SEED} does not match resumed journal seed ${journal.origin.seed}`);
+  if (args.seed !== undefined && journal.origin.seed !== args.seed) throw new Error(`seed ${args.seed} does not match resumed journal seed ${journal.origin.seed}`);
+  if (args.seed === undefined) baseSeed = journal.origin.seed;
+  assertExecution(journal);
 } else if (explicitPath) {
-  journal = newJournal(newWorld(FACTIONS, SEED), 1);
+  journal = newJournal(newWorld(FACTIONS, baseSeed), 1, execution);
 } else if (era === 0) {
   era = 1;
   journal = openEra(era);
@@ -105,6 +198,9 @@ if (explicitPath && RESUME) {
     process.exit(1);
   }
   journal = JournalSchema.parse(raw);
+  if (args.seed === undefined) baseSeed = journal.origin.seed - era * 7919;
+  else if (journal.origin.seed !== baseSeed + era * 7919) throw new Error(`seed ${baseSeed} does not match resumed journal seed ${journal.origin.seed}`);
+  assertExecution(journal);
   // The world is never stored, only recomputed. This is why the journal stays
   // small no matter how long the world lives.
   if (isOver(replay(journal.origin, journal.rulings, journal.livedTo).world)) {
@@ -130,42 +226,6 @@ if (journal.fingerprint !== null && journal.fingerprint !== fingerprint(from)) {
   process.exit(1);
 }
 
-if (!SILENT && !SCRIPTED) {
-  try {
-    process.loadEnvFile(resolve(process.cwd(), ".env"));
-  } catch {
-    /* fall through to the real environment */
-  }
-}
-
-const apiKeys = {
-  openrouter: process.env.OPENROUTER_API_KEY,
-  groq: process.env.GROQ_API_KEY,
-  nvidia: process.env.NVIDIA_API_KEY,
-  mistral: process.env.MISTRAL_API_KEY,
-};
-const canAskRemote = !SILENT && !SCRIPTED && Object.values(apiKeys).some(Boolean);
-if (!SILENT && !SCRIPTED && !canAskRemote) {
-  console.error("Aucune cle de fournisseur. Le monde vivra sans dirigeants ; utilisez --silent pour l'assumer.");
-}
-
-let execution: ExecutionMode = SILENT ? "SILENT_ENGINE_ONLY" : "REMOTE_MODELS";
-let provider: RulerProvider | null = canAskRemote ? new RemoteProvider({ apiKeys, freeModelsOnly: true }) : null;
-if (SCRIPTED) {
-  const script = JSON.parse(readFileSync(resolve(SCRIPTED), "utf8")) as {
-    transitionTick: number;
-    survivor: string;
-    beforeTransition: ScriptedRuling;
-    survivorDoctrine: ScriptedRuling;
-    afterTransition: ScriptedRuling;
-  };
-  provider = new ScriptedRulerProvider((general, point) => {
-    if (general.factionId === script.survivor) return script.survivorDoctrine;
-    return point.tick < script.transitionTick ? script.beforeTransition : script.afterTransition;
-  });
-  execution = "SCRIPTED_NO_REMOTE_MODEL";
-}
-
 let lastWorld = from;
 const save = () => {
   journal.fingerprint = fingerprint(lastWorld);
@@ -178,7 +238,7 @@ const result = await liveWorld(from, {
   generals: DEFAULT_GENERALS,
   provider,
   ticks: explicitPath && RESUME && isOver(from) ? 0 : TICKS,
-  warmup: WARMUP,
+  warmup: Math.max(0, WARMUP - from.tick),
   onRuling: (j, world) => {
     lastWorld = world;
     save();
@@ -201,7 +261,6 @@ if (explicitPath) {
   const report = buildLearningReport([explicitPath], {
     windowSize: 40,
     minimumServiceRate: 0.7,
-    execution,
   });
   writeFileSync(metricPath, `${JSON.stringify(report, null, 2)}\n`);
 }

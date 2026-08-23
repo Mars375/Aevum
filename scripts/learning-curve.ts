@@ -2,6 +2,7 @@
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
 import { pathToFileURL } from "node:url";
+import { z } from "zod";
 import {
   buildLearningCurve,
   buildObservations,
@@ -9,10 +10,15 @@ import {
   type LearningCurve,
   type LearningObservation,
 } from "@abs/metrics";
-import { JournalSchema, chronicle, type Journal } from "@abs/world";
+import {
+  ExecutionProvenanceSchema,
+  JournalSchema,
+  chronicle,
+  type ExecutionProvenance,
+  type Journal,
+} from "@abs/world";
 
 export const METRIC_VERSION = "aevum-learning-curve-v1";
-export type ExecutionMode = "REMOTE_MODELS" | "SCRIPTED_NO_REMOTE_MODEL" | "SILENT_ENGINE_ONLY";
 
 export interface ServiceSummary {
   recordedRulings: number;
@@ -37,7 +43,7 @@ export interface LearningReport {
     livedYears: number;
     fingerprint: string | null;
   } | null;
-  execution: { mode: ExecutionMode; remoteModelCalls: number | null };
+  execution: ExecutionProvenance & { remoteModelCalls: number | null };
   serviceSummary: ServiceSummary;
   limitations: string[];
   curves: Array<LearningCurve & { classification: ReturnType<typeof classifyLearningSignal> }>;
@@ -50,8 +56,91 @@ interface Arguments {
   minimumServiceRate: number;
   pairedRunKey?: string;
   out?: string;
-  execution: ExecutionMode;
+  executionAssertion?: ExecutionProvenance["mode"];
 }
+
+const nullableRate = z.number().min(0).max(1).nullable();
+const nonnegativeInteger = z.number().int().min(0);
+const ServiceSummarySchema = z.object({
+  recordedRulings: nonnegativeInteger,
+  knownEvidence: nonnegativeInteger,
+  unknownEvidence: nonnegativeInteger,
+  selfServed: nonnegativeInteger,
+  servedByFallback: nonnegativeInteger,
+  deferredRulings: nonnegativeInteger,
+  retriedRulings: nonnegativeInteger,
+  serviceRate: nullableRate,
+  fallbackRate: nullableRate,
+}).strict();
+const EventSourceSchema = z.object({
+  id: z.string().min(1),
+  tick: nonnegativeInteger,
+  kind: z.string().min(1),
+  detail: z.string(),
+}).strict();
+const MetricSeriesSchema = z.object({
+  metric: z.enum(["consequence-recognition", "error-correction", "doctrine-coherence", "narrative-fidelity"]),
+  window: z.object({ startTick: nonnegativeInteger, endTick: nonnegativeInteger }).strict(),
+  numerator: nonnegativeInteger,
+  denominator: nonnegativeInteger,
+  value: nullableRate,
+  sampleCount: nonnegativeInteger,
+  serviceRate: nullableRate,
+  fallbackRate: nullableRate,
+  unknownServiceCount: nonnegativeInteger,
+  uncertainty: z.object({
+    method: z.literal("WILSON_95"),
+    lower: nullableRate,
+    upper: nullableRate,
+    seedCount: nonnegativeInteger,
+    runCount: nonnegativeInteger,
+  }).strict(),
+  eventSourceIds: z.array(z.string().min(1)),
+}).strict();
+const LearningCurveSchema = z.object({
+  modelId: z.string().nullable(),
+  runIds: z.array(z.string().min(1)),
+  seeds: z.array(z.number().int()),
+  pairedRunKey: z.string().nullable(),
+  options: z.object({
+    windowSize: z.number().int().positive(),
+    minimumServiceRate: z.number().min(0).max(1),
+    maximumFallbackRate: z.number().min(0).max(1),
+    minimumSamples: nonnegativeInteger,
+    minimumWindows: nonnegativeInteger,
+    minimumImprovement: z.number().min(0),
+  }).strict(),
+  sampleCount: nonnegativeInteger,
+  serviceRate: nullableRate,
+  fallbackRate: nullableRate,
+  unknownServiceCount: nonnegativeInteger,
+  eventSources: z.array(EventSourceSchema),
+  series: z.object({
+    consequenceRecognition: z.array(MetricSeriesSchema),
+    errorCorrection: z.array(MetricSeriesSchema),
+    doctrineCoherence: z.array(MetricSeriesSchema),
+    narrativeFidelity: z.array(MetricSeriesSchema),
+  }).strict(),
+  unrankedReasons: z.array(z.string()),
+  classification: z.enum(["ADAPTATION_OBSERVED", "NO_EVIDENCE", "INSUFFICIENT_DATA", "UNRANKED"]),
+}).strict();
+
+export const LearningReportSchema = z.object({
+  protocol: z.literal(METRIC_VERSION),
+  metricVersion: z.literal(METRIC_VERSION),
+  sources: z.array(z.string().min(1)).min(1),
+  world: z.object({
+    worldVersion: z.string().min(1),
+    seed: z.number().int(),
+    era: nonnegativeInteger,
+    livedYears: nonnegativeInteger,
+    fingerprint: z.string().nullable(),
+  }).strict().nullable(),
+  execution: z.intersection(ExecutionProvenanceSchema, z.object({ remoteModelCalls: nonnegativeInteger.nullable() })),
+  serviceSummary: ServiceSummarySchema,
+  limitations: z.array(z.string().min(1)),
+  curves: z.array(LearningCurveSchema),
+}).strict();
 
 function parseArguments(args: string[]): Arguments {
   const paths: string[] = [];
@@ -60,7 +149,7 @@ function parseArguments(args: string[]): Arguments {
   let minimumServiceRate = 0.7;
   let pairedRunKey: string | undefined;
   let out: string | undefined;
-  let execution: ExecutionMode = "REMOTE_MODELS";
+  let executionAssertion: ExecutionProvenance["mode"] | undefined;
   for (const arg of args) {
     if (arg === "--markdown" || arg === "--format=markdown") format = "markdown";
     else if (arg === "--json" || arg === "--format=json") format = "json";
@@ -73,7 +162,7 @@ function parseArguments(args: string[]): Arguments {
       if (value !== "REMOTE_MODELS" && value !== "SCRIPTED_NO_REMOTE_MODEL" && value !== "SILENT_ENGINE_ONLY") {
         throw new Error(`unknown execution mode: ${value}`);
       }
-      execution = value;
+      executionAssertion = value;
     }
     else if (arg.startsWith("--")) throw new Error(`unknown option: ${arg}`);
     else paths.push(arg);
@@ -83,7 +172,7 @@ function parseArguments(args: string[]): Arguments {
   if (!Number.isFinite(minimumServiceRate) || minimumServiceRate < 0 || minimumServiceRate > 1) {
     throw new Error("--minimum-service must be between 0 and 1");
   }
-  return { paths, format, windowSize, minimumServiceRate, pairedRunKey, out, execution };
+  return { paths, format, windowSize, minimumServiceRate, pairedRunKey, out, executionAssertion };
 }
 
 function percent(value: number | null): string {
@@ -132,7 +221,7 @@ const selfServed = (journal: Journal) => journal.rulings.filter((ruling) => {
     && service.fallbackCount === 0;
 }).length;
 
-function serviceSummary(journals: Journal[]): ServiceSummary {
+export function serviceSummary(journals: Journal[]): ServiceSummary {
   const rulings = journals.flatMap((journal) => journal.rulings);
   const knownEvidence = rulings.filter((ruling) => ruling.service !== null && ruling.service !== undefined).length;
   const self = journals.reduce((total, journal) => total + selfServed(journal), 0);
@@ -150,9 +239,49 @@ function serviceSummary(journals: Journal[]): ServiceSummary {
   };
 }
 
+export function executionFor(journals: Journal[]): ExecutionProvenance {
+  const executions = journals.map((journal) => journal.execution);
+  if (executions.some((execution) => execution === null)) {
+    throw new Error("journal has no immutable execution provenance");
+  }
+  const execution = executions[0]!;
+  if (executions.some((candidate) => JSON.stringify(candidate) !== JSON.stringify(execution))) {
+    throw new Error("journals do not share one execution provenance");
+  }
+  for (const journal of journals) {
+    if (execution.mode === "SILENT_ENGINE_ONLY" && journal.rulings.length !== 0) {
+      throw new Error("silent execution cannot contain rulings");
+    }
+    if (execution.mode === "SCRIPTED_NO_REMOTE_MODEL") {
+      if (journal.rulings.length === 0
+        || journal.rulings.some((ruling) => ruling.model !== "scripted/no-remote-model" || ruling.service !== null)) {
+        throw new Error("scripted execution requires scripted rulings without remote service evidence");
+      }
+    }
+    if (execution.mode === "REMOTE_MODELS"
+      && (journal.rulings.length === 0 || journal.rulings.some((ruling) => !ruling.model || ruling.model === "scripted/no-remote-model"))) {
+      throw new Error("remote execution requires actual provider rulings");
+    }
+  }
+  return execution;
+}
+
+export function validateLearningReport(report: LearningReport, journals: Journal[]): void {
+  LearningReportSchema.parse(report);
+  const execution = executionFor(journals);
+  if (report.execution.mode !== execution.mode || report.execution.fixtureDigest !== execution.fixtureDigest) {
+    throw new Error("metric execution metadata does not match journal");
+  }
+  const expectedCalls = execution.mode === "REMOTE_MODELS" ? null : 0;
+  if (report.execution.remoteModelCalls !== expectedCalls) throw new Error("metric remote call metadata is inconsistent");
+  if (JSON.stringify(report.serviceSummary) !== JSON.stringify(serviceSummary(journals))) {
+    throw new Error("metric service summary does not match journal");
+  }
+}
+
 export function buildLearningReport(
   paths: string[],
-  options: Pick<Arguments, "windowSize" | "minimumServiceRate" | "pairedRunKey" | "execution">,
+  options: Pick<Arguments, "windowSize" | "minimumServiceRate" | "pairedRunKey" | "executionAssertion">,
 ): LearningReport {
   const observations: LearningObservation[] = [];
   const canonicalPaths = paths.map((path) => realpathSync(path));
@@ -166,6 +295,10 @@ export function buildLearningReport(
     const journal = JournalSchema.parse(JSON.parse(readFileSync(path, "utf8")));
     journals.push(journal);
     observations.push(...buildObservations(chronicle(journal), journal.rulings, runIds[index]!));
+  }
+  const execution = executionFor(journals);
+  if (options.executionAssertion && options.executionAssertion !== execution.mode) {
+    throw new Error(`requested execution ${options.executionAssertion} does not match journal ${execution.mode}`);
   }
   const byModel = new Map<string | null, LearningObservation[]>();
   for (const observation of observations) {
@@ -194,15 +327,15 @@ export function buildLearningReport(
       fingerprint: journal.fingerprint,
     } : null,
     execution: {
-      mode: options.execution,
-      remoteModelCalls: options.execution === "REMOTE_MODELS" ? null : 0,
+      ...execution,
+      remoteModelCalls: execution.mode === "REMOTE_MODELS" ? null : 0,
     },
     serviceSummary: serviceSummary(journals),
     limitations: [
       "Une seule trajectoire ne permet aucun classement de modèles.",
-      options.execution === "SCRIPTED_NO_REMOTE_MODEL"
+      execution.mode === "SCRIPTED_NO_REMOTE_MODEL"
         ? "Décisions scriptées localement; aucun modèle distant n'a été consulté."
-        : options.execution === "SILENT_ENGINE_ONLY"
+        : execution.mode === "SILENT_ENGINE_ONLY"
           ? "Le moteur a vécu sans dirigeant et sans appel de modèle."
           : "Le journal ne conserve pas les appels définitivement échoués.",
       "L'attribution observed-after établit un ordre temporel, pas une causalité.",

@@ -15,6 +15,7 @@ Cette ère est rejouable depuis son [journal](/worlds/aevum-season-1/era-0001.js
 | Années vécues | 120 |
 | Fingerprint | `fdc76c0b` |
 | Exécution | `scripted/no remote model` |
+| Empreinte de fixture | `sha256:eee64718a1fffc895a36b78c287f8aac88389566879c6e9e50560757c6b76359` |
 | Appels de modèles distants | 0 |
 
 ## Résumé de service

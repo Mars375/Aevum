@@ -166,10 +166,13 @@ for (const seed of SEEDS) {
       const version = worldVersionOf(raw);
       if (version !== WORLD_VERSION) throw new Error(`${path} uses ${version ?? "unknown"}, expected ${WORLD_VERSION}`);
       journal = JournalSchema.parse(raw);
+      if (journal.execution === null || JSON.stringify(journal.execution) !== JSON.stringify(provider.execution)) {
+        throw new Error(`${path} execution provenance does not match the remote campaign`);
+      }
     } else {
       // One seed is held constant across its four rotations, so that within a
       // seed the only thing differing is who governs what.
-      journal = newJournal(newWorld(FACTIONS, seed));
+      journal = newJournal(newWorld(FACTIONS, seed), 1, provider.execution);
     }
     const world = replay(journal.origin, journal.rulings, journal.livedTo).world;
     if (journal.fingerprint !== null && journal.fingerprint !== fingerprint(world)) {

@@ -1,22 +1,16 @@
 /** Build the published Season report from a journal and its offline metric sidecar. */
 import { readFileSync, writeFileSync } from "node:fs";
-import { basename } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { JournalSchema, chronicle, identityOf, turningPoints } from "@abs/world";
-import { METRIC_VERSION, type LearningReport, type ServiceSummary } from "./learning-curve.js";
+import { JournalSchema, chronicle, fingerprint, identityOf, replay, turningPoints } from "@abs/world";
+import {
+  LearningReportSchema,
+  validateLearningReport,
+  type LearningReport,
+  type ServiceSummary,
+} from "./learning-curve.js";
 
 const percent = (value: number | null): string => value === null ? "inconnu" : `${(value * 100).toFixed(1)} %`;
-
-function assertReport(value: unknown): asserts value is LearningReport {
-  if (typeof value !== "object" || value === null) throw new Error("metric report must be an object");
-  const report = value as Partial<LearningReport>;
-  if (report.protocol !== METRIC_VERSION || report.metricVersion !== METRIC_VERSION) {
-    throw new Error(`metric report must use ${METRIC_VERSION}`);
-  }
-  if (!report.world || !report.execution || !report.serviceSummary || !Array.isArray(report.limitations)) {
-    throw new Error("metric report is missing publication metadata");
-  }
-}
 
 function serviceLines(service: ServiceSummary): string[] {
   return [
@@ -34,9 +28,12 @@ function serviceLines(service: ServiceSummary): string[] {
 
 export function buildSeasonReport(journalPath: string, metricPath: string): string {
   const journal = JournalSchema.parse(JSON.parse(readFileSync(journalPath, "utf8")));
-  const raw: unknown = JSON.parse(readFileSync(metricPath, "utf8"));
-  assertReport(raw);
-  const report = raw;
+  const replayed = replay(journal.origin, journal.rulings, journal.livedTo).world;
+  if (journal.fingerprint === null || fingerprint(replayed) !== journal.fingerprint) {
+    throw new Error("journal fingerprint does not match replay");
+  }
+  const report = LearningReportSchema.parse(JSON.parse(readFileSync(metricPath, "utf8"))) as LearningReport;
+  validateLearningReport(report, [journal]);
   if (!report.world) throw new Error("metric report requires one world");
   const metricWorld = report.world;
   if (report.sources.length !== 1 || report.sources[0] !== basename(journalPath)) throw new Error("metric source does not match journal");
@@ -47,11 +44,15 @@ export function buildSeasonReport(journalPath: string, metricPath: string): stri
     || metricWorld.fingerprint !== journal.fingerprint) {
     throw new Error("metric world metadata does not match journal");
   }
+  const expectedMetric = basename(journalPath).replace(/\.json$/, ".learning.json");
+  if (resolve(dirname(metricPath)) !== resolve(dirname(journalPath)) || basename(metricPath) !== expectedMetric) {
+    throw new Error("metric sidecar path does not match journal");
+  }
 
   const years = chronicle(journal);
   const turns = turningPoints(years);
   const identities = journal.origin.civs.map((civ) => identityOf(civ, years)).filter((identity) => identity !== null);
-  const worldName = basename(journalPath.replace(/\/era-\d+\.json$/, ""));
+  const worldName = basename(dirname(journalPath));
   const journalLink = `/worlds/${worldName}/${basename(journalPath)}`;
   const metricLink = `/worlds/${worldName}/${basename(metricPath)}`;
   const mode = report.execution.mode === "SCRIPTED_NO_REMOTE_MODEL"
@@ -75,6 +76,7 @@ export function buildSeasonReport(journalPath: string, metricPath: string): stri
     `| Années vécues | ${journal.livedTo} |`,
     `| Fingerprint | \`${journal.fingerprint ?? "absent"}\` |`,
     `| Exécution | \`${mode}\` |`,
+    `| Empreinte de fixture | \`${report.execution.fixtureDigest ?? "aucune"}\` |`,
     `| Appels de modèles distants | ${report.execution.remoteModelCalls ?? "inconnu"} |`,
     "",
     "## Résumé de service",
@@ -107,7 +109,10 @@ export function buildSeasonReport(journalPath: string, metricPath: string): stri
 async function main(): Promise<void> {
   const [journalPath, metricPath, ...options] = process.argv.slice(2);
   if (!journalPath || !metricPath) throw new Error("usage: npx tsx scripts/season-report.ts <journal.json> <metrics.json> [--out=report.md]");
+  if (options.some((option) => !option.startsWith("--out="))) throw new Error(`unknown option: ${options.find((option) => !option.startsWith("--out="))}`);
+  if (options.filter((option) => option.startsWith("--out=")).length > 1) throw new Error("duplicate option: --out");
   const out = options.find((option) => option.startsWith("--out="))?.slice("--out=".length);
+  if (options.length > 0 && !out) throw new Error("--out requires a value");
   const report = buildSeasonReport(journalPath, metricPath);
   if (out) writeFileSync(out, report);
   else process.stdout.write(`${report}\n`);

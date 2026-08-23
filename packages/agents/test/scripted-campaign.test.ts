@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import fixture from "./fixtures/aevum-season-1-campaign.json";
 import {
   DEFAULT_GENERALS,
@@ -20,16 +23,17 @@ import {
 
 const factions = DEFAULT_GENERALS.map((general) => general.factionId);
 const survivor = fixture.survivor as (typeof factions)[number];
+const fixtureDigest = `sha256:${createHash("sha256").update(readFileSync(fileURLToPath(new URL("./fixtures/aevum-season-1-campaign.json", import.meta.url)))).digest("hex")}`;
 
 function provider(): ScriptedRulerProvider {
   return new ScriptedRulerProvider((general, point) => {
     if (general.factionId === fixture.survivor) return fixture.survivorDoctrine as ScriptedRuling;
     return (point.tick < fixture.transitionTick ? fixture.beforeTransition : fixture.afterTransition) as ScriptedRuling;
-  });
+  }, fixtureDigest);
 }
 
 async function run() {
-  const journal = newJournal(newWorld(factions, fixture.seed));
+  const journal = newJournal(newWorld(factions, fixture.seed), 1, provider().execution);
   const result = await liveWorld(replay(journal.origin, [], 0).world, {
     journal,
     generals: DEFAULT_GENERALS,

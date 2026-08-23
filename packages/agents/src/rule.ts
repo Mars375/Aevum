@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Civ, DecisionPoint, Ruling, World } from "@abs/world";
+import type { Civ, DecisionPoint, ExecutionProvenance, Ruling, World } from "@abs/world";
 import type { GeneralConfig } from "@abs/contracts";
 import { RULING_JSON_SCHEMA, systemPromptWorld, userPromptWorld } from "./prompt-world.js";
 
@@ -114,6 +114,10 @@ export interface RulerProvider {
   ask(general: GeneralConfig, sys: string, usr: string, schema: unknown): Promise<string | null>;
   /** Which model actually answered, when the provider tracks it. */
   lastModel?(): string | null;
+}
+
+export interface ProvenancedRulerProvider extends RulerProvider {
+  readonly execution: ExecutionProvenance;
 }
 
 export async function askRuler(

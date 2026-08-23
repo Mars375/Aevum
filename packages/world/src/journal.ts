@@ -54,6 +54,24 @@ export function worldVersionOf(raw: unknown): string | null {
   return typeof v === "string" ? v : null;
 }
 
+export const FixtureDigestSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/);
+
+export const ExecutionProvenanceSchema = z.discriminatedUnion("mode", [
+  z.object({
+    mode: z.literal("REMOTE_MODELS"),
+    fixtureDigest: z.null(),
+  }),
+  z.object({
+    mode: z.literal("SCRIPTED_NO_REMOTE_MODEL"),
+    fixtureDigest: FixtureDigestSchema,
+  }),
+  z.object({
+    mode: z.literal("SILENT_ENGINE_ONLY"),
+    fixtureDigest: z.null(),
+  }),
+]);
+export type ExecutionProvenance = Readonly<z.infer<typeof ExecutionProvenanceSchema>>;
+
 export const JournalSchema = z.object({
   worldVersion: z.literal(WORLD_VERSION),
   /**
@@ -64,6 +82,8 @@ export const JournalSchema = z.object({
    * before stay readable — a civilisation that fell in era 3 still happened.
    */
   era: z.number().int().default(1),
+  /** Immutable identity of the provider path that produced this campaign. */
+  execution: ExecutionProvenanceSchema.nullable().default(null),
   /** The world at tick 0. Everything after is derived. */
   origin: WorldSchema.refine((world) => world.worldVersion === WORLD_VERSION, {
     message: `journal origin must use ${WORLD_VERSION}`,
@@ -89,7 +109,7 @@ export const JournalSchema = z.object({
 type ParsedJournal = z.infer<typeof JournalSchema>;
 export type Journal = Omit<ParsedJournal, "rulings"> & { rulings: Ruling[] };
 
-export const newJournal = (origin: World, era = 1): Journal => {
+export const newJournal = (origin: World, era = 1, execution: ExecutionProvenance | null = null): Journal => {
   if (origin.worldVersion !== WORLD_VERSION) {
     throw new Error(`cannot create a ${WORLD_VERSION} journal from a ${origin.worldVersion} world`);
   }
@@ -97,6 +117,7 @@ export const newJournal = (origin: World, era = 1): Journal => {
   return {
     worldVersion: WORLD_VERSION,
     era,
+    execution,
     origin,
     livedTo: origin.tick,
     fingerprint: null,

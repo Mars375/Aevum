@@ -9,7 +9,8 @@
  */
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { JournalSchema, WORLD_VERSION, isOver, living, replay, worldVersionOf } from "@abs/world";
+import { JournalSchema, WORLD_VERSION, fingerprint, isOver, living, replay, worldVersionOf } from "@abs/world";
+import { LearningReportSchema, validateLearningReport, type LearningReport } from "./learning-curve.js";
 
 const ROOT = resolve("worlds");
 const PUBLIC_ROOT = resolve("apps/player/public/worlds");
@@ -54,19 +55,28 @@ for (const world of readdirSync(ROOT, { withFileTypes: true }).filter((d) => d.i
     const journal = parsed.data;
     // Recomputed, not stored — the same arithmetic the player will run.
     const final = replay(journal.origin, journal.rulings, journal.livedTo).world;
+    if (journal.fingerprint === null || fingerprint(final) !== journal.fingerprint) {
+      console.warn(`ignore ${full} : fingerprint does not match replay`);
+      continue;
+    }
     const survivors = living(final);
     const learningFile = file.replace(/\.json$/, ".learning.json");
     const learningFull = join(ROOT, world.name, learningFile);
     let learningCurvePath: string | undefined;
     if (existsSync(learningFull)) {
       try {
-        const report = JSON.parse(readFileSync(learningFull, "utf8")) as { protocol?: unknown; sources?: unknown };
-        if (report.protocol === "aevum-learning-curve-v1"
-          && Array.isArray(report.sources)
-          && report.sources.length === 1
-          && report.sources[0] === file) {
-          learningCurvePath = `worlds/${world.name}/${learningFile}`;
-        } else console.warn(`ignore ${learningFull} : sidecar incompatible`);
+        const report = LearningReportSchema.parse(JSON.parse(readFileSync(learningFull, "utf8"))) as LearningReport;
+        validateLearningReport(report, [journal]);
+        if (report.sources.length !== 1 || report.sources[0] !== file) throw new Error("source journal path does not match");
+        if (!report.world
+          || report.world.worldVersion !== journal.worldVersion
+          || report.world.seed !== journal.origin.seed
+          || report.world.era !== journal.era
+          || report.world.livedYears !== journal.livedTo
+          || report.world.fingerprint !== journal.fingerprint) {
+          throw new Error("world metadata does not match journal");
+        }
+        learningCurvePath = `worlds/${world.name}/${learningFile}`;
       } catch (error) {
         console.warn(`ignore ${learningFull} : ${error instanceof Error ? error.message : String(error)}`);
       }

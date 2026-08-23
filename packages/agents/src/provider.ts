@@ -75,6 +75,7 @@ const HOP_INSTEAD_OF_WAITING_MS = 3_000;
 const WAIT_FOR_OWN_MODEL_MS = MAX_BACKOFF_MS;
 
 export class RemoteProvider implements OrderProvider {
+  readonly execution = { mode: "REMOTE_MODELS", fixtureDigest: null } as const;
   private readonly opts: Required<Omit<RemoteProviderOptions, "apiKeys">> & {
     apiKeys: Partial<Record<ProviderName, string>>;
   };
