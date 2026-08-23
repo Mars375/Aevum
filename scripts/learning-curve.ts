@@ -49,14 +49,17 @@ export interface LearningReport {
   curves: Array<LearningCurve & { classification: ReturnType<typeof classifyLearningSignal> }>;
 }
 
-interface Arguments {
-  paths: string[];
-  format: "json" | "markdown";
+export interface LearningReportOptions {
   windowSize: number;
   minimumServiceRate: number;
   pairedRunKey?: string;
-  out?: string;
   executionAssertion?: ExecutionProvenance["mode"];
+}
+
+interface Arguments extends LearningReportOptions {
+  paths: string[];
+  format: "json" | "markdown";
+  out?: string;
 }
 
 const nullableRate = z.number().min(0).max(1).nullable();
@@ -96,7 +99,18 @@ const MetricSeriesSchema = z.object({
     runCount: nonnegativeInteger,
   }).strict(),
   eventSourceIds: z.array(z.string().min(1)),
-}).strict();
+}).strict().superRefine((series, context) => {
+  if (series.numerator > series.denominator) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "numerator exceeds denominator", path: ["numerator"] });
+  }
+  const expectedValue = series.denominator === 0 ? null : series.numerator / series.denominator;
+  if (series.value !== expectedValue) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "value does not equal numerator / denominator", path: ["value"] });
+  }
+  if ((series.uncertainty.lower === null) !== (series.uncertainty.upper === null)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "uncertainty bounds must both be null or both be numbers", path: ["uncertainty"] });
+  }
+});
 const LearningCurveSchema = z.object({
   modelId: z.string().nullable(),
   runIds: z.array(z.string().min(1)),
@@ -279,21 +293,20 @@ export function validateLearningReport(report: LearningReport, journals: Journal
   }
 }
 
-export function buildLearningReport(
-  paths: string[],
-  options: Pick<Arguments, "windowSize" | "minimumServiceRate" | "pairedRunKey" | "executionAssertion">,
+export function buildLearningReportFromJournals(
+  journals: Journal[],
+  sources: string[],
+  options: LearningReportOptions,
 ): LearningReport {
+  if (journals.length === 0 || journals.length !== sources.length) {
+    throw new Error("journals and sources must be non-empty and have the same length");
+  }
+  if (new Set(sources).size !== sources.length) throw new Error("duplicate journal sources are not distinct runs");
   const observations: LearningObservation[] = [];
-  const canonicalPaths = paths.map((path) => realpathSync(path));
-  if (new Set(canonicalPaths).size !== canonicalPaths.length) throw new Error("duplicate journal paths are not distinct runs");
   // Published sidecars must not change when the same journal is generated in a
-  // different checkout. Canonical paths detect duplicates; source ordinals are
-  // the stable public run identity.
-  const runIds = paths.map((path, index) => `run:${index + 1}:${basename(path)}`);
-  const journals: Journal[] = [];
-  for (const [index, path] of canonicalPaths.entries()) {
-    const journal = JournalSchema.parse(JSON.parse(readFileSync(path, "utf8")));
-    journals.push(journal);
+  // different checkout. Source ordinals are the stable public run identity.
+  const runIds = sources.map((source, index) => `run:${index + 1}:${source}`);
+  for (const [index, journal] of journals.entries()) {
     observations.push(...buildObservations(chronicle(journal), journal.rulings, runIds[index]!));
   }
   const execution = executionFor(journals);
@@ -313,7 +326,6 @@ export function buildLearningReport(
     });
     return { ...curve, classification: classifyLearningSignal(curve) };
   });
-  const sources = paths.map((path) => basename(path));
   const journal = journals.length === 1 ? journals[0]! : null;
   return {
     protocol: METRIC_VERSION,
@@ -343,6 +355,13 @@ export function buildLearningReport(
     ],
     curves,
   };
+}
+
+export function buildLearningReport(paths: string[], options: LearningReportOptions): LearningReport {
+  const canonicalPaths = paths.map((path) => realpathSync(path));
+  if (new Set(canonicalPaths).size !== canonicalPaths.length) throw new Error("duplicate journal paths are not distinct runs");
+  const journals = canonicalPaths.map((path) => JournalSchema.parse(JSON.parse(readFileSync(path, "utf8"))));
+  return buildLearningReportFromJournals(journals, paths.map((path) => basename(path)), options);
 }
 
 async function main(): Promise<void> {

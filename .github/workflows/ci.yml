@@ -10,7 +10,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,7 +33,7 @@ jobs:
             exit 1
           fi
 
-          if grep -qE "sk-or-v1-[A-Za-z0-9_-]{20,}|gsk_[A-Za-z0-9_-]{20,}|nvapi-[A-Za-z0-9_-]{20,}|MISTRAL_API_KEY[[:space:]]*=[[:space:]]*[\"']?[A-Za-z0-9_-]{20,}" "$diff_file"; then
+          if grep -qiE "sk-or-v1-[A-Za-z0-9_-]{20,}|gsk_[A-Za-z0-9_-]{20,}|nvapi-[A-Za-z0-9_-]{20,}|(OPENROUTER|GROQ|NVIDIA|MISTRAL)_API_KEY[[:space:]]*[:=][[:space:]]*[\"']?[A-Za-z0-9_./+-]{20,}" "$diff_file"; then
             echo "::error::An API key pattern appears in the event diff."
             exit 1
           fi
@@ -48,6 +48,10 @@ jobs:
             echo "::error::.env is tracked by git."
             exit 1
           fi
+          if [ -e .env ] && [ "$(stat -c '%a' .env)" != "600" ]; then
+            echo "::error::.env permissions must be 600."
+            exit 1
+          fi
 
       - uses: actions/setup-node@v4
         with:
@@ -58,9 +62,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run player:build
-      - name: Validate the Aevum Compose deployment
-        run: docker compose config --quiet
-      - run: npm run healthcheck
+      - name: Run clone healthcheck (provider access is advisory)
+        run: npm run healthcheck
       - name: Probe the continuous world offline
         run: npm run world:probe -- 300
       - name: Rebuild the Season 1 methodology report
@@ -71,3 +74,27 @@ jobs:
         run: npm run index-worlds
       - name: Verify the Season 1 release candidate
         run: npm run verify-season-1
+      - name: Reject stale committed reports and indexes
+        run: |
+          git diff --check
+          git diff --exit-code -- docs/reports worlds/index.json apps/player/public/reports apps/player/public/worlds
+      - name: Build and smoke-test the Aevum Compose deployment
+        run: |
+          set -euo pipefail
+          trap 'docker compose down --remove-orphans --volumes' EXIT
+          docker compose config --quiet
+          docker compose up --detach --build
+          container="$(docker compose ps -q player)"
+          for attempt in $(seq 1 30); do
+            status="$(docker inspect --format '{{.State.Health.Status}}' "$container" 2>/dev/null || true)"
+            [ "$status" = healthy ] && break
+            [ "$status" = unhealthy ] && { docker compose logs; exit 1; }
+            sleep 2
+          done
+          [ "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy ]
+          for path in / /reports/aevum-season-1.html /reports/aevum-season-1-verification.html /reports/index.json /worlds/index.json /worlds/aevum-season-1/era-0001.json /worlds/aevum-season-1/era-0001.learning.json; do
+            curl --fail --silent --show-error "http://127.0.0.1:8088$path" >/dev/null
+          done
+      - name: Record dependency advisories
+        continue-on-error: true
+        run: npm audit --audit-level=high

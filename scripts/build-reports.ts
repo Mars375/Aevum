@@ -15,6 +15,7 @@
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const SRC = resolve("docs/reports");
 const OUT = resolve("apps/player/public/reports");
@@ -35,7 +36,7 @@ const cells = (row: string) =>
     .split("|")
     .map((c) => c.trim());
 
-function render(md: string): string {
+export function renderReport(md: string): string {
   const lines = md.split("\n");
   const out: string[] = [];
   let i = 0;
@@ -111,16 +112,13 @@ function render(md: string): string {
   return out.join("\n");
 }
 
-mkdirSync(OUT, { recursive: true });
-if (!existsSync(SRC)) {
-  console.error("docs/reports introuvable");
-  process.exit(1);
+export interface ReportIndexEntry {
+  slug: string;
+  title: string;
+  subtitle: string;
 }
 
-const index: Array<{ slug: string; title: string; subtitle: string }> = [];
-
-for (const file of readdirSync(SRC).filter((f) => f.endsWith(".md")).sort()) {
-  const md = readFileSync(join(SRC, file), "utf8");
+export function reportIndexEntry(file: string, md: string): ReportIndexEntry {
   const slug = file.replace(/\.md$/, "");
   const title = /^#\s+(.*)$/m.exec(md)?.[1] ?? slug;
   // The line right under the title is the standing "Statut : ..." line, which
@@ -128,9 +126,28 @@ for (const file of readdirSync(SRC).filter((f) => f.endsWith(".md")).sort()) {
   // Only the formatting markers come out. Stripping underscores too turned
   // `t_baa4de0e` into `tbaa4de0e` — an identifier a reader might well type.
   const subtitle = /^#\s+.*\n+(.+)$/m.exec(md)?.[1]?.replace(/[*`]/g, "") ?? "";
-  writeFileSync(join(OUT, `${slug}.html`), render(md));
-  index.push({ slug, title, subtitle });
+  return { slug, title, subtitle };
 }
 
-writeFileSync(join(OUT, "index.json"), JSON.stringify(index, null, 2));
-console.log(`${index.length} rapport(s) rendus dans apps/player/public/reports/`);
+export function buildReports(source = SRC, output = OUT): void {
+  mkdirSync(output, { recursive: true });
+  if (!existsSync(source)) throw new Error("docs/reports introuvable");
+  const index: ReportIndexEntry[] = [];
+  for (const file of readdirSync(source).filter((candidate) => candidate.endsWith(".md")).sort()) {
+    const md = readFileSync(join(source, file), "utf8");
+    const entry = reportIndexEntry(file, md);
+    writeFileSync(join(output, `${entry.slug}.html`), renderReport(md));
+    index.push(entry);
+  }
+  writeFileSync(join(output, "index.json"), JSON.stringify(index, null, 2));
+  console.log(`${index.length} rapport(s) rendus dans apps/player/public/reports/`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    buildReports();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
+}

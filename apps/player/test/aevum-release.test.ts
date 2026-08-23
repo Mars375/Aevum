@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { afterEach, describe, expect, it } from "vitest";
-import { verifyPublishedSeason, verifyReleaseInventory } from "../../../scripts/verify-season-1.js";
+import { findSecretLeaks, verifyPublishedSeason, verifyReleaseInventory } from "../../../scripts/verify-season-1.js";
 
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "../../..");
 const TSX = resolve(ROOT, "node_modules/tsx/dist/loader.mjs");
@@ -32,7 +32,7 @@ net.Socket.prototype.connect = function (...args) {
   return fail("tcp " + JSON.stringify(target));
 };
 `);
-  const fixture = join(root, "fixtures/campaign.json");
+  const fixture = join(root, "packages/agents/test/fixtures/aevum-season-1-campaign.json");
   mkdirSync(dirname(fixture), { recursive: true });
   writeFileSync(fixture, readFileSync(FIXTURE));
   expect(fixture).not.toBe(join(root, "campaign.json"));
@@ -74,6 +74,12 @@ function expectSuccess(result: ReturnType<typeof run>): void {
 
 const json = (path: string) => JSON.parse(readFileSync(path, "utf8")) as Record<string, any>;
 const sha256 = (path: string) => createHash("sha256").update(readFileSync(path)).digest("hex");
+
+function addVerificationReport(root: string): void {
+  const target = join(root, "docs/reports/aevum-season-1-verification.md");
+  mkdirSync(dirname(target), { recursive: true });
+  writeFileSync(target, "# Vérification du candidat Aevum Saison 1\n\nStatut : fixture de test.\n");
+}
 
 describe("pipeline de publication Aevum", () => {
   it("produit les memes octets en une fois ou par reprise sans graine repetee", () => {
@@ -153,6 +159,7 @@ describe("pipeline de publication Aevum", () => {
     const markdown = join(root, "docs/reports/aevum-season-1.md");
     mkdirSync(worldDir, { recursive: true });
     mkdirSync(dirname(markdown), { recursive: true });
+    addVerificationReport(root);
 
     expectSuccess(run(root, guardLog, "scripts/live.ts", [`--scripted=${fixture}`, "--out", journal], true));
     expectSuccess(run(root, guardLog, "scripts/season-report.ts", [journal, metric, `--out=${markdown}`]));
@@ -187,6 +194,7 @@ describe("pipeline de publication Aevum", () => {
     const markdown = join(root, "docs/reports/aevum-season-1.md");
     mkdirSync(worldDir, { recursive: true });
     mkdirSync(dirname(markdown), { recursive: true });
+    addVerificationReport(root);
     expectSuccess(run(root, guardLog, "scripts/live.ts", [`--scripted=${fixture}`, "--out", journal], true));
     expectSuccess(run(root, guardLog, "scripts/season-report.ts", [journal, metric, `--out=${markdown}`]));
     expectSuccess(run(root, guardLog, "scripts/build-reports.ts", []));
@@ -212,6 +220,31 @@ describe("pipeline de publication Aevum", () => {
     expect(() => verifyPublishedSeason(root)).toThrow(/service summary/);
     writeFileSync(metric, metricBytes);
 
+    for (const mutate of [
+      (value: Record<string, any>) => { value.curves[0].classification = "NO_EVIDENCE"; },
+      (value: Record<string, any>) => { value.curves[0].series.doctrineCoherence[0].numerator += 1; },
+      (value: Record<string, any>) => { value.curves[0].eventSources[0].detail += " altéré"; },
+      (value: Record<string, any>) => { value.curves[0].options.windowSize = 20; },
+      (value: Record<string, any>) => { value.limitations.pop(); },
+    ]) {
+      const altered = json(metric);
+      mutate(altered);
+      writeFileSync(metric, `${JSON.stringify(altered, null, 2)}\n`);
+      expect(() => verifyPublishedSeason(root)).toThrow();
+      writeFileSync(metric, metricBytes);
+    }
+
+    const publicMetric = join(root, "apps/player/public/worlds/aevum-season-1/era-0001.learning.json");
+    writeFileSync(publicMetric, "{}\n");
+    expect(() => verifyPublishedSeason(root)).toThrow(/public copy/);
+    writeFileSync(publicMetric, metricBytes);
+
+    const reportIndex = join(root, "apps/player/public/reports/index.json");
+    const reportIndexBytes = readFileSync(reportIndex);
+    writeFileSync(reportIndex, "[]\n");
+    expect(() => verifyPublishedSeason(root)).toThrow(/report catalogue/);
+    writeFileSync(reportIndex, reportIndexBytes);
+
     rmSync(join(root, "apps/player/public/worlds/aevum-season-1/era-0001.json"));
     expect(() => verifyPublishedSeason(root)).toThrow(/report link/);
     mkdirSync(join(root, "apps/player/public/worlds/aevum-season-1"), { recursive: true });
@@ -226,5 +259,10 @@ describe("pipeline de publication Aevum", () => {
 
   it("verifie l'inventaire de renommage et les contrats de secrets", () => {
     expect(() => verifyReleaseInventory(ROOT)).not.toThrow();
+    const root = mkdtempSync(join(tmpdir(), "aevum-secret-"));
+    temporary.push(root);
+    const leak = join(root, "component.tsx");
+    writeFileSync(leak, `const token = "${["OPENROUTER", "API", "KEY"].join("_")}=abcdefghijklmnopqrstuvwxyz123456";\n`);
+    expect(findSecretLeaks([leak])).toEqual([leak]);
   });
 });
