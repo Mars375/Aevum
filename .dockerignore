@@ -1,0 +1,13 @@
+.env
+.env.*
+.git
+.superpowers
+**/node_modules
+**/dist
+**/build
+**/.cache
+**/.vite
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+*.log

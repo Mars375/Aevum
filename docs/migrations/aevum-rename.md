@@ -18,10 +18,12 @@ L'inventaire a recherché, avec et sans distinction de casse,
 | Références historiques | autorisées | spécifications et rapports R1, plan et conception de la Saison 1 |
 | Artefacts générés | non édités à la main | rapports HTML sous `apps/player/public/reports`; le lockfile est régénéré depuis les manifestes |
 
-Les 238 occurrences inventoriées de `@abs/*` sont des contrats, imports,
-alias, dépendances ou explications d'architecture. Elles restent inchangées dans
-cette version. Leur migration demanderait une carte séparée et une preuve de
-compatibilité des consommateurs.
+Les occurrences inventoriées de `@abs/*` sont des contrats, imports, alias,
+dépendances ou explications d'architecture. Elles restent inchangées dans cette
+version. Leur migration demanderait une carte séparée et une preuve de
+compatibilité des consommateurs. Le test `apps/player/test/branding.test.ts`
+recherche séparément, sans distinction de casse, l'ancien titre, l'ancien slug
+et l'ancien nom d'image, puis compare chaque résultat à une allowlist classée.
 
 ## Compatibilité
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from "vue";
-import { FACTION_IDS, ReplaySchema, type FactionId, type Replay } from "@abs/contracts";
+import { FACTION_IDS, type FactionId, type Replay } from "@abs/contracts";
 import BattleGrid from "./components/BattleGrid.vue";
 import EventLog from "./components/EventLog.vue";
 import GeneralPanel from "./components/GeneralPanel.vue";
@@ -10,6 +10,7 @@ import { JournalSchema, WORLD_VERSION, worldVersionOf, type Journal } from "@abs
 import type { PublishedLearningCurve } from "./components/LearningCurve.vue";
 import { alliesOfAt, knowledgeOf } from "./fog";
 import { createRequestGuard } from "./request-guard";
+import { fetchReplay, parseReplay, replayUrlFromSearch } from "./replay-loading";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
 const Battle3D = defineAsyncComponent(() => import("./components/Battle3D.vue"));
@@ -242,7 +243,7 @@ const currentTurn = computed(() => (index.value === 0 ? null : replay.value!.tur
 const atEnd = computed(() => index.value >= turnCount.value);
 
 function load(raw: unknown, source: string) {
-  const parsed = ReplaySchema.safeParse(raw);
+  const parsed = parseReplay(raw);
   if (!parsed.success) {
     error.value = `Replay invalide (${source}) : ${parsed.error.issues[0]?.path.join(".")} — ${parsed.error.issues[0]?.message}`;
     return;
@@ -257,9 +258,7 @@ function load(raw: unknown, source: string) {
 
 async function loadFromUrl(url: string) {
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    load(await res.json(), url);
+    load(await fetchReplay(url), url);
   } catch (err) {
     error.value = `Impossible de charger ${url} — ${(err as Error).message}. Choisissez un fichier de replay ci-dessous.`;
   }
@@ -364,7 +363,7 @@ onMounted(async () => {
   const turn = Number(params.get("turn"));
   if (Number.isInteger(turn) && turn > 0) pendingTurn = turn;
 
-  const requested = params.get("replay");
+  const requested = replayUrlFromSearch(location.search);
   if (requested) {
     currentPath.value = requested.replace(/^replays\//, "");
     loadFromUrl(requested);

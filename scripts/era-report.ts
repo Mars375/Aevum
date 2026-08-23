@@ -6,14 +6,14 @@
  * much as the years it can point at, and pointing at years is easier from a
  * terminal than from a scrubber.
  *
- *   npm run era-report -- worlds/premier/era-0001.json
+ *   npx tsx scripts/era-report.ts worlds/premier/era-0001.json
  */
 import { readFileSync } from "node:fs";
 import { JournalSchema, chronicle, type Civ } from "@abs/world";
 
 const path = process.argv[2];
 if (!path) {
-  console.error("usage: npm run era-report -- <journal.json>");
+  console.error("usage: npx tsx scripts/era-report.ts <journal.json>");
   process.exit(1);
 }
 

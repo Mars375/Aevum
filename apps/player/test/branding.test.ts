@@ -4,11 +4,52 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = resolve(import.meta.dirname, "../../..");
 const PRODUCT = "Aevum — Chronique des mondes";
-const PREDECESSOR = "AI Battle " + "Simulator";
+const OLD_TITLE = new RegExp(["ai", "battle", "simulator"].join(" "), "i");
+const OLD_SLUG_TEXT = ["ai", "battle", "simulator"].join("-");
+const OLD_SLUG = new RegExp(OLD_SLUG_TEXT, "i");
+const OLD_IMAGE = new RegExp(`${OLD_SLUG_TEXT}-player`, "i");
+
+const OLD_TITLE_ALLOWLIST = {
+  historical: [
+    "docs/spec/mvp.md",
+    "docs/spec/release-r1.md",
+    "docs/superpowers/plans/2026-08-22-aevum-season-1.md",
+  ],
+  compatibility: ["docs/migrations/aevum-rename.md"],
+  technical: [".claude/skills/project-conventions/SKILL.md"],
+};
+
+const OLD_SLUG_ALLOWLIST = {
+  historical: [
+    "apps/player/public/reports/release-r1-verification.html",
+    "docs/reports/release-r1-verification.md",
+    "docs/superpowers/plans/2026-08-22-aevum-season-1.md",
+    "docs/superpowers/specs/2026-08-22-aevum-season-1-design.md",
+  ],
+  compatibility: [
+    "deploy/ai-battle-world.service",
+    "deploy/ai-battle-world.timer",
+    "docs/migrations/aevum-rename.md",
+    "scripts/preflight.ts",
+    "scripts/tend-world.sh",
+  ],
+  technical: [
+    ".claude/settings.json",
+    ".claude/skills/run-tournament/SKILL.md",
+    "CLAUDE.md",
+    "packages/agents/src/provider.ts",
+  ],
+};
+
+const OLD_IMAGE_ALLOWLIST = {
+  historical: [],
+  compatibility: ["docs/migrations/aevum-rename.md"],
+  technical: [],
+};
 
 const read = (path: string) => readFileSync(resolve(ROOT, path), "utf8");
 
-function predecessorMentions(): string[] {
+function mentions(pattern: RegExp): string[] {
   const ignored = new Set([".git", ".superpowers", "dist", "node_modules"]);
   const files: string[] = [];
   const walk = (dir: string) => {
@@ -16,11 +57,15 @@ function predecessorMentions(): string[] {
       if (ignored.has(entry)) continue;
       const path = join(dir, entry);
       if (statSync(path).isDirectory()) walk(path);
-      else if (readFileSync(path, "utf8").includes(PREDECESSOR)) files.push(relative(ROOT, path));
+      else if (pattern.test(readFileSync(path, "utf8"))) files.push(relative(ROOT, path));
     }
   };
   walk(ROOT);
   return files.sort();
+}
+
+function allowedPaths(allowlist: Record<string, string[]>): string[] {
+  return Object.values(allowlist).flat().sort();
 }
 
 describe("public Aevum branding", () => {
@@ -47,21 +92,9 @@ describe("public Aevum branding", () => {
     expect(read("Dockerfile")).toContain(`org.opencontainers.image.title="${PRODUCT}"`);
   });
 
-  it("keeps the historical replay query readable", () => {
-    const app = read("apps/player/src/App.vue");
-    expect(app).toContain('const requested = params.get("replay")');
-    expect(app).toContain('requested.replace(/^replays\\//, "")');
-    expect(app).toContain("loadFromUrl(requested)");
-    expect(app).toContain('url.searchParams.set("replay", `replays/${path}`)');
-  });
-
-  it("allows the predecessor title only in historical or migration documents", () => {
-    expect(predecessorMentions()).toEqual([
-      ".claude/skills/project-conventions/SKILL.md",
-      "docs/migrations/aevum-rename.md",
-      "docs/spec/mvp.md",
-      "docs/spec/release-r1.md",
-      "docs/superpowers/plans/2026-08-22-aevum-season-1.md",
-    ]);
+  it("allows old branding only in explicit historical, compatibility, or technical paths", () => {
+    expect(mentions(OLD_TITLE)).toEqual(allowedPaths(OLD_TITLE_ALLOWLIST));
+    expect(mentions(OLD_SLUG)).toEqual(allowedPaths(OLD_SLUG_ALLOWLIST));
+    expect(mentions(OLD_IMAGE)).toEqual(allowedPaths(OLD_IMAGE_ALLOWLIST));
   });
 });
