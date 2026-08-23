@@ -58,6 +58,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run player:build
+      - name: Validate the Aevum Compose deployment
+        run: docker compose config --quiet
       - run: npm run healthcheck
       - name: Probe the continuous world offline
         run: npm run world:probe -- 300

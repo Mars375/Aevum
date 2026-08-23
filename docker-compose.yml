@@ -1,7 +1,9 @@
+name: aevum
+
 services:
   player:
     build: .
-    image: ai-battle-simulator-player
+    image: aevum-player
     restart: unless-stopped
     ports:
       - "8088:80"

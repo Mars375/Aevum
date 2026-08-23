@@ -19,6 +19,9 @@ RUN npm run build-reports && npm run player:build
 
 FROM nginx:1.27-alpine AS runtime
 
+LABEL org.opencontainers.image.title="Aevum — Chronique des mondes" \
+      org.opencontainers.image.description="Lecteur des mondes et replays Aevum"
+
 COPY --from=build /app/apps/player/dist /usr/share/nginx/html
 COPY apps/player/nginx.conf /etc/nginx/conf.d/default.conf
 

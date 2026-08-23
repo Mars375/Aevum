@@ -167,7 +167,7 @@ function parseArguments(args: string[]): Arguments {
     else if (arg.startsWith("--")) throw new Error(`unknown option: ${arg}`);
     else paths.push(arg);
   }
-  if (paths.length === 0) throw new Error("usage: npm run learning-curve -- <journal.json> [more.json] [--markdown] [--paired-run-key=KEY]");
+  if (paths.length === 0) throw new Error("usage: npm run learning-curve -- <journal.json> [more.json] [--markdown] [--paired-run-key=KEY] [--out=report.json]");
   if (!Number.isInteger(windowSize) || windowSize <= 0) throw new Error("--window must be a positive integer");
   if (!Number.isFinite(minimumServiceRate) || minimumServiceRate < 0 || minimumServiceRate > 1) {
     throw new Error("--minimum-service must be between 0 and 1");

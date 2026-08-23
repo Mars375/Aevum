@@ -1,8 +1,8 @@
 {
-  "name": "ai-battle-simulator",
+  "name": "aevum",
   "version": "0.2.0",
   "private": true,
-  "description": "Four LLM generals command four factions on a deterministic tactical grid. Watch the replay.",
+  "description": "Aevum — Chronique des mondes. Four language models govern persistent civilisations in a deterministic world.",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -33,7 +33,8 @@
     "rank-eras": "tsx scripts/rank-eras.ts",
     "board-fairness": "tsx scripts/board-fairness.ts",
     "narrate": "tsx scripts/narrate.ts",
-    "learning-curve": "tsx scripts/learning-curve.ts"
+    "learning-curve": "tsx scripts/learning-curve.ts",
+    "season-report": "tsx scripts/season-report.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

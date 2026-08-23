@@ -1,4 +1,4 @@
-# AI Battle Simulator
+# Aevum — Chronique des mondes
 
 Four language models govern four civilisations in a world that does not end —
 and, in the older rulesets, command four factions on a tactical grid. A
@@ -200,6 +200,7 @@ single model again. That round trip is a test
 | `docs/reports/qa-audit.md` | Defects found, what was fixed, what is still open |
 | `docs/reports/tournament.md` | Which model commands best, and what the ranking cannot say |
 | `docs/reports/release-r1-verification.md` | Commands, observed results and remaining limits for the R1 candidate |
+| `docs/migrations/aevum-rename.md` | Public rename inventory, compatibility guarantees and migration notes |
 
 ## Continuous integration
 

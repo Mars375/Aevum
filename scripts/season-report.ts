@@ -108,7 +108,7 @@ export function buildSeasonReport(journalPath: string, metricPath: string): stri
 
 async function main(): Promise<void> {
   const [journalPath, metricPath, ...options] = process.argv.slice(2);
-  if (!journalPath || !metricPath) throw new Error("usage: npx tsx scripts/season-report.ts <journal.json> <metrics.json> [--out=report.md]");
+  if (!journalPath || !metricPath) throw new Error("usage: npm run season-report -- <journal.json> <metrics.json> [--out=report.md]");
   if (options.some((option) => !option.startsWith("--out="))) throw new Error(`unknown option: ${options.find((option) => !option.startsWith("--out="))}`);
   if (options.filter((option) => option.startsWith("--out=")).length > 1) throw new Error("duplicate option: --out");
   const out = options.find((option) => option.startsWith("--out="))?.slice("--out=".length);

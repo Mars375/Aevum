@@ -2,6 +2,7 @@
   "name": "@abs/player",
   "version": "0.2.0",
   "private": true,
+  "description": "The replay and living-world viewer for Aevum — Chronique des mondes.",
   "type": "module",
   "scripts": {
     "dev": "vite",

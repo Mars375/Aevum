@@ -394,7 +394,7 @@ onUnmounted(() => {
   <div class="app">
     <header class="mast">
       <div class="brand">
-        <h1>AI Battle Simulator</h1>
+        <h1>Aevum — Chronique des mondes</h1>
         <p>Un monde gouverné par quatre modèles, rejouable à l'identique</p>
       </div>
 

@@ -4,6 +4,11 @@
 
 Candidate R1 préparée, non publiée.
 
+Le produit public porte désormais le nom **Aevum — Chronique des mondes**.
+Les contrats internes `@abs/*`, les URL de replay et les chemins d'état
+historiques restent inchangés pour préserver les installations et archives
+existantes ; la migration est détaillée dans `docs/migrations/aevum-rename.md`.
+
 ### Ajouté
 
 - Une Chronique du monde continu `w8`, centrée sur les tournants, les paroles
@@ -16,6 +21,8 @@ Candidate R1 préparée, non publiée.
 
 ### Modifié
 
+- Renommage des métadonnées, du lecteur et de l'image Docker publics vers
+  **Aevum — Chronique des mondes**, sans migration des identifiants techniques.
 - Réconciliation du monde R1 avec les règles `w8` : les progrès restent des
   jalons sans effet afin que les journaux archivés se rejouent à l'identique.
 - Établissement d'une base CI Node 22 avec tests et contrôles hors ligne,
