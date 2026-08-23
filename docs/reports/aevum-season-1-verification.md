@@ -45,6 +45,14 @@ de débordement horizontal; une passe séparée avec préférence de mouvement r
 a également rendu la page. Le scan des sources du lecteur ne trouve ni police,
 ni import, ni URL HTTP externe.
 
+Le pilote rejouable `scripts/browser-qa.ts` (`npm run qa:browser`) pilote un
+Chromium réel via CDP contre `apps/player/dist`. Sur cette machine (mesuré le
+24 août 2026), le navigateur accepte la poignée de main DevTools mais n'achève
+jamais une navigation locale : chaque échange est borné à 8 s et la passe échoue
+en ~10 s avec « Page.navigate timed out after 8000ms », sans processus Chromium
+résiduel ni socket de serveur oublié. Un échec borné reste un échec ; il n'est
+jamais converti en succès.
+
 Les tests de composants exercent au clavier les marqueurs avec Entrée et Espace,
 le bouton d'une source et la remontée de l'événement de recherche jusqu'à l'année
 visée. Ce sont des preuves automatisées locales, pas une observation humaine ni
