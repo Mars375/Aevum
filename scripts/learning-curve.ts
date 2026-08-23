@@ -293,6 +293,151 @@ export function validateLearningReport(report: LearningReport, journals: Journal
   }
 }
 
+/**
+ * Explicit semantic validation of the published curves, kept apart from the
+ * schema on purpose. The first release verifier trusted the schema plus one
+ * whole-report equality check; a review showed that a payload could drift in
+ * one field and only be caught by an opaque "does not match the journal" error
+ * — or, for relationships the schema never expressed, not be caught at all.
+ * Each invariant below names its own drift so a mutation test can prove the
+ * check fires, independently of the rebuild-and-compare that follows it.
+ */
+export function verifyCurveSemantics(
+  report: LearningReport,
+  journals: Journal[],
+  protocol: { windowSize: number; minimumServiceRate: number },
+): void {
+  const fail = (detail: string): never => {
+    throw new Error(`published curve semantics: ${detail}`);
+  };
+  // Wilson 95% must be recomputed with the exact constants and operation order
+  // of packages/metrics/src/curves.ts — the comparison is bitwise, which is the
+  // point: any change to the published formula must fail here until the
+  // sidecar is deliberately rebuilt.
+  const wilson95 = (numerator: number, denominator: number): { lower: number | null; upper: number | null } => {
+    if (denominator === 0) return { lower: null, upper: null };
+    const z = 1.959963984540054;
+    const p = numerator / denominator;
+    const z2 = z * z;
+    const centre = (p + z2 / (2 * denominator)) / (1 + z2 / denominator);
+    const margin = z * Math.sqrt((p * (1 - p) + z2 / (4 * denominator)) / denominator) / (1 + z2 / denominator);
+    return { lower: Math.max(0, centre - margin), upper: Math.min(1, centre + margin) };
+  };
+
+  const singleJournal = journals.length === 1 ? journals[0]! : null;
+  const journalEvents = new Map(
+    singleJournal
+      ? chronicle(singleJournal).flatMap((year) => year.events).map((event) => [event.id, event])
+      : [],
+  );
+
+  report.curves.forEach((curve, curveIndex) => {
+    const label = curve.modelId ?? `#${curveIndex}`;
+    if (classifyLearningSignal(curve) !== curve.classification) {
+      fail(`curve ${label}: classification ${curve.classification} does not follow from its series, options and unranked reasons`);
+    }
+    if (curve.options.windowSize !== protocol.windowSize || curve.options.minimumServiceRate !== protocol.minimumServiceRate) {
+      fail(`curve ${label}: published protocol is window ${protocol.windowSize} with minimum service rate ${protocol.minimumServiceRate}`);
+    }
+    if (singleJournal) {
+      if (curve.runIds.length !== 1 || curve.runIds[0] === undefined) {
+        fail(`curve ${label}: declares ${curve.runIds.length} runs for one journal`);
+      }
+      if (curve.pairedRunKey !== null) fail(`curve ${label}: carries a paired run key without multiple runs`);
+      if (JSON.stringify(curve.seeds) !== JSON.stringify([singleJournal.origin.seed])) {
+        fail(`curve ${label}: seeds do not match the journal seed ${singleJournal.origin.seed}`);
+      }
+    }
+
+    const seenSourceIds = new Set<string>();
+    let previousSource: { tick: number; id: string } | null = null;
+    for (const source of curve.eventSources) {
+      if (seenSourceIds.has(source.id)) fail(`curve ${label}: duplicate event source ${source.id}`);
+      seenSourceIds.add(source.id);
+      const journalEvent = journalEvents.get(source.id);
+      if (!journalEvent
+        || journalEvent.tick !== source.tick
+        || journalEvent.kind !== source.kind
+        || journalEvent.detail !== source.detail) {
+        fail(`curve ${label}: event source ${source.id} does not match the published journal`);
+      }
+      if (previousSource && (source.tick < previousSource.tick
+        || (source.tick === previousSource.tick && source.id <= previousSource.id))) {
+        fail(`curve ${label}: event sources are not ordered by tick then id`);
+      }
+      previousSource = source;
+    }
+
+    const seriesEntries = Object.entries(curve.series);
+    let referenceWindows: Array<{ startTick: number; endTick: number }> | null = null;
+    for (const [seriesName, series] of seriesEntries) {
+      let sampleTotal = 0;
+      let previousStart: number | null = null;
+      for (const point of series) {
+        if (point.numerator > point.denominator) fail(`${seriesName}/${label}: numerator exceeds denominator`);
+        const expectedValue = point.denominator === 0 ? null : point.numerator / point.denominator;
+        if (point.value !== expectedValue) {
+          fail(`${seriesName}/${label}: value does not equal numerator over denominator in window ${point.window.startTick}-${point.window.endTick}`);
+        }
+        if (point.denominator > point.sampleCount) {
+          fail(`${seriesName}/${label}: denominator exceeds sample count in window ${point.window.startTick}-${point.window.endTick}`);
+        }
+        if (point.unknownServiceCount > point.sampleCount) {
+          fail(`${seriesName}/${label}: unknown service count exceeds sample count`);
+        }
+        const noKnownEvidence = point.unknownServiceCount === point.sampleCount;
+        if ((point.serviceRate === null) !== noKnownEvidence || (point.fallbackRate === null) !== noKnownEvidence) {
+          fail(`${seriesName}/${label}: service rates are inconsistent with the unknown-evidence count`);
+        }
+        const expectedInterval = wilson95(point.numerator, point.denominator);
+        if (point.uncertainty.lower !== expectedInterval.lower || point.uncertainty.upper !== expectedInterval.upper) {
+          fail(`${seriesName}/${label}: uncertainty interval is not the Wilson 95% band of ${point.numerator}/${point.denominator}`);
+        }
+        if (point.uncertainty.seedCount < 1 || point.uncertainty.seedCount > curve.seeds.length) {
+          fail(`${seriesName}/${label}: uncertainty seed count lies outside the curve's seeds`);
+        }
+        if (point.uncertainty.runCount < 1 || point.uncertainty.runCount > Math.max(1, curve.runIds.length)) {
+          fail(`${seriesName}/${label}: uncertainty run count lies outside the curve's runs`);
+        }
+        const cited = new Set<string>();
+        let previousCitedId: string | null = null;
+        for (const id of point.eventSourceIds) {
+          if (!seenSourceIds.has(id)) fail(`${seriesName}/${label}: window cites unknown event source ${id}`);
+          if (cited.has(id)) fail(`${seriesName}/${label}: window cites event source ${id} twice`);
+          cited.add(id);
+          if (previousCitedId !== null && id <= previousCitedId) {
+            fail(`${seriesName}/${label}: cited event sources are not sorted or contain duplicates`);
+          }
+          previousCitedId = id;
+        }
+        if (point.window.startTick % protocol.windowSize !== 0
+          || point.window.endTick !== point.window.startTick + protocol.windowSize - 1) {
+          fail(`${seriesName}/${label}: window ${point.window.startTick}-${point.window.endTick} is not aligned to the published window size`);
+        }
+        if (previousStart !== null && point.window.startTick <= previousStart) {
+          fail(`${seriesName}/${label}: windows repeat or go backwards`);
+        }
+        previousStart = point.window.startTick;
+        sampleTotal += point.sampleCount;
+      }
+      if (sampleTotal !== curve.sampleCount) {
+        fail(`${seriesName}/${label}: window samples sum to ${sampleTotal} but the curve declares ${curve.sampleCount}`);
+      }
+      if (referenceWindows === null) referenceWindows = series.map((point) => point.window);
+      else if (JSON.stringify(referenceWindows) !== JSON.stringify(series.map((point) => point.window))) {
+        fail(`curve ${label}: ${seriesName} does not share the windows of the other metrics`);
+      }
+    }
+
+    for (const key of ["serviceRate", "fallbackRate"] as const) {
+      const noKnownEvidence = curve.unknownServiceCount === curve.sampleCount;
+      if ((curve[key] === null) !== noKnownEvidence) {
+        fail(`curve ${label}: ${key} is inconsistent with the unknown-evidence count`);
+      }
+    }
+  });
+}
+
 export function buildLearningReportFromJournals(
   journals: Journal[],
   sources: string[],

@@ -2,33 +2,27 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, extname, relative, resolve } from "node:path";
+import { basename, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { JournalSchema, fingerprint, replay, type Journal } from "@abs/world";
 import {
   LearningReportSchema,
   buildLearningReportFromJournals,
   validateLearningReport,
+  verifyCurveSemantics,
   type LearningReport,
 } from "./learning-curve.js";
 import { renderReport, reportIndexEntry } from "./build-reports.js";
 import { buildSeasonReport } from "./season-report.js";
+import { findSecretLeaks, trackedTextFiles } from "./secrets.js";
 
 const PRODUCT = "Aevum — Chronique des mondes";
 const JOURNAL = "worlds/aevum-season-1/era-0001.json";
 const METRIC = "worlds/aevum-season-1/era-0001.learning.json";
 const REPORT = "docs/reports/aevum-season-1.md";
 const FIXTURE = "packages/agents/test/fixtures/aevum-season-1-campaign.json";
-const TEXT_EXTENSIONS = new Set([
-  "", ".cjs", ".conf", ".css", ".csv", ".env", ".example", ".html", ".ini", ".js", ".json", ".jsonl",
-  ".jsx", ".md", ".mjs", ".nginx", ".sh", ".svg", ".toml", ".ts", ".tsx", ".txt", ".vue", ".xml", ".yml", ".yaml",
-]);
-const SECRET_PATTERNS = [
-  /sk-or-v1-[A-Za-z0-9_-]{20,}/,
-  /gsk_[A-Za-z0-9_-]{20,}/,
-  /nvapi-[A-Za-z0-9_-]{20,}/,
-  /\b(?:OPENROUTER|GROQ|NVIDIA|MISTRAL)_API_KEY\b\s*[:=]\s*["']?(?!\$\{|<|your-|replace-|example|$)[A-Za-z0-9_./+-]{20,}/i,
-];
+/** The window/service contract the Season 1 narrative publishes; the sidecar must declare it too. */
+const PUBLISHED_CURVE_PROTOCOL = { windowSize: 40, minimumServiceRate: 0.7 };
 
 function parseJson(path: string): unknown {
   try {
@@ -92,9 +86,12 @@ export function verifyPublishedSeason(root: string): void {
   }
   validateLearningReport(metric, [journal]);
   verifyWorldMetadata(journal, metric);
+  // Semantic invariants are checked explicitly, with one message per drift, so
+  // a mutated payload is diagnosed rather than merely "not equal to the rebuild".
+  verifyCurveSemantics(metric, [journal], PUBLISHED_CURVE_PROTOCOL);
   const rebuiltMetric = buildLearningReportFromJournals([journal], [basename(JOURNAL)], {
-    windowSize: 40,
-    minimumServiceRate: 0.7,
+    windowSize: PUBLISHED_CURVE_PROTOCOL.windowSize,
+    minimumServiceRate: PUBLISHED_CURVE_PROTOCOL.minimumServiceRate,
     executionAssertion: "SCRIPTED_NO_REMOTE_MODEL",
   });
   if (JSON.stringify(metric) !== JSON.stringify(rebuiltMetric)) {
@@ -140,21 +137,6 @@ export function verifyPublishedSeason(root: string): void {
     || entry.livedTo !== journal.livedTo) {
     throw new Error("world catalogue does not link the published journal, sidecar, and report");
   }
-}
-
-function trackedTextFiles(root: string): string[] {
-  const output = execFileSync("git", ["ls-files", "-z"], { cwd: root });
-  return output.toString("utf8").split("\0").filter(Boolean).filter((path) => {
-    const name = basename(path);
-    return name.startsWith(".env.") || TEXT_EXTENSIONS.has(extname(name));
-  }).map((path) => resolve(root, path));
-}
-
-export function findSecretLeaks(files: string[]): string[] {
-  return files.filter((path) => {
-    const text = readFileSync(path, "utf8");
-    return SECRET_PATTERNS.some((pattern) => pattern.test(text));
-  });
 }
 
 export function verifyReleaseInventory(root: string): void {

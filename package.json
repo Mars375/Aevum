@@ -19,6 +19,7 @@
     "probe": "tsx scripts/probe-providers.ts",
     "player:dev": "npm run dev --workspace @abs/player",
     "player:build": "npm run build --workspace @abs/player",
+    "qa:browser": "tsx scripts/browser-qa.ts",
     "healthcheck": "tsx scripts/healthcheck.ts",
     "tournament": "tsx scripts/tournament.ts",
     "index-replays": "tsx scripts/index-replays.ts",

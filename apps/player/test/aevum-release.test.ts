@@ -4,8 +4,9 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
-import { afterEach, describe, expect, it } from "vitest";
-import { findSecretLeaks, verifyPublishedSeason, verifyReleaseInventory } from "../../../scripts/verify-season-1.js";
+import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { decodeTextLike, addedLines, matchSecretNames, scanTrackedTree, trackedTextFiles } from "../../../scripts/secrets.js";
+import { verifyPublishedSeason, verifyReleaseInventory } from "../../../scripts/verify-season-1.js";
 
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "../../..");
 const TSX = resolve(ROOT, "node_modules/tsx/dist/loader.mjs");
@@ -259,10 +260,120 @@ describe("pipeline de publication Aevum", () => {
 
   it("verifie l'inventaire de renommage et les contrats de secrets", () => {
     expect(() => verifyReleaseInventory(ROOT)).not.toThrow();
-    const root = mkdtempSync(join(tmpdir(), "aevum-secret-"));
-    temporary.push(root);
-    const leak = join(root, "component.tsx");
-    writeFileSync(leak, `const token = "${["OPENROUTER", "API", "KEY"].join("_")}=abcdefghijklmnopqrstuvwxyz123456";\n`);
-    expect(findSecretLeaks([leak])).toEqual([leak]);
+    const leak = `const token = "${["OPENROUTER", "API", "KEY"].join("_")}=abcdefghijklmnopqrstuvwxyz123456";\n`;
+    expect(matchSecretNames(leak)).toContain("provider-secret-assignment");
+  });
+});
+
+describe("semantique des courbes publiees", () => {
+  let root = "";
+  let metricBytes: Buffer;
+
+  beforeAll(() => {
+    const { root: built, guardLog, fixture } = workspace();
+    root = built;
+    const worldDir = join(built, "worlds/aevum-season-1");
+    mkdirSync(worldDir, { recursive: true });
+    mkdirSync(dirname(join(built, "docs/reports/aevum-season-1.md")), { recursive: true });
+    addVerificationReport(built);
+    expectSuccess(run(built, guardLog, "scripts/live.ts", [`--scripted=${fixture}`, "--out", join(worldDir, "era-0001.json")], true));
+    expectSuccess(run(built, guardLog, "scripts/season-report.ts", [join(worldDir, "era-0001.json"), join(worldDir, "era-0001.learning.json"), `--out=${join(built, "docs/reports/aevum-season-1.md")}`]));
+    expectSuccess(run(built, guardLog, "scripts/build-reports.ts", []));
+    expectSuccess(run(built, guardLog, "scripts/index-worlds.ts", []));
+  });
+
+  function metricPath(): string {
+    return join(root, "worlds/aevum-season-1/era-0001.learning.json");
+  }
+
+  afterEach(() => {
+    if (metricBytes) writeFileSync(metricPath(), metricBytes);
+  });
+
+  it("accepte le sidecar reconstruit puis refuse chaque derive semantique nommee", () => {
+    metricBytes = readFileSync(metricPath());
+    expect(() => verifyPublishedSeason(root)).not.toThrow();
+
+    const drifts: Array<[string, (value: Record<string, any>) => void, RegExp]> = [
+      ["classification renversee", (v) => { v.curves[0].classification = "NO_EVIDENCE"; }, /classification NO_EVIDENCE does not follow/],
+      ["numerateur au-dessus du denominateur", (v) => { v.curves[0].series.consequenceRecognition[0].numerator = v.curves[0].series.consequenceRecognition[0].denominator + 1; }, /numerator exceeds denominator/],
+      ["valeur incoherente", (v) => { v.curves[0].series.doctrineCoherence[0].value = 0.42; }, /value does not equal/],
+      ["bornes d'incertitude asymetriques", (v) => { v.curves[0].series.consequenceRecognition[0].uncertainty.lower = 0; }, /both be null or both be numbers/],
+      ["bande d'incertitude fausse", (v) => { v.curves[0].series.consequenceRecognition[0].uncertainty.lower = 0; v.curves[0].series.consequenceRecognition[0].uncertainty.upper = 1; }, /Wilson 95%/],
+      ["compte de graines impossible", (v) => { v.curves[0].series.narrativeFidelity[0].uncertainty.seedCount = 0; }, /seed count/],
+      ["compte de courses impossible", (v) => { v.curves[0].series.narrativeFidelity[0].uncertainty.runCount = 4; }, /run count/],
+      ["taux de service de serie incoherent", (v) => { v.curves[0].series.consequenceRecognition[0].serviceRate = 0.5; }, /service rates are inconsistent/],
+      ["taux de service de courbe incoherent", (v) => { v.curves[0].serviceRate = 0.5; }, /serviceRate is inconsistent with the unknown-evidence count/],
+      ["preuves inconnues hors echantillon", (v) => { v.curves[0].series.consequenceRecognition[0].unknownServiceCount = 999; }, /unknown service count exceeds sample count/],
+      ["source d'evenement alteree", (v) => { v.curves[0].eventSources[0].detail += " altéré"; }, /does not match the published journal/],
+      ["source d'evenement dupliquee", (v) => { v.curves[0].eventSources.push({ ...v.curves[0].eventSources[0] }); }, /duplicate event source/],
+      ["sources non triees", (v) => { const [first, second] = v.curves[0].eventSources; v.curves[0].eventSources[0] = second; v.curves[0].eventSources[1] = first; }, /not ordered by tick then id/],
+      ["fenetre citant une source inconnue", (v) => { v.curves[0].series.consequenceRecognition[0].eventSourceIds.push("evenement-inconnu"); }, /cites unknown event source/],
+      ["fenetre desalignee", (v) => { v.curves[0].series.consequenceRecognition[0].window.endTick -= 1; }, /not aligned to the published window size/],
+      ["fenetres divergentes entre metriques", (v) => { const last = v.curves[0].series.narrativeFidelity.at(-1); last.window.startTick += 40; last.window.endTick += 40; }, /does not share the windows/],
+      ["somme d'echantillons cassee", (v) => { const point = v.curves[0].series.consequenceRecognition[0]; point.sampleCount += 1; point.unknownServiceCount += 1; }, /samples sum to/],
+      ["protocole publie modifie", (v) => { v.curves[0].options.minimumServiceRate = 0.5; }, /published protocol/],
+      ["course surnumeraire", (v) => { v.curves[0].runIds.push("run:2:autre.json"); }, /declares 2 runs for one journal/],
+      ["appariement sans course multiple", (v) => { v.curves[0].pairedRunKey = "fantome"; }, /paired run key without multiple runs/],
+      ["graine etrangere", (v) => { v.curves[0].seeds = [424242]; }, /seeds do not match the journal seed/],
+    ];
+    for (const [name, mutate, expected] of drifts) {
+      // Each drift starts from the pristine sidecar, so one named mutation is
+      // on trial at a time and its specific message is the assertion.
+      const altered = JSON.parse(metricBytes.toString("utf8"));
+      mutate(altered);
+      writeFileSync(metricPath(), `${JSON.stringify(altered, null, 2)}\n`);
+      try {
+        expect(() => verifyPublishedSeason(root), name).toThrow(expected);
+      } finally {
+        writeFileSync(metricPath(), metricBytes);
+      }
+    }
+  });
+});
+
+describe("scanner de secrets partage", () => {
+  // Planted secrets are assembled at runtime: the tracked bytes of this very
+  // file are scanned like any other text-like source, so a secret-shaped
+  // literal here would be a true finding.
+  const value = ["abcdefghijklmnopqrstuvwxyz", "123456"].join("");
+
+  it("detecte une affectation generique quel que soit le fournisseur", () => {
+    const keyName = ["API", "KEY"].join("_");
+    for (const provider of ["OPENROUTER", "GROQ", "NVIDIA", "MISTRAL", "SOMENEWPROVIDER"]) {
+      expect(matchSecretNames(`${provider}_${keyName}="${value}"\n`), provider).toContain("provider-secret-assignment");
+    }
+    expect(matchSecretNames(`${["db", "PASSWORD"].join("_")}=${JSON.stringify(value.slice(0, 16))}\n`)).toContain("provider-secret-assignment");
+    expect(matchSecretNames(`service_token=${JSON.stringify(value.repeat(2))}\n`)).toContain("provider-secret-assignment");
+  });
+
+  it("laisse les placeholders, sentinelles et references d'environnement tranquilles", () => {
+    const quiet = [
+      "OPENROUTER_API_KEY=sk-or-v1-...\n",
+      "GROQ_API_KEY=gsk_...\n",
+      'env.OPENROUTER_API_KEY = "sentinel-openrouter";\n',
+      "openrouter: process.env.OPENROUTER_API_KEY,\n",
+      "MISTRAL_API_KEY=<your-key>\n",
+      'NVIDIA_API_KEY=""\n',
+      "credentials are `OPENROUTER_API_KEY`, `GROQ_API_KEY`\n",
+    ];
+    for (const line of quiet) expect(matchSecretNames(line), line).toEqual([]);
+  });
+
+  it("couvre les fichiers text-like suivis, y compris .env.*, et saute le binaire", () => {
+    const tracked = trackedTextFiles(ROOT);
+    expect(tracked).toContainEqual(resolve(ROOT, ".env.example"));
+    expect(tracked.some((path) => path.endsWith(".png") || path.endsWith(".ico"))).toBe(false);
+    expect(scanTrackedTree(ROOT)).toEqual([]);
+    expect(decodeTextLike(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 1, 2, 3]))).toBeNull();
+    expect(addedLines("+secret=ok\n-context\n+++ b/f\n")).toBe("secret=ok");
+  });
+
+  it("ne imprime jamais la valeur detectee", () => {
+    const secret = ["sk-or-v1-", value].join("");
+    const names = matchSecretNames(`key = "${secret}"`);
+    // The scanner's only outputs are pattern names and file paths.
+    expect(names).toEqual(["openrouter-token"]);
+    expect(JSON.stringify(names)).not.toContain(secret);
   });
 });
