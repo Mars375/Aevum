@@ -1,0 +1,2258 @@
+{
+  "worldVersion": "w8",
+  "era": 1,
+  "origin": {
+    "worldVersion": "w8",
+    "tick": 0,
+    "seed": 99,
+    "land": 81,
+    "size": 9,
+    "board": [
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selvale-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrost-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrgan-la-Plaine"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Selgan"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ashvale-sur-Eau"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Karwick-sur-Eau"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Thafell-sous-Bois"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Dunwick-sous-Bois"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Velwick"
+      },
+      {
+        "kind": "plain",
+        "owner": "crimson",
+        "name": "Mormar-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Rhofell"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Velwick-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrpor-la-Plaine"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Dunash-les-Rives"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Karmar-les-Rives"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithilin-les-Monts"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Velfell"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thawick-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Veldun-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrdun"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Rhodun-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ashwick"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Brenfell"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Dunlin-les-Rives"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Velreth-sous-Bois"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thaost"
+      },
+      {
+        "kind": "plain",
+        "owner": "azure",
+        "name": "Karfell-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Velmar-sous-Bois"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Brenlin"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Karreth-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ferrlin"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ferrvale-les-Rives"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunfell-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Sellin-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Mormere"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrwick-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Morreth-sous-Bois"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ithiash-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Dundun"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Vasash-le-Haut"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Thadun"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Brenreth-sur-Eau"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Velwick-la-Forêt"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Vasdun"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dungan-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunash-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vasreth"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ithivale-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vaswick-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrgan-la-Plaine"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ferrmere"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Rhowick"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Morfell-la-Plaine"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithilin"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Dunfell"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Brenreth-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Velmere"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Brenfell-la-Forêt"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Brenlin-les-Rives"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Rhogan-les-Rives"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selgan"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Rhopor-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vasmar-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": "verdant",
+        "name": "Dunreth-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Kargan"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ithivale-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vasmere-les-Champs"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Velpor-les-Rives"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunwick-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Brenmar"
+      },
+      {
+        "kind": "plain",
+        "owner": "amber",
+        "name": "Velvale"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrmar-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ashmere"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Seldun-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selpor"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrlin"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ashost-sur-Eau"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Thafell"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ashvale"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Dunfell-sous-Bois"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Thareth-sous-Bois"
+      }
+    ],
+    "free": {
+      "plain": 0,
+      "forest": 0,
+      "hill": 0,
+      "river": 0
+    },
+    "civs": [
+      {
+        "id": "crimson",
+        "identity": {
+          "displayName": "Crimson",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 0,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 0,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.4,
+          "forestry": 0.2,
+          "mining": 0.2,
+          "trade": 0.15,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "vow": null,
+          "claim": "plain"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 9,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null
+      },
+      {
+        "id": "azure",
+        "identity": {
+          "displayName": "Azure",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 0,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 0,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.4,
+          "forestry": 0.2,
+          "mining": 0.2,
+          "trade": 0.15,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "vow": null,
+          "claim": "plain"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 26,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null
+      },
+      {
+        "id": "verdant",
+        "identity": {
+          "displayName": "Verdant",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 0,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 0,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.4,
+          "forestry": 0.2,
+          "mining": 0.2,
+          "trade": 0.15,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "vow": null,
+          "claim": "plain"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 63,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null
+      },
+      {
+        "id": "amber",
+        "identity": {
+          "displayName": "Amber",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 0,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 0,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.4,
+          "forestry": 0.2,
+          "mining": 0.2,
+          "trade": 0.15,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "vow": null,
+          "claim": "plain"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 70,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null
+      }
+    ]
+  },
+  "livedTo": 120,
+  "fingerprint": "fdc76c0b",
+  "rulings": [
+    {
+      "tick": 9,
+      "civ": "crimson",
+      "kind": "DISASTER",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "peste : 5 morts, greniers et reserves entames",
+        "95 habitants",
+        "vivres 262"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:9:crimson:0:DISASTER:peste%20%3A%205%20morts%2C%20greniers%20et%20reserves%20entames"
+    },
+    {
+      "tick": 11,
+      "civ": "verdant",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "99 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:11:verdant:0:STARVED:famine%2C%201%20morts"
+    },
+    {
+      "tick": 12,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "mauvaise recolte (0.70x)",
+        "3.4 tours de vivres"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:12:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.70x)"
+    },
+    {
+      "tick": 12,
+      "civ": "azure",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "mauvaise recolte (0.70x)",
+        "3.3 tours de vivres"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:12:azure:1:HARD_YEAR:mauvaise%20recolte%20(0.70x)"
+    },
+    {
+      "tick": 12,
+      "civ": "verdant",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "80 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:12:verdant:3:HARD_YEAR:mauvaise%20recolte%20(0.70x)"
+    },
+    {
+      "tick": 18,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "10 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:18:crimson:0:SHORTAGE:solde%20impayee%2C%204%20desertions"
+    },
+    {
+      "tick": 20,
+      "civ": "amber",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "14 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:20:amber:0:SHORTAGE:solde%20impayee%2C%201%20desertions"
+    },
+    {
+      "tick": 20,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "13 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:20:azure:1:SHORTAGE:solde%20impayee%2C%201%20desertions"
+    },
+    {
+      "tick": 25,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:25:verdant:4:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 26,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "3 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:26:crimson:3:SHORTAGE:solde%20impayee%2C%201%20desertions"
+    },
+    {
+      "tick": 28,
+      "civ": "amber",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "6 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:28:amber:1:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 28,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "6 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:28:azure:3:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 33,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "3 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:33:verdant:10:SHORTAGE:solde%20impayee%2C%201%20desertions"
+    },
+    {
+      "tick": 34,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:34:crimson:4:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 36,
+      "civ": "amber",
+      "kind": "ROUTED",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "assaut brise sur Ferrmar-la-Plaine, tenue par azure : 2 soldats perdus",
+        "0 soldats restants",
+        "posture PRESSURE"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:36:amber:10:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus"
+    },
+    {
+      "tick": 36,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:36:azure:4:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 41,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "3 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:41:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions"
+    },
+    {
+      "tick": 42,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:42:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 44,
+      "civ": "amber",
+      "kind": "ROUTED",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "assaut brise sur Ferrmar-la-Plaine, tenue par azure : 2 soldats perdus",
+        "0 soldats restants",
+        "posture PRESSURE"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:44:amber:6:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus"
+    },
+    {
+      "tick": 44,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:44:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 49,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "3 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:49:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions"
+    },
+    {
+      "tick": 50,
+      "civ": "amber",
+      "kind": "CAPITAL",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "Velvale, notre siege, est tombee : 16 morts et les coffres pilles",
+        "1 lieux restants",
+        "0 soldats"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:50:amber:8:CAPITAL_LOST:Velvale%2C%20notre%20siege%2C%20est%20tombee%20%3A%2016%20morts%20et%20les%20coffres%20pilles"
+    },
+    {
+      "tick": 50,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:50:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 52,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "5 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:52:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 57,
+      "civ": "amber",
+      "kind": "CAPITAL",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "Rhopor-la-Forêt, notre siege, est tombee : 14 morts et les coffres pilles",
+        "1 lieux restants",
+        "0 soldats"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:57:amber:8:CAPITAL_LOST:Rhopor-la-For%C3%AAt%2C%20notre%20siege%2C%20est%20tombee%20%3A%2014%20morts%20et%20les%20coffres%20pilles"
+    },
+    {
+      "tick": 57,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:57:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 58,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "6 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:58:crimson:6:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 60,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "7 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:60:azure:1:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 65,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:65:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 66,
+      "civ": "amber",
+      "kind": "ROUTED",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "assaut brise sur Rhopor-la-Forêt, tenue par azure : 1 soldats perdus",
+        "0 soldats restants",
+        "posture PRESSURE"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:66:amber:6:ROUTED:assaut%20brise%20sur%20Rhopor-la-For%C3%AAt%2C%20tenue%20par%20azure%20%3A%201%20soldats%20perdus"
+    },
+    {
+      "tick": 66,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "7 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:66:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 68,
+      "civ": "amber",
+      "kind": "CAPITAL",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "Selgan, notre siege, est tombee : 12 morts et les coffres pilles",
+        "1 lieux restants",
+        "0 soldats"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:68:amber:12:CAPITAL_LOST:Selgan%2C%20notre%20siege%2C%20est%20tombee%20%3A%2012%20morts%20et%20les%20coffres%20pilles"
+    },
+    {
+      "tick": 68,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "7 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:68:azure:3:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 72,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "48 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:72:amber:0:STARVED:famine%2C%2021%20morts"
+    },
+    {
+      "tick": 73,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "29 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:73:amber:0:STARVED:famine%2C%2015%20morts"
+    },
+    {
+      "tick": 73,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:73:verdant:6:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 74,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "19 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:74:amber:0:STARVED:famine%2C%2010%20morts"
+    },
+    {
+      "tick": 74,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "7 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:74:crimson:4:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 75,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "12 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:75:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.61x)"
+    },
+    {
+      "tick": 76,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "8 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:76:amber:0:STARVED:famine%2C%204%20morts"
+    },
+    {
+      "tick": 76,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "11 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:76:azure:2:SHORTAGE:solde%20impayee%2C%204%20desertions"
+    },
+    {
+      "tick": 77,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "5 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:77:amber:0:STARVED:famine%2C%203%20morts"
+    },
+    {
+      "tick": 78,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "3 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:78:amber:0:STARVED:famine%2C%202%20morts"
+    },
+    {
+      "tick": 79,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "2 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:79:amber:0:STARVED:famine%2C%201%20morts"
+    },
+    {
+      "tick": 80,
+      "civ": "amber",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "1 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:80:amber:0:STARVED:famine%2C%201%20morts"
+    },
+    {
+      "tick": 81,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "4 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:81:verdant:7:SHORTAGE:solde%20impayee%2C%202%20desertions"
+    },
+    {
+      "tick": 82,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "11 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:82:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions"
+    },
+    {
+      "tick": 84,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "11 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:84:azure:1:SHORTAGE:solde%20impayee%2C%204%20desertions"
+    },
+    {
+      "tick": 89,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "7 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:89:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 90,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "11 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:90:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions"
+    },
+    {
+      "tick": 92,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "14 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:92:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions"
+    },
+    {
+      "tick": 97,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 5,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "Land is held by those who can feed and defend it.",
+        "claim": "plain"
+      },
+      "reason": "We keep food reserves while forests fund expansion and the army applies pressure.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "7 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:97:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 98,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "14 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:98:crimson:3:SHORTAGE:solde%20impayee%2C%205%20desertions"
+    },
+    {
+      "tick": 100,
+      "civ": "azure",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "17 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:100:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions"
+    },
+    {
+      "tick": 105,
+      "civ": "verdant",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "8 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:105:verdant:4:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 106,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "17 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:106:crimson:2:SHORTAGE:solde%20impayee%2C%206%20desertions"
+    },
+    {
+      "tick": 110,
+      "civ": "azure",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "377 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:110:azure:0:STARVED:famine%2C%202%20morts"
+    },
+    {
+      "tick": 111,
+      "civ": "azure",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "196 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:111:azure:0:STARVED:famine%2C%20181%20morts"
+    },
+    {
+      "tick": 112,
+      "civ": "azure",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "95 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:112:azure:0:STARVED:famine%2C%20101%20morts"
+    },
+    {
+      "tick": 113,
+      "civ": "azure",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "42 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:113:azure:0:HARD_YEAR:mauvaise%20recolte%20(0.58x)"
+    },
+    {
+      "tick": 113,
+      "civ": "verdant",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "mauvaise recolte (0.58x)",
+        "2.7 tours de vivres"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:113:verdant:6:HARD_YEAR:mauvaise%20recolte%20(0.58x)"
+    },
+    {
+      "tick": 114,
+      "civ": "azure",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "13 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:114:azure:0:STARVED:famine%2C%2029%20morts"
+    },
+    {
+      "tick": 114,
+      "civ": "crimson",
+      "kind": "TREASURY",
+      "doctrine": {
+        "farming": 6,
+        "forestry": 2,
+        "mining": 1,
+        "trade": 0,
+        "military": 4,
+        "posture": "PRESSURE",
+        "creed": "The granary sustains the frontier.",
+        "claim": "plain"
+      },
+      "reason": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "solde impayee",
+        "11 soldats",
+        "tresor a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:114:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions"
+    },
+    {
+      "tick": 116,
+      "civ": "verdant",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "195 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:116:verdant:2:STARVED:famine%2C%2038%20morts"
+    },
+    {
+      "tick": 117,
+      "civ": "verdant",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "98 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:117:verdant:2:STARVED:famine%2C%2097%20morts"
+    },
+    {
+      "tick": 118,
+      "civ": "verdant",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "43 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:118:verdant:2:STARVED:famine%2C%2055%20morts"
+    },
+    {
+      "tick": 119,
+      "civ": "verdant",
+      "kind": "FAMINE",
+      "doctrine": {
+        "farming": 0,
+        "forestry": 1,
+        "mining": 1,
+        "trade": 0,
+        "military": 8,
+        "posture": "PRESSURE",
+        "creed": "Only conquest matters now.",
+        "claim": "plain"
+      },
+      "reason": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+      "model": "scripted/no-remote-model",
+      "deferredBy": 0,
+      "context": [
+        "famine en cours",
+        "14 habitants",
+        "greniers a 0"
+      ],
+      "service": null,
+      "consequenceRef": "world-event-v1:119:verdant:2:STARVED:famine%2C%2029%20morts"
+    }
+  ]
+}

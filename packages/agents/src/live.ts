@@ -3,6 +3,7 @@ import {
   applyRuling,
   detectDecisions,
   isOver,
+  lifeEvent,
   tickWorld,
   type DecisionPoint,
   type Journal,
@@ -87,6 +88,20 @@ export interface LiveResult {
 /** Events worth telling a reader about. Growth every single year is not news. */
 const NOTABLE: ReadonlySet<TickEvent["kind"]> = new Set(["COLLAPSED", "ADVANCE", "SEIZED", "RAIDED", "STARVED"]);
 
+const EVENT_KINDS: Partial<Record<DecisionPoint["kind"], TickEvent["kind"][]>> = {
+  FAMINE: ["STARVED", "HARD_YEAR"],
+  TREASURY: ["SHORTAGE"],
+  ADVANCE: ["ADVANCE"],
+  DECLINE: ["LOST_LAND"],
+  BORDER: ["LAND_FULL"],
+  INVADED: ["CEDED"],
+  RAIDED: ["RAIDED"],
+  ROUTED: ["ROUTED"],
+  DISASTER: ["DISASTER"],
+  VOW_BROKEN: ["VOW_BROKEN"],
+  CAPITAL: ["CAPITAL_LOST"],
+};
+
 export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveResult> {
   const { journal, generals, provider, ticks } = opts;
   const notify = opts.notify ?? (() => {});
@@ -109,19 +124,13 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
 
   const warmup = Math.max(0, opts.warmup ?? 0);
   for (let i = 0; i < ticks; i += 1) {
-    // Pendant la mise en route, le monde vit seul : les points de décision sont
-    // détectés et l'horloge de chacun remise à zéro, mais personne n'est appelé.
+    // Pendant la mise en route, le monde vit seul. Aucune horloge n'est remise
+    // à zéro sans ruling : cette mutation ne serait pas présente au journal et
+    // casserait W4 au rejeu.
     if (i < warmup) {
       const stepped = tickWorld(world);
       world = stepped.world;
       lived += 1;
-      const raised = detectDecisions(world, stepped.events).map((p) => p.civ);
-      if (raised.length > 0) {
-        world = {
-          ...world,
-          civs: world.civs.map((c) => (raised.includes(c.id) ? { ...c, ticksSinceDecision: 0 } : c)),
-        };
-      }
       if (isOver(world)) {
         closed = true;
         notify({ kind: "era-closed", tick: world.tick, text: "il ne reste qu'une civilisation" });
@@ -151,9 +160,8 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
 
       if (!provider || !general) {
         // Nobody answers at all. The world carries on under the standing
-        // doctrine — silence has to be survivable, or a continuous world stops.
+        // doctrine. It is not marked as decided: replay only knows rulings.
         pending.delete(civId);
-        world = { ...world, civs: world.civs.map((c) => (c.id === civId ? { ...c, ticksSinceDecision: 0 } : c)) };
         notify({ kind: "unruled", tick: point.tick, civ: civId, text: point.kind });
         continue;
       }
@@ -178,6 +186,11 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
       tally.answered += 1;
       pending.delete(civId);
       ruling.deferredBy = world.tick - point.tick;
+      if (ruling.deferredBy === 0) {
+        const sourceKinds = EVENT_KINDS[point.kind] ?? [];
+        const sourceIndex = stepped.events.findIndex((event) => event.civ === civId && sourceKinds.includes(event.kind));
+        if (sourceIndex >= 0) ruling.consequenceRef = lifeEvent(stepped.events[sourceIndex]!, sourceIndex).id;
+      }
       journal.rulings.push(ruling);
       journal.livedTo = world.tick;
       world = applyRuling(world, ruling);

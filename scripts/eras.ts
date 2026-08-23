@@ -28,11 +28,21 @@
  *
  *   npm run eras -- --ticks 150 --rotations 4
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { FactionId, GeneralConfig } from "@abs/contracts";
 import { DEFAULT_GENERALS, RemoteProvider, liveWorld } from "@abs/agents";
-import { JournalSchema, newJournal, newWorld, replay, type Journal, type World } from "@abs/world";
+import {
+  JournalSchema,
+  WORLD_VERSION,
+  fingerprint,
+  newJournal,
+  newWorld,
+  replay,
+  worldVersionOf,
+  type Journal,
+  type World,
+} from "@abs/world";
 
 try {
   process.loadEnvFile(resolve(process.cwd(), ".env"));
@@ -151,12 +161,19 @@ for (const seed of SEEDS) {
     mkdirSync(dir, { recursive: true });
     const path = resolve(dir, "era-0001.json");
     let journal: Journal;
-    try {
-      journal = JournalSchema.parse(JSON.parse(readFileSync(path, "utf8")));
-    } catch {
+    if (existsSync(path)) {
+      const raw: unknown = JSON.parse(readFileSync(path, "utf8"));
+      const version = worldVersionOf(raw);
+      if (version !== WORLD_VERSION) throw new Error(`${path} uses ${version ?? "unknown"}, expected ${WORLD_VERSION}`);
+      journal = JournalSchema.parse(raw);
+    } else {
       // One seed is held constant across its four rotations, so that within a
       // seed the only thing differing is who governs what.
       journal = newJournal(newWorld(FACTIONS, seed));
+    }
+    const world = replay(journal.origin, journal.rulings, journal.livedTo).world;
+    if (journal.fingerprint !== null && journal.fingerprint !== fingerprint(world)) {
+      throw new Error(`${path} fingerprint does not match its replay`);
     }
     runs.push({
       r,
@@ -164,7 +181,7 @@ for (const seed of SEEDS) {
       path,
       journal,
       generals: rotate(r),
-      world: replay(journal.origin, journal.rulings, journal.livedTo).world,
+      world,
     });
   }
 }
@@ -209,7 +226,10 @@ while (runs.some((run) => run.world.tick < WARMUP + TICKS)) {
       provider,
       ticks: remaining,
       warmup: Math.max(0, WARMUP - run.world.tick),
-      onRuling: () => writeFileSync(run.path, JSON.stringify(run.journal, null, 2)),
+      onRuling: (_journal, world) => {
+        run.journal.fingerprint = fingerprint(world);
+        writeFileSync(run.path, JSON.stringify(JournalSchema.parse(run.journal), null, 2));
+      },
       notify: (n) => {
         if (n.kind === "ruled" || n.kind === "era-closed") {
           console.log(`  an ${String(n.tick).padStart(4)}  ${(n.civ ?? "").padEnd(8)} ${n.text.slice(0, 88)}`);
@@ -217,7 +237,8 @@ while (runs.some((run) => run.world.tick < WARMUP + TICKS)) {
       },
     });
     run.world = result.world;
-    writeFileSync(run.path, JSON.stringify(run.journal, null, 2));
+    run.journal.fingerprint = fingerprint(run.world);
+    writeFileSync(run.path, JSON.stringify(JournalSchema.parse(run.journal), null, 2));
   }
 
   // Checked between passes, once every course has had a turn: a model that

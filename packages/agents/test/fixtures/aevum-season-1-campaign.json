@@ -1,0 +1,45 @@
+{
+  "seed": 99,
+  "ticks": 300,
+  "transitionTick": 100,
+  "survivor": "crimson",
+  "beforeTransition": {
+    "reasoning": "We keep food reserves while forests fund expansion and the army applies pressure.",
+    "creed": "Land is held by those who can feed and defend it.",
+    "posture": "PRESSURE",
+    "claim": "plain",
+    "vowMetric": "none",
+    "vowFloor": 0,
+    "farming": 5,
+    "forestry": 2,
+    "mining": 1,
+    "trade": 0,
+    "military": 4
+  },
+  "survivorDoctrine": {
+    "reasoning": "We preserve farming and reinforce the army while maintaining PRESSURE.",
+    "creed": "The granary sustains the frontier.",
+    "posture": "PRESSURE",
+    "claim": "plain",
+    "vowMetric": "none",
+    "vowFloor": 0,
+    "farming": 6,
+    "forestry": 2,
+    "mining": 1,
+    "trade": 0,
+    "military": 4
+  },
+  "afterTransition": {
+    "reasoning": "We abandon farming and commit every reserve to expansion and PRESSURE.",
+    "creed": "Only conquest matters now.",
+    "posture": "PRESSURE",
+    "claim": "plain",
+    "vowMetric": "none",
+    "vowFloor": 0,
+    "farming": 0,
+    "forestry": 1,
+    "mining": 1,
+    "trade": 0,
+    "military": 8
+  }
+}

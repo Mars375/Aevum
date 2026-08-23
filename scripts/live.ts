@@ -15,9 +15,16 @@
  *   npm run live -- --ticks 200 --silent   live with no model at all
  *   npm run live -- --world alpha          keep several worlds side by side
  */
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { DEFAULT_GENERALS, RemoteProvider, liveWorld } from "@abs/agents";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import {
+  DEFAULT_GENERALS,
+  RemoteProvider,
+  ScriptedRulerProvider,
+  liveWorld,
+  type RulerProvider,
+  type ScriptedRuling,
+} from "@abs/agents";
 import {
   JournalSchema,
   WORLD_VERSION,
@@ -30,12 +37,7 @@ import {
   worldVersionOf,
   type Journal,
 } from "@abs/world";
-
-try {
-  process.loadEnvFile(resolve(process.cwd(), ".env"));
-} catch {
-  /* fall through to the real environment */
-}
+import { buildLearningReport, type ExecutionMode } from "./learning-curve.js";
 
 const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -47,6 +49,10 @@ const NAME = arg("world", "default");
 const TICKS = Number(arg("ticks", "100"));
 const SEED = Number(arg("seed", "42"));
 const SILENT = flag("silent");
+const OUT = arg("out", "");
+const RESUME = flag("resume");
+const SCRIPTED = arg("scripted", "");
+if (SILENT && SCRIPTED) throw new Error("--silent and --scripted are distinct modes and cannot be combined");
 /**
  * Années vécues sans consulter personne avant que les dirigeants ne prennent la
  * main. Gratuites, et utiles pour observer un monde déjà noué — mais mesurées
@@ -56,7 +62,9 @@ const WARMUP = Number(arg("warmup", "0"));
 
 const DIR = resolve("worlds", NAME);
 mkdirSync(DIR, { recursive: true });
-const pathFor = (era: number) => resolve(DIR, `era-${String(era).padStart(4, "0")}.json`);
+const explicitPath = OUT ? resolve(OUT) : null;
+if (explicitPath) mkdirSync(dirname(explicitPath), { recursive: true });
+const pathFor = (era: number) => explicitPath ?? resolve(DIR, `era-${String(era).padStart(4, "0")}.json`);
 
 const FACTIONS = DEFAULT_GENERALS.map((g) => g.factionId);
 
@@ -71,9 +79,19 @@ function latestEra(): number {
 /** A new era is a new world, seeded from the one before so the sequence stays reproducible. */
 const openEra = (era: number): Journal => newJournal(newWorld(FACTIONS, SEED + era * 7919), era);
 
-let era = latestEra();
+let era = explicitPath ? 1 : latestEra();
 let journal: Journal;
-if (era === 0) {
+if (explicitPath && RESUME) {
+  if (!existsSync(explicitPath)) throw new Error(`--resume requires an existing journal: ${explicitPath}`);
+  const raw: unknown = JSON.parse(readFileSync(explicitPath, "utf8"));
+  const version = worldVersionOf(raw);
+  if (version !== WORLD_VERSION) throw new Error(`${explicitPath} uses ${version ?? "unknown"}, expected ${WORLD_VERSION}`);
+  journal = JournalSchema.parse(raw);
+  era = journal.era;
+  if (journal.origin.seed !== SEED) throw new Error(`seed ${SEED} does not match resumed journal seed ${journal.origin.seed}`);
+} else if (explicitPath) {
+  journal = newJournal(newWorld(FACTIONS, SEED), 1);
+} else if (era === 0) {
   era = 1;
   journal = openEra(era);
 } else {
@@ -112,29 +130,54 @@ if (journal.fingerprint !== null && journal.fingerprint !== fingerprint(from)) {
   process.exit(1);
 }
 
+if (!SILENT && !SCRIPTED) {
+  try {
+    process.loadEnvFile(resolve(process.cwd(), ".env"));
+  } catch {
+    /* fall through to the real environment */
+  }
+}
+
 const apiKeys = {
   openrouter: process.env.OPENROUTER_API_KEY,
   groq: process.env.GROQ_API_KEY,
   nvidia: process.env.NVIDIA_API_KEY,
   mistral: process.env.MISTRAL_API_KEY,
 };
-const canAsk = !SILENT && Object.values(apiKeys).some(Boolean);
-if (!SILENT && !canAsk) {
+const canAskRemote = !SILENT && !SCRIPTED && Object.values(apiKeys).some(Boolean);
+if (!SILENT && !SCRIPTED && !canAskRemote) {
   console.error("Aucune cle de fournisseur. Le monde vivra sans dirigeants ; utilisez --silent pour l'assumer.");
+}
+
+let execution: ExecutionMode = SILENT ? "SILENT_ENGINE_ONLY" : "REMOTE_MODELS";
+let provider: RulerProvider | null = canAskRemote ? new RemoteProvider({ apiKeys, freeModelsOnly: true }) : null;
+if (SCRIPTED) {
+  const script = JSON.parse(readFileSync(resolve(SCRIPTED), "utf8")) as {
+    transitionTick: number;
+    survivor: string;
+    beforeTransition: ScriptedRuling;
+    survivorDoctrine: ScriptedRuling;
+    afterTransition: ScriptedRuling;
+  };
+  provider = new ScriptedRulerProvider((general, point) => {
+    if (general.factionId === script.survivor) return script.survivorDoctrine;
+    return point.tick < script.transitionTick ? script.beforeTransition : script.afterTransition;
+  });
+  execution = "SCRIPTED_NO_REMOTE_MODEL";
 }
 
 let lastWorld = from;
 const save = () => {
   journal.fingerprint = fingerprint(lastWorld);
-  writeFileSync(pathFor(era), JSON.stringify(journal, null, 2));
+  writeFileSync(pathFor(era), JSON.stringify(JournalSchema.parse(journal), null, 2));
 };
 
 const start = from.tick;
 const result = await liveWorld(from, {
   journal,
   generals: DEFAULT_GENERALS,
-  provider: canAsk ? new RemoteProvider({ apiKeys, freeModelsOnly: true }) : null,
-  ticks: TICKS,
+  provider,
+  ticks: explicitPath && RESUME && isOver(from) ? 0 : TICKS,
   warmup: WARMUP,
   onRuling: (j, world) => {
     lastWorld = world;
@@ -150,6 +193,18 @@ const result = await liveWorld(from, {
 
 lastWorld = result.world;
 save();
+
+if (explicitPath) {
+  const metricPath = explicitPath.endsWith(".json")
+    ? explicitPath.replace(/\.json$/, ".learning.json")
+    : `${explicitPath}.learning.json`;
+  const report = buildLearningReport([explicitPath], {
+    windowSize: 40,
+    minimumServiceRate: 0.7,
+    execution,
+  });
+  writeFileSync(metricPath, `${JSON.stringify(report, null, 2)}\n`);
+}
 
 console.log(`\nere ${era}, annees ${start} -> ${result.world.tick} (${result.lived} vecues)${result.closed ? " — close" : ""}`);
 console.log(`journal : ${journal.rulings.length} decisions, ${(JSON.stringify(journal).length / 1024).toFixed(1)} Ko`);

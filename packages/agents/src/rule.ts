@@ -187,5 +187,8 @@ export async function askRuler(
     // Stamped by the caller, which is the only thing that knows how long this
     // decision waited for a model to be free.
     deferredBy: 0,
+    context: [...point.evidence],
+    service: null,
+    consequenceRef: null,
   };
 }

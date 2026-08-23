@@ -1,0 +1,16 @@
+[
+  {
+    "path": "worlds/aevum-season-1/era-0001.json",
+    "world": "aevum-season-1",
+    "era": 1,
+    "livedTo": 120,
+    "rulings": 67,
+    "alive": 1,
+    "over": true,
+    "survivor": "crimson",
+    "worldVersion": "w8",
+    "seed": 99,
+    "learningCurvePath": "worlds/aevum-season-1/era-0001.learning.json",
+    "reportSlug": "aevum-season-1"
+  }
+]

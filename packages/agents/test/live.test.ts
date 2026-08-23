@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newJournal, newWorld, type Journal } from "@abs/world";
+import { fingerprint, newJournal, newWorld, replay, type Journal } from "@abs/world";
 import type { GeneralConfig } from "@abs/contracts";
 import { liveWorld, type LiveNotice } from "../src/index.js";
 import type { RulerProvider } from "../src/rule.js";
@@ -100,9 +100,11 @@ describe("une decision qu'on ne peut pas servir est differee, jamais abandonnee"
 describe("le monde survit au silence total", () => {
   it("sans fournisseur, il vit quand meme et ne bloque pas", async () => {
     const { journal } = fresh();
-    const result = await liveWorld(journal.origin, { journal, generals, provider: null, ticks: 80 });
+    const from = replay(journal.origin, journal.rulings, journal.livedTo).world;
+    const result = await liveWorld(from, { journal, generals, provider: null, ticks: 80 });
     expect(result.world.tick).toBe(80);
     expect(journal.rulings).toHaveLength(0);
+    expect(fingerprint(replay(journal.origin, journal.rulings, journal.livedTo).world)).toBe(fingerprint(result.world));
   });
 
   it("un modele qui ne repond jamais ne fait pas boucler le monde", async () => {

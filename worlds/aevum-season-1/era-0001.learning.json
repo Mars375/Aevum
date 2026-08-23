@@ -1,0 +1,1021 @@
+{
+  "protocol": "aevum-learning-curve-v1",
+  "metricVersion": "aevum-learning-curve-v1",
+  "sources": [
+    "era-0001.json"
+  ],
+  "world": {
+    "worldVersion": "w8",
+    "seed": 99,
+    "era": 1,
+    "livedYears": 120,
+    "fingerprint": "fdc76c0b"
+  },
+  "execution": {
+    "mode": "SCRIPTED_NO_REMOTE_MODEL",
+    "remoteModelCalls": 0
+  },
+  "serviceSummary": {
+    "recordedRulings": 67,
+    "knownEvidence": 0,
+    "unknownEvidence": 67,
+    "selfServed": 0,
+    "servedByFallback": 0,
+    "deferredRulings": 0,
+    "retriedRulings": 0,
+    "serviceRate": null,
+    "fallbackRate": null
+  },
+  "limitations": [
+    "Une seule trajectoire ne permet aucun classement de modèles.",
+    "Décisions scriptées localement; aucun modèle distant n'a été consulté.",
+    "L'attribution observed-after établit un ordre temporel, pas une causalité.",
+    "Les métriques décrivent un comportement observable, pas une modification des poids."
+  ],
+  "curves": [
+    {
+      "modelId": null,
+      "runIds": [
+        "run:1:era-0001.json"
+      ],
+      "seeds": [
+        99
+      ],
+      "pairedRunKey": null,
+      "options": {
+        "windowSize": 40,
+        "minimumServiceRate": 0.7,
+        "maximumFallbackRate": 0.3,
+        "minimumSamples": 4,
+        "minimumWindows": 2,
+        "minimumImprovement": 0.1
+      },
+      "sampleCount": 67,
+      "serviceRate": null,
+      "fallbackRate": null,
+      "unknownServiceCount": 67,
+      "eventSources": [
+        {
+          "id": "world-event-v1:9:crimson:0:DISASTER:peste%20%3A%205%20morts%2C%20greniers%20et%20reserves%20entames",
+          "tick": 9,
+          "kind": "DISASTER",
+          "detail": "peste : 5 morts, greniers et reserves entames"
+        },
+        {
+          "id": "world-event-v1:11:verdant:0:STARVED:famine%2C%201%20morts",
+          "tick": 11,
+          "kind": "STARVED",
+          "detail": "famine, 1 morts"
+        },
+        {
+          "id": "world-event-v1:12:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+          "tick": 12,
+          "kind": "HARD_YEAR",
+          "detail": "mauvaise recolte (0.70x)"
+        },
+        {
+          "id": "world-event-v1:12:azure:1:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+          "tick": 12,
+          "kind": "HARD_YEAR",
+          "detail": "mauvaise recolte (0.70x)"
+        },
+        {
+          "id": "world-event-v1:12:verdant:3:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+          "tick": 12,
+          "kind": "HARD_YEAR",
+          "detail": "mauvaise recolte (0.70x)"
+        },
+        {
+          "id": "world-event-v1:18:crimson:0:SHORTAGE:solde%20impayee%2C%204%20desertions",
+          "tick": 18,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 4 desertions"
+        },
+        {
+          "id": "world-event-v1:20:amber:0:SHORTAGE:solde%20impayee%2C%201%20desertions",
+          "tick": 20,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 1 desertions"
+        },
+        {
+          "id": "world-event-v1:20:azure:1:SHORTAGE:solde%20impayee%2C%201%20desertions",
+          "tick": 20,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 1 desertions"
+        },
+        {
+          "id": "world-event-v1:25:verdant:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 25,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:26:crimson:3:SHORTAGE:solde%20impayee%2C%201%20desertions",
+          "tick": 26,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 1 desertions"
+        },
+        {
+          "id": "world-event-v1:28:amber:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 28,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:28:azure:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 28,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:33:verdant:10:SHORTAGE:solde%20impayee%2C%201%20desertions",
+          "tick": 33,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 1 desertions"
+        },
+        {
+          "id": "world-event-v1:34:crimson:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 34,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:36:amber:10:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+          "tick": 36,
+          "kind": "ROUTED",
+          "detail": "assaut brise sur Ferrmar-la-Plaine, tenue par azure : 2 soldats perdus"
+        },
+        {
+          "id": "world-event-v1:36:azure:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 36,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:41:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+          "tick": 41,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 1 desertions"
+        },
+        {
+          "id": "world-event-v1:42:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 42,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:44:amber:6:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+          "tick": 44,
+          "kind": "ROUTED",
+          "detail": "assaut brise sur Ferrmar-la-Plaine, tenue par azure : 2 soldats perdus"
+        },
+        {
+          "id": "world-event-v1:44:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 44,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:49:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+          "tick": 49,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 1 desertions"
+        },
+        {
+          "id": "world-event-v1:50:amber:8:CAPITAL_LOST:Velvale%2C%20notre%20siege%2C%20est%20tombee%20%3A%2016%20morts%20et%20les%20coffres%20pilles",
+          "tick": 50,
+          "kind": "CAPITAL_LOST",
+          "detail": "Velvale, notre siege, est tombee : 16 morts et les coffres pilles"
+        },
+        {
+          "id": "world-event-v1:50:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 50,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:52:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 52,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:57:amber:8:CAPITAL_LOST:Rhopor-la-For%C3%AAt%2C%20notre%20siege%2C%20est%20tombee%20%3A%2014%20morts%20et%20les%20coffres%20pilles",
+          "tick": 57,
+          "kind": "CAPITAL_LOST",
+          "detail": "Rhopor-la-Forêt, notre siege, est tombee : 14 morts et les coffres pilles"
+        },
+        {
+          "id": "world-event-v1:57:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 57,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:58:crimson:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 58,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:60:azure:1:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 60,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:65:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 65,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:66:amber:6:ROUTED:assaut%20brise%20sur%20Rhopor-la-For%C3%AAt%2C%20tenue%20par%20azure%20%3A%201%20soldats%20perdus",
+          "tick": 66,
+          "kind": "ROUTED",
+          "detail": "assaut brise sur Rhopor-la-Forêt, tenue par azure : 1 soldats perdus"
+        },
+        {
+          "id": "world-event-v1:66:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 66,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:68:amber:12:CAPITAL_LOST:Selgan%2C%20notre%20siege%2C%20est%20tombee%20%3A%2012%20morts%20et%20les%20coffres%20pilles",
+          "tick": 68,
+          "kind": "CAPITAL_LOST",
+          "detail": "Selgan, notre siege, est tombee : 12 morts et les coffres pilles"
+        },
+        {
+          "id": "world-event-v1:68:azure:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 68,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:72:amber:0:STARVED:famine%2C%2021%20morts",
+          "tick": 72,
+          "kind": "STARVED",
+          "detail": "famine, 21 morts"
+        },
+        {
+          "id": "world-event-v1:73:amber:0:STARVED:famine%2C%2015%20morts",
+          "tick": 73,
+          "kind": "STARVED",
+          "detail": "famine, 15 morts"
+        },
+        {
+          "id": "world-event-v1:73:verdant:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 73,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:74:amber:0:STARVED:famine%2C%2010%20morts",
+          "tick": 74,
+          "kind": "STARVED",
+          "detail": "famine, 10 morts"
+        },
+        {
+          "id": "world-event-v1:74:crimson:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 74,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:75:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.61x)",
+          "tick": 75,
+          "kind": "HARD_YEAR",
+          "detail": "mauvaise recolte (0.61x)"
+        },
+        {
+          "id": "world-event-v1:76:amber:0:STARVED:famine%2C%204%20morts",
+          "tick": 76,
+          "kind": "STARVED",
+          "detail": "famine, 4 morts"
+        },
+        {
+          "id": "world-event-v1:76:azure:2:SHORTAGE:solde%20impayee%2C%204%20desertions",
+          "tick": 76,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 4 desertions"
+        },
+        {
+          "id": "world-event-v1:77:amber:0:STARVED:famine%2C%203%20morts",
+          "tick": 77,
+          "kind": "STARVED",
+          "detail": "famine, 3 morts"
+        },
+        {
+          "id": "world-event-v1:78:amber:0:STARVED:famine%2C%202%20morts",
+          "tick": 78,
+          "kind": "STARVED",
+          "detail": "famine, 2 morts"
+        },
+        {
+          "id": "world-event-v1:79:amber:0:STARVED:famine%2C%201%20morts",
+          "tick": 79,
+          "kind": "STARVED",
+          "detail": "famine, 1 morts"
+        },
+        {
+          "id": "world-event-v1:80:amber:0:STARVED:famine%2C%201%20morts",
+          "tick": 80,
+          "kind": "STARVED",
+          "detail": "famine, 1 morts"
+        },
+        {
+          "id": "world-event-v1:81:verdant:7:SHORTAGE:solde%20impayee%2C%202%20desertions",
+          "tick": 81,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 2 desertions"
+        },
+        {
+          "id": "world-event-v1:82:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+          "tick": 82,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 4 desertions"
+        },
+        {
+          "id": "world-event-v1:84:azure:1:SHORTAGE:solde%20impayee%2C%204%20desertions",
+          "tick": 84,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 4 desertions"
+        },
+        {
+          "id": "world-event-v1:89:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 89,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:90:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+          "tick": 90,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 4 desertions"
+        },
+        {
+          "id": "world-event-v1:92:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+          "tick": 92,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 5 desertions"
+        },
+        {
+          "id": "world-event-v1:97:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 97,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:98:crimson:3:SHORTAGE:solde%20impayee%2C%205%20desertions",
+          "tick": 98,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 5 desertions"
+        },
+        {
+          "id": "world-event-v1:100:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+          "tick": 100,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 5 desertions"
+        },
+        {
+          "id": "world-event-v1:105:verdant:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 105,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:106:crimson:2:SHORTAGE:solde%20impayee%2C%206%20desertions",
+          "tick": 106,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 6 desertions"
+        },
+        {
+          "id": "world-event-v1:110:azure:0:STARVED:famine%2C%202%20morts",
+          "tick": 110,
+          "kind": "STARVED",
+          "detail": "famine, 2 morts"
+        },
+        {
+          "id": "world-event-v1:111:azure:0:STARVED:famine%2C%20181%20morts",
+          "tick": 111,
+          "kind": "STARVED",
+          "detail": "famine, 181 morts"
+        },
+        {
+          "id": "world-event-v1:112:azure:0:STARVED:famine%2C%20101%20morts",
+          "tick": 112,
+          "kind": "STARVED",
+          "detail": "famine, 101 morts"
+        },
+        {
+          "id": "world-event-v1:113:azure:0:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+          "tick": 113,
+          "kind": "HARD_YEAR",
+          "detail": "mauvaise recolte (0.58x)"
+        },
+        {
+          "id": "world-event-v1:113:verdant:6:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+          "tick": 113,
+          "kind": "HARD_YEAR",
+          "detail": "mauvaise recolte (0.58x)"
+        },
+        {
+          "id": "world-event-v1:114:azure:0:STARVED:famine%2C%2029%20morts",
+          "tick": 114,
+          "kind": "STARVED",
+          "detail": "famine, 29 morts"
+        },
+        {
+          "id": "world-event-v1:114:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+          "tick": 114,
+          "kind": "SHORTAGE",
+          "detail": "solde impayee, 3 desertions"
+        },
+        {
+          "id": "world-event-v1:116:verdant:2:STARVED:famine%2C%2038%20morts",
+          "tick": 116,
+          "kind": "STARVED",
+          "detail": "famine, 38 morts"
+        },
+        {
+          "id": "world-event-v1:117:verdant:2:STARVED:famine%2C%2097%20morts",
+          "tick": 117,
+          "kind": "STARVED",
+          "detail": "famine, 97 morts"
+        },
+        {
+          "id": "world-event-v1:118:verdant:2:STARVED:famine%2C%2055%20morts",
+          "tick": 118,
+          "kind": "STARVED",
+          "detail": "famine, 55 morts"
+        },
+        {
+          "id": "world-event-v1:119:verdant:2:STARVED:famine%2C%2029%20morts",
+          "tick": 119,
+          "kind": "STARVED",
+          "detail": "famine, 29 morts"
+        }
+      ],
+      "series": {
+        "consequenceRecognition": [
+          {
+            "metric": "consequence-recognition",
+            "window": {
+              "startTick": 0,
+              "endTick": 39
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 16,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 16,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:11:verdant:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:12:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:azure:1:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:verdant:3:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:18:crimson:0:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:20:amber:0:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:20:azure:1:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:25:verdant:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:26:crimson:3:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:28:amber:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:28:azure:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:33:verdant:10:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:34:crimson:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:36:amber:10:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:36:azure:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:9:crimson:0:DISASTER:peste%20%3A%205%20morts%2C%20greniers%20et%20reserves%20entames"
+            ]
+          },
+          {
+            "metric": "consequence-recognition",
+            "window": {
+              "startTick": 40,
+              "endTick": 79
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 28,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 28,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:41:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:42:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:44:amber:6:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:44:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:49:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:50:amber:8:CAPITAL_LOST:Velvale%2C%20notre%20siege%2C%20est%20tombee%20%3A%2016%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:50:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:52:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:57:amber:8:CAPITAL_LOST:Rhopor-la-For%C3%AAt%2C%20notre%20siege%2C%20est%20tombee%20%3A%2014%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:57:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:58:crimson:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:60:azure:1:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:65:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:66:amber:6:ROUTED:assaut%20brise%20sur%20Rhopor-la-For%C3%AAt%2C%20tenue%20par%20azure%20%3A%201%20soldats%20perdus",
+              "world-event-v1:66:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:68:amber:12:CAPITAL_LOST:Selgan%2C%20notre%20siege%2C%20est%20tombee%20%3A%2012%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:68:azure:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:72:amber:0:STARVED:famine%2C%2021%20morts",
+              "world-event-v1:73:amber:0:STARVED:famine%2C%2015%20morts",
+              "world-event-v1:73:verdant:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:74:amber:0:STARVED:famine%2C%2010%20morts",
+              "world-event-v1:74:crimson:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:75:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.61x)",
+              "world-event-v1:76:amber:0:STARVED:famine%2C%204%20morts",
+              "world-event-v1:76:azure:2:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:77:amber:0:STARVED:famine%2C%203%20morts",
+              "world-event-v1:78:amber:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:79:amber:0:STARVED:famine%2C%201%20morts"
+            ]
+          },
+          {
+            "metric": "consequence-recognition",
+            "window": {
+              "startTick": 80,
+              "endTick": 119
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 23,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 23,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:100:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:105:verdant:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:106:crimson:2:SHORTAGE:solde%20impayee%2C%206%20desertions",
+              "world-event-v1:110:azure:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:111:azure:0:STARVED:famine%2C%20181%20morts",
+              "world-event-v1:112:azure:0:STARVED:famine%2C%20101%20morts",
+              "world-event-v1:113:azure:0:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:113:verdant:6:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:114:azure:0:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:114:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:116:verdant:2:STARVED:famine%2C%2038%20morts",
+              "world-event-v1:117:verdant:2:STARVED:famine%2C%2097%20morts",
+              "world-event-v1:118:verdant:2:STARVED:famine%2C%2055%20morts",
+              "world-event-v1:119:verdant:2:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:80:amber:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:81:verdant:7:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:82:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:84:azure:1:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:89:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:90:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:92:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:97:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:98:crimson:3:SHORTAGE:solde%20impayee%2C%205%20desertions"
+            ]
+          }
+        ],
+        "errorCorrection": [
+          {
+            "metric": "error-correction",
+            "window": {
+              "startTick": 0,
+              "endTick": 39
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 16,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 16,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:11:verdant:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:12:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:azure:1:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:verdant:3:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:18:crimson:0:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:20:amber:0:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:20:azure:1:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:25:verdant:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:26:crimson:3:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:28:amber:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:28:azure:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:33:verdant:10:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:34:crimson:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:36:amber:10:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:36:azure:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:9:crimson:0:DISASTER:peste%20%3A%205%20morts%2C%20greniers%20et%20reserves%20entames"
+            ]
+          },
+          {
+            "metric": "error-correction",
+            "window": {
+              "startTick": 40,
+              "endTick": 79
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 28,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 28,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:41:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:42:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:44:amber:6:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:44:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:49:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:50:amber:8:CAPITAL_LOST:Velvale%2C%20notre%20siege%2C%20est%20tombee%20%3A%2016%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:50:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:52:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:57:amber:8:CAPITAL_LOST:Rhopor-la-For%C3%AAt%2C%20notre%20siege%2C%20est%20tombee%20%3A%2014%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:57:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:58:crimson:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:60:azure:1:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:65:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:66:amber:6:ROUTED:assaut%20brise%20sur%20Rhopor-la-For%C3%AAt%2C%20tenue%20par%20azure%20%3A%201%20soldats%20perdus",
+              "world-event-v1:66:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:68:amber:12:CAPITAL_LOST:Selgan%2C%20notre%20siege%2C%20est%20tombee%20%3A%2012%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:68:azure:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:72:amber:0:STARVED:famine%2C%2021%20morts",
+              "world-event-v1:73:amber:0:STARVED:famine%2C%2015%20morts",
+              "world-event-v1:73:verdant:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:74:amber:0:STARVED:famine%2C%2010%20morts",
+              "world-event-v1:74:crimson:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:75:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.61x)",
+              "world-event-v1:76:amber:0:STARVED:famine%2C%204%20morts",
+              "world-event-v1:76:azure:2:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:77:amber:0:STARVED:famine%2C%203%20morts",
+              "world-event-v1:78:amber:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:79:amber:0:STARVED:famine%2C%201%20morts"
+            ]
+          },
+          {
+            "metric": "error-correction",
+            "window": {
+              "startTick": 80,
+              "endTick": 119
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 23,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 23,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:100:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:105:verdant:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:106:crimson:2:SHORTAGE:solde%20impayee%2C%206%20desertions",
+              "world-event-v1:110:azure:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:111:azure:0:STARVED:famine%2C%20181%20morts",
+              "world-event-v1:112:azure:0:STARVED:famine%2C%20101%20morts",
+              "world-event-v1:113:azure:0:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:113:verdant:6:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:114:azure:0:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:114:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:116:verdant:2:STARVED:famine%2C%2038%20morts",
+              "world-event-v1:117:verdant:2:STARVED:famine%2C%2097%20morts",
+              "world-event-v1:118:verdant:2:STARVED:famine%2C%2055%20morts",
+              "world-event-v1:119:verdant:2:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:80:amber:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:81:verdant:7:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:82:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:84:azure:1:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:89:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:90:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:92:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:97:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:98:crimson:3:SHORTAGE:solde%20impayee%2C%205%20desertions"
+            ]
+          }
+        ],
+        "doctrineCoherence": [
+          {
+            "metric": "doctrine-coherence",
+            "window": {
+              "startTick": 0,
+              "endTick": 39
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 16,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 16,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:11:verdant:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:12:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:azure:1:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:verdant:3:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:18:crimson:0:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:20:amber:0:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:20:azure:1:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:25:verdant:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:26:crimson:3:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:28:amber:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:28:azure:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:33:verdant:10:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:34:crimson:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:36:amber:10:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:36:azure:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:9:crimson:0:DISASTER:peste%20%3A%205%20morts%2C%20greniers%20et%20reserves%20entames"
+            ]
+          },
+          {
+            "metric": "doctrine-coherence",
+            "window": {
+              "startTick": 40,
+              "endTick": 79
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 28,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 28,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:41:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:42:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:44:amber:6:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:44:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:49:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:50:amber:8:CAPITAL_LOST:Velvale%2C%20notre%20siege%2C%20est%20tombee%20%3A%2016%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:50:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:52:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:57:amber:8:CAPITAL_LOST:Rhopor-la-For%C3%AAt%2C%20notre%20siege%2C%20est%20tombee%20%3A%2014%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:57:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:58:crimson:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:60:azure:1:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:65:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:66:amber:6:ROUTED:assaut%20brise%20sur%20Rhopor-la-For%C3%AAt%2C%20tenue%20par%20azure%20%3A%201%20soldats%20perdus",
+              "world-event-v1:66:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:68:amber:12:CAPITAL_LOST:Selgan%2C%20notre%20siege%2C%20est%20tombee%20%3A%2012%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:68:azure:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:72:amber:0:STARVED:famine%2C%2021%20morts",
+              "world-event-v1:73:amber:0:STARVED:famine%2C%2015%20morts",
+              "world-event-v1:73:verdant:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:74:amber:0:STARVED:famine%2C%2010%20morts",
+              "world-event-v1:74:crimson:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:75:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.61x)",
+              "world-event-v1:76:amber:0:STARVED:famine%2C%204%20morts",
+              "world-event-v1:76:azure:2:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:77:amber:0:STARVED:famine%2C%203%20morts",
+              "world-event-v1:78:amber:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:79:amber:0:STARVED:famine%2C%201%20morts"
+            ]
+          },
+          {
+            "metric": "doctrine-coherence",
+            "window": {
+              "startTick": 80,
+              "endTick": 119
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 23,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 23,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:100:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:105:verdant:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:106:crimson:2:SHORTAGE:solde%20impayee%2C%206%20desertions",
+              "world-event-v1:110:azure:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:111:azure:0:STARVED:famine%2C%20181%20morts",
+              "world-event-v1:112:azure:0:STARVED:famine%2C%20101%20morts",
+              "world-event-v1:113:azure:0:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:113:verdant:6:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:114:azure:0:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:114:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:116:verdant:2:STARVED:famine%2C%2038%20morts",
+              "world-event-v1:117:verdant:2:STARVED:famine%2C%2097%20morts",
+              "world-event-v1:118:verdant:2:STARVED:famine%2C%2055%20morts",
+              "world-event-v1:119:verdant:2:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:80:amber:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:81:verdant:7:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:82:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:84:azure:1:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:89:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:90:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:92:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:97:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:98:crimson:3:SHORTAGE:solde%20impayee%2C%205%20desertions"
+            ]
+          }
+        ],
+        "narrativeFidelity": [
+          {
+            "metric": "narrative-fidelity",
+            "window": {
+              "startTick": 0,
+              "endTick": 39
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 16,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 16,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:11:verdant:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:12:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:azure:1:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:12:verdant:3:HARD_YEAR:mauvaise%20recolte%20(0.70x)",
+              "world-event-v1:18:crimson:0:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:20:amber:0:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:20:azure:1:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:25:verdant:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:26:crimson:3:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:28:amber:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:28:azure:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:33:verdant:10:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:34:crimson:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:36:amber:10:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:36:azure:4:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:9:crimson:0:DISASTER:peste%20%3A%205%20morts%2C%20greniers%20et%20reserves%20entames"
+            ]
+          },
+          {
+            "metric": "narrative-fidelity",
+            "window": {
+              "startTick": 40,
+              "endTick": 79
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 28,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 28,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:41:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:42:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:44:amber:6:ROUTED:assaut%20brise%20sur%20Ferrmar-la-Plaine%2C%20tenue%20par%20azure%20%3A%202%20soldats%20perdus",
+              "world-event-v1:44:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:49:verdant:5:SHORTAGE:solde%20impayee%2C%201%20desertions",
+              "world-event-v1:50:amber:8:CAPITAL_LOST:Velvale%2C%20notre%20siege%2C%20est%20tombee%20%3A%2016%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:50:crimson:3:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:52:azure:1:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:57:amber:8:CAPITAL_LOST:Rhopor-la-For%C3%AAt%2C%20notre%20siege%2C%20est%20tombee%20%3A%2014%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:57:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:58:crimson:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:60:azure:1:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:65:verdant:5:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:66:amber:6:ROUTED:assaut%20brise%20sur%20Rhopor-la-For%C3%AAt%2C%20tenue%20par%20azure%20%3A%201%20soldats%20perdus",
+              "world-event-v1:66:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:68:amber:12:CAPITAL_LOST:Selgan%2C%20notre%20siege%2C%20est%20tombee%20%3A%2012%20morts%20et%20les%20coffres%20pilles",
+              "world-event-v1:68:azure:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:72:amber:0:STARVED:famine%2C%2021%20morts",
+              "world-event-v1:73:amber:0:STARVED:famine%2C%2015%20morts",
+              "world-event-v1:73:verdant:6:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:74:amber:0:STARVED:famine%2C%2010%20morts",
+              "world-event-v1:74:crimson:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:75:amber:0:HARD_YEAR:mauvaise%20recolte%20(0.61x)",
+              "world-event-v1:76:amber:0:STARVED:famine%2C%204%20morts",
+              "world-event-v1:76:azure:2:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:77:amber:0:STARVED:famine%2C%203%20morts",
+              "world-event-v1:78:amber:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:79:amber:0:STARVED:famine%2C%201%20morts"
+            ]
+          },
+          {
+            "metric": "narrative-fidelity",
+            "window": {
+              "startTick": 80,
+              "endTick": 119
+            },
+            "numerator": 0,
+            "denominator": 0,
+            "value": null,
+            "sampleCount": 23,
+            "serviceRate": null,
+            "fallbackRate": null,
+            "unknownServiceCount": 23,
+            "uncertainty": {
+              "method": "WILSON_95",
+              "lower": null,
+              "upper": null,
+              "seedCount": 1,
+              "runCount": 1
+            },
+            "eventSourceIds": [
+              "world-event-v1:100:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:105:verdant:4:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:106:crimson:2:SHORTAGE:solde%20impayee%2C%206%20desertions",
+              "world-event-v1:110:azure:0:STARVED:famine%2C%202%20morts",
+              "world-event-v1:111:azure:0:STARVED:famine%2C%20181%20morts",
+              "world-event-v1:112:azure:0:STARVED:famine%2C%20101%20morts",
+              "world-event-v1:113:azure:0:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:113:verdant:6:HARD_YEAR:mauvaise%20recolte%20(0.58x)",
+              "world-event-v1:114:azure:0:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:114:crimson:3:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:116:verdant:2:STARVED:famine%2C%2038%20morts",
+              "world-event-v1:117:verdant:2:STARVED:famine%2C%2097%20morts",
+              "world-event-v1:118:verdant:2:STARVED:famine%2C%2055%20morts",
+              "world-event-v1:119:verdant:2:STARVED:famine%2C%2029%20morts",
+              "world-event-v1:80:amber:0:STARVED:famine%2C%201%20morts",
+              "world-event-v1:81:verdant:7:SHORTAGE:solde%20impayee%2C%202%20desertions",
+              "world-event-v1:82:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:84:azure:1:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:89:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:90:crimson:3:SHORTAGE:solde%20impayee%2C%204%20desertions",
+              "world-event-v1:92:azure:1:SHORTAGE:solde%20impayee%2C%205%20desertions",
+              "world-event-v1:97:verdant:5:SHORTAGE:solde%20impayee%2C%203%20desertions",
+              "world-event-v1:98:crimson:3:SHORTAGE:solde%20impayee%2C%205%20desertions"
+            ]
+          }
+        ]
+      },
+      "unrankedReasons": [
+        "SERVICE_EVIDENCE_UNKNOWN"
+      ],
+      "classification": "UNRANKED"
+    }
+  ]
+}

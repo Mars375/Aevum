@@ -13,3 +13,4 @@ export { collectReports, reportSystemPrompt, reportUserPrompt, REPORT_JSON_SCHEM
 export * from "./prompt-world.js";
 export * from "./rule.js";
 export * from "./live.js";
+export * from "./scripted-world.js";
