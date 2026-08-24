@@ -6,9 +6,11 @@ deterministic engine does everything else, and writes a record you can replay.
 
 Nobody plays. You watch, and you read why each ruler decided what it did.
 
-Release candidate **R1 / 0.2.0** is prepared in this tree and is not published.
+Season 1 **0.3.0** is released under the public name **Aevum — Chronique des mondes**.
+The committed era is a scripted, replayable artefact; it does not claim remote-model
+governance or model ranking.
 
-## Verifying the Season 1 candidate
+## Verifying the Season 1 release
 
 The release gate is offline and rebuilds its evidence before checking it:
 
@@ -25,9 +27,8 @@ source and service rates, generated links and indexes, rename inventory and
 secret boundaries. A success proves the committed scripted artefact locally; it
 does not prove that a remote model governed the era. The complete evidence and
 open limits are recorded in
-`docs/reports/aevum-season-1-verification.md`. Publishing, tagging and renaming
-the remote are separate release actions and are deliberately not performed by
-this gate.
+`docs/reports/aevum-season-1-verification.md`. The report records the limits of
+the scripted evidence, including the absence of remote-model governance.
 
 ## From clone to a living world
 

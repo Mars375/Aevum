@@ -1,6 +1,6 @@
 {
   "name": "aevum",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Aevum — Chronique des mondes. Four language models govern persistent civilisations in a deterministic world.",
   "type": "module",
