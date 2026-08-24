@@ -253,11 +253,22 @@ replays.forEach((replay, i) => {
   let state = replay.initialState;
   let diverged = 0;
   for (const turn of replay.turns) {
+    // Replay diplomacy exactly as battle-v2 applied it: a surrendered faction
+    // withdraws its squads before combat, and allies never hit each other.
+    // Without both, any rotation where diplomacy moved (rotation 0 here) shows
+    // divergent turns although the engine is deterministic.
+    const surrendered = new Set(turn.alliances?.surrendered ?? []);
+    if (surrendered.size) {
+      state = { ...state, squads: state.squads.filter((s) => !surrendered.has(s.factionId)) };
+    }
+    const pairs = new Set(turn.alliances?.pairs ?? []);
     const result = resolveTurn(
       state,
       turn.decisions.map((d) => ({ factionId: d.factionId, orders: d.orders })),
       roster,
       replay.manifest.config.gridSize,
+      // Pairs are recorded canonically ("a|b", a < b); rebuild that key to test.
+      (a, b) => pairs.has([a, b].sort().join("|")),
     );
     if (JSON.stringify(result.state) !== JSON.stringify(turn.stateAfter)) diverged += 1;
     state = result.state;
