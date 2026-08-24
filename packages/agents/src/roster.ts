@@ -32,11 +32,12 @@ export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(
  *     turns. It is now only ever a deep fallback: an outage there costs a hop,
  *     not a contender.
  *
- * verdant's primary is `google/gemma-4-26b-a4b-it:free` rather than the faster
- * `groq:groq/compound-mini`, deliberately. compound-mini would put two primaries
- * on Groq, whose 8000-token minute budget is exactly what starved gpt-oss-120b;
- * OpenRouter's 1000 requests a day are comfortable for a ~200-call tournament.
- * Slower, and far likelier to actually play.
+ * verdant's primary is `nvidia/nemotron-3-super-120b-a12b:free` — a bare
+ * OpenRouter id despite the NVIDIA name, so it draws on OpenRouter's daily
+ * quota, never on the exhausted `nvidia:` build. It replaces
+ * `google/gemma-4-26b-a4b-it:free`, whose free tier now answers HTTP 429;
+ * Nemotron Super passed preflight 4/4 through askRuler with the production
+ * parser, served by itself each time.
  *
  * Measured on a mid-battle v2 position:
  *   groq:groq/compound-mini          1.2-1.3s  2/2   (fallback, not primary)
@@ -44,7 +45,7 @@ export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(
  *   google/gemma-4-26b-a4b-it:free  10.7-17.1s 2/2
  *   poolside/laguna-s-2.1:free       4.5s      2/2
  *   nvidia:minimaxai/minimax-m3      HTTP 429  0/2   <- demoted
- *   nvidia/nemotron-3-super          1/2             <- unreliable, dropped
+ *   nvidia/nemotron-3-super          1/2             <- promoted: 4/4 with askRuler later
  */
 export const DEFAULT_GENERALS: GeneralConfig[] = [
   {
@@ -62,7 +63,7 @@ export const DEFAULT_GENERALS: GeneralConfig[] = [
   {
     factionId: "verdant",
     displayName: "Verdant",
-    model: "google/gemma-4-26b-a4b-it:free",
+    model: "nvidia/nemotron-3-super-120b-a12b:free",
     fallbacks: ["mistral:magistral-small-latest", "groq:openai/gpt-oss-20b", "nvidia:deepseek-ai/deepseek-v4-flash-0731"],
   },
   {
