@@ -16,7 +16,7 @@
  */
 import { spawn, type ChildProcess } from "node:child_process";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -79,6 +79,18 @@ const MIME: Record<string, string> = {
   ".woff2": "font/woff2",
 };
 
+/** Only a regular file may be read raw. Learned in CI (commit 2ba9d90): the
+ * root request `/` resolved to DIST itself, which passes existsSync yet makes
+ * readFileSync throw EISDIR. A directory counts as absent, so extensionless
+ * directory/root requests fall through to the index.html fallback below. */
+function isFile(path: string): boolean {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
 /** Static file server for dist; during QA this harness is the page's whole internet. */
 function serveDist(): Promise<{ port: number; close: () => void }> {
   const server = createServer((request: IncomingMessage, response: ServerResponse) => {
@@ -90,8 +102,8 @@ function serveDist(): Promise<{ port: number; close: () => void }> {
       return;
     }
     let path = join(DIST, decodeURIComponent(url.pathname));
-    if ((!existsSync(path) || !path.startsWith(DIST)) && !extname(path)) path = join(DIST, "index.html");
-    if (existsSync(path) && path.startsWith(DIST)) {
+    if ((!isFile(path) || !path.startsWith(DIST)) && !extname(path)) path = join(DIST, "index.html");
+    if (isFile(path) && path.startsWith(DIST)) {
       response.writeHead(200, { "content-type": MIME[extname(path)] ?? "application/octet-stream" });
       response.end(readFileSync(path));
     } else {
