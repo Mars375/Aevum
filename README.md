@@ -6,7 +6,7 @@ deterministic engine does everything else, and writes a record you can replay.
 
 Nobody plays. You watch, and you read why each ruler decided what it did.
 
-Season 1 **0.3.0** is released under the public name **Aevum — Chronique des mondes**.
+Season 1 **0.3.1** is released under the public name **Aevum — Chronique des mondes**.
 The committed era is a scripted, replayable artefact; it does not claim remote-model
 governance or model ranking.
 

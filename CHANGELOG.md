@@ -1,5 +1,14 @@
 # Journal des modifications
 
+## [0.3.1] - 2026-08-24
+
+Correctif de reproductibilité de la release Saison 1.
+
+- Le catalogue public des mondes ne conserve plus les rotations locales
+  ignorées par Git ; un checkout propre reconstruit désormais exactement le
+  même index que celui commité.
+- Cette version supersède `v0.3.0`, dont la CI a révélé cette dérive d'artefact.
+
 ## [0.3.0] - 2026-08-24
 
 Saison 1 publiée sous le nom **Aevum — Chronique des mondes**.
