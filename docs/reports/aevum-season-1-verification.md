@@ -103,7 +103,9 @@ antérieurs. Ils ne sont pas promus en preuve de la Saison 1 par cette vérifica
 
 ## Risque de dépendances
 
-`npm audit --audit-level=high` signale cinq vulnérabilités transitives dans la
-chaîne de développement Vite/Vitest : trois modérées, une haute et une critique.
-La correction proposée impose une montée majeure de Vitest. Aucune dépendance
-n'a été changée dans cette tâche; ce risque doit être arbitré avant publication.
+L'état antérieur — cinq vulnérabilités transitives signalées par
+`npm audit --audit-level=high` dans la chaîne de développement Vite/Vitest :
+trois modérées, une haute et une critique — a été remédié par la migration des
+dépendances (commit `2ea057e`), qui monte Vitest en 4.1.11 et aligne Vite en
+6.4.3. Vérifié sur ce candidat : l'audit sort avec le code 0 et rapporte
+« found 0 vulnerabilities ». Aucune vulnérabilité connue ne subsiste à ce niveau.
