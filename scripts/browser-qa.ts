@@ -29,7 +29,7 @@ const VIEWPORTS = [
   { width: 1440, height: 900 },
 ];
 /** Endpoints the app fetches and treats as absent-by-design; their 404 is documented behaviour. */
-const OPTIONAL_PATHS = new Set(["/replays/index.json", "/worlds/status.json"]);
+const OPTIONAL_PATHS = new Set(["/replays/index.json", "/replays/reference.json", "/worlds/status.json"]);
 
 /** Bound on every CDP exchange. Learned from the first replay attempt: this
  * host's Chromium accepts the DevTools handshake yet never completes a local
@@ -292,10 +292,20 @@ interface RequestAudit {
 
 function auditRequestEvents(cdp: Cdp, port: number): RequestAudit {
   const requests = cdp.events.filter((event) => event.method === "Network.requestWillBeSent");
+  const urlByRequestId = new Map(requests.map((event) => [String(event.params.requestId), String(event.params.request.url)]));
   const external = requests
     .map((event) => String(event.params.request.url))
     .filter((url) => !url.startsWith(`http://127.0.0.1:${port}/`) && !url.startsWith("data:"));
+  // loadingFailed stays a failure by default. Only net::ERR_ABORTED on an
+  // optional endpoint is ignored: the app aborts those fetches by design, and
+  // an abort is not a broken request. Anything else — including an abort whose
+  // request was never seen — remains a failure.
   const broken = cdp.events.filter((event) => event.method === "Network.loadingFailed")
+    .filter((event) => {
+      if (event.params.errorText !== "net::ERR_ABORTED") return true;
+      const url = urlByRequestId.get(String(event.params.requestId));
+      return !(url && OPTIONAL_PATHS.has(new URL(url).pathname));
+    })
     .map((event) => `loadingFailed: ${event.params.errorText}`)
     .concat(cdp.events.filter((event) => event.method === "Network.responseReceived" && event.params.response.status >= 400)
       .map((event) => `${event.params.response.status} ${event.params.response.url}`)
@@ -444,7 +454,7 @@ async function auditInteractions(cdp: Cdp, base: string, port: number): Promise<
   const clicked = await evaluate<string | null>(cdp, `(() => {
     const button = document.querySelector('.sources button[data-tick], .register details:not([open]) summary, .register .jump');
     if (!button) return null;
-    if (button.tagName === 'SUMMARY') { (button.parentElement as HTMLDetailsElement).open = true; return 'registre ouvert'; }
+    if (button.tagName === 'SUMMARY') { if (button.parentElement) button.parentElement.open = true; return 'registre ouvert'; }
     button.click();
     return button.textContent.trim() + ' · ' + button.className;
   })()`);
