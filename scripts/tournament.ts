@@ -87,6 +87,32 @@ const rows: Row[] = [];
 const replays: Replay[] = [];
 
 /**
+ * True when both lists name one and the same roster: same factions in the
+ * same order, same primary, same fallback chain for each.
+ *
+ * Seed and ruleset alone let a replay from a previous roster reload as this
+ * run's result: the season replaced gemma-4 and minimax with nemotron while
+ * seeds 42+ and v2 stayed put, so four old rotations came back labelled under
+ * primaries that never played those turns. Which model sits behind which
+ * faction is part of what a rotation measures — a relabelled result is a
+ * forged one.
+ */
+function sameRoster(a: readonly GeneralConfig[], b: readonly GeneralConfig[]): boolean {
+  return (
+    a.length === b.length &&
+    a.every((general, i) => {
+      const expected = b[i]!;
+      return (
+        general.factionId === expected.factionId &&
+        general.model === expected.model &&
+        general.fallbacks.length === expected.fallbacks.length &&
+        general.fallbacks.every((fallback, j) => fallback === expected.fallbacks[j])
+      );
+    })
+  );
+}
+
+/**
  * A rotation already played and written in full is reloaded rather than
  * replayed.
  *
@@ -96,19 +122,26 @@ const replays: Replay[] = [];
  * collapses around 350. That is exactly the situation where resuming matters.
  *
  * A partial checkpoint is NOT reused: it fails its own schema or carries fewer
- * turns than it should, and half a battle is not a result.
+ * turns than it should, and half a battle is not a result. Neither is a replay
+ * written by another roster — see `sameRoster`.
  */
-function reload(path: string, expectedSeed: number, expectedRuleset: string): Replay | null {
+function reload(
+  path: string,
+  expectedSeed: number,
+  expectedRuleset: string,
+  expectedGenerals: readonly GeneralConfig[],
+): Replay | null {
   if (!existsSync(path) || RESTART) return null;
   try {
     const replay = ReplaySchema.parse(JSON.parse(readFileSync(path, "utf8")));
-    // Seed AND ruleset. The seed alone is not enough: the earlier 12-rotation
-    // v1 tournament used seeds 42-53, and this v2 one starts at 42, so
-    // rotation-0.json would have matched on seed and been reloaded as a v2
-    // result. That is precisely the silent blending of two tournaments this
-    // function claims to prevent.
+    // Seed, ruleset AND roster. The seed alone was not enough: the earlier
+    // 12-rotation v1 tournament used seeds 42-53, and this v2 one starts at
+    // 42, so rotation-0.json would have matched on seed. Seed plus ruleset
+    // still was not enough: the roster changed mid-season while seeds stayed
+    // put, and four old replays reloaded under new model names.
     if (replay.manifest.config.seed !== expectedSeed) return null;
     if (replay.manifest.rulesetVersion !== expectedRuleset) return null;
+    if (!sameRoster(replay.manifest.config.generals, expectedGenerals)) return null;
     if (replay.outcome.reason.includes("interrompue")) return null; // a partial checkpoint
     return replay;
   } catch {
@@ -139,7 +172,7 @@ for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
   console.log(`\n=== rotation ${rotation + 1}/${ROTATIONS} (seed ${config.seed}) ===`);
   for (const g of generals) console.log(`  ${g.factionId.padEnd(8)} ${g.model}`);
 
-  const existing = reload(out, config.seed, config.rulesetVersion);
+  const existing = reload(out, config.seed, config.rulesetVersion, generals);
   if (existing) {
     console.log(`  déjà jouée, rechargée (${existing.turns.length} tours) — aucun appel dépensé`);
     replays.push(existing);
