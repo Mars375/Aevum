@@ -265,8 +265,11 @@ async function evaluate<T>(cdp: Cdp, expression: string): Promise<T> {
 }
 
 async function pressKey(cdp: Cdp, key: string, code: string, virtual: number): Promise<void> {
+  // Enter carries CDP text "\r": without it Chromium delivers the key event
+  // yet never runs the native keyboard activation of the focused button.
+  const text = key === "Enter" ? "\r" : undefined;
   for (const type of ["keyDown", "keyUp"]) {
-    await cdp.send("Input.dispatchKeyEvent", { type, key, code, windowsVirtualKeyCode: virtual, nativeVirtualKeyCode: virtual });
+    await cdp.send("Input.dispatchKeyEvent", { type, key, code, windowsVirtualKeyCode: virtual, nativeVirtualKeyCode: virtual, text });
   }
 }
 
@@ -274,6 +277,7 @@ async function clickElement(cdp: Cdp, selector: string): Promise<boolean> {
   const centre = await evaluate<{ x: number; y: number } | null>(cdp, `(() => {
     const el = document.querySelector(${JSON.stringify(selector)});
     if (!el) return null;
+    el.scrollIntoView({ block: "center", inline: "center" });
     const r = el.getBoundingClientRect();
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   })()`);
@@ -386,9 +390,22 @@ async function auditViewport(
   checks.push({ name: `${label}: no horizontal overflow`, ok: overflow === null, detail: overflow ?? "document fits its viewport" });
 
   const consoleErrors = cdp.events
-    .filter((event) => event.method === "Runtime.exceptionThrown"
-      || (event.method === "Runtime.consoleAPICalled" && event.params.type === "error")
-      || (event.method === "Log.entryAdded" && event.params.entry.level === "error"))
+    .filter((event) => {
+      if (event.method === "Runtime.exceptionThrown") return true;
+      if (event.method === "Runtime.consoleAPICalled") return event.params.type === "error";
+      if (event.method !== "Log.entryAdded") return false;
+      if (event.params.entry.level !== "error") return false;
+      // Chromium logs a network 404 as an error entry; on an optional endpoint
+      // that 404 is the documented absence-by-design, not a page defect. Every
+      // other error entry stays a failure.
+      if (event.params.entry.source !== "network") return true;
+      try {
+        return !OPTIONAL_PATHS.has(new URL(event.params.entry.url).pathname);
+      } catch {
+        // An unparseable URL cannot be an optional path; it remains a failure.
+        return true;
+      }
+    })
     .map((event) => JSON.stringify(event.params).slice(0, 200));
   checks.push({
     name: `${label}: no console error`,
@@ -435,10 +452,10 @@ async function auditInteractions(cdp: Cdp, base: string, port: number): Promise<
   });
 
   // Metric picker: aria-pressed must follow the selection.
-  const pressedBefore = await evaluate<string | null>(cdp, `document.querySelector('.metric-picker button[aria-pressed="true"]')?.textContent?.trim() ?? null`);
-  await clickElement(cdp, ".metric-picker button:nth-child(2)");
+  const pressedBefore = await evaluate<string | null>(cdp, `document.querySelector('.metrics button[aria-pressed="true"]')?.textContent?.trim() ?? null`);
+  await clickElement(cdp, ".metrics button:nth-child(2)");
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 200));
-  const pressedAfter = await evaluate<string | null>(cdp, `document.querySelector('.metric-picker button[aria-pressed="true"]')?.textContent?.trim() ?? null`);
+  const pressedAfter = await evaluate<string | null>(cdp, `document.querySelector('.metrics button[aria-pressed="true"]')?.textContent?.trim() ?? null`);
   checks.push({
     name: "metric: picker selection moves",
     ok: !!pressedBefore && !!pressedAfter && pressedBefore !== pressedAfter,
@@ -452,11 +469,13 @@ async function auditInteractions(cdp: Cdp, base: string, port: number): Promise<
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 300));
   const yearBefore = (await evaluate<string>(cdp, "document.querySelector('.chronicle p.live')?.textContent ?? ''")).trim();
   const clicked = await evaluate<string | null>(cdp, `(() => {
-    const button = document.querySelector('.sources button[data-tick], .register details:not([open]) summary, .register .jump');
-    if (!button) return null;
-    if (button.tagName === 'SUMMARY') { if (button.parentElement) button.parentElement.open = true; return 'registre ouvert'; }
-    button.click();
-    return button.textContent.trim() + ' · ' + button.className;
+    const details = document.querySelector('.register details');
+    if (!details) return null;
+    if (!details.open) details.open = true;
+    const jump = details.querySelector('.jump');
+    if (!jump) return null;
+    jump.click();
+    return jump.textContent.trim() + ' · ' + jump.className;
   })()`);
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 300));
   const yearAfter = (await evaluate<string>(cdp, "document.querySelector('.chronicle p.live')?.textContent ?? ''")).trim();
