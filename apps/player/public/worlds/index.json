@@ -12,5 +12,53 @@
     "seed": 99,
     "learningCurvePath": "worlds/aevum-season-1/era-0001.learning.json",
     "reportSlug": "aevum-season-1"
+  },
+  {
+    "path": "worlds/rotation-1789-0/era-0001.json",
+    "world": "rotation-1789-0",
+    "era": 1,
+    "livedTo": 20,
+    "rulings": 6,
+    "alive": 4,
+    "over": false,
+    "survivor": null,
+    "worldVersion": "w8",
+    "seed": 1789
+  },
+  {
+    "path": "worlds/rotation-1789-1/era-0001.json",
+    "world": "rotation-1789-1",
+    "era": 1,
+    "livedTo": 20,
+    "rulings": 7,
+    "alive": 4,
+    "over": false,
+    "survivor": null,
+    "worldVersion": "w8",
+    "seed": 1789
+  },
+  {
+    "path": "worlds/rotation-1789-2/era-0001.json",
+    "world": "rotation-1789-2",
+    "era": 1,
+    "livedTo": 20,
+    "rulings": 10,
+    "alive": 4,
+    "over": false,
+    "survivor": null,
+    "worldVersion": "w8",
+    "seed": 1789
+  },
+  {
+    "path": "worlds/rotation-1789-3/era-0001.json",
+    "world": "rotation-1789-3",
+    "era": 1,
+    "livedTo": 20,
+    "rulings": 8,
+    "alive": 4,
+    "over": false,
+    "survivor": null,
+    "worldVersion": "w8",
+    "seed": 1789
   }
 ]

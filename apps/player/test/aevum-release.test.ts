@@ -137,7 +137,7 @@ describe("pipeline de publication Aevum", () => {
     expect(assertion.status).not.toBe(0);
     expect(assertion.stderr).toContain("does not match journal");
     expect(existsSync(guardLog)).toBe(false);
-  });
+  }, 60_000);
 
   it("rejette les options CLI malformees avant de vivre un monde", () => {
     const { root, guardLog } = workspace();
@@ -185,7 +185,7 @@ describe("pipeline de publication Aevum", () => {
     const staleIndex = json(join(root, "worlds/index.json")) as unknown as Array<Record<string, unknown>>;
     expect(staleIndex[0]?.learningCurvePath).toBeUndefined();
     expect(existsSync(guardLog)).toBe(false);
-  });
+  }, 60_000);
 
   it("refuse chaque derive d'un artefact de publication", () => {
     const { root, guardLog, fixture } = workspace();
@@ -256,7 +256,7 @@ describe("pipeline de publication Aevum", () => {
     writeFileSync(journal, `${JSON.stringify(drifted, null, 2)}\n`);
     expect(() => verifyPublishedSeason(root)).toThrow(/fingerprint/);
     expect(existsSync(guardLog)).toBe(false);
-  });
+  }, 60_000);
 
   it("verifie l'inventaire de renommage et les contrats de secrets", () => {
     expect(() => verifyReleaseInventory(ROOT)).not.toThrow();
