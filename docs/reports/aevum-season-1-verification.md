@@ -25,16 +25,16 @@ de secret ne respectent plus leur contrat.
 
 | Contrôle | Résultat observé |
 | --- | --- |
-| Tests ciblés de publication, marque et courbes | 20 tests réussis |
-| `npm test` | 27 fichiers, 429 tests réussis |
+| Tests ciblés de publication, marque et courbes | 12 tests réussis |
+| `npm test` | 27 fichiers, 432 tests réussis |
 | `npm run typecheck` | réussi, aucune erreur |
 | `npm run player:build` | réussi, 96 modules transformés |
 | `npm run world:probe -- 300` | 56 points de décision sur 1 200 appels naïfs, économie 21,4× |
-| Génération du rapport et des index | réussie, une ère indexée |
+| Génération du rapport et des index | réussie, 5 ères indexées |
 | `npm run verify-season-1` | candidat vérifié hors ligne |
 | `npm run healthcheck` | contrats et moteur réussis; accès OpenRouter HTTP 200 seulement consultatif |
 | `docker compose config --quiet` | réussi localement |
-| Build Docker et healthcheck du conteneur | épreuve de CI seulement ; non exécutée localement sur cette machine pour ce candidat |
+| Build Docker et healthcheck du conteneur | image construite; démarrage/healthcheck non acquis car le port 8088 est détenu par un ancien conteneur local |
 | `git diff --check` | réussi |
 | Contrats de secrets | `.env` ignoré et non suivi; scans de l'arbre et du diff réussis |
 
@@ -61,26 +61,21 @@ deux index publics, le journal et son sidecar — sur un conteneur déclaré
 
 ## Preuves navigateur locales
 
-Le `headless_shell` déjà installé a chargé le lecteur et produit des captures à
-375, 900 et 1 440 px. Les trois compositions sont lisibles et ne montrent pas
-de débordement horizontal; une passe séparée avec préférence de mouvement réduit
-a également rendu la page. Le scan des sources du lecteur ne trouve ni police,
-ni import, ni URL HTTP externe.
+Le pilote rejouable `scripts/browser-qa.ts` (`npm run qa:browser`) a trouvé
+Chromium à `/usr/bin/chromium` et a tenté une passe headless contre
+`apps/player/dist`. Sur cette machine (mesuré le 24 août 2026), Chromium accepte
+la poignée de main DevTools mais n'achève jamais la navigation locale : la passe
+échoue en ~10 s avec « Page.navigate timed out after 8000ms » et un code de sortie 1;
+aucun processus Chromium résiduel ni socket de serveur oublié n'a été observé.
 
-Le pilote rejouable `scripts/browser-qa.ts` (`npm run qa:browser`) pilote un
-Chromium réel via CDP contre `apps/player/dist`. Sur cette machine (mesuré le
-24 août 2026), le navigateur accepte la poignée de main DevTools mais n'achève
-jamais une navigation locale : chaque échange est borné à 8 s et la passe échoue
-en ~10 s avec « Page.navigate timed out after 8000ms » et un code de sortie 1,
-sans processus Chromium résiduel ni socket de serveur oublié. Le pilote est
-rejouable et son issue est reproductible ; ici, cette issue est un échec
-honnête — la preuve navigateur n'est pas acquise sur cette machine. Un échec
-borné reste un échec ; il n'est jamais converti en succès.
-
-Les tests de composants exercent au clavier les marqueurs avec Entrée et Espace,
-le bouton d'une source et la remontée de l'événement de recherche jusqu'à l'année
-visée. Ce sont des preuves automatisées locales, pas une observation humaine ni
-une session navigateur distante.
+Cette issue est une preuve négative reproductible, pas un passage : les
+observations navigateur aux largeurs 375/900/1 440 px, la préférence
+`prefers-reduced-motion`, le journal console et l'audit des requêtes ne sont pas
+acquis par ce pilote sur cette machine. L'échec borné reste un échec et n'est
+jamais converti en succès. Les tests de composants exercent au clavier les
+marqueurs avec Entrée et Espace, le bouton d'une source et la remontée de
+l'événement de recherche jusqu'à l'année visée; ce sont des preuves automatisées
+locales, pas une session navigateur indépendante.
 
 ## Preuves issues de modèles distants
 
