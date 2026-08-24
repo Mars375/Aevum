@@ -62,6 +62,24 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run player:build
+      # Real-browser gate: resolves an installed Chromium/Chrome explicitly so a
+      # missing browser fails loudly instead of being silently skipped.
+      - name: Run the browser QA gate against real Chromium
+        run: |
+          set -euo pipefail
+          for candidate in google-chrome-stable google-chrome chromium chromium-browser; do
+            if command -v "$candidate" >/dev/null 2>&1; then
+              AEVUM_CHROMIUM="$(command -v "$candidate")"
+              break
+            fi
+          done
+          if [ -z "${AEVUM_CHROMIUM:-}" ]; then
+            echo "::error::No Chromium/Chrome executable found on this runner; the browser QA gate cannot pass."
+            exit 1
+          fi
+          echo "Browser QA will drive ${AEVUM_CHROMIUM}"
+          export AEVUM_CHROMIUM
+          npm run qa:browser
       - name: Run clone healthcheck (provider access is advisory)
         run: npm run healthcheck
       - name: Probe the continuous world offline
