@@ -5,6 +5,7 @@ import CivTrend from "./CivTrend.vue";
 import EmpireShare from "./EmpireShare.vue";
 import TurningPoint from "./TurningPoint.vue";
 import WorldStage from "./WorldStage.vue";
+import ObservationEpisodes from "./ObservationEpisodes.vue";
 
 /**
  * A world, read year by year.
@@ -173,6 +174,14 @@ const round = (n: number) => Math.round(n);
     <WorldStage :years="years" :index="index" :turning-tick="latestTurn" @seek="(i) => (index = i)" />
 
     <p class="live" role="status" aria-live="polite">An {{ year.tick }}, ère {{ journal.era }}.</p>
+
+    <ObservationEpisodes
+      :years="years"
+      :world-version="journal.worldVersion"
+      :seed="journal.origin.seed"
+      :fingerprint="journal.fingerprint"
+      @seek="seekTick"
+    />
 
     <TurningPoint :journal="journal" :years="years" :at="year.tick" @seek="seekTick" />
 

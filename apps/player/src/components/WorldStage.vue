@@ -9,19 +9,26 @@ const emit = defineEmits<{ seek: [number] }>();
 const year = computed(() => props.years[Math.min(props.index, props.years.length - 1)]!);
 
 const playing = ref(false);
+const direction = ref<1 | -1>(1);
 const speed = ref(4);
 const SPEEDS = [1, 4, 12, 40] as const;
 let timer: number | undefined;
 
 const step = () => {
-  if (props.index >= props.years.length - 1) {
+  const next = props.index + direction.value;
+  if (next < 0 || next >= props.years.length) {
     playing.value = false;
     return;
   }
-  emit("seek", props.index + 1);
+  emit("seek", next);
 };
 
-watch([playing, speed], () => {
+function playIn(nextDirection: 1 | -1): void {
+  direction.value = nextDirection;
+  playing.value = true;
+}
+
+watch([playing, direction, speed], () => {
   clearInterval(timer);
   if (!playing.value) return;
   timer = window.setInterval(step, 1000 / speed.value);
@@ -34,7 +41,10 @@ onUnmounted(() => clearInterval(timer));
 <template>
   <section class="stage" aria-labelledby="world-year">
     <div class="scene">
-      <WorldMap :year="year" />
+      <WorldMap :year="year" :years="years" :index="index" @seek="(tick) => {
+        const at = years.findIndex((item) => item.tick === tick);
+        if (at >= 0) emit('seek', at);
+      }" />
       <header class="inscription">
         <p class="mono eyebrow">Monde recomposé · année active</p>
         <h2 id="world-year"><span>L'an</span> {{ year.tick }}</h2>
@@ -48,8 +58,11 @@ onUnmounted(() => clearInterval(timer));
 
     <div class="timeline">
       <div class="controls">
-        <button class="play" :aria-pressed="playing" @click="playing = !playing">
-          {{ playing ? "Mettre en pause" : "Dérouler les années" }}
+        <button class="play" :aria-pressed="playing" @click="playing ? (playing = false) : playIn(1)">
+          {{ playing && direction === 1 ? "Mettre en pause" : "Dérouler les années" }}
+        </button>
+        <button class="quiet" :aria-pressed="playing && direction === -1" @click="playing && direction === -1 ? (playing = false) : playIn(-1)">
+          {{ playing && direction === -1 ? "Pause arrière" : "Lire en arrière" }}
         </button>
         <div class="speeds" role="group" aria-label="Vitesse de lecture">
           <button
@@ -57,7 +70,6 @@ onUnmounted(() => clearInterval(timer));
             :key="s"
             class="mono speed"
             :aria-pressed="speed === s"
-            :aria-label="`${s} années par seconde`"
             @click="speed = s"
           >
             ×{{ s }}

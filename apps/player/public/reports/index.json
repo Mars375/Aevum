@@ -1,5 +1,10 @@
 [
   {
+    "slug": "autopolis-season-1",
+    "title": "Autopolis — première observation reproductible",
+    "subtitle": "Statut : pilote hors ligne, généré par scripted-autopolis-v1 · ruleset autopolis-v1 · métriques metrics-v1 · 8 seeds appariées · horizon 36 ans"
+  },
+  {
     "slug": "board-noise",
     "title": "Le bruit du plateau — ce qu'une rotation doit franchir",
     "subtitle": "Statut : mesuré hors ligne, sans dépenser un appel · 24 mondes muets · Carte : t_baa4de0e"
@@ -17,7 +22,7 @@
   {
     "slug": "chronique-monde",
     "title": "Chronique du monde « monde », ère 1",
-    "subtitle": "Statut : généré, jamais rédigé · 80 années · 24 décisions · règles w8"
+    "subtitle": "Statut : généré, jamais rédigé · 80 années · 13 décisions · règles w8"
   },
   {
     "slug": "first-era",

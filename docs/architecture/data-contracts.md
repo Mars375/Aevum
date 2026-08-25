@@ -105,6 +105,18 @@ moteur doit reproduire exactement les états consignés. C'est ce que vérifie l
 test de round-trip du replay, et c'est ce qui rend l'audit possible sans
 rappeler un seul modèle.
 
+## Contrat de la cartographie 2D du monde vivant
+
+La carte de référence consomme directement un `Year` produit par `chronicle(journal)` :
+
+- `year.world.board` est la source unique des cases, de leur nom, de leur relief et de leur propriétaire ; la couleur du territoire et ses frontières sont donc des dérivés du même tableau ;
+- `Civ.capital` localise le siège, tandis que les autres cases possédées localisent les implantations ; la population dimensionne les marqueurs, sans créer de ville supplémentaire ;
+- `Civ.stock`, `Civ.territory`, `Civ.population`, `Civ.soldiers`, `Civ.advances` et `Civ.doctrine` sont affichés comme agrégats de la civilisation sélectionnée ;
+- `Year.events` et `Year.rulings` forment le registre daté. Un lien « rejouer » revient à l'année concernée et n'invente aucune position d'armée ou de front ;
+- le contrat w8 ne localise pas les ressources, routes, infrastructures, migrations ou armées. La carte les signale comme absents plutôt que de dessiner des décorations qui ne seraient pas vérifiables.
+
+Les couches peuvent être désactivées indépendamment, mais le rendu reste déterministe : même `Year` et même interaction initiale donnent la même carte. Le zoom et le déplacement ne modifient jamais l'état du moteur. La lecture temporelle de `WorldStage` est la seule écriture d'état : elle sélectionne un autre `Year` du même rejeu.
+
 ## Ce qui ne transite jamais
 
 Ni clé API, ni contenu de `.env`, ni identifiant, ni chemin de la machine
