@@ -1,4 +1,4 @@
-# ai-battle-simulator — ce qu'une session doit savoir avant de toucher au code
+# Aevum — ce qu'une session doit savoir avant de toucher au code
 
 Ce fichier existe pour une raison précise : **éviter qu'une session neuve
 redécouvre, et surtout refasse, ce qui a déjà été mesuré.** Ce qui coûte cher à
@@ -13,7 +13,10 @@ Garder ce fichier court est le but. S'il grossit, il ne sera plus lu.
 Des modèles de langage gouvernent quatre civilisations dans un monde qui ne
 s'arrête pas. Un moteur déterministe fait tout le reste. Trois jeux de règles
 coexistent : **v1** et **v2** sont des batailles tactiques, gelées ; **w8** est
-le monde continu, et c'est là que le travail se fait.
+le monde continu, et c'est là que le travail se fait. **w9** existe dans le code
+et dans `docs/spec/world-w9.md` — il ajoute les charrues d'acier — mais un monde
+neuf naît en w8 (`WORLD_VERSION`, dans `packages/world/src/state.ts`), et le
+monde livré est en w8. w9 ne s'obtient qu'en le demandant.
 
 Le partage qui commande tout : **le modèle décide, le moteur tranche.** Un ordre
 illégal est rejeté et enregistré, jamais réécrit en silence. C'est ce qui rend
@@ -36,6 +39,45 @@ plus facilement :
   `Math.random`. Les saisons, les bandits et les catastrophes viennent d'un hash
   pur de `(seed, tick)`. `packages/contracts/test/boundaries.test.ts` le vérifie,
   ainsi que les frontières entre paquets.
+
+## Le lecteur — la plus grosse zone du dépôt
+
+`apps/player` fait 6 400 lignes sur 55 fichiers, plus que n'importe quel paquet.
+Vue 3 et Vite, Three.js seulement pour la vue 3D, chargée à la demande. Quatre
+modes dans `App.vue`, choisis par `?view=` : `world`, `battle`, `reports`,
+`rules`. Le plus gros composant est `Chronicle.vue`, 887 lignes.
+
+La décision qui compte : `vite.config.ts` aliase `@abs/world` vers les sources.
+**Le lecteur recalcule le monde depuis son journal avec le code même qui l'a
+vécu**, au lieu de faire confiance à un second rendu des événements. Un affichage
+qui diverge du moteur serait un défaut qu'on ne verrait jamais ; ici il ne peut
+pas exister.
+
+**Les données ne sont pas dans le build.** Le lecteur va chercher
+`worlds/index.json`, `worlds/status.json` et `replays/index.json` en chemin
+relatif, et `docker-compose.yml` monte `./worlds` et `./replays` en lecture seule
+dans l'image — délibérément, pour qu'un monde vivant se mette à jour sans
+reconstruire. Conséquence pour tout hébergeur statique : **un `vite build` seul
+produit un site qui n'a rien à afficher.** Il faut copier les données dans `dist`
+au moment du build, ce qui les fige, ou servir une API. C'est la question à
+trancher avant de parler de déploiement, pas après.
+
+## Deux gardes à connaître avant d'éditer
+
+**`packages/contracts/test/boundaries.test.ts`** applique la table du README au
+lieu de la promettre : pas d'horloge ni d'aléatoire dans `engine` et `world`,
+`contracts` n'importe personne, aucun paquet n'importe le lecteur, aucune clé
+dans une source. Il a un trou : il parle de cinq paquets et **`packages/metrics`
+n'est listé nulle part** — ni dans le contrôle de non-déterminisme, ni dans celui
+qui interdit d'importer le lecteur. Vérifié à la main : `metrics` est propre
+aujourd'hui. Il n'est pas gardé pour autant.
+
+**`apps/player/test/branding.test.ts`** interdit l'ancien nom public hors d'une
+liste blanche, comparée par `toEqual`. C'est une **égalité exacte**, donc elle
+coupe des deux côtés : ajouter l'ancien nom quelque part la casse, et *le retirer
+d'un fichier listé la casse aussi* — il faut alors retirer le chemin de la liste.
+Elle scanne l'arbre de travail entier, fichiers non suivis compris : un cache
+d'outil local (`.impeccable/hook.cache.json`) l'a déjà fait tomber.
 
 ## Ce qui a déjà été réfuté — ne pas refaire
 
@@ -94,10 +136,11 @@ mode normal.
 
 | | |
 | --- | --- |
-| les règles et les six invariants | `docs/spec/world-w8.md` |
+| les règles et les six invariants | `docs/spec/world-w8.md`, puis `world-w9.md` |
 | tout ce qui a été mesuré | `docs/reports/` |
+| l'identité visuelle et la vue 3D | `docs/spec/visual-identity.md` |
+| la refonte du lecteur, validée, non commencée | `docs/superpowers/specs/2026-08-25-aevum-observatory-redesign-design.md` |
 | les conventions et le défaut qui a enseigné chacune | skill `project-conventions` |
-| l'état d'avancement | carte kanban `t_baa4de0e` |
 
 ## Le principe, qui prime sur le reste
 

@@ -36,7 +36,6 @@ const OLD_SLUG_ALLOWLIST = {
   technical: [
     ".claude/settings.json",
     ".claude/skills/run-tournament/SKILL.md",
-    "CLAUDE.md",
     "packages/agents/src/provider.ts",
   ],
 };
