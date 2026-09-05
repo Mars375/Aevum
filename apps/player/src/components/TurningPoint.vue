@@ -156,24 +156,25 @@ async function copyLink() {
 
 .eyebrow,
 .step {
-  margin: 0 0 var(--s2);
+  margin: 0 0 var(--s3);
   color: var(--accent);
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-size: var(--t-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
 }
 
 h2 {
   max-width: 24ch;
   font-family: var(--display);
-  font-size: clamp(28px, 4.5vw, 54px);
+  font-size: var(--t-figure);
   font-weight: 400;
   line-height: 1.04;
+  letter-spacing: -0.02em;
 }
 
 .folio {
-  color: var(--muted);
-  font-size: 10px;
+  color: var(--faint);
+  font-size: var(--t-label);
   writing-mode: vertical-rl;
   letter-spacing: 0.16em;
 }
@@ -184,10 +185,13 @@ h2 {
   margin-top: var(--s6);
 }
 
+/* The engine's column is a long list and the first two are a sentence each, so
+   a full-strength rule between them drew three boxes, two of them mostly
+   empty. A hairline separates without framing the emptiness. */
 .sequence article {
   min-width: 0;
   padding: 0 var(--s5);
-  border-left: 1px solid var(--border-soft);
+  border-left: 1px solid var(--hairline);
 }
 
 .sequence article:first-child {

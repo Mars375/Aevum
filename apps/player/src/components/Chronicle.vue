@@ -225,7 +225,9 @@ const round = (n: number) => Math.round(n);
       <div class="civs">
         <article v-for="civ in year.world.civs" :key="civ.id" class="civ" :class="[civ.id, { fallen: civ.fellOnTick !== null }]">
           <h3>
-            <span class="sigil mono" aria-hidden="true">{{ civ.id.slice(0, 1).toUpperCase() }}</span>
+            <!-- Deux lettres, pas une : Amber et Azure portaient toutes deux
+                 un « A », donc le sigle ne distinguait pas ce qu'il nommait. -->
+            <span class="sigil mono" aria-hidden="true">{{ civ.id.slice(0, 2).toUpperCase() }}</span>
             {{ civ.id }}
             <span v-if="civ.fellOnTick !== null" class="mono dead">éteinte · an {{ civ.fellOnTick }}</span>
             <span v-else class="mono posture">posture · {{ POSTURE[civ.doctrine.posture] }}</span>
@@ -702,13 +704,16 @@ dd {
 }
 
 .sigil {
-  width: 26px;
+  min-width: 28px;
   height: 26px;
+  padding: 0 var(--s1);
   display: inline-grid;
   place-items: center;
   border: 1px solid var(--faction);
+  border-radius: var(--radius);
   color: var(--faction);
-  font-size: 11px;
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
 }
 
 .posture,

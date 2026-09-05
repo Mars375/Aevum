@@ -11,6 +11,7 @@ import type { PublishedLearningCurve } from "./components/LearningCurve.vue";
 import { alliesOfAt, knowledgeOf } from "./fog";
 import { createRequestGuard } from "./request-guard";
 import { fetchReplay, parseReplay, replayUrlFromSearch } from "./replay-loading";
+import { addressForMode, modeFromSearch, wants3d, type ViewMode } from "./view-address";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
 const Battle3D = defineAsyncComponent(() => import("./components/Battle3D.vue"));
@@ -63,7 +64,9 @@ const catalogue = ref<CatalogueEntry[]>([]);
  * A battle is a match with an end; a world is a place that keeps going. The
  * chronicle only appears when a deployment actually serves a world.
  */
-type Mode = "battle" | "world" | "reports" | "rules";
+/* The set of views is declared once, beside the addressing that names them:
+   a fifth view added here and forgotten there would be unreachable by link. */
+type Mode = ViewMode;
 const mode = ref<Mode>("world");
 
 interface WorldEntry {
@@ -90,6 +93,11 @@ const DECKS = {
 } as const;
 
 const deck = computed(() => DECKS[mode.value]);
+
+/* Switching tabs used to change nothing in the address bar, so a reader who
+   had found the rules or a battle could not send anyone to it. The mapping
+   itself lives in view-address.ts, where it is tested. */
+watch(mode, (next) => history.replaceState(null, "", addressForMode(location.href, next)));
 const lastAdvance = computed(() => {
   if (!tendStatus.value || (activeWorld.value && tendStatus.value.world !== activeWorld.value.world)) return "dernière avancée inconnue";
   const date = Date.parse(tendStatus.value.ranAt);
@@ -363,10 +371,9 @@ onMounted(async () => {
   }
 
   const params = new URLSearchParams(location.search);
-  if (params.get("mode") === "3d") view3d.value = true;
-  if (params.get("mode") === "regles") mode.value = "rules";
-  else if (["rapports", "a-propos"].includes(params.get("mode") ?? "") || params.get("rapport")) mode.value = "reports";
-  else if (params.get("replay") || params.get("turn")) mode.value = "battle";
+  if (wants3d(location.search)) view3d.value = true;
+  const named = modeFromSearch(location.search);
+  if (named) mode.value = named;
   const view = params.get("view");
   if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
   const turn = Number(params.get("turn"));

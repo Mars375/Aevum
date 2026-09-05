@@ -1,5 +1,6 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const ROOT = resolve(import.meta.dirname, "../../..");
@@ -48,19 +49,32 @@ const OLD_IMAGE_ALLOWLIST = {
 
 const read = (path: string) => readFileSync(resolve(ROOT, path), "utf8");
 
+/**
+ * Ce que le dépôt publie, c'est ce qu'il versionne.
+ *
+ * Ce contrôle parcourait l'arbre de travail avec une liste d'exclusions, si
+ * bien que n'importe quel fichier local le faisait tomber au milieu d'un
+ * travail sans rapport : un cache d'outil qui se régénère à chaque édition
+ * (`.impeccable/`), l'état d'un monde en cours de veille (`worlds/status.json`).
+ * Chacun demandait une exclusion de plus, et aucun n'était publié. Demander la
+ * liste à git supprime la liste et dit exactement ce que le test veut dire.
+ */
+function trackedFiles(): string[] {
+  return execFileSync("git", ["ls-files", "-z"], { cwd: ROOT, encoding: "utf8" }).split("\0").filter(Boolean);
+}
+
 function mentions(pattern: RegExp): string[] {
-  const ignored = new Set([".git", ".superpowers", "dist", "node_modules"]);
-  const files: string[] = [];
-  const walk = (dir: string) => {
-    for (const entry of readdirSync(dir)) {
-      if (ignored.has(entry)) continue;
-      const path = join(dir, entry);
-      if (statSync(path).isDirectory()) walk(path);
-      else if (pattern.test(readFileSync(path, "utf8"))) files.push(relative(ROOT, path));
-    }
-  };
-  walk(ROOT);
-  return files.sort();
+  return trackedFiles()
+    .filter((path) => {
+      try {
+        return pattern.test(readFileSync(resolve(ROOT, path), "utf8"));
+      } catch {
+        // Un fichier listé mais absent du disque : un suivi supprimé et pas
+        // encore validé. Il n'est plus publié, il ne compte pas.
+        return false;
+      }
+    })
+    .sort();
 }
 
 function allowedPaths(allowlist: Record<string, string[]>): string[] {
