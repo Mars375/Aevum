@@ -1,65 +1,80 @@
 # Chronique du monde « monde », ère 1
 
-Statut : **généré**, jamais rédigé · 80 années · 13 décisions · règles w8
+Statut : **généré**, jamais rédigé · 440 années · 118 décisions · règles w8
 
 Chaque date et chaque nom de lieu de cette page est lu dans le journal rejoué. Rien n'y est interprété : c'est la raison d'être de ce fichier, une chronique écrite à la main ayant déjà raconté une invasion que le journal plaçait vingt-huit ans plus tard.
 
 ## Les tournants
 
-Rien n'est encore arrivé qui mérite d'être daté.
+- **an 147** — Première conquête du monde : Brenfell-la-Plaine prise a verdant, par azure.
+- **an 157** — Le dernier lieu libre est pris. À partir d'ici, s'étendre est prendre.
+- **an 176** — crimson perd son siège — Velost, notre siege, est tombee : 31 morts et les coffres pilles
+- **an 177** — crimson perd son siège — Brenfell-la-Plaine, notre siege, est tombee : 27 morts et les coffres pilles
+- **an 178** — crimson perd son siège — Brenwick, notre siege, est tombee : 23 morts et les coffres pilles
+- **an 179** — crimson perd son siège — Ferrwick, notre siege, est tombee : 20 morts et les coffres pilles
+- **an 188** — verdant perd son siège — Ithigan, notre siege, est tombee : 124 morts et les coffres pilles
+- **an 211** — **crimson s'éteint.**
+- **an 354** — azure perd son siège — Seldun-la-Plaine, notre siege, est tombee : 147 morts et les coffres pilles
+- **an 359** — azure perd son siège — Selreth-la-Forêt, notre siege, est tombee : 132 morts et les coffres pilles
+- **an 360** — verdant perd son siège — Ferrfell-le-Haut, notre siege, est tombee : 9 morts et les coffres pilles
+- **an 361** — azure perd son siège — Dunreth-les-Monts, notre siege, est tombee : 113 morts et les coffres pilles
+- **an 362** — azure perd son siège — Velfell-la-Forêt, notre siege, est tombee : 85 morts et les coffres pilles
+- **an 363** — azure perd son siège — Velmere-le-Haut, notre siege, est tombee : 73 morts et les coffres pilles
+- **an 369** — **verdant s'éteint.**
+- **an 400** — **azure s'éteint.**
 
 ## Chaque civilisation
 
 ### crimson
 
-Vivante à l'an 80 : 174 habitants sur 7 lieux, 19 soldats, 1 progrès.
+**Éteinte à l'an 211.**
 
-Son apogée fut l'an 80, à 7 lieux. Elle a demandé 2 décisions sur les 13 du monde.
+Son apogée fut l'an 167, à 14 lieux. Elle a demandé 30 décisions sur les 118 du monde.
 
-Postures choisies : GUARD 2×.
+Postures choisies : GUARD 17×, PRESSURE 9×, TRADE 4×.
 
-> « We are the stewards of the land, and our strength lies in the rivers that feed and the forests that shelter us. Let no hand take what we have claimed, nor let our people want for bread or timber. »
+> « We are the Crimson, steadfast stewards of the soil, turning scarcity into abundance through diligent toil and vigilant guard. »
 
 ### azure
 
-Vivante à l'an 80 : 130 habitants sur 6 lieux, 3 soldats, 1 progrès.
+**Éteinte à l'an 400.**
 
-Son apogée fut l'an 55, à 6 lieux. Elle a demandé 3 décisions sur les 13 du monde.
+Son apogée fut l'an 212, à 13 lieux. Elle a demandé 27 décisions sur les 118 du monde.
 
-Postures choisies : GUARD 3×.
+Postures choisies : GUARD 21×, TRADE 4×, PRESSURE 2×.
 
-> « We are Azure, turning adversity into growth, expanding our fields and guarding our people. »
+> « Azure endures, feeding its people and guarding its lands, ever ready to hold the horizon it has claimed. »
 
 ### verdant
 
-Vivante à l'an 80 : 218 habitants sur 9 lieux, 4 soldats, 2 progrès.
+**Éteinte à l'an 369.**
 
-Son apogée fut l'an 76, à 9 lieux. Elle a demandé 4 décisions sur les 13 du monde.
+Son apogée fut l'an 152, à 28 lieux. Elle a demandé 43 décisions sur les 118 du monde.
 
-Postures choisies : GUARD 3×, TRADE 1×.
+Postures choisies : GUARD 14×, TRADE 16×, PRESSURE 13×.
 
-> « We till the earth where it is richest, and we will never hunger again. We trade to keep our people fed when the harvest fails. »
+> « We are the iron and the earth; hunger is the only enemy we will not feed, and water is the lifeblood we will claim by force if trade fails us. »
 
 ### amber
 
-Vivante à l'an 80 : 201 habitants sur 9 lieux, 16 soldats, 4 progrès.
+Vivante à l'an 440 : 2875 habitants sur 81 lieux, 316 soldats, 5 progrès.
 
-Son apogée fut l'an 80, à 9 lieux. Elle a demandé 4 décisions sur les 13 du monde.
+Son apogée fut l'an 401, à 81 lieux. Elle a demandé 18 décisions sur les 118 du monde.
 
-Postures choisies : GUARD 3×, TRADE 1×.
+Postures choisies : GUARD 10×, TRADE 6×, PRESSURE 2×.
 
-> « We are the keepers of the soil and the guardians of the flow; from fertile ground and steady water, we grow unbroken. »
+> « We are the enduring soil and the patient hand, but endurance without recovery is a hollow promise. We will store, we will press, and we will never again let our word outlive our reserves. »
 
 ## Les dernières paroles enregistrées
 
-- **an 75, crimson**, MISMATCH — Without forests, we cannot expand or replace what fire or rot may take. We must restore balance to the land before we starve the future for the present, and secure rivers to feed our people while we rebuild.
-- **an 73, azure**, FAMINE — A poor harvest left us with only 3.2 years of food, so we must boost farming and secure more arable land. We avoid risky wars and keep our defensive posture.
-- **an 72, amber**, ADVANCE — We must rebuild our military to honor past vows, secure our frontier against Azure's growing threat, and expand toward river land to unlock trade wealth — without overextending our limited population.
-- **an 68, verdant**, TREASURY — The treasury is empty and soldiers unpaid; we must shift resources to forestry and mining to secure timber and ore for expansion and defence, while tightening military spending to restore solvency.
-- **an 64, amber**, TREASURY — We are broke and undefended because we starved our military while hoarding timber we cannot spend; we must rebalance toward food and soldiers, claim a river to unlock trade and wealth, and swear a vow that forces future rulers to keep both granaries and barracks full.
-- **an 60, verdant**, ADVANCE — We must reclaim the food security we lost and secure our future by expanding our agricultural base while preparing to defend what we hold.
-- **an 57, azure**, RAIDED — After the pillage we lost food, wealth and our sole soldier, leaving us vulnerable; we must rebuild our military while securing more timber to expand and maintain our food security.
-- **an 56, amber**, ADVANCE — Metallurgy has unlocked ore wealth, but our food reserves, while above the vow floor, leave little margin for risk. With rivers scarce and unclaimed land abundant, we expand toward river to secure trade and irrigation potential, while raising military slightly to protect our growing seat. We maintain GUARD to avoid provoking neighbors we have not yet met, and keep the food vow to ensure stability through unpredictable harvests.
+- **an 358, crimson**, CAPITAL — Our seat survived the raid but our food stores are dangerously low; with only one plain we must maximise farming and avoid costly wars while rebuilding our army later.
+- **an 357, crimson**, CAPITAL — Our seat has fallen and we have no soldiers, so we must first rebuild food supplies and secure wealth through trade, while beginning to raise a modest defence.
+- **an 356, verdant**, INVADED — We must rebuild military strength and secure a river to sustain future growth, even if it means abandoning our vow temporarily. Our doctrine of PRESSURE failed when we lacked soldiers, so we will prioritize military and trade to recover while preparing to reclaim lost lands.
+- **an 354, azure**, CAPITAL — With our seat exposed and no soldiers, we must guard our people and preserve our food reserves.
+- **an 350, crimson**, FAMINE — A famine with zero food stores forces us to prioritize farming and seize new land from the defenseless Verdant neighbor to increase our agricultural capacity.
+- **an 350, azure**, INVADED — Having lost a frontier while lacking any soldiers and facing an aggressive neighbour, we must rely on our Guard stance and maximal farming to preserve our food stores and protect our seat.
+- **an 349, amber**, VOW_BROKEN — The broken vow exposes our failure to balance storage and growth—our endurance depends on both, but we have let reserves slip while expansion stalled. We will now prioritise recovery through disciplined farming and strategic storage, while preparing to reclaim our word through controlled pressure on those who hoard what we need.
+- **an 348, verdant**, ROUTED — The vow of maintaining 20 soldiers is broken and the frontier is exhausted; we must rebuild military strength and secure a river to break the siege of survival. The creed’s demand for iron and water must be met by force when trade is impossible.
 
 ## Ce que cette page ne dit pas
 
