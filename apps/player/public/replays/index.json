@@ -1,0 +1,66 @@
+[
+  {
+    "path": "reference/battle-v2-reports-seed77.json",
+    "battleId": "battle-v2-2026-08-18T23-15-30-175Z",
+    "ruleset": "v2",
+    "turns": 12,
+    "outcome": "VICTORY",
+    "winner": "crimson",
+    "createdAt": "2026-08-18T23:15:30.176Z",
+    "hasReports": true,
+    "models": [
+      "groq:openai/gpt-oss-120b",
+      "nvidia:minimaxai/minimax-m3",
+      "nvidia:meta/llama-3.3-70b-instruct",
+      "poolside/laguna-s-2.1:free"
+    ]
+  },
+  {
+    "path": "reference/battle-v2-seed42.json",
+    "battleId": "battle-v2-2026-08-18T17-32-24-368Z",
+    "ruleset": "v2",
+    "turns": 12,
+    "outcome": "VICTORY",
+    "winner": "azure",
+    "createdAt": "2026-08-18T17:32:24.369Z",
+    "hasReports": false,
+    "models": [
+      "groq:openai/gpt-oss-120b",
+      "nvidia:minimaxai/minimax-m3",
+      "nvidia:meta/llama-3.3-70b-instruct",
+      "poolside/laguna-s-2.1:free"
+    ]
+  },
+  {
+    "path": "reference/battle-seed42.json",
+    "battleId": "battle-2026-08-18T08-09-56-774Z",
+    "ruleset": "v1",
+    "turns": 12,
+    "outcome": "VICTORY",
+    "winner": "verdant",
+    "createdAt": "2026-08-18T08:09:56.774Z",
+    "hasReports": false,
+    "models": [
+      "groq:openai/gpt-oss-120b",
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "groq:groq/compound-mini",
+      "poolside/laguna-s-2.1:free"
+    ]
+  },
+  {
+    "path": "reference.json",
+    "battleId": "battle-2026-08-18T08-09-56-774Z",
+    "ruleset": "v1",
+    "turns": 12,
+    "outcome": "VICTORY",
+    "winner": "verdant",
+    "createdAt": "2026-08-18T08:09:56.774Z",
+    "hasReports": false,
+    "models": [
+      "groq:openai/gpt-oss-120b",
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "groq:groq/compound-mini",
+      "poolside/laguna-s-2.1:free"
+    ]
+  }
+]

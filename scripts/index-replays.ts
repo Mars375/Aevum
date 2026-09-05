@@ -8,8 +8,8 @@
  *
  *   npm run index-replays
  */
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { ReplaySchema } from "@abs/contracts";
 
 const ROOT = resolve("replays");
@@ -59,6 +59,30 @@ for (const file of walk(ROOT)) {
 // Newest first: the reader almost always wants the most recent battle.
 entries.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 writeFileSync(join(ROOT, "index.json"), JSON.stringify(entries, null, 2));
+
+/**
+ * Les batailles de référence partent aussi dans le lecteur.
+ *
+ * `index-worlds` publie déjà son monde dans `apps/player/public/worlds`, si
+ * bien qu'une construction statique a une chronique à montrer. Les batailles
+ * n'étaient publiées nulle part : l'onglet Archives s'ouvrait sur « Unexpected
+ * token '<' », le serveur rendant la page de l'application à la place du JSON
+ * absent. Docker monte `./replays` par-dessus et sert donc tout ; un hébergeur
+ * statique ne monte rien, et n'avait rien.
+ *
+ * Les rotations de tournoi restent dehors : deux mégaoctets de données de
+ * mesure ne sont pas ce que cet onglet donne à lire.
+ */
+const PUBLIC_ROOT = resolve("apps/player/public/replays");
+const published = entries.filter((entry) => entry.path === "reference.json" || entry.path.startsWith("reference/"));
+
+mkdirSync(PUBLIC_ROOT, { recursive: true });
+writeFileSync(join(PUBLIC_ROOT, "index.json"), JSON.stringify(published, null, 2));
+for (const entry of published) {
+  const destination = join(PUBLIC_ROOT, entry.path);
+  mkdirSync(dirname(destination), { recursive: true });
+  copyFileSync(join(ROOT, entry.path), destination);
+}
 
 console.log(`${entries.length} replay(s) indexed:`);
 for (const e of entries) {

@@ -10,7 +10,7 @@ import { JournalSchema, WORLD_VERSION, worldVersionOf, type Journal } from "@abs
 import type { PublishedLearningCurve } from "./components/LearningCurve.vue";
 import { alliesOfAt, knowledgeOf } from "./fog";
 import { createRequestGuard } from "./request-guard";
-import { fetchReplay, parseReplay, replayUrlFromSearch } from "./replay-loading";
+import { fetchReplay, NotServed, parseReplay, replayUrlFromSearch } from "./replay-loading";
 import { addressForMode, modeFromSearch, wants3d, type ViewMode } from "./view-address";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
@@ -277,7 +277,13 @@ async function loadFromUrl(url: string) {
   try {
     load(await fetchReplay(url), url);
   } catch (err) {
-    error.value = `Impossible de charger ${url} — ${(err as Error).message}. Choisissez un fichier de replay ci-dessous.`;
+    // Une absence n'est pas une panne. Un lecteur à qui l'on montrait
+    // « Unexpected token '<' » croyait son fichier corrompu, alors que ce
+    // déploiement ne sert simplement aucune bataille.
+    error.value =
+      err instanceof NotServed
+        ? "Ce déploiement ne sert aucune bataille archivée. Les batailles vivent dans le dépôt ; ouvrez-en une ci-dessous."
+        : `Impossible de charger ${url} — ${(err as Error).message}. Choisissez un fichier de replay ci-dessous.`;
   }
 }
 
