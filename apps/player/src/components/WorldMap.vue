@@ -37,6 +37,19 @@ const size = computed(() => props.year.world.size);
 const board = computed(() => props.year.world.board);
 const xy = (i: number) => ({ x: (i % size.value) * S, y: Math.floor(i / size.value) * S });
 
+/**
+ * Un nom de siège centré sur son lieu déborde de la viewBox quand le siège
+ * borde la carte : « Mormar-les-Champs » se retrouvait tronqué à gauche du
+ * cadre. L'ancrage suit donc la position — le texte s'écarte du bord au lieu
+ * de le franchir.
+ */
+const anchorFor = (x: number) => {
+  const w = size.value * S;
+  if (x < w * 0.22) return "start";
+  if (x > w * 0.78) return "end";
+  return "middle";
+};
+
 /** Déterministe : le même lieu porte le même relief à chaque relecture. */
 const jitter = (i: number, salt: number) => {
   let h = Math.imul(i + 1, 0x9e3779b1) ^ Math.imul(salt + 7, 0x85ebca6b);
@@ -160,7 +173,7 @@ const held = computed(() => props.year.world.civs.map((c) => ({ id: c.id, n: c.t
         <circle :cx="t.x" :cy="t.y" :r="t.r + 1.1" fill="#05070f" opacity="0.55" />
         <circle :cx="t.x" :cy="t.y" :r="t.r" :fill="OWNER[t.owner]" />
         <circle v-if="t.seat" :cx="t.x" :cy="t.y" :r="t.r + 2.6" fill="none" :stroke="OWNER[t.owner]" stroke-width="0.9" />
-        <text v-if="t.seat" :x="t.x" :y="t.y - t.r - 4" class="seat-name" text-anchor="middle">{{ t.name }}</text>
+        <text v-if="t.seat" :x="t.x" :y="t.y - t.r - 4" class="seat-name" :text-anchor="anchorFor(t.x)">{{ t.name }}</text>
       </g>
     </svg>
 

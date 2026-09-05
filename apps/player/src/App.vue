@@ -81,6 +81,15 @@ interface WorldEntry {
 const worlds = ref<WorldEntry[]>([]);
 const activeWorld = computed(() => worlds.value.find((world) => world.path === worldPath.value) ?? worlds.value[0] ?? null);
 const livingCivs = computed(() => activeWorld.value?.alive ?? journal.value?.origin.civs.filter((civ) => civ.fellOnTick === null).length ?? null);
+
+const DECKS = {
+  world: { name: "Chronique", text: "Les dirigeants décident aux points d'arbitrage ; le moteur résout toutes les autres années." },
+  battle: { name: "Archives", text: "Batailles tactiques v1 et v2, conservées sous les règles qu'elles ont vécues." },
+  rules: { name: "Règles", text: "Ce qu'un dirigeant décide, et ce que le moteur tranche." },
+  reports: { name: "À propos", text: "Méthode, limites, mesures et rapports reproductibles." },
+} as const;
+
+const deck = computed(() => DECKS[mode.value]);
 const lastAdvance = computed(() => {
   if (!tendStatus.value || (activeWorld.value && tendStatus.value.world !== activeWorld.value.world)) return "dernière avancée inconnue";
   const date = Date.parse(tendStatus.value.ranAt);
@@ -397,12 +406,6 @@ onUnmounted(() => {
         <p>Un monde gouverné par quatre modèles, rejouable à l'identique</p>
       </div>
 
-      <p v-if="mode === 'world'" class="world-signal mono">
-        <span>{{ activeWorld?.world ?? "monde non servi" }}</span>
-        <span v-if="journal">ère {{ journal.era }} · an {{ journal.livedTo }} · {{ livingCivs ?? 0 }} civilisations vivantes</span>
-        <span>{{ lastAdvance }}</span>
-      </p>
-
       <nav class="modeswitch" aria-label="Navigation principale">
         <button type="button" :aria-current="mode === 'world' ? 'page' : undefined" @click="mode = 'world'">Chronique</button>
         <button type="button" :aria-current="mode === 'battle' ? 'page' : undefined" @click="mode = 'battle'">Archives</button>
@@ -411,16 +414,40 @@ onUnmounted(() => {
       </nav>
     </header>
 
-    <p class="section-deck mono">
-      {{
-        mode === "battle"
-          ? "ARCHIVES · batailles tactiques v1 et v2, conservées sous leurs règles"
-          : mode === "world"
-            ? "CHRONIQUE · les dirigeants décident aux points d'arbitrage ; le moteur résout toutes les autres années"
-            : mode === "rules"
-              ? "RÈGLES · ce qu'un dirigeant décide et ce que le moteur tranche"
-              : "À PROPOS · méthode, limites, mesures et rapports"
-      }}
+    <!-- The readout is the instrument face: what is being observed, how far it
+         has run, and whether anyone is still tending it. It used to be three
+         lines of 10px text floating in the header, which read as a caption
+         rather than as the state of the thing. -->
+    <dl v-if="mode === 'world'" class="readout">
+      <div class="readout__world">
+        <dt class="label">Monde</dt>
+        <dd>
+          <span class="readout__dot" :class="{ 'readout__dot--cold': !activeWorld }" aria-hidden="true"></span>
+          {{ activeWorld?.world ?? "non servi" }}
+        </dd>
+      </div>
+      <template v-if="journal">
+        <div>
+          <dt class="label">Ère</dt>
+          <dd>{{ journal.era }}</dd>
+        </div>
+        <div>
+          <dt class="label">Année</dt>
+          <dd>{{ journal.livedTo }}</dd>
+        </div>
+        <div>
+          <dt class="label">Vivantes</dt>
+          <dd>{{ livingCivs ?? 0 }}<span class="readout__of"> / {{ FACTION_IDS.length }}</span></dd>
+        </div>
+      </template>
+      <div class="readout__tend">
+        <dt class="label">Veille</dt>
+        <dd>{{ lastAdvance }}</dd>
+      </div>
+    </dl>
+
+    <p class="section-deck">
+      <b>{{ deck.name }}</b>{{ deck.text }}
     </p>
       <label v-if="mode === 'world' && worlds.length > 1" class="picker-inline mono">
         <span class="visually-hidden">Monde affiché</span>
@@ -632,13 +659,15 @@ onUnmounted(() => {
 }
 
 .mast {
-  min-height: 88px;
+  min-height: 92px;
   display: flex;
   gap: var(--s5);
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   min-width: 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline);
+  /* Opaque, because the page scrolls under it. */
   background: var(--bg);
   position: sticky;
   top: 0;
@@ -649,42 +678,113 @@ onUnmounted(() => {
   min-width: 0;
 }
 
-h1 {
-  font-family: var(--display);
-  font-size: clamp(22px, 2.2vw, 31px);
-  font-weight: 500;
-  letter-spacing: -0.025em;
+.brand {
+  flex: 1 1 22rem;
 }
 
 .brand p {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-  white-space: nowrap;
+  margin: var(--s1) 0 0;
+  color: var(--faint);
+  font-size: var(--t-small);
+  max-width: 52ch;
+  text-wrap: balance;
 }
 
-.world-signal {
+/* ---- the readout -------------------------------------------------------- */
+
+.readout {
   margin: 0;
   display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(var(--card-raised), var(--card));
+  box-shadow: inset 0 1px 0 #ffffff0a;
+  overflow: hidden;
+}
+
+.readout > div {
+  padding: var(--s3) var(--s5);
+  display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  font-size: 10px;
-  line-height: 1.55;
-  color: var(--muted);
-  text-align: right;
+  gap: var(--s1);
+  /* Hairline separators between fields, drawn on one side only so they never
+     double up at a wrap. */
+  border-left: 1px solid var(--hairline);
+  flex: 0 0 auto;
 }
 
-.world-signal span:first-child {
+.readout > div:first-child {
+  border-left: 0;
+}
+
+.readout dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-body);
+  font-variant-numeric: tabular-nums;
   color: var(--fg);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
 }
 
-.section-deck {
-  margin: calc(var(--s3) * -1) 0 0;
+.readout__world dd {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--accent);
-  font-size: 10px;
-  letter-spacing: 0.11em;
+}
+
+.readout__of {
+  color: var(--faint);
+}
+
+/* The tend field takes the leftover width so the rail reaches the full
+   measure, and its value is prose rather than a number. */
+.readout__tend {
+  flex: 1 1 14rem;
+}
+
+.readout__tend dd {
+  color: var(--muted);
+  font-size: var(--t-small);
+}
+
+.readout__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--verdant);
+  box-shadow: 0 0 0 3px #58c98a24;
+  flex: none;
+}
+
+.readout__dot--cold {
+  background: var(--faint);
+  box-shadow: none;
+}
+
+/* A whole sentence set in tracked capitals is a wall, not a caption: the
+   reader has to decode it before deciding whether it was worth reading. The
+   section name stays in capitals because it is a name; the sentence that
+   follows it is prose and is set as prose. */
+.section-deck {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--t-small);
+  font-family: var(--sans);
+  max-width: 84ch;
+}
+
+.section-deck b {
+  font-family: var(--mono);
+  font-size: var(--t-label);
+  letter-spacing: var(--track-label);
+  font-weight: 400;
+  color: var(--accent);
+  margin-right: var(--s2);
 }
 
 .summary,
@@ -862,28 +962,46 @@ h1 {
 }
 
 .viewswitch,
+/* A segmented control rather than four loose buttons: the group reads as one
+   instrument, and the sunken track tells you the set is closed — these four
+   are all there is. */
 .modeswitch {
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
+  padding: 3px;
+  background: var(--sunken);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
 }
 
 .viewswitch button {
-  font-size: 12px;
+  font-size: var(--t-small);
 }
 
 .modeswitch button {
   min-width: auto;
-  padding: var(--s2) var(--s3);
+  min-height: 38px;
+  padding: var(--s2) var(--s4);
   border-color: transparent;
-  border-radius: 0;
+  border-radius: var(--radius);
   background: transparent;
-  font-size: 13px;
+  color: var(--muted);
+  font-size: var(--t-small);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.modeswitch button:hover:not([aria-current="page"]) {
+  background: #ffffff08;
+  border-color: transparent;
+  color: var(--fg);
 }
 
 .modeswitch button[aria-current="page"] {
   color: var(--fg);
-  border-bottom-color: var(--accent);
+  background: var(--card-high);
+  border-color: var(--border-soft);
+  box-shadow: inset 0 1px 0 #ffffff0d;
 }
 
 .archive-note {

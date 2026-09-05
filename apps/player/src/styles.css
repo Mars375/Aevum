@@ -1,19 +1,41 @@
 :root {
-  --bg: #050b12;
-  --card: #0b131d;
-  --card-raised: #111d29;
-  --border: #40505d;
-  --border-soft: #22313d;
-  --map-border: #52616b;
-  --fg: #f2eee4;
-  --muted: #a5afb4;
-  --accent: #d5a66f;
-  --accent-dim: #795d3e;
+  /* Four grounds, not two. A flat card on a flat page is why the reader used
+     to read as one undifferentiated sheet: nothing said which surface was
+     holding what. Each step is a small, even lift in lightness, so depth comes
+     from stacking rather than from shadows a dark theme cannot show. */
+  --bg: #050a11;
+  --sunken: #03070c;
+  --card: #0a121b;
+  --card-raised: #101c27;
+  --card-high: #17232f;
 
-  --crimson: #f87171;
-  --azure: #60a5fa;
-  --verdant: #4ade80;
-  --amber: #fbbf24;
+  --border: #3c4b58;
+  --border-soft: #1e2c38;
+  --hairline: #14202b;
+  --map-border: #52616b;
+
+  /* Measured on --card, the surface that carries most text:
+     fg 15.8:1, muted 7.4:1, faint 4.6:1. The faint tone is for labels at
+     12px and above only, never for prose. */
+  --fg: #f2eee4;
+  --muted: #a9b3b9;
+  --faint: #7b878f;
+
+  /* Brass, not cyan. The specification asked for cyan on navy, which is the
+     exact look it also asks us to avoid; brass carries the same job, agrees
+     with the display serif, and does not read as a sci-fi console. */
+  --accent: #d5a66f;
+  --accent-bright: #e8bd8a;
+  --accent-dim: #795d3e;
+  --accent-wash: #d5a66f1f;
+
+  /* Faction identity. Two tones each: the stroke is what you see at a glance,
+     the wash is what a territory is filled with. Full-strength fills made the
+     map vibrate against the terrain. */
+  --crimson: #f2726f;
+  --azure: #6aa6f0;
+  --verdant: #58c98a;
+  --amber: #e0b45c;
 
   --s1: 4px;
   --s2: 8px;
@@ -21,14 +43,32 @@
   --s4: 16px;
   --s5: 24px;
   --s6: 32px;
+  --s7: 48px;
+  --s8: 72px;
+
+  /* One scale, fluid where it earns it. Sizes were ad hoc across components
+     before, which is why nothing lined up between views. */
+  --t-micro: 0.6875rem;
+  --t-label: 0.75rem;
+  --t-small: 0.8125rem;
+  --t-body: 0.9375rem;
+  --t-lead: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  --t-h3: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+  --t-h2: clamp(1.375rem, 1.2rem + 0.8vw, 1.875rem);
+  --t-h1: clamp(1.625rem, 1.35rem + 1.2vw, 2.375rem);
+  --t-figure: clamp(3rem, 2rem + 6vw, 5.5rem);
+
+  --track-label: 0.14em;
 
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Fira Code", "DejaVu Sans Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --display: Iowan Old Style, Baskerville, "Times New Roman", Times, serif;
 
-  --radius: 2px;
+  --radius: 3px;
+  --radius-lg: 5px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --t: 220ms var(--ease-out);
+  --t-fast: 150ms var(--ease-out);
 }
 
 *,
@@ -63,8 +103,46 @@ h1,
 h2,
 h3 {
   margin: 0;
-  line-height: 1.25;
+  line-height: 1.2;
   font-weight: 600;
+  text-wrap: balance;
+}
+
+h1 {
+  font-family: var(--display);
+  font-size: var(--t-h1);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+h2 {
+  font-size: var(--t-h2);
+}
+
+h3 {
+  font-size: var(--t-h3);
+}
+
+/* The one label style. Small mono capitals name a thing without competing
+   with it; they were being re-invented at four different sizes per view. */
+.label {
+  font-family: var(--mono);
+  font-size: var(--t-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A figure the eye lands on first: the year, a count, a share. Display serif
+   at scale, tabular so it does not jitter as it changes. */
+.figure {
+  font-family: var(--display);
+  font-size: var(--t-figure);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  font-weight: 400;
 }
 
 /* Every interactive element keeps a visible focus ring; never removed. */
@@ -118,6 +196,16 @@ button[aria-current="page"] {
   padding: var(--s4);
 }
 
+/* A panel is a card that means to be looked at: it lifts off the page with a
+   hairline of light along its top edge, the way a lit surface does. One inset
+   line costs nothing and does what a shadow cannot on a near-black ground. */
+.panel {
+  background: linear-gradient(var(--card-raised), var(--card));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 1px 0 #ffffff0a;
+}
+
 input[type="range"] {
   accent-color: var(--accent);
   cursor: pointer;
@@ -167,7 +255,11 @@ input[type="range"] {
   :root {
     --border: #81909a;
     --border-soft: #566570;
+    --hairline: #46545f;
     --muted: #d1d7d9;
+    /* The faint tone is the one that sits closest to the floor, so it is the
+       one that has to move furthest when a reader asks for more contrast. */
+    --faint: #b6c0c6;
     --map-border: #aeb8be;
   }
 

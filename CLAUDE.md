@@ -53,14 +53,26 @@ vécu**, au lieu de faire confiance à un second rendu des événements. Un affi
 qui diverge du moteur serait un défaut qu'on ne verrait jamais ; ici il ne peut
 pas exister.
 
-**Les données ne sont pas dans le build.** Le lecteur va chercher
-`worlds/index.json`, `worlds/status.json` et `replays/index.json` en chemin
-relatif, et `docker-compose.yml` monte `./worlds` et `./replays` en lecture seule
-dans l'image — délibérément, pour qu'un monde vivant se mette à jour sans
-reconstruire. Conséquence pour tout hébergeur statique : **un `vite build` seul
-produit un site qui n'a rien à afficher.** Il faut copier les données dans `dist`
-au moment du build, ce qui les fige, ou servir une API. C'est la question à
-trancher avant de parler de déploiement, pas après.
+**Les données arrivent par deux chemins, et il faut les distinguer.** Le lecteur
+va chercher `worlds/index.json`, `worlds/status.json` et `replays/index.json` en
+chemin relatif. Deux sources les fournissent :
+
+- `apps/player/public/worlds/` est **suivi par git** et porte le monde
+  `aevum-season-1` avec son index. Il part donc dans `dist` à chaque build —
+  vérifié. C'est ce qui fait qu'un build statique a quelque chose à montrer.
+- `docker-compose.yml` monte en plus `./worlds` et `./replays` en lecture seule
+  par-dessus, délibérément, pour qu'un monde vivant se mette à jour sans
+  reconstruire. La racine porte seize mondes ; un seul est publié.
+
+Ce qu'un `vite build` seul ne contient pas : **les replays et `status.json`.** Le
+mode bataille n'a donc aucun catalogue sur un hébergeur statique, et l'état de
+veille reste muet. Ce n'est pas une panne — chaque `fetch` est gardé et commenté
+pour ce cas — mais c'est à décider avant de parler de déploiement, pas après.
+
+Un piège de serveur à connaître : avec `try_files $uri $uri/ /index.html`, un
+JSON absent revient en **200 avec du HTML**, pas en 404. `res.ok` est alors vrai
+et c'est `res.json()` qui lève. La spec de refonte en fait un critère d'accep­
+tation ; c'est la raison.
 
 ## Deux gardes à connaître avant d'éditer
 

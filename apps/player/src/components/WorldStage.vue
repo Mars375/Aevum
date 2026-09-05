@@ -8,6 +8,36 @@ const emit = defineEmits<{ seek: [number] }>();
 
 const year = computed(() => props.years[Math.min(props.index, props.years.length - 1)]!);
 
+/* A world down to its last civilisation is the interesting case, and it was
+   the one the sentence got wrong: "1 civilisations vivantes". */
+const living = computed(() => year.value.world.civs.filter((civ) => civ.fellOnTick === null).length);
+
+/** Épreuves subies : ce que le monde inflige, sans qu'un dirigeant l'ait voulu. */
+const HARDSHIP = new Set(["COLLAPSED", "SHORTAGE", "HARD_YEAR", "RAIDED", "DISASTER"]);
+/** Prises : ce qu'un dirigeant a décidé d'aller chercher. */
+const SEIZURE = new Set(["SEIZED", "CAPITAL_LOST"]);
+
+/**
+ * Le décompte s'arrête à l'année affichée, pas à la fin de l'ère : ces chiffres
+ * accompagnent la carte, et la carte montre une année. Compter jusqu'au bout
+ * donnerait un total qui ne correspond à rien de ce qui est à l'écran.
+ */
+const tally = computed(() => {
+  let rulings = 0;
+  let hardship = 0;
+  let seizures = 0;
+  for (let i = 0; i <= Math.min(props.index, props.years.length - 1); i += 1) {
+    const y = props.years[i]!;
+    rulings += y.rulings.length;
+    for (const event of y.events) {
+      if (HARDSHIP.has(event.kind)) hardship += 1;
+      else if (SEIZURE.has(event.kind)) seizures += 1;
+    }
+  }
+  const fallen = year.value.world.civs.filter((civ) => civ.fellOnTick !== null).length;
+  return { rulings, hardship, seizures, fallen };
+});
+
 const playing = ref(false);
 const speed = ref(4);
 const SPEEDS = [1, 4, 12, 40] as const;
@@ -39,11 +69,33 @@ onUnmounted(() => clearInterval(timer));
         <p class="mono eyebrow">Monde recomposé · année active</p>
         <h2 id="world-year"><span>L'an</span> {{ year.tick }}</h2>
         <p>
-          {{ year.world.civs.filter((civ) => civ.fellOnTick === null).length }} civilisations vivantes sur
+          {{ living }} {{ living === 1 ? "civilisation vivante" : "civilisations vivantes" }} sur
           {{ year.world.board.length }} lieux.
         </p>
         <p class="principle">Les modèles décident aux points d'arbitrage. Le moteur résout le reste, année après année.</p>
       </header>
+
+      <!-- Ce que l'ère a coûté et produit jusqu'à l'année affichée. La colonne
+           de droite était vide sur un large écran ; la remplir de chiffres
+           dérivés du journal vaut mieux que de l'étirer. -->
+      <dl class="tally" aria-label="Depuis le début de l'ère">
+        <div>
+          <dt class="label">Décisions</dt>
+          <dd>{{ tally.rulings }}</dd>
+        </div>
+        <div>
+          <dt class="label">Épreuves</dt>
+          <dd>{{ tally.hardship }}</dd>
+        </div>
+        <div>
+          <dt class="label">Prises</dt>
+          <dd>{{ tally.seizures }}</dd>
+        </div>
+        <div :class="{ 'tally--loss': tally.fallen > 0 }">
+          <dt class="label">Éteintes</dt>
+          <dd>{{ tally.fallen }}</dd>
+        </div>
+      </dl>
     </div>
 
     <div class="timeline">
@@ -92,52 +144,121 @@ onUnmounted(() => clearInterval(timer));
   animation: reveal 560ms var(--ease-out) both;
 }
 
+/* The map column is sized to the map, not to a fraction of the page. With
+   fractional columns the square sat centred in a column half again its width,
+   and the gap between board and year read as a mistake rather than as space. */
 .scene {
-  min-height: min(68vh, 680px);
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(260px, 0.9fr);
-  gap: clamp(var(--s5), 5vw, 72px);
+  grid-template-columns: min(56vh, 560px) minmax(260px, 1fr);
+  gap: clamp(var(--s5), 4vw, 56px);
   align-items: center;
-  padding: var(--s3) 0 var(--s5);
+  padding: var(--s4) 0 var(--s5);
 }
 
+/* The board's viewBox is square. Capping its *height* therefore did nothing
+   useful: the element stayed as wide as the column and `preserveAspectRatio`
+   letterboxed the square inside it, leaving a bordered box with dead navy on
+   either side. Capping the width is what actually sizes a square, and the
+   legend below inherits the same measure so the two line up. */
 .scene :deep(.map) {
   width: 100%;
+  min-width: 0;
 }
 
+/* It used to carry `max-width: none`, so the board escaped its column
+   entirely: it pushed the stage below the fold and clipped settlement labels
+   against the left edge. It is a figure in a layout, not a backdrop. */
 .scene :deep(.map svg) {
-  max-width: none;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
   border-color: var(--map-border);
-  box-shadow: 0 24px 80px #0007;
+  border-radius: var(--radius);
+  box-shadow: 0 18px 60px #00000073;
 }
 
 .inscription {
   align-self: center;
 }
 
+/* ---- the tally ---------------------------------------------------------- */
+
+.tally {
+  margin: 0;
+  align-self: center;
+  display: grid;
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tally > div {
+  background: var(--card);
+  padding: var(--s3) var(--s4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.tally dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-h3);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
+/* Red is reserved for a loss, and an extinction is the only loss here that
+   cannot be undone. A zero stays neutral: nothing has been lost yet. */
+.tally--loss dd {
+  color: var(--crimson);
+}
+
+/* Wide enough for a third column: the tally stands beside the year instead of
+   under it, and the empty right third disappears. */
+@media (min-width: 1200px) {
+  .scene {
+    grid-template-columns: min(56vh, 560px) minmax(240px, 1fr) minmax(170px, 14rem);
+  }
+}
+
+@media (max-width: 1199px) {
+  .tally {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .eyebrow {
   margin: 0 0 var(--s3);
   color: var(--accent);
-  font-size: 10px;
-  letter-spacing: 0.13em;
+  font-size: var(--t-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
 }
 
+/* 148px of year was louder than the world it labelled, and on a short window
+   it alone filled the column. The figure still leads the eye; it no longer
+   shouts over the map. */
 .inscription h2 {
   font-family: var(--display);
-  font-size: clamp(72px, 10vw, 148px);
+  font-size: var(--t-figure);
   font-weight: 400;
-  line-height: 0.8;
-  letter-spacing: -0.065em;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
 }
 
 .inscription h2 span {
   display: block;
-  margin: 0 0 var(--s2) 0.08em;
-  color: var(--muted);
-  font-family: var(--sans);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  margin: 0 0 var(--s2) 0.06em;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: var(--t-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
 }
 
@@ -145,14 +266,15 @@ onUnmounted(() => clearInterval(timer));
   max-width: 34ch;
   margin: var(--s4) 0 0;
   color: var(--muted);
+  font-size: var(--t-small);
 }
 
 .principle {
   padding-top: var(--s4);
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid var(--hairline);
   color: var(--fg) !important;
   font-family: var(--display);
-  font-size: 18px;
+  font-size: var(--t-lead) !important;
   line-height: 1.5;
 }
 
