@@ -94,10 +94,6 @@ const DECKS = {
 
 const deck = computed(() => DECKS[mode.value]);
 
-/* Switching tabs used to change nothing in the address bar, so a reader who
-   had found the rules or a battle could not send anyone to it. The mapping
-   itself lives in view-address.ts, where it is tested. */
-watch(mode, (next) => history.replaceState(null, "", addressForMode(location.href, next)));
 const lastAdvance = computed(() => {
   if (!tendStatus.value || (activeWorld.value && tendStatus.value.world !== activeWorld.value.world)) return "dernière avancée inconnue";
   const date = Date.parse(tendStatus.value.ranAt);
@@ -350,42 +346,49 @@ watch([fogFaction, index, view3d], ([faction, turn, is3d]) => {
   else url.searchParams.delete("view");
   if ((turn as number) > 0) url.searchParams.set("turn", String(turn));
   else url.searchParams.delete("turn");
-  if (is3d) url.searchParams.set("mode", "3d");
-  else url.searchParams.delete("mode");
+  // The 3D flag has its own parameter. It used to write `mode=3d` and, worse,
+  // delete `mode` whenever the view was not 3D — so opening ?mode=regles wiped
+  // its own address the moment the fog watcher first ran, and the reader landed
+  // on the chronicle instead. One parameter, one writer.
+  if (is3d) url.searchParams.set("3d", "1");
+  else url.searchParams.delete("3d");
   history.replaceState(null, "", url);
 });
 
+/* The only writer of `mode`. Naming the view is the addressing module's job,
+   because that is where the spellings are declared and tested. */
 watch([mode, worldPath], ([m, path]) => {
-  const url = new URL(location.href);
+  const url = new URL(addressForMode(location.href, m as ViewMode));
   if (m === "world" && path) url.searchParams.set("world", path as string);
   else url.searchParams.delete("world");
-  if (m === "reports") url.searchParams.set("mode", "a-propos");
-  else if (m === "rules") url.searchParams.set("mode", "regles");
-  else if (["rapports", "a-propos", "regles"].includes(url.searchParams.get("mode") ?? "")) url.searchParams.delete("mode");
   history.replaceState(null, "", url);
 });
 
 onMounted(async () => {
   window.addEventListener("keydown", onKey);
+  /* The address as the reader gave it. Opening a world makes the watchers
+     rewrite it, so reading `location.search` further down read our own writes
+     rather than the link that was followed. */
+  const opened = location.search;
   await Promise.all([loadCatalogue(), loadWorlds()]);
 
-  const wanted = new URLSearchParams(location.search).get("world");
+  const wanted = new URLSearchParams(opened).get("world");
   if (wanted || worlds.value.length > 0) {
     const first = wanted ?? worlds.value[0]!.path;
     await openWorld(first);
     if (wanted) mode.value = "world";
   }
 
-  const params = new URLSearchParams(location.search);
-  if (wants3d(location.search)) view3d.value = true;
-  const named = modeFromSearch(location.search);
+  const params = new URLSearchParams(opened);
+  if (wants3d(opened)) view3d.value = true;
+  const named = modeFromSearch(opened);
   if (named) mode.value = named;
   const view = params.get("view");
   if (view && (FACTION_IDS as readonly string[]).includes(view)) fogFaction.value = view as FactionId;
   const turn = Number(params.get("turn"));
   if (Number.isInteger(turn) && turn > 0) pendingTurn = turn;
 
-  const requested = replayUrlFromSearch(location.search);
+  const requested = replayUrlFromSearch(opened);
   if (requested) {
     currentPath.value = requested.replace(/^replays\//, "");
     loadFromUrl(requested);

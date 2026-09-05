@@ -7,6 +7,7 @@
  *
  *   npm run index-worlds
  */
+import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { JournalSchema, WORLD_VERSION, fingerprint, isOver, living, replay, worldVersionOf } from "@abs/world";
@@ -18,6 +19,40 @@ if (!existsSync(ROOT)) {
   console.log("Aucun monde a indexer.");
   process.exit(0);
 }
+
+/**
+ * Ce qui part dans le lecteur n'est pas ce que la machine héberge.
+ *
+ * `worlds/index.json` doit décrire tout ce que ce déploiement tient : c'est ce
+ * que sert le montage Docker, qui recouvre entièrement `worlds/` à l'exécution.
+ * La copie sous `apps/player/public/worlds/` est autre chose — elle est
+ * versionnée, elle ne sert qu'aux constructions statiques, et elle ne doit
+ * porter que le monde que le dépôt a choisi de publier.
+ *
+ * Les deux étaient écrites à l'identique. Sur une machine qui vivait onze
+ * mondes, lancer ce script — ou la suite de tests, qui l'exécute — réécrivait
+ * un fichier suivi avec des noms de mondes privés et déposait leurs journaux à
+ * côté, prêts à être validés puis publiés.
+ */
+function trackedWorlds(): Set<string> | null {
+  try {
+    const files = execFileSync("git", ["ls-files", "-z", "worlds"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
+      .split("\0")
+      .filter(Boolean);
+    return new Set(files.map((path) => path.split("/")[1]).filter((name): name is string => Boolean(name)));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Hors dépôt — une archive déployée, la racine temporaire d'un test — git n'a
+ * pas d'avis, et le déploiement sert alors ce qu'il tient : c'est l'intention
+ * d'origine de ce script. La restriction ne joue que là où il y a un dépôt à
+ * salir.
+ */
+const tracked = trackedWorlds();
+const publishes = (world: string) => tracked === null || tracked.has(world);
 
 interface Entry {
   path: string;
@@ -97,6 +132,7 @@ for (const world of readdirSync(ROOT, { withFileTypes: true }).filter((d) => d.i
       ...(reportSlug ? { reportSlug } : {}),
     });
 
+    if (!publishes(world.name)) continue;
     const publicDir = join(PUBLIC_ROOT, world.name);
     mkdirSync(publicDir, { recursive: true });
     copyFileSync(full, join(publicDir, file));
@@ -107,5 +143,5 @@ for (const world of readdirSync(ROOT, { withFileTypes: true }).filter((d) => d.i
 entries.sort((a, b) => a.world.localeCompare(b.world) || b.era - a.era);
 writeFileSync(resolve(ROOT, "index.json"), JSON.stringify(entries, null, 2));
 mkdirSync(PUBLIC_ROOT, { recursive: true });
-writeFileSync(join(PUBLIC_ROOT, "index.json"), JSON.stringify(entries, null, 2));
+writeFileSync(join(PUBLIC_ROOT, "index.json"), JSON.stringify(entries.filter((entry) => publishes(entry.world)), null, 2));
 console.log(`${entries.length} ere(s) indexee(s).`);
