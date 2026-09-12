@@ -1,0 +1,892 @@
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/space-grotesk-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/space-grotesk-semibold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+.observatory {
+  --text: #f0f1e6;
+  --soft: #c1ccc0;
+  --edge: #dce5cc38;
+  --surface: #182c26e8;
+  --accent: #d4dfb8;
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  background: #354b46;
+  color: var(--text);
+  font:
+    13px/1.5 "Space Grotesk",
+    sans-serif;
+  isolation: isolate;
+}
+.observatory * {
+  box-sizing: border-box;
+}
+.observatory button,
+.observatory input,
+.observatory select {
+  font: inherit;
+  accent-color: var(--accent);
+}
+.observatory button,
+.observatory select {
+  color: var(--text);
+  background: #20382ed9;
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  padding: 8px 11px;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    border-color 0.18s;
+}
+.observatory button:hover:not(:disabled) {
+  background: #45584a;
+  border-color: #e1e7d382;
+}
+.observatory button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.observatory button[aria-expanded="true"] {
+  background: #50634c;
+}
+.observatory :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.observatory a {
+  color: inherit;
+  text-decoration: none;
+}
+.observatory a:hover {
+  text-decoration: underline;
+}
+.observatory small {
+  font-size: 11px;
+  color: var(--soft);
+  line-height: 1.5;
+}
+.observatory h2 {
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+.observatory h3 {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 14px 0 8px;
+  color: var(--soft);
+}
+.observatory-head {
+  position: absolute;
+  inset: 18px 22px auto;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  pointer-events: none;
+}
+.observatory-head > * {
+  pointer-events: auto;
+}
+.observatory-brand {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 12px #10251a;
+  white-space: nowrap;
+}
+.brand-bracket {
+  display: none;
+}
+.session-title {
+  display: grid;
+  text-shadow: 0 2px 10px #10251a;
+}
+.session-title span {
+  font-size: 11px;
+  color: var(--soft);
+}
+.observatory-head nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.observatory-head nav a {
+  font-size: 11px;
+  margin: 0 8px;
+}
+.observatory-head nav button span {
+  margin-left: 8px;
+}
+.observatory-grid,
+.world-viewport {
+  position: absolute;
+  inset: 0;
+}
+.world-viewport {
+  background: transparent;
+}
+.observatory .world-viewport .diorama {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  min-height: 0;
+}
+.observatory .world-canvas {
+  height: 100%;
+}
+.world-caption {
+  position: absolute;
+  top: 85px;
+  left: 26px;
+  z-index: 2;
+  pointer-events: none;
+  text-shadow: 0 2px 12px #11251b;
+}
+.world-caption > div > span {
+  font-size: 11px;
+  color: var(--soft);
+}
+.world-caption h1 {
+  font-size: 35px;
+  line-height: 1.1;
+  font-weight: 400;
+  margin: 5px 0;
+}
+.world-caption h1 small {
+  font-size: 13px;
+  margin-right: 8px;
+}
+.world-count {
+  display: none;
+}
+.civilizations,
+.council-panel {
+  position: absolute;
+  z-index: 4;
+  top: 175px;
+  bottom: 110px;
+  width: 295px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  backdrop-filter: blur(14px);
+  scrollbar-width: thin;
+  scrollbar-color: #819880 transparent;
+  animation: panel-enter 0.2s ease-out;
+}
+.civilizations {
+  left: 22px;
+}
+.council-panel {
+  right: 22px;
+  top: 85px;
+}
+.panel-close {
+  float: right;
+  padding: 1px 8px !important;
+  font-size: 18px !important;
+  margin-left: 8px;
+}
+.civ-row,
+.unit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
+  border-color: transparent !important;
+  background: transparent !important;
+  padding: 11px 5px !important;
+}
+.civ-row.chosen,
+.unit-row.chosen {
+  background: #a5b8991e !important;
+  border-color: var(--edge) !important;
+}
+.civ-row > span,
+.unit-row > span {
+  display: grid;
+}
+.civ-row > span:last-child,
+.unit-row > span:last-child {
+  text-align: right;
+}
+.civ-row strong {
+  color: var(--civ);
+}
+.civ-row.fallen {
+  opacity: 0.5;
+}
+.civ-emblem {
+  width: 28px;
+  height: 38px;
+  flex-shrink: 0;
+  color: var(--civ);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.ruler-status {
+  font-size: 10px !important;
+  color: var(--accent) !important;
+}
+.ruler-objective {
+  border-top: 1px solid var(--edge);
+  margin-top: 16px;
+  padding-top: 4px;
+}
+.ruler-objective p {
+  line-height: 1.7;
+  font-size: 13px;
+}
+.ruler-objective small {
+  overflow-wrap: anywhere;
+}
+.reserves {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  border-block: 1px solid var(--edge);
+  padding: 13px 0;
+  margin: 16px 0;
+}
+.reserves dt {
+  font-size: 10px;
+  color: var(--soft);
+}
+.reserves dd {
+  margin: 4px 0 0;
+  font-size: 17px;
+}
+.city-row {
+  display: grid;
+  padding: 10px 0;
+  border-top: 1px solid var(--edge);
+  font-size: 12px;
+}
+.city-row span,
+.research {
+  font-size: 11px;
+  color: var(--soft);
+}
+.panel-tabs {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 20px;
+}
+.panel-tabs button {
+  padding: 7px 6px;
+  border-color: transparent;
+  background: transparent;
+  font-size: 11px;
+}
+.panel-tabs button.active {
+  border-bottom-color: var(--accent);
+  border-radius: 0;
+  color: var(--accent);
+}
+.panel-help {
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.unit-row small {
+  font-size: 10px;
+}
+.mission-detail,
+.event-row,
+.relation-row {
+  border-top: 1px solid var(--edge);
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+.event-row p {
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 5px 0;
+}
+.rejected {
+  color: #efb9a8;
+}
+.relation-row {
+  display: grid;
+  gap: 5px;
+}
+.relation-row .war {
+  color: #efb9a8;
+}
+.relation-row .trade {
+  color: #d0ddac;
+}
+.world-bulletin,
+.route-caption {
+  position: absolute;
+  z-index: 3;
+  bottom: 107px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 660px));
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+}
+.world-bulletin.quiet {
+  display: none;
+}
+.route-caption {
+  bottom: 205px;
+}
+.world-bulletin span,
+.route-caption span {
+  max-height: 65px;
+  overflow: auto;
+}
+.observatory .map-tools {
+  top: auto !important;
+  bottom: 105px !important;
+  right: 22px !important;
+  z-index: 3 !important;
+  background: var(--surface) !important;
+  border-color: var(--edge) !important;
+  height: auto !important;
+}
+.observatory .map-instructions {
+  bottom: 88px;
+  color: var(--soft);
+  text-shadow: 0 1px 5px #000;
+}
+.turn-controls {
+  position: absolute;
+  bottom: 18px;
+  left: 22px;
+  right: 22px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 15px;
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  backdrop-filter: blur(14px);
+}
+.playback,
+.live-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.playback select {
+  padding: 8px 3px;
+}
+.live-controls {
+  margin-left: auto;
+  font-size: 11px;
+}
+.live-controls label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 105px;
+  line-height: 1.3;
+}
+.live-controls > a {
+  font-size: 10px;
+}
+.live-controls > span {
+  max-width: 110px;
+}
+.primary {
+  background: #cedbb3 !important;
+  color: #17271e !important;
+  border-color: #cedbb3 !important;
+  font-weight: 600 !important;
+}
+.scrubber {
+  display: grid;
+  gap: 7px;
+  flex: 1;
+  min-width: 70px;
+  font-size: 11px;
+  color: var(--soft);
+}
+.scrubber input {
+  width: 100%;
+  margin: 0;
+  height: 4px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+.notice {
+  position: absolute;
+  z-index: 8;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, 90%);
+  padding: 12px 16px;
+  background: #462e25f2;
+  border: 1px solid #d69780;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.notice button {
+  margin-left: auto;
+}
+.setup-panel {
+  position: absolute;
+  z-index: 7;
+  top: 78px;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 40px));
+  overflow: auto;
+  background: #192b25f5;
+  border: 1px solid var(--edge);
+  padding: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  align-content: start;
+  backdrop-filter: blur(18px);
+}
+.setup-intro {
+  width: 100%;
+}
+.setup-intro > span {
+  color: var(--soft);
+  font-size: 12px;
+}
+.setup-intro h1 {
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 12px 0;
+}
+.setup-intro p {
+  max-width: 55ch;
+  color: var(--soft);
+}
+.setup-panel label {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 180px;
+  font-size: 12px;
+}
+.setup-panel input,
+.setup-panel select {
+  width: 100%;
+  min-width: 0;
+  background: #263a30;
+  color: var(--text);
+  border: 1px solid var(--edge);
+  padding: 10px;
+}
+.models {
+  width: 100%;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.models p,
+.models > small {
+  width: 100%;
+  color: var(--soft);
+}
+.models label {
+  flex-basis: 40%;
+}
+.is-configuring .turn-controls {
+  visibility: hidden;
+}
+.hud-hidden .civilizations,
+.hud-hidden .council-panel,
+.hud-hidden .world-caption,
+.hud-hidden .world-bulletin,
+.hud-hidden .route-caption,
+.hud-hidden .turn-controls,
+.hud-hidden .map-tools,
+.hud-hidden .map-instructions,
+.hud-hidden .observatory-brand,
+.hud-hidden .session-title,
+.hud-hidden nav a,
+.hud-hidden nav button:last-child {
+  visibility: hidden;
+  pointer-events: none;
+}
+.hud-hidden nav {
+  gap: 0;
+}
+.hud-hidden .observatory-head {
+  inset: 18px 22px auto;
+}
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 1100px) {
+  .session-title {
+    display: none;
+  }
+  .turn-controls {
+    gap: 10px;
+  }
+  .live-controls {
+    gap: 6px;
+  }
+  .live-controls > a {
+    display: none;
+  }
+  .world-bulletin,
+  .route-caption {
+    width: 360px;
+    left: 340px;
+    transform: none;
+  }
+  .world-bulletin {
+    bottom: 105px;
+  }
+  .route-caption {
+    bottom: 220px;
+  }
+  .live-controls .primary {
+    max-width: 145px;
+    padding: 7px 9px;
+  }
+  .playback button {
+    padding: 8px;
+  }
+  .council-panel {
+    width: 285px;
+  }
+}
+@media (max-width: 720px) {
+  .observatory-head {
+    inset: 12px 12px auto;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .observatory-brand {
+    font-size: 16px;
+    margin-top: 9px;
+    letter-spacing: 1px;
+  }
+  .observatory-head nav {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 5px;
+    max-width: 280px;
+  }
+  .observatory-head nav button {
+    font-size: 10px;
+    padding: 7px 8px;
+    min-height: 32px;
+  }
+  .observatory-head nav a {
+    display: none;
+  }
+  .world-caption {
+    top: 100px;
+    left: 15px;
+  }
+  .world-caption h1 {
+    font-size: 28px;
+  }
+  .world-caption > div > span {
+    display: none;
+  }
+  .civilizations,
+  .council-panel {
+    top: 145px;
+    bottom: 180px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    padding: 15px;
+    background: #192c26f2;
+  }
+  .civilizations h2 {
+    font-size: 16px;
+  }
+  .civ-row {
+    padding: 8px 5px !important;
+  }
+  .turn-controls {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    gap: 9px;
+    padding: 10px;
+    flex-wrap: wrap;
+  }
+  .playback {
+    gap: 5px;
+  }
+  .playback button,
+  .playback select {
+    font-size: 11px;
+    padding: 7px;
+  }
+  .scrubber {
+    min-width: 70px;
+  }
+  .live-controls {
+    width: 100%;
+    justify-content: space-between;
+    margin: 0;
+    border-top: 1px solid var(--edge);
+    padding-top: 9px;
+  }
+  .live-controls .primary {
+    max-width: none;
+    font-size: 11px;
+  }
+  .live-controls label {
+    max-width: 120px;
+  }
+  .world-bulletin,
+  .route-caption {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    width: auto;
+    bottom: 170px;
+    padding: 9px 12px;
+    max-height: 100px;
+    overflow: auto;
+  }
+  .route-caption {
+    bottom: 280px;
+  }
+  .world-bulletin span,
+  .route-caption span {
+    font-size: 11px;
+  }
+  .world-bulletin small,
+  .route-caption small {
+    display: none;
+  }
+  .observatory .map-tools {
+    bottom: 135px !important;
+    right: 12px !important;
+    max-width: calc(100% - 24px);
+  }
+  .observatory .map-instructions {
+    display: none;
+  }
+  .setup-panel {
+    top: 94px;
+    padding: 22px;
+    bottom: 12px;
+  }
+  .setup-intro h1 {
+    font-size: 28px;
+  }
+  .setup-panel label {
+    min-width: 100%;
+  }
+  .notice {
+    top: 95px;
+    font-size: 12px;
+  }
+  .hud-hidden .observatory-head {
+    inset: 12px;
+  }
+  .hud-hidden .observatory-brand {
+    display: none;
+  }
+  .hud-hidden nav {
+    max-width: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .observatory * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.ruler-dock {
+  position: absolute;
+  bottom: 120px;
+  left: 22px;
+  z-index: 3;
+  display: grid;
+  gap: 7px;
+  width: 170px;
+}
+.ruler-dock button {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  padding: 8px 10px;
+  background: #182c26bd;
+  border-color: transparent;
+  border-left: 2px solid var(--civ);
+  backdrop-filter: blur(7px);
+}
+.ruler-dock button.chosen {
+  border-color: #dce5cc58;
+  border-left-color: var(--civ);
+}
+.ruler-dock button > span:last-child {
+  display: grid;
+}
+.ruler-dock small {
+  font-size: 10px;
+}
+.ruler-dot {
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  background: var(--civ);
+}
+.ruler-dock strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+@media (max-width: 720px) {
+  .ruler-dock {
+    top: 96px;
+    bottom: auto;
+    left: auto;
+    right: 12px;
+    width: auto;
+    display: flex;
+    gap: 3px;
+  }
+  .ruler-dock button {
+    padding: 6px;
+  }
+  .ruler-dock small {
+    display: none;
+  }
+  .ruler-dock strong {
+    font-size: 10px;
+  }
+  .ruler-dot {
+    width: 4px;
+    height: 4px;
+  }
+  .ruler-dock button {
+    gap: 5px;
+  }
+}
+.strategic-plan {
+  border-block: 1px solid var(--edge);
+  padding: 14px 0;
+  margin-top: 18px;
+}
+.plan-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.plan-heading h3 {
+  margin: 0;
+}
+.plan-status {
+  font-size: 10px;
+  border: 1px solid var(--edge);
+  padding: 2px 6px;
+  color: var(--soft);
+  white-space: nowrap;
+}
+.plan-status.completed {
+  color: #cde1b7;
+  border-color: #cde1b75e;
+}
+.plan-status.blocked {
+  color: #edc49e;
+  border-color: #edc49e5e;
+}
+.plan-status.cancelled {
+  color: #b7bcb6;
+}
+.strategic-plan > strong {
+  font-size: 14px;
+}
+.plan-target {
+  font-size: 11px;
+  color: var(--accent);
+  margin: 4px 0 10px;
+}
+.plan-rationale {
+  font-size: 12px;
+  line-height: 1.65;
+}
+.plan-progress {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 7px;
+  font-size: 10px;
+  color: var(--soft);
+  margin: 15px 0 8px;
+}
+.plan-progress progress {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  border: 0;
+  background: #dce5cc20;
+  accent-color: var(--accent);
+}
+.plan-progress progress::-webkit-progress-bar {
+  background: #dce5cc20;
+}
+.plan-progress progress::-webkit-progress-value {
+  background: var(--accent);
+}
+.plan-progress progress::-moz-progress-bar {
+  background: var(--accent);
+}
+.plan-evidence {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 8px 0;
+}
+.plan-dates {
+  display: block;
+  margin-top: 9px;
+}
+.plan-empty {
+  font-size: 11px;
+  color: var(--soft);
+  padding: 12px 0;
+  border-top: 1px solid var(--edge);
+}

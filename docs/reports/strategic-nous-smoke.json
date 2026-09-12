@@ -1,0 +1,220 @@
+{
+  "answers": [
+    {
+      "civ": "amber",
+      "decision": {
+        "civ": "amber",
+        "turn": 0,
+        "orders": [
+          {
+            "unit": "amber-20",
+            "action": "move",
+            "target": 15,
+            "reason": "Le colon avance vers la tuile 15, première étape de la route vers le site de fondation à Rhoost-la-Forêt (tuile 3)."
+          },
+          {
+            "unit": "amber-0",
+            "action": "move",
+            "escort": "amber-20",
+            "target": 15,
+            "reason": "Le soldat escorte le colon pour le protéger durant son voyage vers le site de fondation."
+          },
+          {
+            "unit": "amber-1",
+            "action": "move",
+            "target": 14,
+            "reason": "Le fermier reste sur la capitale (plaine) pour maintenir la production alimentaire de la ville."
+          },
+          {
+            "unit": "amber-2",
+            "action": "move",
+            "target": 3,
+            "reason": "Le bûcheron se dirige vers la forêt de Rhoost pour préparer l'exploitation du bois sur le futur site."
+          },
+          {
+            "unit": "amber-3",
+            "action": "move",
+            "target": 13,
+            "reason": "Le mineur explore les collines voisines pour repérer des futures ressources en minerai."
+          },
+          {
+            "unit": "amber-4",
+            "action": "move",
+            "target": 13,
+            "reason": "Le marchand se positionne pour préparer de futures routes commerciales avec les cités voisines."
+          }
+        ],
+        "objective": "Établir une deuxième ville productive près de la forêt de Rhoost (tuile 3) pour exploiter le bois et la terre, tout en lançant les fondations d'une économie marchande.",
+        "focus": "balanced",
+        "research": "irrigation",
+        "construction": [
+          {
+            "city": "city-amber",
+            "building": "granary"
+          }
+        ],
+        "diplomacy": [],
+        "recruitSettler": false,
+        "plan": {
+          "kind": "settle",
+          "targetTile": 3,
+          "targetCity": null,
+          "targetTech": null,
+          "targetBuilding": null,
+          "rationale": "Fonder une deuxième ville à Rhoost-la-Forêt (tuile 3) pour exploiter la forêt et les plaines adjacentes, établir une base productive pour le commerce futur, et étendre le territoire d'Ambre."
+        }
+      },
+      "source": "remote",
+      "model": "nous:meituan/longcat-2.0:free",
+      "service": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 11402,
+        "servedByFallback": false
+      },
+      "error": null
+    },
+    {
+      "civ": "azure",
+      "decision": null,
+      "source": "unavailable",
+      "model": "nous:poolside/laguna-xs-2.1:free",
+      "service": null,
+      "error": "Réponse IA incompatible avec le schéma des ordres",
+      "review": {
+        "attempts": 2,
+        "issues": [
+          "Réponse IA incompatible avec le schéma des ordres"
+        ],
+        "corrected": false,
+        "secondError": "Nous HTTP 429"
+      }
+    },
+    {
+      "civ": "crimson",
+      "decision": null,
+      "source": "unavailable",
+      "model": "nous:inclusionai/ling-3.0-flash-sante:free",
+      "service": null,
+      "error": "Réponse IA incompatible avec le schéma des ordres",
+      "review": {
+        "attempts": 2,
+        "issues": [
+          "Réponse IA incompatible avec le schéma des ordres"
+        ],
+        "corrected": false,
+        "secondError": "Réponse IA incompatible avec le schéma des ordres"
+      }
+    },
+    {
+      "civ": "verdant",
+      "decision": {
+        "civ": "verdant",
+        "turn": 0,
+        "orders": [
+          {
+            "unit": "verdant-16",
+            "action": "move",
+            "target": 155,
+            "reason": "Déplacer le fermier vers une forêt adjacente pour commencer à produire du bois nécessaire à la construction du grenier."
+          },
+          {
+            "unit": "verdant-17",
+            "action": "move",
+            "target": 155,
+            "reason": "Le bûcheron se déplace vers la forêt adjacente pour commencer à exploiter le bois."
+          },
+          {
+            "unit": "verdant-18",
+            "action": "move",
+            "target": 156,
+            "reason": "Le mineur se déplace vers une colline adjacente pour commencer à extraire du minerai."
+          },
+          {
+            "unit": "verdant-19",
+            "action": "move",
+            "target": 153,
+            "reason": "Le marchand se déplace vers une tuile adjacente pour rester proche de la ville et préparer un futur commerce."
+          },
+          {
+            "unit": "verdant-15",
+            "action": "defend",
+            "target": 154,
+            "reason": "Le soldat défend la capitale et protège les unités civiles locales."
+          },
+          {
+            "unit": "verdant-23",
+            "action": "settle",
+            "target": 127,
+            "reason": "Le colon s'établit à Selgan-les-Champs (127), un site neutre à 3 cases de la capitale, pour fonder une nouvelle ville."
+          }
+        ],
+        "objective": "Établir une seconde ville stratégique tout en consolidant la capitale par l'irrigation et un grenier à grains, tout en protégeant les réserves alimentaires.",
+        "focus": "growth",
+        "research": "irrigation",
+        "construction": [
+          {
+            "city": "city-verdant",
+            "building": "granary"
+          }
+        ],
+        "diplomacy": [],
+        "recruitSettler": false,
+        "plan": {
+          "kind": "settle",
+          "targetTile": 127,
+          "targetCity": null,
+          "targetTech": null,
+          "targetBuilding": null,
+          "rationale": "Fonder une nouvelle ville à Selgan-les-Champs (127) pour élargir le territoire, augmenter la production et sécuriser des ressources supplémentaires. Le grenier à grains renforce la capitale en parallèle."
+        }
+      },
+      "source": "remote",
+      "model": "nous:poolside/laguna-s-2.1:free",
+      "service": {
+        "requestedModel": "nous:poolside/laguna-s-2.1:free",
+        "servedModel": "nous:poolside/laguna-s-2.1:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 15425,
+        "servedByFallback": false
+      },
+      "error": null
+    }
+  ],
+  "plans": {
+    "amber": {
+      "kind": "settle",
+      "targetTile": 3,
+      "targetCity": null,
+      "targetTech": null,
+      "targetBuilding": null,
+      "rationale": "Fonder une deuxième ville à Rhoost-la-Forêt (tuile 3) pour exploiter la forêt et les plaines adjacentes, établir une base productive pour le commerce futur, et étendre le territoire d'Ambre.",
+      "status": "active",
+      "progress": 0.267,
+      "stagnation": 0,
+      "startedAt": 0,
+      "updatedAt": 1,
+      "detail": "Colons � 2 case(s) de l'objectif."
+    },
+    "verdant": {
+      "kind": "settle",
+      "targetTile": 127,
+      "targetCity": null,
+      "targetTech": null,
+      "targetBuilding": null,
+      "rationale": "Fonder une nouvelle ville à Selgan-les-Champs (127) pour élargir le territoire, augmenter la production et sécuriser des ressources supplémentaires. Le grenier à grains renforce la capitale en parallèle.",
+      "status": "active",
+      "progress": 0.267,
+      "stagnation": 0,
+      "startedAt": 0,
+      "updatedAt": 1,
+      "detail": "Colons � 2 case(s) de l'objectif."
+    }
+  },
+  "rejected": []
+}

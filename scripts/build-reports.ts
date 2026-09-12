@@ -37,7 +37,7 @@ const cells = (row: string) =>
     .map((c) => c.trim());
 
 export function renderReport(md: string): string {
-  const lines = md.split("\n");
+  const lines = md.replace(/\r\n?/g, "\n").split("\n");
   const out: string[] = [];
   let i = 0;
 
@@ -102,7 +102,9 @@ export function renderReport(md: string): string {
       continue;
     }
 
-    const para: string[] = [];
+    // Unrecognized block markers (for example a lone pipe) are plain text.
+    // Always consume a line so malformed Markdown cannot stall the build.
+    const para: string[] = [lines[i++]!];
     while (i < lines.length && lines[i]!.trim() !== "" && !/^(#{1,4}\s|\||>\s|```|[-*]\s|\d+\.\s)/.test(lines[i]!)) {
       para.push(lines[i++]!);
     }

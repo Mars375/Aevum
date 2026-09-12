@@ -41,7 +41,7 @@ export function chronicle(journal: Journal): Year[] {
     world = stepped.world;
     const rulings = byTick.get(world.tick) ?? [];
     for (const ruling of rulings) world = applyRuling(world, ruling);
-    const events = stepped.events.map(lifeEvent);
+    const events = stepped.events.map((event, order) => lifeEvent(event, order, world.worldVersion));
     years.push({ tick: world.tick, world, events, rulings });
   }
   return years;

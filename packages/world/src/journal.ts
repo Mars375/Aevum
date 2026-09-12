@@ -73,7 +73,7 @@ export const ExecutionProvenanceSchema = z.discriminatedUnion("mode", [
 export type ExecutionProvenance = Readonly<z.infer<typeof ExecutionProvenanceSchema>>;
 
 export const JournalSchema = z.object({
-  worldVersion: z.literal(WORLD_VERSION),
+  worldVersion: z.enum(["w8", "w10"]),
   /**
    * Which world this is.
    *
@@ -85,8 +85,8 @@ export const JournalSchema = z.object({
   /** Immutable identity of the provider path that produced this campaign. */
   execution: ExecutionProvenanceSchema.nullable().default(null),
   /** The world at tick 0. Everything after is derived. */
-  origin: WorldSchema.refine((world) => world.worldVersion === WORLD_VERSION, {
-    message: `journal origin must use ${WORLD_VERSION}`,
+  origin: WorldSchema.refine((world) => world.worldVersion === WORLD_VERSION || world.worldVersion === "w10", {
+    message: "journal origin must use w8 or w10",
   }),
   /**
    * How far this world has lived.
@@ -105,17 +105,39 @@ export const JournalSchema = z.object({
    */
   fingerprint: z.string().nullable().default(null),
   rulings: z.array(RulingSchema),
+  /** Durable orchestration state, independent of the deterministic world. */
+  scheduler: z.object({
+    pending: z.array(z.object({
+      tick: z.number().int().min(0), civ: FactionIdSchema, kind: z.enum(DECISION_KINDS),
+      urgency: z.number(), standing: z.boolean(), evidence: z.array(z.string()),
+    })).max(4),
+    /** Civs not yet attempted in the current year's barrier. Null means complete. */
+    remaining: z.array(FactionIdSchema).max(4).nullable(),
+    sources: z.record(z.string()).default({}),
+  }).optional(),
+}).superRefine((journal, ctx) => {
+  if (journal.scheduler) {
+    const pending = journal.scheduler.pending;
+    const ids = new Set(pending.map(p => p.civ));
+    const remaining = journal.scheduler.remaining ?? [];
+    if (ids.size !== pending.length || pending.some(p => p.tick > journal.livedTo || !journal.origin.civs.some(c => c.id === p.civ)) || new Set(remaining).size !== remaining.length || remaining.some(id => !ids.has(id))) {
+      ctx.addIssue({ code: "custom", message: "invalid pending decision barrier" });
+    }
+  }
+  if (journal.worldVersion !== journal.origin.worldVersion) ctx.addIssue({ code: "custom", message: "journal/origin version mismatch" });
+  if (journal.livedTo < journal.origin.tick || journal.livedTo - journal.origin.tick > 20000) ctx.addIssue({ code: "custom", message: "invalid replay horizon (maximum 20000 years)" });
+  if (journal.rulings.some(r => r.tick < journal.origin.tick || r.tick + r.deferredBy > journal.livedTo)) ctx.addIssue({ code: "custom", message: "ruling outside journal history" });
 });
 type ParsedJournal = z.infer<typeof JournalSchema>;
 export type Journal = Omit<ParsedJournal, "rulings"> & { rulings: Ruling[] };
 
 export const newJournal = (origin: World, era = 1, execution: ExecutionProvenance | null = null): Journal => {
-  if (origin.worldVersion !== WORLD_VERSION) {
+  if (origin.worldVersion !== WORLD_VERSION && origin.worldVersion !== "w10") {
     throw new Error(`cannot create a ${WORLD_VERSION} journal from a ${origin.worldVersion} world`);
   }
 
   return {
-    worldVersion: WORLD_VERSION,
+    worldVersion: origin.worldVersion,
     era,
     execution,
     origin,

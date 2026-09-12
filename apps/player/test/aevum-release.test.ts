@@ -2,14 +2,14 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { decodeTextLike, addedLines, matchSecretNames, scanTrackedTree, trackedTextFiles } from "../../../scripts/secrets.js";
 import { verifyPublishedSeason, verifyReleaseInventory } from "../../../scripts/verify-season-1.js";
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "../../..");
-const TSX = resolve(ROOT, "node_modules/tsx/dist/loader.mjs");
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const TSX = pathToFileURL(resolve(ROOT, "node_modules/tsx/dist/loader.mjs")).href;
 const TSCONFIG = resolve(ROOT, "tsconfig.json");
 const FIXTURE = resolve(ROOT, "packages/agents/test/fixtures/aevum-season-1-campaign.json");
 const temporary: string[] = [];

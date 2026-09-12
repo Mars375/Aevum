@@ -25,18 +25,18 @@ const EVENT_LABEL: Record<string, string> = {
 const points = computed(() => turningPoints(props.years));
 const point = computed(() => {
   const eligible = points.value.filter((item) => item.tick <= props.at);
-  return eligible.at(-1) ?? points.value[0] ?? null;
+  return eligible.at(-1) ?? null;
 });
 const actYear = computed(() => {
   if (point.value) return props.years.find((item) => item.tick === point.value!.tick) ?? props.years.at(-1)!;
-  return [...props.years].reverse().find((item) => item.rulings.length || item.events.length) ?? props.years.at(-1)!;
+  return [...props.years].reverse().find((item) => item.tick <= props.at && (item.rulings.length || item.events.length)) ?? props.years[0]!;
 });
 const ruling = computed(() => {
   const exact = actYear.value.rulings;
   if (!exact.length) return null;
   return exact.find((item) => item.civ === point.value?.civ) ?? exact[0]!;
 });
-const nextYear = computed(() => props.years.find((item) => item.tick === actYear.value.tick + 1) ?? null);
+const nextYear = computed(() => props.years.find((item) => item.tick === actYear.value.tick + 1 && item.tick <= props.at) ?? null);
 const resultEvents = computed(() => (ruling.value ? nextYear.value?.events ?? [] : actYear.value.events));
 
 const decision = computed(() => {
@@ -117,7 +117,7 @@ async function copyLink() {
           </li>
         </ul>
         <p v-else class="missing">
-          {{ ruling && !nextYear ? "Aucune année suivante n'est encore enregistrée : conséquence non observable." : "Aucun effet notable n'est consigné à cette date." }}
+          {{ ruling && !nextYear ? "Avancez d'une année pour observer les conséquences, si cette année est disponible." : "Aucun effet notable n'est consigné à cette date." }}
         </p>
       </article>
     </div>

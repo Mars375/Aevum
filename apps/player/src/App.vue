@@ -6,7 +6,7 @@ import EventLog from "./components/EventLog.vue";
 import GeneralPanel from "./components/GeneralPanel.vue";
 import ReportPanel from "./components/ReportPanel.vue";
 import FogView from "./components/FogView.vue";
-import { JournalSchema, WORLD_VERSION, worldVersionOf, type Journal } from "@abs/world";
+import { JournalSchema, WORLD_VERSION, fingerprint, replay as replayWorld, worldVersionOf, type Journal } from "@abs/world";
 import type { PublishedLearningCurve } from "./components/LearningCurve.vue";
 import { alliesOfAt, knowledgeOf } from "./fog";
 import { createRequestGuard } from "./request-guard";
@@ -160,7 +160,7 @@ async function openWorld(path: string) {
     // about zod instead of about the world. The rules a world lived under are
     // part of what it was.
     const version = worldVersionOf(raw);
-    if (version !== WORLD_VERSION) {
+    if (version !== WORLD_VERSION && version !== "w10") {
       journal.value = null;
       worldError.value =
         `Ce monde a vécu sous les règles ${version ?? "inconnues"}, et le moteur tourne aujourd'hui en ${WORLD_VERSION}. ` +
@@ -170,6 +170,7 @@ async function openWorld(path: string) {
 
     const parsed = JournalSchema.safeParse(raw);
     if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "journal invalide");
+    if (parsed.data.fingerprint !== null && fingerprint(replayWorld(parsed.data.origin, parsed.data.rulings, parsed.data.livedTo).world) !== parsed.data.fingerprint) throw new Error("L'empreinte de ce monde ne correspond pas à son histoire. Affichage interrompu pour éviter un rejeu incorrect.");
     journal.value = parsed.data;
     worldError.value = null;
 
@@ -225,13 +226,14 @@ const isMetricPoint = (value: unknown) => {
 };
 const isPublishedCurve = (value: unknown): value is PublishedLearningCurve => {
   if (!isRecord(value) || !isRecord(value.series) || !isRecord(value.options)) return false;
+  const series = value.series;
   return (value.modelId === null || typeof value.modelId === "string")
     && isStringArray(value.runIds) && isNumberArray(value.seeds)
     && (value.pairedRunKey === null || typeof value.pairedRunKey === "string")
     && isNumber(value.sampleCount) && isNullableNumber(value.serviceRate) && isNullableNumber(value.fallbackRate)
     && isNumber(value.unknownServiceCount) && Array.isArray(value.eventSources) && value.eventSources.every(isObservationEvent)
     && isStringArray(value.unrankedReasons) && typeof value.classification === "string" && SIGNALS.has(value.classification)
-    && SERIES_KEYS.every((key) => Array.isArray(value.series[key]) && value.series[key].every(isMetricPoint));
+    && SERIES_KEYS.every((key) => Array.isArray(series[key]) && series[key].every(isMetricPoint));
 };
 
 function isLearningCurveReport(value: unknown): value is { protocol: "aevum-learning-curve-v1"; sources: string[]; curves: PublishedLearningCurve[] } {
@@ -434,7 +436,7 @@ onUnmounted(() => {
          has run, and whether anyone is still tending it. It used to be three
          lines of 10px text floating in the header, which read as a caption
          rather than as the state of the thing. -->
-    <dl v-if="mode === 'world'" class="readout">
+    <dl v-if="mode === 'world'" class="readout atlas-context">
       <div class="readout__world">
         <dt class="label">Monde</dt>
         <dd>
@@ -448,7 +450,7 @@ onUnmounted(() => {
           <dd>{{ journal.era }}</dd>
         </div>
         <div>
-          <dt class="label">Année</dt>
+          <dt class="label">Dernière année</dt>
           <dd>{{ journal.livedTo }}</dd>
         </div>
         <div>
@@ -457,12 +459,12 @@ onUnmounted(() => {
         </div>
       </template>
       <div class="readout__tend">
-        <dt class="label">Veille</dt>
-        <dd>{{ lastAdvance }}</dd>
+        <dt class="label">Observation</dt>
+        <dd>{{ journal?.execution?.mode === 'SCRIPTED_NO_REMOTE_MODEL' ? journal.worldVersion === 'w10' ? 'Gouvernance locale · sans appel IA' : 'Ère scriptée · sans appel IA' : journal?.execution?.mode === 'SILENT_ENGINE_ONLY' ? 'Évolution sans dirigeant' : tendStatus ? lastAdvance : 'Journal des civilisations' }}</dd>
       </div>
     </dl>
 
-    <p class="section-deck">
+    <p v-if="mode !== 'world'" class="section-deck">
       <b>{{ deck.name }}</b>{{ deck.text }}
     </p>
       <label v-if="mode === 'world' && worlds.length > 1" class="picker-inline mono">
@@ -652,13 +654,13 @@ onUnmounted(() => {
     </main>
 
     <ReportPanel
-      v-if="replay?.reports?.length"
+      v-if="mode === 'battle' && replay?.reports?.length"
       :reports="replay.reports"
       :audits="replay.audits"
       @go-to-turn="index = Math.min(turnCount, Math.max(0, $event))"
     />
 
-    <footer v-if="replay" class="foot mono">
+    <footer v-if="mode === 'battle' && replay" class="foot mono">
       {{ replay.outcome.reason }} · replay {{ replay.manifest.battleId }} · contrats {{ replay.manifest.contractsVersion }}
     </footer>
   </div>
@@ -666,16 +668,16 @@ onUnmounted(() => {
 
 <style scoped>
 .app {
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 var(--s5) var(--s6);
   display: flex;
   flex-direction: column;
-  gap: var(--s5);
+  gap: var(--s4);
 }
 
 .mast {
-  min-height: 92px;
+  min-height: 84px;
   display: flex;
   gap: var(--s5);
   align-items: center;
@@ -780,6 +782,21 @@ onUnmounted(() => {
 .readout__dot--cold {
   background: var(--faint);
   box-shadow: none;
+}
+
+/* A single context line leaves the landscape above the fold. Its year and
+   population are read on the map, where they follow the timeline selection. */
+.atlas-context { background: transparent; border: 0; border-bottom: 1px solid #72899225; border-radius: 0; box-shadow: none; }
+.atlas-context > div { padding: 11px 20px; flex-direction: row; align-items: baseline; gap: 9px; border: 0; }
+.atlas-context > div:first-child { padding-left: 0; }
+.atlas-context > div:nth-child(3), .atlas-context > div:nth-child(4) { display: none; }
+.atlas-context dt { font: 11px var(--sans); text-transform: none; letter-spacing: 0; color: #8ba1ac; }
+.atlas-context dd { font: 11px var(--sans); letter-spacing: 0; text-transform: none; color: #c2ceca; }
+.atlas-context .readout__tend { justify-content: flex-end; padding-right: 0; }
+@media(max-width: 650px) {
+  .atlas-context > div { padding: 7px 10px 7px 0; }
+  .atlas-context > div:first-child { flex-basis: auto; }
+  .atlas-context .readout__tend { justify-content: flex-start; flex-basis: 100%; padding-top: 0; }
 }
 
 /* A whole sentence set in tracked capitals is a wall, not a caption: the

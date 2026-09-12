@@ -39,14 +39,15 @@ export interface TickEvent {
     | "VOW_BROKEN"
     /** A capital changed hands. Not the same as losing a field. */
     | "CAPITAL_LOST"
-    | "CAPITAL_MOVED";
+    | "CAPITAL_MOVED"
+    | "BUILT" | "FOUNDED" | "RECRUITED" | "WAR" | "PEACE";
   detail: string;
 }
 
 /** A replay-derived event. The engine still emits the unadorned TickEvent. */
 export interface LifeEvent extends TickEvent {
   id: string;
-  worldVersion: "w8";
+  worldVersion: World["worldVersion"];
   /** Consequences are facts of resolution, not claims that a ruling caused them. */
   attribution: "engine-only";
   /** Position in the engine's deterministic event order for this year. */
@@ -65,12 +66,12 @@ export function eventId(event: TickEvent, tick: number, civ: Civ["id"]): string 
   return ["world-event-v1", tick, civ, ordered, event.kind, encodeURIComponent(event.detail)].join(":");
 }
 
-export function lifeEvent(event: TickEvent, order: number): LifeEvent {
+export function lifeEvent(event: TickEvent, order: number, version: World["worldVersion"] = "w8"): LifeEvent {
   const ordered = { ...event, order };
   return {
     ...ordered,
     id: eventId(ordered, event.tick, event.civ),
-    worldVersion: "w8",
+    worldVersion: version,
     attribution: "engine-only",
   };
 }

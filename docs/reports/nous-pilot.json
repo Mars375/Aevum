@@ -1,0 +1,2344 @@
+{
+  "id": "67dadf23-8575-4425-afd2-b8b9999a060a",
+  "models": {
+    "amber": "nous:meituan/longcat-2.0:free",
+    "azure": "nous:poolside/laguna-xs-2.1:free",
+    "crimson": "nous:inclusionai/ling-3.0-flash-sante:free",
+    "verdant": "nous:poolside/laguna-s-2.1:free"
+  },
+  "completedTurns": 50,
+  "answers": {
+    "remote": 162,
+    "unavailable": 38
+  },
+  "rejections": [
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-11",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-13",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-14",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-16",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-17",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-18",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-19",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-11",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-12",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-6",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-7",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-8",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-9",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-16",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-17",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-18",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-19",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / workshop"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / workshop"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / workshop"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / workshop"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / workshop"
+    },
+    {
+      "civ": "azure",
+      "unit": null,
+      "detail": "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / workshop"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / workshop"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-6",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "azure",
+      "unit": null,
+      "detail": "Construction refusée : city-azure / walls"
+    },
+    {
+      "civ": "azure",
+      "unit": null,
+      "detail": "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+    },
+    {
+      "civ": "azure",
+      "unit": null,
+      "detail": "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / market"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-13",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-16",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-17",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-18",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-19",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / market"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / market"
+    },
+    {
+      "civ": "azure",
+      "unit": null,
+      "detail": "Construction refusée : city-azure / walls"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-16",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-17",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-18",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-19",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / academy"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-25",
+      "detail": "Movement cannot replace an attack order"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / academy"
+    },
+    {
+      "civ": "azure",
+      "unit": null,
+      "detail": "Construction refusée : city-azure / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "azure",
+      "unit": null,
+      "detail": "Construction refusée : city-azure / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-11",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-12",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-13",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-14",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / academy"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-11",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-12",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-13",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-14",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / academy"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-16",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-17",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-18",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": "verdant-19",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-25",
+      "detail": "Movement cannot replace an attack order"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-7",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "azure",
+      "unit": "azure-9",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / walls"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    },
+    {
+      "civ": "amber",
+      "unit": null,
+      "detail": "Construction refusée : city-amber / walls"
+    },
+    {
+      "civ": "crimson",
+      "unit": null,
+      "detail": "Construction refusée : city-crimson / market"
+    },
+    {
+      "civ": "verdant",
+      "unit": null,
+      "detail": "Construction refusée : city-verdant / granary"
+    },
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    }
+  ],
+  "civilizations": [
+    {
+      "id": "amber",
+      "population": 166,
+      "territory": 1,
+      "soldiers": 5,
+      "advances": [
+        "irrigation",
+        "masonry"
+      ]
+    },
+    {
+      "id": "azure",
+      "population": 166,
+      "territory": 1,
+      "soldiers": 5,
+      "advances": []
+    },
+    {
+      "id": "crimson",
+      "population": 166,
+      "territory": 6,
+      "soldiers": 5,
+      "advances": [
+        "irrigation",
+        "masonry"
+      ]
+    },
+    {
+      "id": "verdant",
+      "population": 141,
+      "territory": 1,
+      "soldiers": 3,
+      "advances": [
+        "irrigation"
+      ]
+    }
+  ],
+  "cities": 5,
+  "events": [
+    {
+      "tick": 1,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : granary"
+    },
+    {
+      "tick": 1,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 101"
+    },
+    {
+      "tick": 1,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 101"
+    },
+    {
+      "tick": 1,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 101"
+    },
+    {
+      "tick": 1,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 101"
+    },
+    {
+      "tick": 2,
+      "civ": "crimson",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : granary"
+    },
+    {
+      "tick": 2,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : granary"
+    },
+    {
+      "tick": 2,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 102"
+    },
+    {
+      "tick": 2,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 102"
+    },
+    {
+      "tick": 2,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 102"
+    },
+    {
+      "tick": 2,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 102"
+    },
+    {
+      "tick": 3,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 103"
+    },
+    {
+      "tick": 3,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 103"
+    },
+    {
+      "tick": 3,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 103"
+    },
+    {
+      "tick": 3,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 103"
+    },
+    {
+      "tick": 4,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 104"
+    },
+    {
+      "tick": 4,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Vaspor-la-Plaine : granary achevé"
+    },
+    {
+      "tick": 4,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 104"
+    },
+    {
+      "tick": 4,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 104"
+    },
+    {
+      "tick": 4,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 104"
+    },
+    {
+      "tick": 5,
+      "civ": "azure",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : academy"
+    },
+    {
+      "tick": 5,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 105"
+    },
+    {
+      "tick": 5,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 105"
+    },
+    {
+      "tick": 5,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 105"
+    },
+    {
+      "tick": 5,
+      "civ": "crimson",
+      "kind": "BUILT",
+      "detail": "Thamere-la-Plaine : granary achevé"
+    },
+    {
+      "tick": 5,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 105"
+    },
+    {
+      "tick": 5,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Velvale : granary achevé"
+    },
+    {
+      "tick": 6,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : workshop"
+    },
+    {
+      "tick": 6,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 106"
+    },
+    {
+      "tick": 6,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 106"
+    },
+    {
+      "tick": 6,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 106"
+    },
+    {
+      "tick": 6,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 106"
+    },
+    {
+      "tick": 7,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : workshop"
+    },
+    {
+      "tick": 7,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 107"
+    },
+    {
+      "tick": 7,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 107"
+    },
+    {
+      "tick": 7,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 107"
+    },
+    {
+      "tick": 7,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 107"
+    },
+    {
+      "tick": 8,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 108"
+    },
+    {
+      "tick": 8,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 108"
+    },
+    {
+      "tick": 8,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 108"
+    },
+    {
+      "tick": 8,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 108"
+    },
+    {
+      "tick": 9,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 109"
+    },
+    {
+      "tick": 9,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 109"
+    },
+    {
+      "tick": 9,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 109"
+    },
+    {
+      "tick": 9,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 109"
+    },
+    {
+      "tick": 10,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 110"
+    },
+    {
+      "tick": 10,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Vaspor-la-Plaine : workshop achevé"
+    },
+    {
+      "tick": 10,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 110"
+    },
+    {
+      "tick": 10,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 110"
+    },
+    {
+      "tick": 10,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 110"
+    },
+    {
+      "tick": 11,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 111"
+    },
+    {
+      "tick": 11,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 111"
+    },
+    {
+      "tick": 11,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 111"
+    },
+    {
+      "tick": 11,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 111"
+    },
+    {
+      "tick": 11,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Velvale : workshop achevé"
+    },
+    {
+      "tick": 12,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 12,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 112"
+    },
+    {
+      "tick": 12,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 112"
+    },
+    {
+      "tick": 12,
+      "civ": "azure",
+      "kind": "BUILT",
+      "detail": "Vasost-la-Plaine : academy achevé"
+    },
+    {
+      "tick": 12,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 112"
+    },
+    {
+      "tick": 12,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 111"
+    },
+    {
+      "tick": 13,
+      "civ": "crimson",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : market"
+    },
+    {
+      "tick": 13,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : market"
+    },
+    {
+      "tick": 13,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 113"
+    },
+    {
+      "tick": 13,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 113"
+    },
+    {
+      "tick": 13,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 113"
+    },
+    {
+      "tick": 13,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 112"
+    },
+    {
+      "tick": 14,
+      "civ": "crimson",
+      "kind": "FOUNDED",
+      "detail": "Ville fondée à Sellin"
+    },
+    {
+      "tick": 14,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 114"
+    },
+    {
+      "tick": 14,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 114"
+    },
+    {
+      "tick": 14,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 114"
+    },
+    {
+      "tick": 14,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 113"
+    },
+    {
+      "tick": 15,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 15,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 115"
+    },
+    {
+      "tick": 15,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 115"
+    },
+    {
+      "tick": 15,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 115"
+    },
+    {
+      "tick": 15,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 113"
+    },
+    {
+      "tick": 16,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : market"
+    },
+    {
+      "tick": 16,
+      "civ": "azure",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : walls"
+    },
+    {
+      "tick": 16,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 116"
+    },
+    {
+      "tick": 16,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 116"
+    },
+    {
+      "tick": 16,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 116"
+    },
+    {
+      "tick": 16,
+      "civ": "crimson",
+      "kind": "BUILT",
+      "detail": "Thamere-la-Plaine : market achevé"
+    },
+    {
+      "tick": 16,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 114"
+    },
+    {
+      "tick": 16,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Velvale : market achevé"
+    },
+    {
+      "tick": 17,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 117"
+    },
+    {
+      "tick": 17,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 117"
+    },
+    {
+      "tick": 17,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 117"
+    },
+    {
+      "tick": 17,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 115"
+    },
+    {
+      "tick": 18,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 18,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 118"
+    },
+    {
+      "tick": 18,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 118"
+    },
+    {
+      "tick": 18,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 118"
+    },
+    {
+      "tick": 18,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 115"
+    },
+    {
+      "tick": 19,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 119"
+    },
+    {
+      "tick": 19,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Vaspor-la-Plaine : market achevé"
+    },
+    {
+      "tick": 19,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 119"
+    },
+    {
+      "tick": 19,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 119"
+    },
+    {
+      "tick": 19,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 116"
+    },
+    {
+      "tick": 20,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 120"
+    },
+    {
+      "tick": 20,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 120"
+    },
+    {
+      "tick": 20,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 120"
+    },
+    {
+      "tick": 20,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 117"
+    },
+    {
+      "tick": 21,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 21,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 121"
+    },
+    {
+      "tick": 21,
+      "civ": "amber",
+      "kind": "ADVANCE",
+      "detail": "progrès : irrigation (+20% food)"
+    },
+    {
+      "tick": 21,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 121"
+    },
+    {
+      "tick": 21,
+      "civ": "azure",
+      "kind": "BUILT",
+      "detail": "Vasost-la-Plaine : walls achevé"
+    },
+    {
+      "tick": 21,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 121"
+    },
+    {
+      "tick": 21,
+      "civ": "crimson",
+      "kind": "ADVANCE",
+      "detail": "progrès : irrigation (+20% food)"
+    },
+    {
+      "tick": 21,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 117"
+    },
+    {
+      "tick": 21,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 21,
+      "civ": "verdant",
+      "kind": "ADVANCE",
+      "detail": "progrès : irrigation (+20% food)"
+    },
+    {
+      "tick": 22,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 122"
+    },
+    {
+      "tick": 22,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 122"
+    },
+    {
+      "tick": 22,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 122"
+    },
+    {
+      "tick": 22,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 118"
+    },
+    {
+      "tick": 23,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 123"
+    },
+    {
+      "tick": 23,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 123"
+    },
+    {
+      "tick": 23,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 123"
+    },
+    {
+      "tick": 23,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 119"
+    },
+    {
+      "tick": 24,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 24,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 124"
+    },
+    {
+      "tick": 24,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 124"
+    },
+    {
+      "tick": 24,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 124"
+    },
+    {
+      "tick": 24,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 119"
+    },
+    {
+      "tick": 24,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 25,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : academy"
+    },
+    {
+      "tick": 25,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : walls"
+    },
+    {
+      "tick": 25,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 125"
+    },
+    {
+      "tick": 25,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 125"
+    },
+    {
+      "tick": 25,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 125"
+    },
+    {
+      "tick": 25,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 120"
+    },
+    {
+      "tick": 26,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 126"
+    },
+    {
+      "tick": 26,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 126"
+    },
+    {
+      "tick": 26,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 126"
+    },
+    {
+      "tick": 26,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 121"
+    },
+    {
+      "tick": 27,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 27,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 127"
+    },
+    {
+      "tick": 27,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 127"
+    },
+    {
+      "tick": 27,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 127"
+    },
+    {
+      "tick": 27,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 121"
+    },
+    {
+      "tick": 27,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 28,
+      "civ": "azure",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : granary"
+    },
+    {
+      "tick": 28,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 128"
+    },
+    {
+      "tick": 28,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 128"
+    },
+    {
+      "tick": 28,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 128"
+    },
+    {
+      "tick": 28,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 122"
+    },
+    {
+      "tick": 29,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 129"
+    },
+    {
+      "tick": 29,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 129"
+    },
+    {
+      "tick": 29,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 129"
+    },
+    {
+      "tick": 29,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 123"
+    },
+    {
+      "tick": 30,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 30,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 130"
+    },
+    {
+      "tick": 30,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 130"
+    },
+    {
+      "tick": 30,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 130"
+    },
+    {
+      "tick": 30,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 123"
+    },
+    {
+      "tick": 30,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 30,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Velvale : walls achevé"
+    },
+    {
+      "tick": 31,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 131"
+    },
+    {
+      "tick": 31,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 131"
+    },
+    {
+      "tick": 31,
+      "civ": "azure",
+      "kind": "BUILT",
+      "detail": "Vasost-la-Plaine : granary achevé"
+    },
+    {
+      "tick": 31,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 131"
+    },
+    {
+      "tick": 31,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 124"
+    },
+    {
+      "tick": 32,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 132"
+    },
+    {
+      "tick": 32,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Vaspor-la-Plaine : academy achevé"
+    },
+    {
+      "tick": 32,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 132"
+    },
+    {
+      "tick": 32,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 132"
+    },
+    {
+      "tick": 32,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 125"
+    },
+    {
+      "tick": 32,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 33,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 33,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 133"
+    },
+    {
+      "tick": 33,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 133"
+    },
+    {
+      "tick": 33,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 133"
+    },
+    {
+      "tick": 33,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 125"
+    },
+    {
+      "tick": 33,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 34,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 134"
+    },
+    {
+      "tick": 34,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 134"
+    },
+    {
+      "tick": 34,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 134"
+    },
+    {
+      "tick": 34,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 126"
+    },
+    {
+      "tick": 35,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 136"
+    },
+    {
+      "tick": 35,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 136"
+    },
+    {
+      "tick": 35,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 136"
+    },
+    {
+      "tick": 35,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 127"
+    },
+    {
+      "tick": 36,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 36,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 138"
+    },
+    {
+      "tick": 36,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 138"
+    },
+    {
+      "tick": 36,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 138"
+    },
+    {
+      "tick": 36,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 127"
+    },
+    {
+      "tick": 36,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 37,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 140"
+    },
+    {
+      "tick": 37,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 140"
+    },
+    {
+      "tick": 37,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 140"
+    },
+    {
+      "tick": 37,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 128"
+    },
+    {
+      "tick": 38,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 142"
+    },
+    {
+      "tick": 38,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 142"
+    },
+    {
+      "tick": 38,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 142"
+    },
+    {
+      "tick": 38,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 129"
+    },
+    {
+      "tick": 39,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 39,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 144"
+    },
+    {
+      "tick": 39,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 144"
+    },
+    {
+      "tick": 39,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 144"
+    },
+    {
+      "tick": 39,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 129"
+    },
+    {
+      "tick": 39,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 40,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 146"
+    },
+    {
+      "tick": 40,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 146"
+    },
+    {
+      "tick": 40,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 146"
+    },
+    {
+      "tick": 40,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 130"
+    },
+    {
+      "tick": 41,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 148"
+    },
+    {
+      "tick": 41,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 148"
+    },
+    {
+      "tick": 41,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 148"
+    },
+    {
+      "tick": 41,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 131"
+    },
+    {
+      "tick": 42,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 42,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 150"
+    },
+    {
+      "tick": 42,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 150"
+    },
+    {
+      "tick": 42,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 150"
+    },
+    {
+      "tick": 42,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 131"
+    },
+    {
+      "tick": 42,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 43,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 152"
+    },
+    {
+      "tick": 43,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 152"
+    },
+    {
+      "tick": 43,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 152"
+    },
+    {
+      "tick": 43,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 132"
+    },
+    {
+      "tick": 44,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 154"
+    },
+    {
+      "tick": 44,
+      "civ": "amber",
+      "kind": "ADVANCE",
+      "detail": "progrès : masonry (+25% housing)"
+    },
+    {
+      "tick": 44,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 154"
+    },
+    {
+      "tick": 44,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 154"
+    },
+    {
+      "tick": 44,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 133"
+    },
+    {
+      "tick": 45,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 45,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 156"
+    },
+    {
+      "tick": 45,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 156"
+    },
+    {
+      "tick": 45,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 156"
+    },
+    {
+      "tick": 45,
+      "civ": "crimson",
+      "kind": "ADVANCE",
+      "detail": "progrès : masonry (+25% housing)"
+    },
+    {
+      "tick": 45,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 133"
+    },
+    {
+      "tick": 45,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 46,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : walls"
+    },
+    {
+      "tick": 46,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 158"
+    },
+    {
+      "tick": 46,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 158"
+    },
+    {
+      "tick": 46,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 158"
+    },
+    {
+      "tick": 46,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 134"
+    },
+    {
+      "tick": 47,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 160"
+    },
+    {
+      "tick": 47,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 160"
+    },
+    {
+      "tick": 47,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 160"
+    },
+    {
+      "tick": 47,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 136"
+    },
+    {
+      "tick": 48,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 48,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 162"
+    },
+    {
+      "tick": 48,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 162"
+    },
+    {
+      "tick": 48,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 162"
+    },
+    {
+      "tick": 48,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 137"
+    },
+    {
+      "tick": 48,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 49,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 164"
+    },
+    {
+      "tick": 49,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 164"
+    },
+    {
+      "tick": 49,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 164"
+    },
+    {
+      "tick": 49,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 139"
+    },
+    {
+      "tick": 50,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 166"
+    },
+    {
+      "tick": 50,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 166"
+    },
+    {
+      "tick": 50,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 166"
+    },
+    {
+      "tick": 50,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 141"
+    }
+  ]
+}

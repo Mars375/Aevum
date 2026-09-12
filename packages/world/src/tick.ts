@@ -3,6 +3,7 @@ import { disasterOn, raidOn, season } from "./chance.js";
 import { LAND_LABEL, contact, reachable, value } from "./borders.js";
 import { ADVANCES, advanceAvailableIn } from "./advances.js";
 import type { TickEvent, TickResult } from "./events.js";
+import { tickCivilization } from "./civilization.js";
 
 /**
  * One year of the world.
@@ -267,6 +268,7 @@ function tickCiv(
 }
 
 export function tickWorld(world: World): TickResult {
+  if (world.worldVersion === "w10") return tickCivilization(world);
   const tick = world.tick + 1;
   // One season for the whole world: civilisations share a climate, so a bad
   // year is something neighbours can talk about rather than private bad luck.

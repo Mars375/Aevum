@@ -1,5 +1,11 @@
 import type { World } from "./state.js";
 
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).sort(([a],[b]) => a.localeCompare(b)).map(([k,v]) => [k,canonical(v)]));
+  return value;
+}
+
 /**
  * An empreinte of a world, so a resume can prove it resumed the right one.
  *
@@ -49,8 +55,12 @@ export function fingerprint(world: World): string {
   // FNV-1a, 32 bits, in hex. Enough to catch a divergence the moment it starts.
   let h = 0x811c9dc5;
   const text = parts.join(";");
-  for (let i = 0; i < text.length; i += 1) {
-    h ^= text.charCodeAt(i);
+  const full = world.worldVersion === "w10" ? text + JSON.stringify(canonical({
+    civs: [...world.civs].sort((a,b) => a.id.localeCompare(b.id)),
+    board: world.board, simulation: world.simulation,
+  })) : text;
+  for (let i = 0; i < full.length; i += 1) {
+    h ^= full.charCodeAt(i);
     h = Math.imul(h, 0x01000193);
   }
   return (h >>> 0).toString(16).padStart(8, "0");

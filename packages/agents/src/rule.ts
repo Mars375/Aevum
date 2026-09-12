@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Civ, DecisionPoint, ExecutionProvenance, Ruling, World } from "@abs/world";
-import type { GeneralConfig } from "@abs/contracts";
-import { RULING_JSON_SCHEMA, systemPromptWorld, userPromptWorld } from "./prompt-world.js";
+import type { GeneralConfig, ServiceEvidence } from "@abs/contracts";
+import { CIVILIZATION_RULING_JSON_SCHEMA, RULING_JSON_SCHEMA, systemPromptWorld, userPromptWorld } from "./prompt-world.js";
 
 /**
  * Ask a ruler what to do, and turn its answer into a ruling.
@@ -92,6 +92,7 @@ const liftVow = (value: unknown): unknown => {
 
 const RulingAnswerSchema = z.preprocess((v) => dropNulls(liftVow(lift(v))), z.object({
   reasoning: z.string().default(""),
+  focus: z.enum(["balanced", "growth", "industry", "science", "military"]).optional(),
   creed: z.string().default(""),
   // Defaulted, not required: a ruler woken by a famine has no reason to
   // reconsider its foreign policy, and rejecting the whole answer over a
@@ -111,6 +112,7 @@ const RulingAnswerSchema = z.preprocess((v) => dropNulls(liftVow(lift(v))), z.ob
 }));
 
 export interface RulerProvider {
+  askWithEvidence?(general: GeneralConfig, sys: string, usr: string, schema: unknown): Promise<{text: string | null; service: ServiceEvidence | null}>;
   ask(general: GeneralConfig, sys: string, usr: string, schema: unknown): Promise<string | null>;
   /** Which model actually answered, when the provider tracks it. */
   lastModel?(): string | null;
@@ -137,12 +139,13 @@ export async function askRuler(
    */
   onReject?: (why: string, raw: string) => void,
 ): Promise<Ruling | null> {
-  const raw = await provider.ask(
+  const response = await (provider.askWithEvidence ? provider.askWithEvidence.bind(provider) : async (...args: Parameters<RulerProvider["ask"]>) => ({text:await provider.ask(...args),service:null}))(
     general,
-    systemPromptWorld(),
+    systemPromptWorld(world?.worldVersion),
     userPromptWorld(civ, point, world),
-    RULING_JSON_SCHEMA,
+    world?.worldVersion === "w10" ? CIVILIZATION_RULING_JSON_SCHEMA : RULING_JSON_SCHEMA,
   );
+  const raw = response.text;
   if (raw === null) return null;
 
   let parsed: unknown;
@@ -159,7 +162,7 @@ export async function askRuler(
     return null;
   }
 
-  const { reasoning, creed, posture, claim, vowMetric, vowFloor, ...work } = answer.data;
+  const { reasoning, creed, posture, claim, vowMetric, vowFloor, focus, ...work } = answer.data;
   const total = work.farming + work.forestry + work.mining + work.trade + work.military;
   // A ruler who employs nobody has not answered the question. Better to keep
   // the standing doctrine than to install one that starves everyone.
@@ -176,6 +179,7 @@ export async function askRuler(
     // string would silently erase what predecessors left behind.
     doctrine: {
       ...work,
+      ...(world?.worldVersion === "w10" && focus ? { focus } : {}),
       ...(posture ? { posture } : {}),
       ...(claim ? { claim } : {}),
       // "none" is a real answer and not a missing one: it means this ruler
@@ -187,12 +191,12 @@ export async function askRuler(
       ...(creed.trim() ? { creed: creed.trim() } : {}),
     },
     reason: reasoning.trim(),
-    model: provider.lastModel?.() ?? general.model,
+    model: response.service?.servedModel ?? provider.lastModel?.() ?? general.model,
     // Stamped by the caller, which is the only thing that knows how long this
     // decision waited for a model to be free.
     deferredBy: 0,
     context: [...point.evidence],
-    service: null,
+    service: response.service,
     consequenceRef: null,
   };
 }

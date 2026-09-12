@@ -12,9 +12,13 @@
     "apps/*"
   ],
   "scripts": {
+    "start": "npm run player:build && npm run spectator:server",
+    "spectator:probe": "tsx scripts/spectator-probe.ts",
+    "spectator:server": "tsx scripts/spectator-server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && vue-tsc --noEmit -p tsconfig.player.json",
+    "civilization:probe": "tsx scripts/civilization-probe.ts",
     "battle": "tsx packages/cli/src/main.ts",
     "probe": "tsx scripts/probe-providers.ts",
     "player:dev": "npm run dev --workspace @abs/player",
@@ -40,10 +44,12 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "prettier": "^3.9.6",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "vue-tsc": "^3.3.11"
   },
   "dependencies": {
     "zod": "^3.24.1"

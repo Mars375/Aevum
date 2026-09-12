@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fingerprint, newJournal, newWorld, replay, type Journal } from "@abs/world";
+import { census, fingerprint, JournalSchema, newCivilizationWorld, newJournal, newWorld, replay, type Journal } from "@abs/world";
 import type { GeneralConfig } from "@abs/contracts";
 import { liveWorld, type LiveNotice } from "../src/index.js";
 import type { RulerProvider } from "../src/rule.js";
@@ -41,6 +41,40 @@ const throttling = (victim: string, failures: number): RulerProvider => {
 };
 
 const fresh = (): { journal: Journal } => ({ journal: newJournal(newWorld([...IDS], 42)) });
+
+describe("durable decision barriers", () => {
+  it.each(["w8", "w10"])("preserves pending questions across a split run (%s)", async version => {
+    const origin = version === "w10" ? newCivilizationWorld([...IDS],42) : census(newWorld([...IDS],42));
+    const intermittent = (): RulerProvider => {
+      let calls=0;
+      return {ask:async () => ++calls%3===0 ? answer : null};
+    };
+    const whole=newJournal(origin), split=newJournal(origin);
+    const full=await liveWorld(origin,{journal:whole,generals,provider:intermittent(),ticks:60});
+    const provider=intermittent();
+    await liveWorld(origin,{journal:split,generals,provider,ticks:8});
+    const saved=JournalSchema.parse(JSON.parse(JSON.stringify(split)));
+    const from=replay(saved.origin,saved.rulings,saved.livedTo).world;
+    const end=await liveWorld(from,{journal:saved,generals,provider,ticks:52});
+    expect(saved.rulings).toEqual(whole.rulings);
+    expect(fingerprint(end.world)).toBe(fingerprint(full.world));
+  });
+  it("finishes the unattempted rulers of an interrupted year exactly once", async () => {
+    const origin=census(newWorld([...IDS],42));
+    const reference=newJournal(origin);
+    await liveWorld(origin,{journal:reference,generals,provider:willing(),ticks:40});
+    let saved: Journal | undefined;
+    const journal=newJournal(origin);
+    await expect(liveWorld(origin,{journal,generals,provider:willing(),ticks:40,onRuling:(j) => {
+      saved=JournalSchema.parse(JSON.parse(JSON.stringify(j)));
+      throw new Error("simulated interruption");
+    }})).rejects.toThrow("simulated interruption");
+    expect(saved).toBeDefined();
+    const resumed=saved!;
+    await liveWorld(replay(origin,resumed.rulings,resumed.livedTo).world,{journal:resumed,generals,provider:willing(),ticks:40-resumed.livedTo});
+    expect(resumed.rulings).toEqual(reference.rulings);
+  });
+});
 
 describe("le monde avance en pas verrouille", () => {
   it("toutes les civilisations vivent la meme annee", async () => {

@@ -6,6 +6,7 @@ import { systemPromptV2, userPromptV2 } from "./prompt-v2.js";
 import { ORDER_JSON_SCHEMA_V2 } from "./schema-v2.js";
 import { supportsNativeSchema } from "./roster.js";
 import { ORDER_JSON_SCHEMA } from "./schema.js";
+import type { ServiceEvidence } from "@abs/contracts";
 
 export interface ProviderResult {
   /** null when every model in the chain failed. The caller must NOT invent orders. */
@@ -246,6 +247,13 @@ export class RemoteProvider implements OrderProvider {
    * extraction rather than opening a second, less careful path to the network.
    */
   async ask(general: GeneralConfig, sys: string, usr: string, schema: unknown): Promise<string | null> {
+    return (await this.askWithEvidence(general,sys,usr,schema)).text;
+  }
+
+  async askWithEvidence(general: GeneralConfig, sys: string, usr: string, schema: unknown): Promise<{text: string | null; service: ServiceEvidence | null}> {
+    const started = Date.now();
+    let attempted = 0;
+    const attemptedModels = new Set<string>();
     this.lastAskError = null;
     this.lastAskModel = null;
     const reasons: string[] = [];
@@ -284,6 +292,7 @@ export class RemoteProvider implements OrderProvider {
       }
 
       for (let attempt = 1; attempt <= attempts; attempt += 1) {
+        attempted++; attemptedModels.add(model);
         try {
           const res = await this.opts.fetchImpl(ENDPOINTS[ref.provider].url, {
             method: "POST",
@@ -317,6 +326,7 @@ export class RemoteProvider implements OrderProvider {
           }
 
           const payload = (await res.json()) as {
+            model?: string;
             choices?: Array<{ message?: { content?: string } }>;
             usage?: { completion_tokens?: number };
           };
@@ -324,7 +334,12 @@ export class RemoteProvider implements OrderProvider {
           if (parsed !== null) {
             this.lastAskModel = model;
             this.askUsage.push({ model, completion: payload.usage?.completion_tokens ?? 0 });
-            return JSON.stringify(parsed);
+            const served = payload.model === ref.model ? model : payload.model ? (ref.provider === "openrouter" ? payload.model : `${ref.provider}:${payload.model}`) : null;
+            return { text: JSON.stringify(parsed), service: served ? {
+              requestedModel:general.model,servedModel:served,provider:ref.provider,
+              attempts:attempted,fallbackCount:Math.max(0,attemptedModels.size-1),
+              latencyMs:Date.now()-started,servedByFallback:model!==general.model || served!==general.model,
+            } : null };
           }
           throw new RetryableError("no JSON object found");
         } catch (err) {
@@ -349,7 +364,7 @@ export class RemoteProvider implements OrderProvider {
       }
     }
     this.lastAskError = reasons.join("; ") || "no model attempted";
-    return null;
+    return {text:null,service:null};
   }
 
   private tokensFor(provider: ProviderName): number {

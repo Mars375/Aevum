@@ -94,6 +94,7 @@ mkdirSync(dirname(outPath), { recursive: true });
 
 let resumeFrom;
 if (values.resume) {
+  if (config.rulesetVersion === "v2") throw new Error("La reprise des archives tactiques v2 n'est pas supportée ; le fichier existant est conservé.");
   if (!existsSync(outPath)) {
     console.error(`--resume was given but ${outPath} does not exist.`);
     process.exit(1);

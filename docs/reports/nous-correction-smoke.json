@@ -1,0 +1,328 @@
+{
+  "sourceCampaign": "67dadf23-8575-4425-afd2-b8b9999a060a",
+  "turn": 50,
+  "inputUnchanged": true,
+  "answers": [
+    {
+      "civ": "amber",
+      "decision": {
+        "civ": "amber",
+        "turn": 50,
+        "orders": [
+          {
+            "unit": "amber-0",
+            "action": "defend",
+            "escort": null,
+            "target": 14,
+            "reason": "Protéger la capitale en permanence pendant la sécheresse."
+          },
+          {
+            "unit": "amber-1",
+            "action": "move",
+            "escort": null,
+            "target": 14,
+            "reason": "Cultiver la plaine de la capitale pour accumuler de la nourriture."
+          },
+          {
+            "unit": "amber-2",
+            "action": "explore",
+            "escort": null,
+            "target": 96,
+            "reason": "Poursuivre l'exploration vers le nord-est."
+          },
+          {
+            "unit": "amber-3",
+            "action": "explore",
+            "escort": null,
+            "target": 110,
+            "reason": "Continuer l'exploration vers le sud-est le long de la rivière."
+          },
+          {
+            "unit": "amber-4",
+            "action": "move",
+            "escort": null,
+            "target": 57,
+            "reason": "Poursuivre le commerce itinérant vers l'est."
+          },
+          {
+            "unit": "amber-20",
+            "action": "settle",
+            "escort": null,
+            "target": 58,
+            "reason": "Fonder une nouvelle ville sur la plaine de Rhogan, terres fertiles à l'est."
+          }
+        ],
+        "objective": "Fonder une deuxième ville à l'est sur des terres fertiles tout en achevant les murs de la capitale et en maintenant l'exploration.",
+        "focus": "growth",
+        "research": null,
+        "construction": [],
+        "diplomacy": [],
+        "recruitSettler": false
+      },
+      "source": "remote",
+      "model": "nous:meituan/longcat-2.0:free",
+      "service": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 12205,
+        "servedByFallback": false
+      },
+      "error": null
+    },
+    {
+      "civ": "azure",
+      "decision": null,
+      "source": "unavailable",
+      "model": "nous:poolside/laguna-xs-2.1:free",
+      "service": null,
+      "error": "Identité ou tour incorrect dans la réponse",
+      "review": {
+        "attempts": 2,
+        "issues": [
+          "Identité ou tour incorrect dans la réponse"
+        ],
+        "corrected": false,
+        "secondError": "Nous HTTP 429"
+      }
+    },
+    {
+      "civ": "crimson",
+      "decision": {
+        "civ": "crimson",
+        "turn": 50,
+        "orders": [
+          {
+            "unit": "crimson-10",
+            "action": "defend",
+            "target": 144,
+            "reason": "Défendre la capitale Thamere-la-Plaine."
+          },
+          {
+            "unit": "crimson-11",
+            "action": "explore",
+            "target": 157,
+            "reason": "Explorer forêt 157 pour repérer ressources et menaces."
+          },
+          {
+            "unit": "crimson-12",
+            "action": "explore",
+            "target": 143,
+            "reason": "Lumberjack reste sur forêt 143 pour exploiter le bois."
+          },
+          {
+            "unit": "crimson-13",
+            "action": "explore",
+            "target": 156,
+            "reason": "Mineur vers colline 156 pour miner."
+          },
+          {
+            "unit": "crimson-14",
+            "action": "explore",
+            "target": 130,
+            "reason": "Marchand explore route vers 130."
+          },
+          {
+            "unit": "crimson-24",
+            "action": "defend",
+            "target": 147,
+            "reason": "Défendre la colonie de Sellin."
+          }
+        ],
+        "objective": "Défendre capitale et Sellin, accumuler science, tenter construction market si possible.",
+        "focus": "science",
+        "research": "metallurgy",
+        "construction": [
+          {
+            "city": "city-crimson",
+            "building": "academy"
+          }
+        ],
+        "diplomacy": [],
+        "recruitSettler": false
+      },
+      "source": "remote",
+      "model": "nous:inclusionai/ling-3.0-flash-sante:free",
+      "service": {
+        "requestedModel": "nous:inclusionai/ling-3.0-flash-sante:free",
+        "servedModel": "nous:inclusionai/ling-3.0-flash-sante:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 2500,
+        "servedByFallback": false
+      },
+      "error": null,
+      "review": {
+        "attempts": 2,
+        "issues": [
+          "crimson-24: Only military units can defend"
+        ],
+        "corrected": false,
+        "secondError": null
+      }
+    },
+    {
+      "civ": "verdant",
+      "decision": {
+        "civ": "verdant",
+        "turn": 50,
+        "orders": [
+          {
+            "unit": "verdant-15",
+            "action": "defend",
+            "escort": null,
+            "target": 126,
+            "reason": "Maintenir la défense de Velvale et protéger les travailleurs locaux."
+          },
+          {
+            "unit": "verdant-16",
+            "action": "move",
+            "escort": null,
+            "target": 154,
+            "reason": "Continuer à cultiver les terres de Velvale."
+          },
+          {
+            "unit": "verdant-17",
+            "action": "move",
+            "escort": null,
+            "target": 154,
+            "reason": "Continuer à exploiter les forêts proches de Velvale."
+          },
+          {
+            "unit": "verdant-18",
+            "action": "move",
+            "escort": null,
+            "target": 154,
+            "reason": "Continuer à extraire les minerais à Velvale."
+          },
+          {
+            "unit": "verdant-19",
+            "action": "move",
+            "escort": null,
+            "target": 154,
+            "reason": "Continuer à générer de la richesse à Velvale."
+          },
+          {
+            "unit": "verdant-23",
+            "action": "move",
+            "escort": null,
+            "target": 119,
+            "reason": "Continuer l'exploration vers le nord-est pour repérer des terres neutres et des ressources supplémentaires."
+          }
+        ],
+        "objective": "Développer une base solide avec une croissance équilibrée, tout en explorant les terres environnantes pour identifier des opportunités de colonisation et de ressources.",
+        "focus": "balanced",
+        "research": "masonry",
+        "construction": [
+          {
+            "city": "city-verdant",
+            "building": "academy"
+          }
+        ],
+        "diplomacy": [],
+        "recruitSettler": false
+      },
+      "source": "remote",
+      "model": "nous:poolside/laguna-s-2.1:free",
+      "service": {
+        "requestedModel": "nous:poolside/laguna-s-2.1:free",
+        "servedModel": "nous:poolside/laguna-s-2.1:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 12657,
+        "servedByFallback": false
+      },
+      "error": null,
+      "review": {
+        "attempts": 2,
+        "issues": [
+          "verdant-16: Only military units can defend",
+          "verdant-17: Only military units can defend",
+          "verdant-18: Only military units can defend",
+          "verdant-19: Only military units can defend"
+        ],
+        "corrected": true,
+        "secondError": null
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "civ": "crimson",
+      "unit": "crimson-24",
+      "detail": "Only military units can defend"
+    }
+  ],
+  "events": [
+    {
+      "tick": 51,
+      "civ": "crimson",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : academy"
+    },
+    {
+      "tick": 51,
+      "civ": "verdant",
+      "kind": "BUILT",
+      "detail": "Chantier lancé : academy"
+    },
+    {
+      "tick": 51,
+      "civ": "amber",
+      "kind": "FOUNDED",
+      "detail": "Ville fondée à Rhogan"
+    },
+    {
+      "tick": 51,
+      "civ": "verdant",
+      "kind": "SHORTAGE",
+      "detail": "verdant-15 perd un soldat loin du ravitaillement"
+    },
+    {
+      "tick": 51,
+      "civ": "amber",
+      "kind": "GREW",
+      "detail": "population : 168"
+    },
+    {
+      "tick": 51,
+      "civ": "amber",
+      "kind": "BUILT",
+      "detail": "Vaspor-la-Plaine : walls achevé"
+    },
+    {
+      "tick": 51,
+      "civ": "azure",
+      "kind": "GREW",
+      "detail": "population : 168"
+    },
+    {
+      "tick": 51,
+      "civ": "crimson",
+      "kind": "GREW",
+      "detail": "population : 168"
+    },
+    {
+      "tick": 51,
+      "civ": "verdant",
+      "kind": "GREW",
+      "detail": "population : 142"
+    },
+    {
+      "tick": 51,
+      "civ": "verdant",
+      "kind": "RECRUITED",
+      "detail": "1 soldats équipés et recrutés"
+    },
+    {
+      "tick": 51,
+      "civ": "verdant",
+      "kind": "ADVANCE",
+      "detail": "progrès : masonry (+25% housing)"
+    }
+  ]
+}

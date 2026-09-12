@@ -178,7 +178,7 @@ export function verifyReleaseInventory(root: string): void {
   ]);
   const unexpectedMentions = (pattern: RegExp, allowlist: Set<string>) => textFiles
     .filter((path) => pattern.test(readFileSync(path, "utf8")))
-    .map((path) => relative(root, path))
+    .map((path) => relative(root, path).replaceAll("\\", "/"))
     .filter((path) => !allowlist.has(path));
   const unexpectedTitle = unexpectedMentions(oldTitle, titleAllowlist);
   const unexpectedSlug = unexpectedMentions(oldSlug, slugAllowlist);

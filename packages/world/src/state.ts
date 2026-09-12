@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FactionIdSchema, IdentitySchema, type FactionId, type Identity } from "@abs/contracts";
+import { CivilizationSchema, FocusSchema } from "./civilization-state.js";
 
 /**
  * A world that does not end.
@@ -56,7 +57,7 @@ import { FactionIdSchema, IdentitySchema, type FactionId, type Identity } from "
  * and the code says so instead of silently producing different numbers.
  */
 export const WORLD_VERSION = "w8";
-export const WORLD_VERSIONS = ["w8", "w9"] as const;
+export const WORLD_VERSIONS = ["w8", "w9", "w10"] as const;
 export const WorldVersionSchema = z.enum(WORLD_VERSIONS);
 export type WorldVersion = z.infer<typeof WorldVersionSchema>;
 
@@ -140,6 +141,8 @@ export type Stock = z.infer<typeof StockSchema>;
 
 /** How a civilisation currently spends its people. Set by its ruler, held between decisions. */
 export const DoctrineSchema = z.object({
+  /** w10 development priorities; ignored by archived rules. */
+  focus: FocusSchema.optional(),
   /** Shares of the workforce. Normalised by the engine; they need not sum to 1. */
   farming: z.number().min(0),
   forestry: z.number().min(0),
@@ -211,6 +214,7 @@ export function doctrineFingerprint(doctrine: Doctrine): string {
 }
 
 const CivFieldsSchema = z.object({
+  science: z.number().min(0).optional(),
   id: FactionIdSchema,
   /** Declarative identity only; engine resolution continues to read doctrine. */
   identity: IdentitySchema.optional(),
@@ -255,6 +259,7 @@ export const CivSchema = CivFieldsSchema.transform((civ) => ({
 export type Civ = z.infer<typeof CivSchema>;
 
 export const WorldSchema = z.object({
+  simulation: CivilizationSchema.optional(),
   worldVersion: WorldVersionSchema,
   tick: z.number().int(),
   seed: z.number().int(),
@@ -279,6 +284,27 @@ export const WorldSchema = z.object({
   /** Unclaimed land, by kind. Derived from the board every tick. */
   free: LandsSchema.default({ plain: 0, forest: 0, hill: 0, river: 0 }),
   civs: z.array(CivSchema),
+}).superRefine((world, ctx) => {
+  if (world.worldVersion !== "w10") return;
+  const issue = (message: string) => ctx.addIssue({code:"custom",message});
+  const sim = world.simulation;
+  if (!sim) {issue("w10 requires simulation state");return;}
+  if (world.size < 7 || world.size > 32 || world.board.length !== world.size * world.size || world.tick < 0) issue("invalid world dimensions or tick");
+  const ids = new Set(world.civs.map(c=>c.id));
+  if (ids.size !== world.civs.length || ids.size < 2 || ids.size > 4) issue("invalid civilization roster");
+  if (world.board.some(p=>p.owner!==null&&!ids.has(p.owner))) issue("unknown land owner");
+  if (new Set(sim.units.map(u=>u.id)).size !== sim.units.length) issue("duplicate unit id");
+  if (new Set(sim.cities.map(c=>c.position)).size !== sim.cities.length) issue("duplicate city position");
+  for (const civ of world.civs) {
+    if (!Number.isInteger(civ.population) || civ.population < 0 || !Number.isInteger(civ.soldiers) || civ.soldiers < 0 || civ.soldiers > civ.population) issue("invalid population or army");
+    if (Object.values(civ.stock).some(n=>!Number.isFinite(n)||n<0)) issue("invalid resource stock");
+    if (civ.fellOnTick === null && (civ.capital === null || world.board[civ.capital]?.owner !== civ.id)) issue("capital outside its territory");
+    if (sim.units.filter(u=>u.owner===civ.id&&u.role==="soldier").reduce((n,u)=>n+u.strength,0)!==civ.soldiers) issue("army total differs from unit strengths");
+  }
+  for (const u of sim.units) if (!ids.has(u.owner) || !world.board[u.position] || !world.board[u.previous] || (u.target!==null&&!world.board[u.target]) || world.civs.find(c=>c.id===u.owner)?.fellOnTick!==null) issue("invalid unit position or owner");
+  for (const c of sim.cities) if (world.board[c.position]?.owner!==c.owner || new Set(c.buildings).size!==c.buildings.length) issue("invalid city ownership or buildings");
+  const pairs = new Set<string>();
+  for (const r of sim.relations) { const key=[r.a,r.b].sort().join(":"); if(r.a===r.b||!ids.has(r.a)||!ids.has(r.b)||pairs.has(key)) issue("invalid diplomatic pair"); pairs.add(key); }
 });
 export type World = z.infer<typeof WorldSchema>;
 

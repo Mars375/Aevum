@@ -68,6 +68,8 @@ export interface LiveOptions {
    * rather than guess at it.
    */
   onRuling?: (journal: Journal, world: World) => void;
+  /** A complete resumable checkpoint, including pending decision work. */
+  onCheckpoint?: (journal: Journal, world: World) => void;
   notify?: (notice: LiveNotice) => void;
 }
 
@@ -116,14 +118,23 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
    * fresh question replaces a queued one, because a famine from ten years ago
    * is not what a ruler should be deciding today.
    */
-  const pending = new Map<string, DecisionPoint>();
+  const pending = new Map<string, DecisionPoint>((journal.scheduler?.pending ?? []).map(p => [p.civ, p]));
+  let remaining: string[] | null = journal.scheduler?.remaining ? [...journal.scheduler.remaining] : null;
+  let sources: Record<string, string> = journal.scheduler?.sources ?? {};
 
   let world = from;
   let lived = 0;
   let closed = false;
+  const checkpoint = () => {
+    journal.livedTo = world.tick;
+    journal.scheduler = { pending: [...pending.values()], remaining: remaining as NonNullable<Journal["scheduler"]>["remaining"], sources };
+    opts.onCheckpoint?.(journal, world);
+  };
 
   const warmup = Math.max(0, opts.warmup ?? 0);
-  for (let i = 0; i < ticks; i += 1) {
+  for (let i = 0; i < ticks || remaining !== null;) {
+    if (remaining === null) {
+    if (isOver(world)) { closed = true; break; }
     // Pendant la mise en route, le monde vit seul. Aucune horloge n'est remise
     // à zéro sans ruling : cette mutation ne serait pas présente au journal et
     // casserait W4 au rejeu.
@@ -131,6 +142,8 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
       const stepped = tickWorld(world);
       world = stepped.world;
       lived += 1;
+      i += 1;
+      checkpoint();
       if (isOver(world)) {
         closed = true;
         notify({ kind: "era-closed", tick: world.tick, text: "il ne reste qu'une civilisation" });
@@ -142,6 +155,7 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
     const stepped = tickWorld(world);
     world = stepped.world;
     lived += 1;
+    i += 1;
 
     for (const event of stepped.events) {
       if (NOTABLE.has(event.kind)) {
@@ -150,18 +164,34 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
     }
 
     for (const point of detectDecisions(world, stepped.events)) pending.set(point.civ, point);
+    remaining = [...pending.keys()].sort();
+    sources = {};
+    for (const point of pending.values()) {
+      if (point.tick !== world.tick) continue;
+      const sourceKinds = EVENT_KINDS[point.kind] ?? [];
+      const index = stepped.events.findIndex(e => e.civ === point.civ && sourceKinds.includes(e.kind));
+      if (index >= 0) sources[point.civ] = lifeEvent(stepped.events[index]!, index).id;
+    }
+    checkpoint();
+    }
 
     // The barrier. Sorted by id so the order never depends on a Map's insertion
     // history — the same discipline the engine applies to squads and civs.
-    for (const [civId, point] of [...pending].sort((a, b) => a[0].localeCompare(b[0]))) {
-      const civ = world.civs.find((c) => c.id === civId)!;
+    for (const civId of [...remaining!]) {
+      const point = pending.get(civId)!;
+      const civ = world.civs.find((c) => c.id === civId);
       const general = generalOf.get(civId);
       const tally = ledger.get(civId)!;
+
+      if (!civ || civ.fellOnTick !== null) {
+        pending.delete(civId); remaining = remaining!.filter(id => id !== civId); checkpoint(); continue;
+      }
 
       if (!provider || !general) {
         // Nobody answers at all. The world carries on under the standing
         // doctrine. It is not marked as decided: replay only knows rulings.
         pending.delete(civId);
+        remaining = remaining!.filter(id => id !== civId); checkpoint();
         notify({ kind: "unruled", tick: point.tick, civ: civId, text: point.kind });
         continue;
       }
@@ -173,6 +203,7 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
       });
 
       if (ruling === null) {
+        remaining = remaining!.filter(id => id !== civId); checkpoint();
         tally.deferred += 1;
         notify({
           kind: "deferred",
@@ -186,14 +217,11 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
       tally.answered += 1;
       pending.delete(civId);
       ruling.deferredBy = world.tick - point.tick;
-      if (ruling.deferredBy === 0) {
-        const sourceKinds = EVENT_KINDS[point.kind] ?? [];
-        const sourceIndex = stepped.events.findIndex((event) => event.civ === civId && sourceKinds.includes(event.kind));
-        if (sourceIndex >= 0) ruling.consequenceRef = lifeEvent(stepped.events[sourceIndex]!, sourceIndex).id;
-      }
+      if (ruling.deferredBy === 0 && sources[civId]) ruling.consequenceRef = sources[civId]!;
       journal.rulings.push(ruling);
       journal.livedTo = world.tick;
       world = applyRuling(world, ruling);
+      remaining = remaining!.filter(id => id !== civId); checkpoint();
       opts.onRuling?.(journal, world);
       notify({
         kind: "ruled",
@@ -202,6 +230,8 @@ export async function liveWorld(from: World, opts: LiveOptions): Promise<LiveRes
         text: `${point.kind}${ruling.deferredBy > 0 ? ` [+${ruling.deferredBy} ans d'attente]` : ""} — ${ruling.reason}`,
       });
     }
+    remaining = null;
+    checkpoint();
 
     if (isOver(world)) {
       closed = true;

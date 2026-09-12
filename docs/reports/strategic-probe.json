@@ -1,0 +1,51 @@
+{
+  "rows": [
+    {
+      "seed": 42,
+      "id": "eae45425-95a1-4a19-a34e-2623a1417ae0",
+      "turns": 120,
+      "cities": 24,
+      "deliveries": 132,
+      "completedPlans": 36,
+      "replay": true
+    },
+    {
+      "seed": 7,
+      "id": "e256bee8-05a0-4a7c-a223-c4a8adbfde59",
+      "turns": 120,
+      "cities": 20,
+      "deliveries": 117,
+      "completedPlans": 31,
+      "replay": true
+    },
+    {
+      "seed": 123,
+      "id": "ceac3757-9b5c-4197-9499-779bc0b9b795",
+      "turns": 120,
+      "cities": 19,
+      "deliveries": 128,
+      "completedPlans": 41,
+      "replay": true
+    }
+  ],
+  "legacy": [
+    {
+      "id": "67dadf23-8575-4425-afd2-b8b9999a060a",
+      "version": "spectator-1",
+      "turn": 50,
+      "replay": true
+    },
+    {
+      "id": "df93b5b6-4b1f-4892-af96-3d16a1984de1",
+      "version": "spectator-1",
+      "turn": 52,
+      "replay": true
+    },
+    {
+      "id": "fc120553-4a15-40c9-84a7-229e3bc0ad14",
+      "version": "spectator-2",
+      "turn": 60,
+      "replay": true
+    }
+  ]
+}

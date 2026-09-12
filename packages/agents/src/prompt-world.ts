@@ -14,7 +14,21 @@ import { frontier, type Civ, type DecisionPoint, type World } from "@abs/world";
  * honest about what it demonstrates.
  */
 
-export function systemPromptWorld(): string {
+export function systemPromptWorld(version = "w8"): string {
+  if (version === "w10") return [
+    "You govern a civilization in a deterministic strategy simulation. Choose policy; the engine executes it over years.",
+    "Return JSON only, matching the provided schema. Explain your reasoning and preserve a short inherited creed.",
+    "Workforce shares farming/forestry/mining/trade/military are normalized. Soldiers are part of population and do not produce.",
+    "People consume food; armies cost wages, ore and recruitment money. Food deficits cause famine. Unpaid soldiers desert.",
+    "Settlers cost 60 timber, 20 wealth and 50 food with a food reserve; they must physically reach adjacent unclaimed land.",
+    "Cities build granaries, workshops, markets, walls and academies over several years, paying resources up front.",
+    "Choose focus: balanced or growth prioritizes granaries; industry workshops and masonry; science academies with 10% lower production and 40% faster research; military walls and metallurgy.",
+    "Research unlocks irrigation (food), masonry (housing), metallurgy (ore and combat), coinage (trade), engineering (river crossings and construction), scholarship (research).",
+    "TRADE creates bilateral trade when both adjacent neighbors agree. GUARD defends with +25% strength. PRESSURE can declare war when your total army exceeds the neighbor by 15% and exceeds four soldiers.",
+    "Armies move one adjacent tile per year, rivers slow crossings before engineering. Combat uses forces actually present, hills and city walls. Empty fronts can be vulnerable even with a large distant army.",
+    "Peace follows mutual nonaggression or exhaustion after 20 war years; a twelve-year truce prevents immediate redeclaration.",
+    "No land or no people means collapse. Existing cities and units are real state, not hypothetical plans. Do not invent actions outside the schema.",
+  ].join("\n");
   return [
     "You rule one civilisation in a world that does not end. There is no victory and no final turn.",
     "A deterministic engine simulates every year on its own. You are woken only when the world reaches something your standing doctrine cannot answer.",
@@ -112,6 +126,13 @@ export function userPromptWorld(civ: Civ, point: DecisionPoint, world?: World): 
       : []),
     `- stores: ${Math.round(civ.stock.food)} food, ${Math.round(civ.stock.timber)} timber, ${Math.round(civ.stock.ore)} ore, ${Math.round(civ.stock.wealth)} wealth`,
     `- advances: ${civ.advances.length > 0 ? civ.advances.join(", ") : "none yet"}`,
+    ...(world?.simulation ? [
+      `- development focus: ${d.focus ?? "balanced"}; science: ${civ.science ?? 0}`,
+      `- cities: ${JSON.stringify(world.simulation.cities.filter(c => c.owner === civ.id))}`,
+      `- units: ${JSON.stringify(world.simulation.units.filter(u => u.owner === civ.id))}`,
+      `- diplomatic relations: ${JSON.stringify(world.simulation.relations.filter(r => r.a === civ.id || r.b === civ.id))}`,
+      "- include focus in your answer: balanced, growth, industry, science or military.",
+    ] : []),
     "",
     "Standing doctrine:",
     `- farming ${pct(d.farming, total)}, forestry ${pct(d.forestry, total)}, mining ${pct(d.mining, total)}, trade ${pct(d.trade, total)}, military ${pct(d.military, total)}`,
@@ -161,3 +182,9 @@ export const RULING_JSON_SCHEMA = {
     military: { type: "number" },
   },
 } as const;
+
+export const CIVILIZATION_RULING_JSON_SCHEMA = {
+  ...RULING_JSON_SCHEMA,
+  required: [...RULING_JSON_SCHEMA.required, "focus"],
+  properties: { ...RULING_JSON_SCHEMA.properties, focus: { type: "string", enum: ["balanced", "growth", "industry", "science", "military"] } },
+};

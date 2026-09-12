@@ -1,0 +1,5310 @@
+{
+  "worldVersion": "w10",
+  "era": 1,
+  "execution": {
+    "mode": "SCRIPTED_NO_REMOTE_MODEL",
+    "fixtureDigest": "sha256:0eac25a70a7cae2314dbb60f6f40e52a293418458960833b3de25d4a6efd6ec2"
+  },
+  "origin": {
+    "worldVersion": "w10",
+    "tick": 0,
+    "seed": 42,
+    "land": 169,
+    "size": 13,
+    "board": [
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ashfell"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Brenwick"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thavale-le-Haut"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Rhoost-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Seldun-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunfell"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrfell"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Karash"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Rhowick-sur-Eau"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Thadun"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karash-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": "azure",
+        "name": "Vasost-la-Plaine"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Karost-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Brendun"
+      },
+      {
+        "kind": "plain",
+        "owner": "amber",
+        "name": "Vaspor-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Seldun-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Morreth-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Rhomere-le-Haut"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ashlin-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selmere-les-Champs"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Selmere-les-Rives"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Rhomar-les-Rives"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ithimar-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Vaswick-les-Monts"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Dunpor-les-Monts"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Morwick"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Morreth-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ithidun-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Thafell-la-Plaine"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Mormar-le-Haut"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vasvale"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Brenvale"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Thaash-la-Plaine"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ithimere-sur-Eau"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Dunmere-sur-Eau"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thaost"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vasreth"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Thamere-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Morash"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhodun"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunreth"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Morwick-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunost-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Dunmar-sous-Bois"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ithiash-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Morfell"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Mordun-sur-Eau"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karreth-sous-Bois"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhofell-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrlin-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karmar-sous-Bois"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thagan-le-Haut"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Selash-le-Haut"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Velmere"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ferrwick"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithidun-les-Monts"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ithilin-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vasreth-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhogan"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Karmere-les-Rives"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Velwick-sur-Eau"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Karlin-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhomere"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Sellin-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selost-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Vasfell"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Selpor"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Brenwick-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dungan-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Karost-la-Plaine"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thaash-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhoreth-les-Champs"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Dunost"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Morpor"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selpor-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunmere-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Dunmar-sous-Bois"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhowick"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithimere-les-Monts"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Thaost-sous-Bois"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Dunvale-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Thadun"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ashash"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Dunash-le-Haut"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Morreth"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ashost-les-Rives"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Thadun-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ashmere"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karpor"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ashfell-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhowick-la-Plaine"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thawick-les-Monts"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karmar-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Seldun-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Selwick-la-Forêt"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Vasmar-sous-Bois"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Brenpor-les-Monts"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Rhofell"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ithigan"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Velreth"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Thavale-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithiost"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Dunpor-sous-Bois"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Morpor"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Vaslin"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhomar-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selash-la-Plaine"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithireth-les-Monts"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrash"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karwick"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Thalin"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ashlin-les-Rives"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Mordun-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Karost-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Rhopor"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selgan-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Karwick-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Thamar-la-Forêt"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Morwick-sous-Bois"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrfell-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrost-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Thareth"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Ferrgan"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Rhoost-les-Rives"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhowick"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ferrmar-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Kardun-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Dunwick-le-Haut"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Karreth"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Karfell-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Thaash-sous-Bois"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ithireth"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Selreth"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ithiost"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karmere-la-Forêt"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Karmere-sur-Eau"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Brenost"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Dunfell-le-Haut"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Velreth"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Seldun-les-Monts"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ithiost-la-Forêt"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Sellin-les-Champs"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Ithiost-les-Champs"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Rhomere-sous-Bois"
+      },
+      {
+        "kind": "plain",
+        "owner": "crimson",
+        "name": "Thamere-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Morvale"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Vaslin"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Sellin"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ashfell-la-Forêt"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Brenreth-sur-Eau"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Dunmere-sur-Eau"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Velgan-sous-Bois"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ithifell"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Morfell-la-Plaine"
+      },
+      {
+        "kind": "plain",
+        "owner": "verdant",
+        "name": "Velvale"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Vasreth-sous-Bois"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Thagan-le-Haut"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Selvale-la-Forêt"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Karpor"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Rhowick-la-Plaine"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Vasmar"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithireth"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Ithireth-les-Monts"
+      },
+      {
+        "kind": "river",
+        "owner": null,
+        "name": "Vellin"
+      },
+      {
+        "kind": "plain",
+        "owner": null,
+        "name": "Karpor-les-Champs"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Rholin-le-Haut"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Morpor"
+      },
+      {
+        "kind": "forest",
+        "owner": null,
+        "name": "Ithipor"
+      },
+      {
+        "kind": "hill",
+        "owner": null,
+        "name": "Karpor"
+      }
+    ],
+    "free": {
+      "plain": 69,
+      "forest": 42,
+      "hill": 32,
+      "river": 22
+    },
+    "civs": [
+      {
+        "id": "amber",
+        "identity": {
+          "displayName": "Amber",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 1,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 1,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.55,
+          "forestry": 0.15,
+          "mining": 0.08,
+          "trade": 0.17,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "claim": "plain",
+          "vow": null,
+          "focus": "balanced"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 14,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null,
+        "science": 0
+      },
+      {
+        "id": "azure",
+        "identity": {
+          "displayName": "Azure",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 1,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 1,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.55,
+          "forestry": 0.15,
+          "mining": 0.08,
+          "trade": 0.17,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "claim": "plain",
+          "vow": null,
+          "focus": "balanced"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 11,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null,
+        "science": 0
+      },
+      {
+        "id": "crimson",
+        "identity": {
+          "displayName": "Crimson",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 1,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 1,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.55,
+          "forestry": 0.15,
+          "mining": 0.08,
+          "trade": 0.17,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "claim": "plain",
+          "vow": null,
+          "focus": "balanced"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 144,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null,
+        "science": 0
+      },
+      {
+        "id": "verdant",
+        "identity": {
+          "displayName": "Verdant",
+          "values": [],
+          "origin": ""
+        },
+        "population": 100,
+        "lands": {
+          "plain": 1,
+          "forest": 0,
+          "hill": 0,
+          "river": 0
+        },
+        "territory": 1,
+        "stock": {
+          "food": 200,
+          "timber": 80,
+          "ore": 40,
+          "wealth": 50
+        },
+        "doctrine": {
+          "farming": 0.55,
+          "forestry": 0.15,
+          "mining": 0.08,
+          "trade": 0.17,
+          "military": 0.05,
+          "posture": "GUARD",
+          "creed": "",
+          "claim": "plain",
+          "vow": null,
+          "focus": "balanced"
+        },
+        "soldiers": 5,
+        "advances": [],
+        "capital": 154,
+        "ticksSinceDecision": 0,
+        "vowBrokenOn": null,
+        "fellOnTick": null,
+        "science": 0
+      }
+    ],
+    "simulation": {
+      "cities": [
+        {
+          "id": "city-amber",
+          "owner": "amber",
+          "position": 14,
+          "founded": 0,
+          "buildings": [],
+          "queue": null
+        },
+        {
+          "id": "city-azure",
+          "owner": "azure",
+          "position": 11,
+          "founded": 0,
+          "buildings": [],
+          "queue": null
+        },
+        {
+          "id": "city-crimson",
+          "owner": "crimson",
+          "position": 144,
+          "founded": 0,
+          "buildings": [],
+          "queue": null
+        },
+        {
+          "id": "city-verdant",
+          "owner": "verdant",
+          "position": 154,
+          "founded": 0,
+          "buildings": [],
+          "queue": null
+        }
+      ],
+      "units": [
+        {
+          "id": "amber-0",
+          "owner": "amber",
+          "role": "soldier",
+          "position": 14,
+          "previous": 14,
+          "target": null,
+          "strength": 5,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "amber-1",
+          "owner": "amber",
+          "role": "farmer",
+          "position": 14,
+          "previous": 14,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "amber-2",
+          "owner": "amber",
+          "role": "lumberjack",
+          "position": 14,
+          "previous": 14,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "amber-3",
+          "owner": "amber",
+          "role": "miner",
+          "position": 14,
+          "previous": 14,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "amber-4",
+          "owner": "amber",
+          "role": "merchant",
+          "position": 14,
+          "previous": 14,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "azure-5",
+          "owner": "azure",
+          "role": "soldier",
+          "position": 11,
+          "previous": 11,
+          "target": null,
+          "strength": 5,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "azure-6",
+          "owner": "azure",
+          "role": "farmer",
+          "position": 11,
+          "previous": 11,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "azure-7",
+          "owner": "azure",
+          "role": "lumberjack",
+          "position": 11,
+          "previous": 11,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "azure-8",
+          "owner": "azure",
+          "role": "miner",
+          "position": 11,
+          "previous": 11,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "azure-9",
+          "owner": "azure",
+          "role": "merchant",
+          "position": 11,
+          "previous": 11,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "crimson-10",
+          "owner": "crimson",
+          "role": "soldier",
+          "position": 144,
+          "previous": 144,
+          "target": null,
+          "strength": 5,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "crimson-11",
+          "owner": "crimson",
+          "role": "farmer",
+          "position": 144,
+          "previous": 144,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "crimson-12",
+          "owner": "crimson",
+          "role": "lumberjack",
+          "position": 144,
+          "previous": 144,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "crimson-13",
+          "owner": "crimson",
+          "role": "miner",
+          "position": 144,
+          "previous": 144,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "crimson-14",
+          "owner": "crimson",
+          "role": "merchant",
+          "position": 144,
+          "previous": 144,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "verdant-15",
+          "owner": "verdant",
+          "role": "soldier",
+          "position": 154,
+          "previous": 154,
+          "target": null,
+          "strength": 5,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "verdant-16",
+          "owner": "verdant",
+          "role": "farmer",
+          "position": 154,
+          "previous": 154,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "verdant-17",
+          "owner": "verdant",
+          "role": "lumberjack",
+          "position": 154,
+          "previous": 154,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "verdant-18",
+          "owner": "verdant",
+          "role": "miner",
+          "position": 154,
+          "previous": 154,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        },
+        {
+          "id": "verdant-19",
+          "owner": "verdant",
+          "role": "merchant",
+          "position": 154,
+          "previous": 154,
+          "target": null,
+          "strength": 1,
+          "task": "idle",
+          "cooldown": 0
+        }
+      ],
+      "relations": [
+        {
+          "a": "amber",
+          "b": "azure",
+          "status": "peace",
+          "since": 0,
+          "truceUntil": 0
+        },
+        {
+          "a": "amber",
+          "b": "crimson",
+          "status": "peace",
+          "since": 0,
+          "truceUntil": 0
+        },
+        {
+          "a": "amber",
+          "b": "verdant",
+          "status": "peace",
+          "since": 0,
+          "truceUntil": 0
+        },
+        {
+          "a": "azure",
+          "b": "crimson",
+          "status": "peace",
+          "since": 0,
+          "truceUntil": 0
+        },
+        {
+          "a": "azure",
+          "b": "verdant",
+          "status": "peace",
+          "since": 0,
+          "truceUntil": 0
+        },
+        {
+          "a": "crimson",
+          "b": "verdant",
+          "status": "peace",
+          "since": 0,
+          "truceUntil": 0
+        }
+      ],
+      "nextUnit": 20
+    }
+  },
+  "livedTo": 300,
+  "fingerprint": "ae4b076a",
+  "rulings": [
+    {
+      "tick": 8,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "forest",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les forest et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "108 habitants",
+        "818.73 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 8,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "108 habitants",
+        "818.73 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 8,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "forest",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les forest et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "108 habitants",
+        "818.73 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 8,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "forest",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les forest et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "108 habitants",
+        "818.73 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 16,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "forest",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les forest et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "116 habitants",
+        "1572.48 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 16,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "116 habitants",
+        "1415.99 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 16,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les hill et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "116 habitants",
+        "1301.22 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 16,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les hill et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "116 habitants",
+        "1572.48 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 24,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "forest",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les forest et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "124 habitants",
+        "1791.4 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 24,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "124 habitants",
+        "1791.4 vivres",
+        "4 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 24,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les hill et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "124 habitants",
+        "1841.4 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 24,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les hill et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "124 habitants",
+        "1841.4 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 32,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les hill et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "132 habitants",
+        "1910.2 vivres",
+        "5 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 32,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "132 habitants",
+        "1910.2 vivres",
+        "4 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 32,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les hill et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "132 habitants",
+        "1910.2 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 32,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les hill et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "132 habitants",
+        "1910.2 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 40,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les hill et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "146 habitants",
+        "2118.1 vivres",
+        "5 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 40,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les river et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "146 habitants",
+        "2118.1 vivres",
+        "5 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 40,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "146 habitants",
+        "2104.01 vivres",
+        "5 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 40,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "146 habitants",
+        "2118.1 vivres",
+        "4 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 48,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "162 habitants",
+        "2405.7 vivres",
+        "6 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 48,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "162 habitants",
+        "2405.7 vivres",
+        "6 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 48,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "162 habitants",
+        "2355.7 vivres",
+        "6 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 48,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "162 habitants",
+        "2355.7 vivres",
+        "6 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 56,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "178 habitants",
+        "2593.3 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 56,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "178 habitants",
+        "2593.3 vivres",
+        "6 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 56,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "178 habitants",
+        "2593.3 vivres",
+        "6 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 56,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "178 habitants",
+        "2593.3 vivres",
+        "6 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 64,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "194 habitants",
+        "2880.9 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 64,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les river et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "194 habitants",
+        "2880.9 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 64,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "194 habitants",
+        "2880.9 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 64,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "194 habitants",
+        "2880.9 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 72,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "215 habitants",
+        "3142.75 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 72,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les river et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "215 habitants",
+        "3142.75 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 72,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "215 habitants",
+        "3142.75 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 72,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "215 habitants",
+        "3142.75 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 80,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "239 habitants",
+        "3499.15 vivres",
+        "8 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 80,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "239 habitants",
+        "4208.98 vivres",
+        "8 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 80,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "239 habitants",
+        "3499.15 vivres",
+        "8 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 80,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "239 habitants",
+        "3499.15 vivres",
+        "8 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 88,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "263 habitants",
+        "3855.55 vivres",
+        "9 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 88,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "263 habitants",
+        "4636.66 vivres",
+        "9 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 88,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "263 habitants",
+        "3855.55 vivres",
+        "9 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 88,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "263 habitants",
+        "3855.55 vivres",
+        "9 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 96,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "293 habitants",
+        "4301.05 vivres",
+        "10 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 96,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "293 habitants",
+        "5171.26 vivres",
+        "10 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 96,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "293 habitants",
+        "4301.05 vivres",
+        "10 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 96,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "293 habitants",
+        "4301.05 vivres",
+        "10 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 104,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "325 habitants",
+        "4776.25 vivres",
+        "11 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 104,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "325 habitants",
+        "5741.5 vivres",
+        "11 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 104,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "325 habitants",
+        "4776.25 vivres",
+        "11 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 104,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "325 habitants",
+        "4776.25 vivres",
+        "11 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 112,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "362 habitants",
+        "5325.7 vivres",
+        "12 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 112,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "362 habitants",
+        "6400.84 vivres",
+        "12 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 112,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "362 habitants",
+        "5325.7 vivres",
+        "12 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 112,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "362 habitants",
+        "5786.08 vivres",
+        "12 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 120,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "402 habitants",
+        "7113.64 vivres",
+        "13 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 120,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "402 habitants",
+        "7113.64 vivres",
+        "13 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 120,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "402 habitants",
+        "6773.53 vivres",
+        "13 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 120,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "402 habitants",
+        "7113.64 vivres",
+        "13 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 128,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "450 habitants",
+        "7969 vivres",
+        "14 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 128,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "450 habitants",
+        "9305.5 vivres",
+        "14 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 128,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "450 habitants",
+        "7969 vivres",
+        "14 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 128,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "450 habitants",
+        "7969 vivres",
+        "14 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 136,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "503 habitants",
+        "8913.46 vivres",
+        "15 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 136,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "503 habitants",
+        "10407.37 vivres",
+        "15 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 136,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "503 habitants",
+        "8913.46 vivres",
+        "15 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 136,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "503 habitants",
+        "9354.7 vivres",
+        "15 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 144,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "562 habitants",
+        "11633.98 vivres",
+        "16 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 144,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "562 habitants",
+        "11633.98 vivres",
+        "16 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 144,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "562 habitants",
+        "11633.98 vivres",
+        "16 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 144,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "562 habitants",
+        "11633.98 vivres",
+        "16 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 152,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "629 habitants",
+        "13026.91 vivres",
+        "17 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 152,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "629 habitants",
+        "13026.91 vivres",
+        "17 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 152,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "629 habitants",
+        "13026.91 vivres",
+        "17 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 152,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "629 habitants",
+        "13026.91 vivres",
+        "17 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 160,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "704 habitants",
+        "14586.16 vivres",
+        "18 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 160,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "704 habitants",
+        "15745.92 vivres",
+        "18 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 160,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "704 habitants",
+        "14586.16 vivres",
+        "18 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 160,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "704 habitants",
+        "14586.16 vivres",
+        "18 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 168,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "789 habitants",
+        "16353.31 vivres",
+        "19 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 168,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "789 habitants",
+        "18696.64 vivres",
+        "18 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 168,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "789 habitants",
+        "16353.31 vivres",
+        "19 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 168,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "789 habitants",
+        "16353.31 vivres",
+        "19 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 176,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "885 habitants",
+        "20977.6 vivres",
+        "20 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 176,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "885 habitants",
+        "21027.6 vivres",
+        "19 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 176,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "885 habitants",
+        "18349.15 vivres",
+        "20 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 176,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "885 habitants",
+        "20977.6 vivres",
+        "20 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 184,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "993 habitants",
+        "23543.68 vivres",
+        "21 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 184,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "993 habitants",
+        "23543.68 vivres",
+        "19 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 184,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "993 habitants",
+        "20594.47 vivres",
+        "21 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 184,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "993 habitants",
+        "23543.68 vivres",
+        "21 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 192,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1115 habitants",
+        "29753.95 vivres",
+        "22 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 192,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1115 habitants",
+        "26442.4 vivres",
+        "20 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 192,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les river et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1115 habitants",
+        "23130.85 vivres",
+        "22 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 192,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1115 habitants",
+        "26442.4 vivres",
+        "22 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 200,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1251 habitants",
+        "33389.23 vivres",
+        "23 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 200,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1251 habitants",
+        "29673.76 vivres",
+        "21 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 200,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1251 habitants",
+        "25958.29 vivres",
+        "23 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 200,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1251 habitants",
+        "29673.76 vivres",
+        "23 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 208,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1405 habitants",
+        "37505.65 vivres",
+        "24 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 208,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1405 habitants",
+        "33332.8 vivres",
+        "22 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 208,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1405 habitants",
+        "29159.95 vivres",
+        "24 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 208,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1405 habitants",
+        "37505.65 vivres",
+        "24 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 216,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1580 habitants",
+        "46876 vivres",
+        "25 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 216,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1580 habitants",
+        "37490.8 vivres",
+        "23 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 216,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1580 habitants",
+        "32744.25 vivres",
+        "25 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 216,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1580 habitants",
+        "42183.4 vivres",
+        "25 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 224,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les river et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1776 habitants",
+        "52697.2 vivres",
+        "26 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 224,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1776 habitants",
+        "42147.76 vivres",
+        "24 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 224,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1690 habitants",
+        "35085.1 vivres",
+        "26 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 224,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1776 habitants",
+        "47422.48 vivres",
+        "26 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 232,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1997 habitants",
+        "59260.9 vivres",
+        "27 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 232,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1968 habitants",
+        "51968.96 vivres",
+        "25 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 232,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1900 habitants",
+        "42660.56 vivres",
+        "27 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 232,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "1997 habitants",
+        "53329.81 vivres",
+        "27 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 240,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2245 habitants",
+        "66626.5 vivres",
+        "28 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 240,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2012 habitants",
+        "53730.76 vivres",
+        "26 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 240,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2100 habitants",
+        "55390.16 vivres",
+        "28 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 240,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2100 habitants",
+        "56083 vivres",
+        "28 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 248,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2275 habitants",
+        "54004 vivres",
+        "18 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 248,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2166 habitants",
+        "57847.18 vivres",
+        "27 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 248,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2212 habitants",
+        "69660.49 vivres",
+        "40 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 248,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2143 habitants",
+        "57232.39 vivres",
+        "29 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 256,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2257 habitants",
+        "25874.72 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 256,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2275 habitants",
+        "60760.75 vivres",
+        "27 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 256,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2429 habitants",
+        "115090.76 vivres",
+        "58 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 256,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2240 habitants",
+        "59825.2 vivres",
+        "30 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 264,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2087 habitants",
+        "20892.09 vivres",
+        "1 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 264,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2275 habitants",
+        "60760.75 vivres",
+        "28 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 264,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2644 habitants",
+        "134707.81 vivres",
+        "59 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 264,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2362 habitants",
+        "70151.4 vivres",
+        "31 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 272,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2087 habitants",
+        "15808.34 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 272,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les river et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2263 habitants",
+        "40276.66 vivres",
+        "14 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 272,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2930 habitants",
+        "174178.69 vivres",
+        "75 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 272,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2406 habitants",
+        "71408.2 vivres",
+        "31 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 280,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2087 habitants",
+        "13929.38 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 280,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "hill",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les hill et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2251 habitants",
+        "32453.5 vivres",
+        "7 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 280,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "3262 habitants",
+        "213988.5 vivres",
+        "83 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 280,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.52,
+        "forestry": 0.14,
+        "mining": 0.1,
+        "trade": 0.18,
+        "military": 0.06,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2450 habitants",
+        "72715 vivres",
+        "32 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 288,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2087 habitants",
+        "11348.37 vivres",
+        "3 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 288,
+      "civ": "azure",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "science"
+      },
+      "reason": "Développer les plain et donner priorité à science.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2251 habitants",
+        "21120.42 vivres",
+        "2 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 288,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "3651 habitants",
+        "249623.05 vivres",
+        "98 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 288,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "river",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les river et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2486 habitants",
+        "73784.2 vivres",
+        "25 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 296,
+      "civ": "amber",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "industry"
+      },
+      "reason": "Développer les plain et donner priorité à industry.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2087 habitants",
+        "9013.67 vivres",
+        "4 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 296,
+      "civ": "crimson",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "PRESSURE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "military"
+      },
+      "reason": "Développer les plain et donner priorité à military.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "3915 habitants",
+        "348915.6 vivres",
+        "108 lieux"
+      ],
+      "consequenceRef": null
+    },
+    {
+      "tick": 296,
+      "civ": "verdant",
+      "kind": "DRIFT",
+      "doctrine": {
+        "farming": 0.456140350877193,
+        "forestry": 0.12280701754385967,
+        "mining": 0.08771929824561404,
+        "trade": 0.15789473684210528,
+        "military": 0.1754385964912281,
+        "posture": "TRADE",
+        "creed": "",
+        "claim": "plain",
+        "vow": null,
+        "focus": "growth"
+      },
+      "reason": "Développer les plain et donner priorité à growth.",
+      "model": "local/deterministic-policy-v1",
+      "deferredBy": 0,
+      "service": null,
+      "context": [
+        "2360 habitants",
+        "49014.4 vivres",
+        "18 lieux"
+      ],
+      "consequenceRef": null
+    }
+  ]
+}

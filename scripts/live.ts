@@ -34,11 +34,13 @@ import {
   living,
   newJournal,
   newWorld,
+  newCivilizationWorld,
   replay,
   worldVersionOf,
   type Journal,
 } from "@abs/world";
 import { buildLearningReport } from "./learning-curve.js";
+import { atomicWrite, lockWorld } from "./world-storage.js";
 
 interface Arguments {
   world: string;
@@ -49,12 +51,13 @@ interface Arguments {
   resume: boolean;
   scripted?: string;
   warmup: number;
+  rules?: "w8" | "w10";
 }
 
 function parseArguments(args: string[]): Arguments {
   const values = new Map<string, string>();
   const flags = new Set<string>();
-  const valueOptions = new Set(["world", "ticks", "seed", "out", "scripted", "warmup"]);
+  const valueOptions = new Set(["world", "ticks", "seed", "out", "scripted", "warmup", "rules"]);
   const flagOptions = new Set(["silent", "resume"]);
   for (let i = 0; i < args.length; i += 1) {
     const token = args[i]!;
@@ -83,9 +86,12 @@ function parseArguments(args: string[]): Arguments {
     return parsed;
   };
   const world = values.get("world") ?? "default";
+  const rules = values.get("rules");
+  if (rules !== undefined && rules !== "w8" && rules !== "w10") throw new Error("--rules must be w8 or w10");
   if (!/^[A-Za-z0-9._-]+$/.test(world)) throw new Error("--world must be a safe non-empty name");
   return {
     world,
+    rules,
     ticks: number("ticks"),
     seed: number("seed"),
     silent: flags.has("silent"),
@@ -148,6 +154,10 @@ mkdirSync(DIR, { recursive: true });
 const explicitPath = OUT ? resolve(OUT) : null;
 if (explicitPath) mkdirSync(dirname(explicitPath), { recursive: true });
 const pathFor = (era: number) => explicitPath ?? resolve(DIR, `era-${String(era).padStart(4, "0")}.json`);
+const release = lockWorld(explicitPath ? `${explicitPath}.lock` : resolve(DIR, ".writer.lock"));
+process.once("exit", release);
+process.once("SIGINT", () => process.exit(130));
+process.once("SIGTERM", () => process.exit(143));
 
 const FACTIONS = DEFAULT_GENERALS.map((g) => g.factionId);
 
@@ -161,7 +171,9 @@ function latestEra(): number {
 
 /** A new era is a new world, seeded from the one before so the sequence stays reproducible. */
 let baseSeed = args.seed ?? script?.seed ?? 42;
-const openEra = (era: number): Journal => newJournal(newWorld(FACTIONS, baseSeed + era * 7919), era, execution);
+let rules = args.rules ?? "w8";
+const createWorld = (seed: number) => rules === "w10" ? newCivilizationWorld(FACTIONS, seed) : newWorld(FACTIONS, seed);
+const openEra = (era: number): Journal => newJournal(createWorld(baseSeed + era * 7919), era, execution);
 
 function assertExecution(journal: Journal): void {
   if (journal.execution === null) throw new Error("resumed journal has no immutable execution provenance");
@@ -176,21 +188,24 @@ if (explicitPath && RESUME) {
   if (!existsSync(explicitPath)) throw new Error(`--resume requires an existing journal: ${explicitPath}`);
   const raw: unknown = JSON.parse(readFileSync(explicitPath, "utf8"));
   const version = worldVersionOf(raw);
-  if (version !== WORLD_VERSION) throw new Error(`${explicitPath} uses ${version ?? "unknown"}, expected ${WORLD_VERSION}`);
+  if (version !== WORLD_VERSION && version !== "w10") throw new Error(`${explicitPath} uses unsupported rules ${version}`);
   journal = JournalSchema.parse(raw);
+  if (args.rules && args.rules !== journal.worldVersion) throw new Error("--rules does not match resumed journal");
+  rules = journal.worldVersion;
   era = journal.era;
   if (args.seed !== undefined && journal.origin.seed !== args.seed) throw new Error(`seed ${args.seed} does not match resumed journal seed ${journal.origin.seed}`);
   if (args.seed === undefined) baseSeed = journal.origin.seed;
   assertExecution(journal);
 } else if (explicitPath) {
-  journal = newJournal(newWorld(FACTIONS, baseSeed), 1, execution);
+  if (existsSync(explicitPath)) throw new Error("Journal exists. Use --resume or a new --out path.");
+  journal = newJournal(createWorld(baseSeed), 1, execution);
 } else if (era === 0) {
   era = 1;
   journal = openEra(era);
 } else {
   const raw = JSON.parse(readFileSync(pathFor(era), "utf8"));
   const version = worldVersionOf(raw);
-  if (version !== WORLD_VERSION) {
+  if (version !== WORLD_VERSION && version !== "w10") {
     console.error(
       `${pathFor(era)} a ete vecu sous les regles ${version ?? "inconnues"} ; le monde tourne aujourd'hui en ${WORLD_VERSION}.\n` +
         `Ce journal reste lisible comme archive mais n'est plus rejouable. Utilisez --world <autre-nom> pour ouvrir un monde neuf.`,
@@ -198,6 +213,8 @@ if (explicitPath && RESUME) {
     process.exit(1);
   }
   journal = JournalSchema.parse(raw);
+  if (args.rules && args.rules !== journal.worldVersion) throw new Error("--rules does not match resumed journal");
+  rules = journal.worldVersion;
   if (args.seed === undefined) baseSeed = journal.origin.seed - era * 7919;
   else if (journal.origin.seed !== baseSeed + era * 7919) throw new Error(`seed ${baseSeed} does not match resumed journal seed ${journal.origin.seed}`);
   assertExecution(journal);
@@ -229,7 +246,7 @@ if (journal.fingerprint !== null && journal.fingerprint !== fingerprint(from)) {
 let lastWorld = from;
 const save = () => {
   journal.fingerprint = fingerprint(lastWorld);
-  writeFileSync(pathFor(era), JSON.stringify(JournalSchema.parse(journal), null, 2));
+  atomicWrite(pathFor(era), JSON.stringify(JournalSchema.parse(journal), null, 2));
 };
 
 const start = from.tick;
@@ -239,7 +256,7 @@ const result = await liveWorld(from, {
   provider,
   ticks: explicitPath && RESUME && isOver(from) ? 0 : TICKS,
   warmup: Math.max(0, WARMUP - from.tick),
-  onRuling: (j, world) => {
+  onCheckpoint: (_j, world) => {
     lastWorld = world;
     save();
   },
@@ -254,7 +271,7 @@ const result = await liveWorld(from, {
 lastWorld = result.world;
 save();
 
-if (explicitPath) {
+if (explicitPath && journal.worldVersion === "w8") {
   const metricPath = explicitPath.endsWith(".json")
     ? explicitPath.replace(/\.json$/, ".learning.json")
     : `${explicitPath}.learning.json`;

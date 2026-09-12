@@ -2,7 +2,7 @@
   {
     "slug": "aevum-season-1-verification",
     "title": "Vérification du candidat Aevum Saison 1",
-    "subtitle": "Statut : candidat local vérifié le 24 août 2026, non publié et sans preuve nouvelle issue de modèles distants."
+    "subtitle": ""
   },
   {
     "slug": "aevum-season-1",
@@ -10,73 +10,93 @@
     "subtitle": "Statut : artefact hors ligne reproductible, non classable comme course de modèles."
   },
   {
+    "slug": "audit-codebase-2026-09-10",
+    "title": "Audit technique Aevum — 10 septembre 2026",
+    "subtitle": "Analyse du checkout local, sans modification du code applicatif. Les dépendances verrouillées ont été installées avec npm ci --ignore-scripts, puis les contrôles et des reproductions en mémoire ont été exécutés. Aucun fournisseur IA n'a été appelé."
+  },
+  {
     "slug": "board-noise",
     "title": "Le bruit du plateau — ce qu'une rotation doit franchir",
-    "subtitle": "Statut : mesuré hors ligne, sans dépenser un appel · 24 mondes muets · Carte : t_baa4de0e"
+    "subtitle": ""
   },
   {
     "slug": "chronique-demo",
     "title": "Chronique du monde « demo », ère 1",
-    "subtitle": "Statut : généré, jamais rédigé · 400 années · 0 décisions · règles w7"
+    "subtitle": ""
   },
   {
     "slug": "chronique-ere-1",
     "title": "Chronique de la première ère — RETIRÉE",
-    "subtitle": "Statut : retirée le 20 août 2026, ses dates étaient fausses"
+    "subtitle": ""
   },
   {
     "slug": "chronique-monde",
     "title": "Chronique du monde « monde », ère 1",
-    "subtitle": "Statut : généré, jamais rédigé · 440 années · 118 décisions · règles w8"
+    "subtitle": ""
+  },
+  {
+    "slug": "city-economy",
+    "title": "Villes, équipes et caravanes — règles spectator-2",
+    "subtitle": "Les nouvelles parties utilisent spectator-2 ; les campagnes spectator-1 gardent leurs règles et leurs signatures de rejeu. Aucune migration implicite des parties IA déjà enregistrées."
   },
   {
     "slug": "first-era",
     "title": "Première ère — ce que 400 ans ont produit",
-    "subtitle": "Statut : mesuré · Monde premier, ère 1, graine 42 · Carte kanban : t_baa4de0e"
+    "subtitle": ""
+  },
+  {
+    "slug": "nous-correction",
+    "title": "Décisions IA : options et correction bornée",
+    "subtitle": "Les observations proposent maintenant les actions permises par rôle, six sites de fondation accessibles par colon, les constructions disponibles et les recherches dont les prérequis sont satisfaits. Les options de dépense sont individuellement abordables, mais partagent un même budget. Le dirigeant conserve ses choix ; ces suggestions ne remplacent pas sa décision."
+  },
+  {
+    "slug": "nous-pilot",
+    "title": "Pilote Nous — observations et suites",
+    "subtitle": "Campagne : 67dadf23-8575-4425-afd2-b8b9999a060a, graine 42. Quatre modèles distants distincts, aucune substitution locale. Le journal inclut la phase de mise au point du connecteur (tours 1 à 14) ; le rapport sépare les réponses suivantes pour ne pas confondre ces problèmes d'intégration avec la fiabilité après correction."
   },
   {
     "slug": "prix-de-la-garde",
     "title": "Le prix de la garde — une règle, et ce qu'elle a changé",
-    "subtitle": "Statut : mesuré en comparaison appariée · un monde, deux règles · Carte : t_baa4de0e"
+    "subtitle": ""
   },
   {
     "slug": "qa-audit",
     "title": "Audit QA — expérience et méthodologie",
-    "subtitle": "Statut : audité le 2026-08-17, révisé le 2026-08-18 après correction ·"
+    "subtitle": ""
   },
   {
     "slug": "reference-battle",
     "title": "Rapport d'exécution — bataille de référence",
-    "subtitle": "Statut : exécutée · Date : 2026-08-18 · Tâche kanban : t_f4c79504"
+    "subtitle": ""
   },
   {
     "slug": "release-r1-verification",
     "title": "Vérification de la candidate R1 / 0.2.0",
-    "subtitle": "Date : 22 août 2026"
+    "subtitle": ""
   },
   {
     "slug": "release-r1-world",
     "title": "Release R1 — monde continu",
-    "subtitle": "Audit hors ligne du 22 août 2026."
+    "subtitle": ""
   },
   {
     "slug": "rotation-w3",
     "title": "Rotation w3 — une mesure ratée, et pourquoi",
-    "subtitle": "Statut : mesuré, non concluant · 4 rotations × 120 ans, graine 1789 · Carte : t_baa4de0e"
+    "subtitle": ""
   },
   {
     "slug": "rotation-w4",
     "title": "Rotation w4 — un seul écart tient, et il faut le dire",
-    "subtitle": "Statut : mesuré · 3 graines × 4 rotations × 60 ans, 12 courses · Carte : t_baa4de0e"
+    "subtitle": ""
   },
   {
     "slug": "rotation",
     "title": "Rotation des modèles — le premier classement défendable",
-    "subtitle": "Statut : mesuré · 4 rotations × 120 ans, graine 1789 · Carte kanban : t_baa4de0e"
+    "subtitle": ""
   },
   {
     "slug": "tournament",
     "title": "Tournoi — quel modèle commande le mieux ?",
-    "subtitle": "Statut : exécuté · Date : 2026-08-18 · Tâche kanban : t_32e3997f"
+    "subtitle": ""
   }
 ]

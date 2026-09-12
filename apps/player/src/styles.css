@@ -86,11 +86,8 @@ body {
   /* The page itself must never scroll sideways. Anything genuinely wide —
      a table, a diagram — scrolls inside its own container instead. */
   overflow-x: clip;
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(circle at 18% 8%, #172637 0, transparent 34rem),
-    radial-gradient(circle at 82% 26%, #101b27 0, transparent 42rem),
-    repeating-linear-gradient(117deg, #ffffff05 0 1px, transparent 1px 7px);
+  background-color: #0b151e;
+  background-image: radial-gradient(ellipse at 50% 0%, #182b36 0, transparent 65rem);
   background-attachment: fixed;
   color: var(--fg);
   font-family: var(--sans);

@@ -211,7 +211,7 @@ const round = (n: number) => Math.round(n);
       {{ tended.text }}
     </p>
 
-    <WorldStage :years="years" :index="index" :turning-tick="latestTurn" @seek="(i) => (index = i)" />
+    <WorldStage :years="years" :index="index" :turning-tick="latestTurn" @seek="(i) => (index = i)" @select="showProfile" />
 
     <p class="live" role="status" aria-live="polite">An {{ year.tick }}, ère {{ journal.era }}.</p>
 

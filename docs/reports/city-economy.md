@@ -1,0 +1,21 @@
+# Villes, équipes et caravanes — règles spectator-2
+
+Les nouvelles parties utilisent spectator-2 ; les campagnes spectator-1 gardent leurs règles et leurs signatures de rejeu. Aucune migration implicite des parties IA déjà enregistrées.
+
+## Économie
+
+Chaque terre possédée à trois cases maximum d'une ville est attribuée à la ville la plus proche. La population est répartie selon la taille de ces territoires. La production est calculée par ville : ressources locales, doctrine, bâtiments et technologies. Les équipes présentes sur un terrain adapté augmentent sa production avec des plafonds explicites et sans double compte d'une même case. Les armées adverses empêchent le travail sur une case occupée.
+
+La météo, la consommation, les soldes et les réserves sont ensuite traitées à l'échelle de la civilisation. Les stocks restent mutualisés : ce n'est pas encore un inventaire ou un marché de biens par ville. Le panneau Civilisations affiche la production de base du dernier tour, avant météo et consommation.
+
+Les marchands peuvent relier deux villes de leur civilisation. Un revenu limité est versé à l'arrivée uniquement si une autre ville d'origine a effectivement été visitée et mémorisée. Le séjour à destination ne rapporte rien de plus. Les caravanes empruntent les déplacements et itinéraires visibles existants. Les accords internationaux conservent pour l'instant leur effet économique abstrait ; il n'y a pas encore de cargaison ni de réseau routier constructible.
+
+## Observation
+
+Le bouton Caméra libre / Caméra suivie active le cadrage des événements de fondation, famine, recherche et construction. La caméra conserve son angle et son zoom. Une manipulation manuelle annule le mouvement ; la préférence de mouvement réduit est respectée.
+
+## Validation
+
+502 tests réussis et TypeScript valide. Essais locaux sur trois graines pendant 120 tours : quatre civilisations survivantes dans chaque monde, respectivement 24/20/19 villes et 132/117/128 livraisons. Ces chiffres sont des contrôles de stabilité, pas une évaluation des modèles IA.
+
+Démonstration locale rejouable : fc120553-4a15-40c9-84a7-229e3bc0ad14, 60 tours, 16 villes, 74 livraisons. Les décisions sont explicitement locales. Détails dans city-economy-demo.json.

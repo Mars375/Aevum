@@ -76,7 +76,7 @@ for (const world of readdirSync(ROOT, { withFileTypes: true }).filter((d) => d.i
     const full = join(ROOT, world.name, file);
     const raw = JSON.parse(readFileSync(full, "utf8"));
     const version = worldVersionOf(raw);
-    if (version !== WORLD_VERSION) {
+    if (version !== WORLD_VERSION && version !== "w10") {
       // Kept on disk as a record, left out of the catalogue: the player would
       // recompute it under today's rules and show numbers it never lived.
       console.log(`archive ${full} : regles ${version ?? "inconnues"}, le monde tourne en ${WORLD_VERSION}`);

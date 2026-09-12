@@ -1,0 +1,167 @@
+{
+  "id": "67dadf23-8575-4425-afd2-b8b9999a060a",
+  "turns": 50,
+  "replayVerified": true,
+  "perModel": [
+    {
+      "civ": "amber",
+      "model": "nous:meituan/longcat-2.0:free",
+      "responses": 50,
+      "valid": 50,
+      "afterIntegration": {
+        "responses": 36,
+        "valid": 36
+      },
+      "orders": 299,
+      "settlementOrders": 1,
+      "errors": []
+    },
+    {
+      "civ": "azure",
+      "model": "nous:poolside/laguna-xs-2.1:free",
+      "responses": 50,
+      "valid": 41,
+      "afterIntegration": {
+        "responses": 36,
+        "valid": 31
+      },
+      "orders": 254,
+      "settlementOrders": 1,
+      "errors": [
+        "Réponse IA invalide ou connexion indisponible",
+        "Réponse IA invalide ou connexion indisponible",
+        "Réponse IA invalide ou connexion indisponible",
+        "Réponse IA invalide ou connexion indisponible",
+        "Nous HTTP 429",
+        "Réponse IA JSON illisible",
+        "Nous HTTP 429",
+        "Nous HTTP 429",
+        "Réponse IA JSON illisible"
+      ]
+    },
+    {
+      "civ": "crimson",
+      "model": "nous:inclusionai/ling-3.0-flash-sante:free",
+      "responses": 50,
+      "valid": 29,
+      "afterIntegration": {
+        "responses": 36,
+        "valid": 25
+      },
+      "orders": 176,
+      "settlementOrders": 1,
+      "errors": [
+        "Modèle indisponible ou réponse vide",
+        "Modèle indisponible ou réponse vide",
+        "Nous HTTP 400",
+        "Nous HTTP 400",
+        "Nous HTTP 400",
+        "Nous HTTP 400",
+        "Nous HTTP 400",
+        "Modèle indisponible ou réponse vide",
+        "Modèle indisponible ou réponse vide",
+        "Modèle indisponible ou réponse vide",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Identité ou tour incorrect dans la réponse",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA incompatible avec le schéma des ordres"
+      ]
+    },
+    {
+      "civ": "verdant",
+      "model": "nous:poolside/laguna-s-2.1:free",
+      "responses": 50,
+      "valid": 42,
+      "afterIntegration": {
+        "responses": 36,
+        "valid": 34
+      },
+      "orders": 116,
+      "settlementOrders": 1,
+      "errors": [
+        "Réponse IA invalide ou connexion indisponible",
+        "Réponse IA invalide ou connexion indisponible",
+        "Réponse IA invalide ou connexion indisponible",
+        "Nous HTTP 429",
+        "Nous HTTP 429",
+        "Réponse IA incompatible avec le schéma des ordres",
+        "Réponse IA JSON illisible",
+        "Nous HTTP 429"
+      ]
+    }
+  ],
+  "rejected": {
+    "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte": 6,
+    "Only military units can defend": 65,
+    "Construction refusée : city-amber / workshop": 3,
+    "Construction refusée : city-verdant / workshop": 4,
+    "Construction refusée : city-azure / walls": 2,
+    "Construction refusée : city-verdant / market": 3,
+    "Construction refusée : city-crimson / market": 24,
+    "Construction refusée : city-amber / market": 1,
+    "Construction refusée : city-verdant / granary": 20,
+    "Construction refusée : city-amber / academy": 4,
+    "Construction refusée : city-verdant / walls": 9,
+    "Movement cannot replace an attack order": 2,
+    "Construction refusée : city-azure / granary": 2,
+    "Construction refusée : city-amber / walls": 4
+  },
+  "cities": 5,
+  "civilizations": [
+    {
+      "id": "amber",
+      "population": 166,
+      "territory": 1,
+      "soldiers": 5,
+      "advances": [
+        "irrigation",
+        "masonry"
+      ],
+      "alive": true
+    },
+    {
+      "id": "azure",
+      "population": 166,
+      "territory": 1,
+      "soldiers": 5,
+      "advances": [],
+      "alive": true
+    },
+    {
+      "id": "crimson",
+      "population": 166,
+      "territory": 6,
+      "soldiers": 5,
+      "advances": [
+        "irrigation",
+        "masonry"
+      ],
+      "alive": true
+    },
+    {
+      "id": "verdant",
+      "population": 141,
+      "territory": 1,
+      "soldiers": 3,
+      "advances": [
+        "irrigation"
+      ],
+      "alive": true
+    }
+  ],
+  "eventCounts": {
+    "BUILT": 27,
+    "GREW": 200,
+    "SHORTAGE": 13,
+    "FOUNDED": 1,
+    "ADVANCE": 5,
+    "RECRUITED": 11
+  }
+}
