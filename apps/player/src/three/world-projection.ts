@@ -1,7 +1,14 @@
+import type { Age } from "../../../../packages/world/src/ages";
 import type { FactionId } from "@abs/contracts";
 import type { Year } from "@abs/world";
 
 export const WORLD_ASSETS = [
+  "bronze_city",
+  "classical_city",
+  "medieval_city",
+  "bronze_soldier",
+  "classical_soldier",
+  "medieval_soldier",
   "pine",
   "tree",
   "rock",
@@ -58,7 +65,11 @@ export function detailNoise(seed: number, index: number, salt: number): number {
   return (h >>> 0) / 4294967296;
 }
 
-export function projectWorld(year: Year, history: readonly Year[]) {
+export function projectWorld(
+  year: Year,
+  history: readonly Year[],
+  ages?: Record<string, Age>,
+) {
   const { world } = year;
   const formerSeats = new Set<number>();
   for (const past of history) {
@@ -77,11 +88,13 @@ export function projectWorld(year: Year, history: readonly Year[]) {
     const city = world.simulation?.cities.find((c) => c.position === index);
     if (city) {
       add(
-        city.buildings.includes("walls") && city.buildings.length >= 4
-          ? "citadel"
-          : city.buildings.length >= 2
-            ? "town"
-            : "hamlet",
+        ages?.[city.owner]
+          ? (`${ages[city.owner]}_city` as WorldAsset)
+          : city.buildings.includes("walls") && city.buildings.length >= 4
+            ? "citadel"
+            : city.buildings.length >= 2
+              ? "town"
+              : "hamlet",
         0,
         0,
         0.92,
@@ -147,7 +160,10 @@ export function projectWorld(year: Year, history: readonly Year[]) {
         `${unit.owner} · ${unit.role === "settler" ? "Colons" : UNIT_NAMES[role]}${unit.role === "soldier" ? ` (${unit.strength})` : ""} · ${unit.task}`,
       );
       parcel.assets.push({
-        asset: role,
+        asset:
+          role === "soldier" && ages?.[unit.owner]
+            ? (`${ages[unit.owner]}_soldier` as WorldAsset)
+            : role,
         faction: unit.owner,
         unitId: unit.id,
         previousPosition: unit.previous,

@@ -1,3 +1,8 @@
+import {
+  ageAllows,
+  BUILDING_AGE,
+  TECHNOLOGY_AGE,
+} from "../../world/src/ages.js";
 import type { SpectatorState } from "../../world/src/spectator.js";
 import type { UnitCommand } from "../../world/src/commands.js";
 import { MOVEMENT_BUDGET } from "../../world/src/commands.js";
@@ -86,7 +91,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         : [];
     return {
       unit: unit.id,
-      ...(state.rules === "spectator-4"
+      ...(["spectator-4", "spectator-5"].includes(state.rules)
         ? { movementBudget: MOVEMENT_BUDGET[unit.role] }
         : {}),
       actions,
@@ -101,7 +106,12 @@ export function councilOptions(state: SpectatorState, civId: string) {
         .flatMap((city) =>
           (Object.keys(BUILDING_RULES) as Building[]).flatMap((building) => {
             const { years, ...cost } = BUILDING_RULES[building];
-            return !city.buildings.includes(building) &&
+            return (state.rules !== "spectator-5" ||
+              ageAllows(
+                state.ages?.[civId]?.current ?? "bronze",
+                BUILDING_AGE[building],
+              )) &&
+              !city.buildings.includes(building) &&
               affordable(civ.stock, cost)
               ? [{ city: city.id, building, cost, years }]
               : [];
@@ -111,6 +121,11 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const research = alive
     ? TECHNOLOGIES.filter(
         (technology) =>
+          (state.rules !== "spectator-5" ||
+            ageAllows(
+              state.ages?.[civId]?.current ?? "bronze",
+              TECHNOLOGY_AGE[technology.name]!,
+            )) &&
           !civ.advances.includes(technology.name) &&
           technology.requires.every((prerequisite) =>
             civ.advances.includes(prerequisite),

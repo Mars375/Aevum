@@ -32,6 +32,7 @@ export const CampaignSchema = z
       "spectator-2",
       "spectator-3",
       "spectator-4",
+      "spectator-5",
     ]),
     id: z.string().regex(/^[a-z0-9-]{1,80}$/),
     seed: z.number().int().nonnegative().max(2147483647),

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AGE_NAMES, ageProgress } from "../../../packages/world/src/ages";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { FactionId } from "@abs/contracts";
 import type { Year } from "@abs/world";
@@ -213,10 +214,12 @@ const missionText = (text: string) =>
         "Un déplacement ne peut pas remplacer un ordre d’attaque",
     }) as Record<string, string>
   )[text] ?? text;
-const preview = newSpectator(42, "spectator-4");
+const preview = newSpectator(42, "spectator-5");
 const state = computed(() => loaded.value?.history[index.value] ?? preview);
 const world = computed(() => state.value.world);
-const sequential = computed(() => state.value.rules === "spectator-4");
+const sequential = computed(() =>
+  ["spectator-4", "spectator-5"].includes(state.value.rules),
+);
 const activeRuler = computed(() => state.value.sequence?.activeCiv ?? null);
 const activeRulerName = computed(() =>
   activeRuler.value ? names[activeRuler.value] : "dirigeant",
@@ -253,7 +256,18 @@ const year = computed<Year>(() => ({
   rulings: [],
 }));
 const parcels = computed(() => {
-  const result = projectWorld(year.value, [year.value]);
+  const result = projectWorld(
+    year.value,
+    [year.value],
+    state.value.ages
+      ? Object.fromEntries(
+          Object.entries(state.value.ages).map(([id, age]) => [
+            id,
+            age.current,
+          ]),
+        )
+      : undefined,
+  );
   if (sequential.value)
     for (const parcel of result)
       for (const asset of parcel.assets)
@@ -369,6 +383,7 @@ const summary = computed(() =>
 const scoreboard = computed(() => summary.value?.standings ?? []);
 const importantTurns = computed(() =>
   (loaded.value?.outcomes ?? []).flatMap((turn, i) =>
+    turn.state.ageTransitions?.length ||
     turn.events.some((event) =>
       ["FOUNDED", "ROUTED", "ADVANCE", "STARVED"].includes(event.kind),
     )
@@ -811,11 +826,43 @@ onUnmounted(() => {
                 ? `${c.population} habitants · ${c.territory} terres`
                 : "Civilisation éteinte"
             }}</small
+            ><small v-if="state.ages?.[c.id]">{{
+              AGE_NAMES[state.ages[c.id]!.current]
+            }}</small
             ><small class="ruler-status">{{ rulerStatus(c.id) }}</small></span
           ><span>{{ c.soldiers }}<small>soldats</small></span>
         </button>
         <template v-if="civ"
           ><div class="ruler-objective">
+            <section
+              v-if="state.ages?.[civ.id]"
+              aria-label="Progression de civilisation"
+            >
+              <h3>{{ AGE_NAMES[state.ages[civ.id]!.current] }}</h3>
+              <p
+                v-if="
+                  !ageProgress(state.world, civ.id, state.ages[civ.id]!.current)
+                    .next
+                "
+              >
+                Dernier âge disponible dans cette version.
+              </p>
+              <ul>
+                <li
+                  v-for="requirement in ageProgress(
+                    state.world,
+                    civ.id,
+                    state.ages[civ.id]!.current,
+                  ).requirements"
+                  :key="requirement.label"
+                >
+                  {{ requirement.met ? "Acquis" : "À développer" }} —
+                  {{ requirement.label }} :
+                  {{ Math.floor(requirement.current) }} /
+                  {{ requirement.required }}
+                </li>
+              </ul>
+            </section>
             <h3>Intention du dirigeant</h3>
             <p>
               {{
@@ -1106,6 +1153,16 @@ onUnmounted(() => {
         >
         <template v-else-if="panel === 'events'"
           ><h2>Ce tour a changé le monde</h2>
+          <article
+            v-for="transition in state.ageTransitions"
+            :key="'age-' + transition.civ"
+            class="event-row"
+          >
+            <small>Nouvel âge · {{ transition.civ }}</small>
+            <p>
+              {{ AGE_NAMES[transition.from] }} → {{ AGE_NAMES[transition.to] }}
+            </p>
+          </article>
           <p v-if="!outcome" class="panel-help">
             Avancez d’un tour pour observer les premières conséquences.
           </p>

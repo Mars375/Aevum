@@ -1,3 +1,5 @@
+import { ageModel } from "./age-models";
+import { AgeSchema } from "../../../../packages/world/src/ages";
 import { pathOffset, sampleOffset, type MotionOffset } from "./movement-path";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -183,6 +185,13 @@ export class WorldScene {
     const loader = new GLTFLoader();
     await Promise.all(
       WORLD_ASSETS.map(async (asset) => {
+        const age = AgeSchema.safeParse(asset.split("_")[0]);
+        if (age.success) {
+          const parts = ageModel(age.data, asset.endsWith("_soldier"));
+          if (this.disposed) this.disposeParts(parts);
+          else this.models.set(asset, parts);
+          return;
+        }
         const gltf = await loader.loadAsync(
           `${import.meta.env.BASE_URL}models/world/${asset}.glb`,
         );

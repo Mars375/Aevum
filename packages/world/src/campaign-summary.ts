@@ -58,10 +58,9 @@ export function campaignSummary(
         number
       >,
     }));
-  const turns =
-    state.rules === "spectator-4"
-      ? (state.sequence?.round ?? 1) - 1
-      : state.world.tick;
+  const turns = ["spectator-4", "spectator-5"].includes(state.rules)
+    ? (state.sequence?.round ?? 1) - 1
+    : state.world.tick;
   const maxTurns = campaign.maxTurns ?? null;
   const aliveCount = standings.filter((civ) => civ.alive).length;
   const reason =

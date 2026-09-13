@@ -1,3 +1,4 @@
+import { ageProgress } from "../../world/src/ages.js";
 import { councilOptions } from "./council-options.js";
 import { ZodError } from "zod";
 import type { GeneralConfig } from "@abs/contracts";
@@ -19,9 +20,17 @@ import {
 export function councilObservation(state: SpectatorState, civ: string) {
   const w = state.world;
   return {
+    ...(state.ages?.[civ]
+      ? {
+          age: state.ages[civ],
+          ageProgress: ageProgress(w, civ, state.ages[civ]!.current),
+          advancementRule:
+            "Meet every requirement during your own turn. Ages unlock technologies and buildings; calendar time alone never advances your civilization.",
+        }
+      : {}),
     turn: w.tick,
     rules: state.rules,
-    ...(state.rules === "spectator-4"
+    ...(["spectator-4", "spectator-5"].includes(state.rules)
       ? {
           sequence: state.sequence,
           diplomacyOffers: state.diplomacyOffers?.filter(
@@ -48,7 +57,9 @@ export function councilObservation(state: SpectatorState, civ: string) {
     )[civ],
     event: incidentFor(
       w.seed,
-      state.rules === "spectator-4" ? (state.sequence?.round ?? 1) - 1 : w.tick,
+      ["spectator-4", "spectator-5"].includes(state.rules)
+        ? (state.sequence?.round ?? 1) - 1
+        : w.tick,
     ),
     size: w.size,
     // Public board and public census; rival orders and objectives stay private.
@@ -59,6 +70,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
       name: p.name,
     })),
     civilizations: w.civs.map((c) => ({
+      ...(state.ages?.[c.id] ? { age: state.ages[c.id]!.current } : {}),
       id: c.id,
       population: c.population,
       soldiers: c.soldiers,
@@ -95,30 +107,30 @@ export async function requestCouncil(
   correction?: { previousDecision: unknown; issues: string[] },
 ): Promise<CouncilAnswer> {
   const strategic =
-    state.rules === "spectator-3" || state.rules === "spectator-4";
+    state.rules === "spectator-3" ||
+    ["spectator-4", "spectator-5"].includes(state.rules);
   const schema = strategic
     ? STRATEGIC_COUNCIL_JSON_SCHEMA
     : COUNCIL_JSON_SCHEMA;
-  const turnInstructions =
-    state.rules === "spectator-4"
-      ? instructions
-          .replace(
-            "You govern one civilization in a simultaneous turn strategy simulation. All rulers see the same start-of-turn world.",
-            "You govern the ACTIVE civilization in a sequential turn strategy simulation. Only you act now. The next ruler will observe your resolved actions. A round ends when all living civilizations have played.",
-          )
-          .replace(
-            "Movement is cardinal, one tile per turn.",
-            "Movement is cardinal and spends points: soldiers 3, merchants 4, other roles 2 each own turn. Forest, hill and river tiles cost 2 points; other tiles cost 1. Long routes persist across your turns, but movement stops when the budget is exhausted. No rival units move during your turn.",
-          )
-          .replace(
-            "Attacks resolve simultaneously.",
-            "Your attacks resolve during your turn; defenders can respond in combat but cannot march.",
-          )
-          .replace(
-            "Trade and peace require matching proposals; war is unilateral subject to an 8-turn truce.",
-            "Trade and peace require matching proposals saved across successive ruler turns; war is unilateral subject to a truce. Read incoming diplomacy before responding.",
-          )
-      : instructions;
+  const turnInstructions = ["spectator-4", "spectator-5"].includes(state.rules)
+    ? instructions
+        .replace(
+          "You govern one civilization in a simultaneous turn strategy simulation. All rulers see the same start-of-turn world.",
+          "You govern the ACTIVE civilization in a sequential turn strategy simulation. Only you act now. The next ruler will observe your resolved actions. A round ends when all living civilizations have played.",
+        )
+        .replace(
+          "Movement is cardinal, one tile per turn.",
+          "Movement is cardinal and spends points: soldiers 3, merchants 4, other roles 2 each own turn. Forest, hill and river tiles cost 2 points; other tiles cost 1. Long routes persist across your turns, but movement stops when the budget is exhausted. No rival units move during your turn.",
+        )
+        .replace(
+          "Attacks resolve simultaneously.",
+          "Your attacks resolve during your turn; defenders can respond in combat but cannot march.",
+        )
+        .replace(
+          "Trade and peace require matching proposals; war is unilateral subject to an 8-turn truce.",
+          "Trade and peace require matching proposals saved across successive ruler turns; war is unilateral subject to a truce. Read incoming diplomacy before responding.",
+        )
+    : instructions;
   const systemInstructions =
     turnInstructions +
     (strategic

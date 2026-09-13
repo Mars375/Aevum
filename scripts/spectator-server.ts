@@ -77,7 +77,9 @@ export function createSpectatorServer(
         throw new Error("La partie est terminée");
       campaign.pending ??= { turn: state.world.tick, answers: [] };
       save(campaign);
-      const current = state.rules === "spectator-4" ? activeCiv(state) : null;
+      const current = ["spectator-4", "spectator-5"].includes(state.rules)
+        ? activeCiv(state)
+        : null;
       // Persist every answer; an interrupted process resumes only missing rulers.
       const collected = await Promise.allSettled(
         state.world.civs
@@ -104,7 +106,7 @@ export function createSpectatorServer(
       campaign.pending.answers.sort((a, b) => a.civ.localeCompare(b.civ));
       const answers = campaign.pending.answers;
       if (
-        state.rules === "spectator-4" &&
+        ["spectator-4", "spectator-5"].includes(state.rules) &&
         answers.some((a) => a.source === "unavailable")
       ) {
         // Retry the same ruler on the next click; do not skip a failed AI turn.
@@ -229,7 +231,7 @@ export function createSpectatorServer(
           return;
         }
         const campaign: Campaign = {
-          version: "spectator-4",
+          version: "spectator-5",
           id: randomUUID(),
           ...options,
           turns: [],
@@ -267,7 +269,7 @@ export function createSpectatorServer(
             error: errors.get(id) ?? null,
             nextIncident: incidentFor(
               campaign.seed,
-              restored.state.rules === "spectator-4"
+              ["spectator-4", "spectator-5"].includes(restored.state.rules)
                 ? (restored.state.sequence?.round ?? 1) - 1
                 : restored.state.world.tick,
             ),
@@ -295,7 +297,9 @@ export function createSpectatorServer(
           }
           if (
             campaign.turns.length >=
-            (campaign.version === "spectator-4" ? 1200 : 1000)
+            (["spectator-4", "spectator-5"].includes(campaign.version)
+              ? 1200
+              : 1000)
           ) {
             send(409, { error: "Limite de 1000 tours atteinte" });
             return;

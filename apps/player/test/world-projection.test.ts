@@ -4,6 +4,21 @@ import { projectWorld } from "../src/three/world-projection";
 
 const origin = (): Year => ({ tick: 0, world: census(newWorld(["crimson", "azure", "verdant", "amber"], 42)), events: [], rulings: [] });
 
+it("projects independent age silhouettes without changing archived views", () => {
+  const world = newCivilizationWorld(["crimson", "azure"], 42);
+  const year: Year = { tick: 0, world, events: [], rulings: [] };
+  const before = structuredClone(year);
+  const parcels = projectWorld(year, [year], { crimson: "bronze", azure: "medieval" });
+  for (const city of world.simulation!.cities) {
+    expect(parcels[city.position]!.assets[0]!.asset).toBe(city.owner === "crimson" ? "bronze_city" : "medieval_city");
+  }
+  for (const soldier of world.simulation!.units.filter(u => u.role === "soldier")) {
+    expect(parcels[soldier.position]!.assets.find(a => a.unitId === soldier.id)!.asset).toBe(soldier.owner === "crimson" ? "bronze_soldier" : "medieval_soldier");
+  }
+  expect(projectWorld(year, [year]).flatMap(p => p.assets).some(a => a.asset.endsWith("_city"))).toBe(false);
+  expect(year).toEqual(before);
+});
+
 describe("la carte 3D représente l'année demandée", () => {
   it("place les unités w10 à leur position enregistrée, avec leur propre faction", () => {
     const world = newCivilizationWorld(["crimson", "azure"], 42);
