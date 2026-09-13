@@ -1,3 +1,4 @@
+import { pathOffset, sampleOffset, type MotionOffset } from "./movement-path";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -80,6 +81,7 @@ export class WorldScene {
     target: THREE.Matrix4;
     dx: number;
     dz: number;
+    path?: { dx: number; dz: number }[];
   }[] = [];
   private marchStarted = 0;
   private cameraFlight: {
@@ -87,7 +89,8 @@ export class WorldScene {
     to: THREE.Vector3;
     started: number;
   } | null = null;
-  private marchingUnits = new Map<string, { dx: number; dz: number }>();
+  private marchingUnits = new Map<string, MotionOffset>();
+  private previousTick: number | undefined;
 
   constructor(
     private host: HTMLElement,
@@ -220,7 +223,17 @@ export class WorldScene {
     this.tiles = null;
   }
 
-  update(parcels: WorldParcel[], size: number, selected: FactionId | null) {
+  update(
+    parcels: WorldParcel[],
+    size: number,
+    selected: FactionId | null,
+    tick?: number,
+  ) {
+    const consecutive =
+      tick !== undefined &&
+      this.previousTick !== undefined &&
+      tick === this.previousTick + 1;
+    this.previousTick = tick;
     if (this.disposed) return;
     const changedSize = this.size !== size || !this.foundation.children.length;
     this.size = size;
@@ -246,7 +259,7 @@ export class WorldScene {
         asset: WorldAsset;
         faction?: FactionId;
         transforms: THREE.Matrix4[];
-        offsets: { dx: number; dz: number }[];
+        offsets: MotionOffset[];
       }
     >();
     const nextUnitPositions = new Map<string, number>();
@@ -279,23 +292,18 @@ export class WorldScene {
         };
         batch.transforms.push(dummy.matrix.clone());
         const former = p.unitId ? this.unitPositions.get(p.unitId) : undefined;
+        const route =
+          p.movementPath ??
+          (former === p.previousPosition ? [former!, index] : []);
+        const offset =
+          former !== undefined ? pathOffset(route, former, index, size) : null;
         const animate =
           this.immersive &&
           !this.motionPreference.matches &&
-          former !== undefined &&
-          former === p.previousPosition &&
+          consecutive &&
           former !== index &&
-          Math.abs((former % size) - (index % size)) +
-            Math.abs(Math.floor(former / size) - Math.floor(index / size)) ===
-            1;
-        batch.offsets.push(
-          animate
-            ? {
-                dx: (former % size) - (index % size),
-                dz: Math.floor(former / size) - Math.floor(index / size),
-              }
-            : { dx: 0, dz: 0 },
-        );
+          !!offset;
+        batch.offsets.push(animate ? offset! : { dx: 0, dz: 0 });
         if (animate && p.unitId)
           this.marchingUnits.set(
             p.unitId,
@@ -666,8 +674,9 @@ export class WorldScene {
         const matrix = new THREE.Matrix4();
         for (const march of this.marches) {
           matrix.copy(march.target);
-          matrix.elements[12]! += march.dx * remaining;
-          matrix.elements[14]! += march.dz * remaining;
+          const offset = sampleOffset(march, 1 - remaining);
+          matrix.elements[12]! += offset.dx;
+          matrix.elements[14]! += offset.dz;
           march.mesh.setMatrixAt(march.index, matrix);
           march.mesh.instanceMatrix.needsUpdate = true;
         }
@@ -741,14 +750,14 @@ export class WorldScene {
           1,
         );
     const remaining = 1 - progress * progress * (3 - 2 * progress);
-    const offset = unitId ? this.marchingUnits.get(unitId) : undefined;
+    const offset = sampleOffset(
+      unitId ? this.marchingUnits.get(unitId) : undefined,
+      1 - remaining,
+    );
     const point = new THREE.Vector3(
-      parcel.x - 0.34 + (slot % 3) * 0.25 + (offset?.dx ?? 0) * remaining,
+      parcel.x - 0.34 + (slot % 3) * 0.25 + offset.dx,
       (parcel.place.kind === "river" ? 0.045 : 0.16) + 0.65,
-      parcel.z +
-        0.36 -
-        Math.floor(slot / 3) * 0.22 +
-        (offset?.dz ?? 0) * remaining,
+      parcel.z + 0.36 - Math.floor(slot / 3) * 0.22 + offset.dz,
     ).project(this.camera);
     return {
       x: ((point.x + 1) * this.host.clientWidth) / 2,

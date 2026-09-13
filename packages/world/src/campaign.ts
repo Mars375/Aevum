@@ -27,7 +27,12 @@ export const CouncilAnswerSchema = z.object({
 export type CouncilAnswer = z.infer<typeof CouncilAnswerSchema>;
 export const CampaignSchema = z
   .object({
-    version: z.enum(["spectator-1", "spectator-2", "spectator-3"]),
+    version: z.enum([
+      "spectator-1",
+      "spectator-2",
+      "spectator-3",
+      "spectator-4",
+    ]),
     id: z.string().regex(/^[a-z0-9-]{1,80}$/),
     seed: z.number().int().nonnegative().max(2147483647),
     mode: z.enum(["local", "remote"]),
@@ -41,7 +46,7 @@ export const CampaignSchema = z
           signature: z.string(),
         }),
       )
-      .max(1000),
+      .max(1200),
     pending: z
       .object({
         turn: z.number().int().nonnegative(),

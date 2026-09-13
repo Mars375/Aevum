@@ -50,7 +50,9 @@ describe("spectator HTTP lifecycle", () => {
         data = await (await request(`/api/campaigns/${id}`)).json();
       }
       expect(data.state.world.tick).toBe(1);
-      expect(data.campaign.turns[0].answers).toHaveLength(4);
+      expect(data.campaign.turns[0].answers).toHaveLength(1);
+      expect(data.campaign.turns[0].answers[0].civ).toBe("amber");
+      expect(data.state.sequence.activeCiv).toBe("azure");
       expect(
         (await request(`/api/campaigns/${id}/step`, { turn: 0 })).status,
       ).toBe(409);

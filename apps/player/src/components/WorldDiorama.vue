@@ -226,7 +226,12 @@ async function start() {
     scene = current;
     await current.load();
     if (request !== generation) return;
-    current.update(props.parcels, props.year.world.size, props.selected);
+    current.update(
+      props.parcels,
+      props.year.world.size,
+      props.selected,
+      props.year.tick,
+    );
     current.showRoute(props.route ?? []);
     ready.value = true;
     followEvent();
@@ -240,7 +245,12 @@ watch(
   () => [props.parcels, props.selected, props.route] as const,
   () => {
     if (ready.value) {
-      scene?.update(props.parcels, props.year.world.size, props.selected);
+      scene?.update(
+        props.parcels,
+        props.year.world.size,
+        props.selected,
+        props.year.tick,
+      );
       scene?.showRoute(props.route ?? []);
     }
   },

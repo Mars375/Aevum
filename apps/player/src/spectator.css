@@ -1081,3 +1081,56 @@
     bottom: 310px;
   }
 }
+.sequence-status {
+  display: grid;
+  gap: 3px;
+  margin-top: 10px;
+  font-size: 12px;
+  max-width: 240px;
+}
+.sequence-status strong {
+  font-weight: 400;
+}
+.sequence-status small {
+  font-size: 10px;
+}
+.movement-budget {
+  font-size: 9px !important;
+  color: var(--accent) !important;
+  cursor: help;
+}
+.movement-help {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--soft);
+  border-bottom: 1px solid var(--edge);
+  padding-bottom: 12px;
+}
+.unit-row > span:first-child {
+  min-width: 0;
+}
+.unit-row .movement-budget {
+  white-space: normal;
+}
+@media (max-width: 720px) {
+  .sequence-status {
+    font-size: 10px;
+    max-width: 230px;
+  }
+  .sequence-status small {
+    font-size: 9px;
+  }
+  .world-caption:has(.sequence-status) {
+    top: 132px;
+  }
+  .world-caption:has(.sequence-status) h1 {
+    font-size: 22px;
+  }
+  .world-caption:has(.sequence-status) .sequence-status {
+    margin-top: 4px;
+  }
+  .observatory:has(.sequence-status) .civilizations,
+  .observatory:has(.sequence-status) .council-panel {
+    top: 215px;
+  }
+}

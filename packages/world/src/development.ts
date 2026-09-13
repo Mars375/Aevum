@@ -71,6 +71,7 @@ export function develop(
     research: string | null;
     manual: boolean;
     production?: Stock;
+    seasonTick?: number;
   },
 ): void {
   const cities = world.simulation!.cities.filter((c) => c.owner === civ.id);
@@ -89,7 +90,8 @@ export function develop(
     );
   };
   const harvest =
-    season(world.seed, world.tick) * (options?.foodMultiplier ?? 1);
+    season(world.seed, options?.seasonTick ?? world.tick) *
+    (options?.foodMultiplier ?? 1);
   const gain = {
     food:
       carried(

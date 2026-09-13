@@ -13,7 +13,10 @@ import {
 import {
   resolveCouncil,
   incidentFor,
+  activeCiv,
 } from "../packages/world/src/spectator.js";
+import { campaignSummary } from "../packages/world/src/campaign-summary.js";
+import { defaultCouncilModels } from "../packages/agents/src/default-models.js";
 import { requestValidatedCouncil } from "../packages/agents/src/council-review.js";
 import { atomicWrite, lockWorld } from "./world-storage.js";
 import { ENDPOINTS } from "../packages/agents/src/endpoints.js";
@@ -74,10 +77,14 @@ export function createSpectatorServer(
         throw new Error("La partie est terminée");
       campaign.pending ??= { turn: state.world.tick, answers: [] };
       save(campaign);
+      const current = state.rules === "spectator-4" ? activeCiv(state) : null;
       // Persist every answer; an interrupted process resumes only missing rulers.
       const collected = await Promise.allSettled(
         state.world.civs
-          .filter((c) => c.fellOnTick === null)
+          .filter(
+            (c) =>
+              c.fellOnTick === null && (current === null || c.id === current),
+          )
           .sort((a, b) => a.id.localeCompare(b.id))
           .map(async (civ) => {
             if (campaign.pending!.answers.some((a) => a.civ === civ.id)) return;
@@ -96,6 +103,20 @@ export function createSpectatorServer(
         throw new Error("Council checkpoint failed");
       campaign.pending.answers.sort((a, b) => a.civ.localeCompare(b.civ));
       const answers = campaign.pending.answers;
+      if (
+        state.rules === "spectator-4" &&
+        answers.some((a) => a.source === "unavailable")
+      ) {
+        // Retry the same ruler on the next click; do not skip a failed AI turn.
+        campaign.pending = null;
+        save(campaign);
+        errors.set(
+          id,
+          answers.find((a) => a.error)?.error ??
+            "Le dirigeant n'a pas répondu. Réessayez son tour.",
+        );
+        return;
+      }
       const result = resolveCouncil(
         state,
         answers.flatMap((a) => (a.decision ? [a.decision] : [])),
@@ -143,7 +164,11 @@ export function createSpectatorServer(
         return;
       }
       if (req.method === "POST" && url.pathname === "/api/demo") {
-        const demo = CampaignSchema.parse(JSON.parse(readFileSync(resolve("examples/nous-discovery.json"), "utf8")));
+        const demo = CampaignSchema.parse(
+          JSON.parse(
+            readFileSync(resolve("examples/nous-discovery.json"), "utf8"),
+          ),
+        );
         const id = "nous-discovery";
         if (!existsSync(path(id))) {
           replayCampaign(demo);
@@ -174,6 +199,7 @@ export function createSpectatorServer(
           : [];
         send(200, {
           campaigns,
+          defaultModels: defaultCouncilModels(env),
           providers: [
             ...Object.entries(ENDPOINTS).map(([id, e]) => ({
               id,
@@ -186,6 +212,11 @@ export function createSpectatorServer(
       }
       if (req.method === "POST" && url.pathname === "/api/campaigns") {
         const options = CreateSchema.parse(await body(req));
+        if (options.mode === "remote") {
+          const defaults = defaultCouncilModels(env);
+          for (const civ of ["amber", "azure", "crimson", "verdant"] as const)
+            if (!options.models[civ]) options.models[civ] = defaults[civ];
+        }
         if (
           options.mode === "remote" &&
           ["amber", "azure", "crimson", "verdant"].some(
@@ -198,7 +229,7 @@ export function createSpectatorServer(
           return;
         }
         const campaign: Campaign = {
-          version: "spectator-3",
+          version: "spectator-4",
           id: randomUUID(),
           ...options,
           turns: [],
@@ -234,7 +265,12 @@ export function createSpectatorServer(
             ...restored,
             busy: busy.has(id),
             error: errors.get(id) ?? null,
-            nextIncident: incidentFor(campaign.seed, restored.state.world.tick),
+            nextIncident: incidentFor(
+              campaign.seed,
+              restored.state.rules === "spectator-4"
+                ? (restored.state.sequence?.round ?? 1) - 1
+                : restored.state.world.tick,
+            ),
           });
           return;
         }
@@ -250,11 +286,17 @@ export function createSpectatorServer(
             send(202, { busy: true });
             return;
           }
-          if (campaign.maxTurns !== undefined && campaign.turns.length >= campaign.maxTurns) {
-            send(409, { error: "Cette campagne est terminée. Consultez le bilan ou lancez un nouveau monde." });
+          if (campaignSummary(campaign, replay(campaign).state).finished) {
+            send(409, {
+              error:
+                "Cette campagne est terminée. Consultez le bilan ou lancez un nouveau monde.",
+            });
             return;
           }
-          if (campaign.turns.length >= 1000) {
+          if (
+            campaign.turns.length >=
+            (campaign.version === "spectator-4" ? 1200 : 1000)
+          ) {
             send(409, { error: "Limite de 1000 tours atteinte" });
             return;
           }

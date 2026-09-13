@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "id": "sequential-local-42",
+      "seed": 42,
+      "actions": 160,
+      "completedRounds": 40,
+      "alive": 4,
+      "cities": 10,
+      "delivered": 120,
+      "rejected": 0,
+      "replay": true
+    },
+    {
+      "id": "sequential-local-7",
+      "seed": 7,
+      "actions": 160,
+      "completedRounds": 40,
+      "alive": 4,
+      "cities": 14,
+      "delivered": 90,
+      "rejected": 0,
+      "replay": true
+    },
+    {
+      "id": "sequential-local-123",
+      "seed": 123,
+      "actions": 155,
+      "completedRounds": 40,
+      "alive": 3,
+      "cities": 10,
+      "delivered": 73,
+      "rejected": 0,
+      "replay": true
+    }
+  ],
+  "legacy": [
+    {
+      "id": "67dadf23-8575-4425-afd2-b8b9999a060a",
+      "version": "spectator-1",
+      "actions": 50
+    },
+    {
+      "id": "ce563022-fa0f-4423-9bc8-1d97949ea715",
+      "version": "spectator-1",
+      "actions": 61
+    },
+    {
+      "id": "df93b5b6-4b1f-4892-af96-3d16a1984de1",
+      "version": "spectator-1",
+      "actions": 52
+    },
+    {
+      "id": "eae45425-95a1-4a19-a34e-2623a1417ae0",
+      "version": "spectator-3",
+      "actions": 120
+    },
+    {
+      "id": "fc120553-4a15-40c9-84a7-229e3bc0ad14",
+      "version": "spectator-2",
+      "actions": 60
+    },
+    {
+      "id": "nous-discovery",
+      "version": "spectator-1",
+      "actions": 50
+    }
+  ]
+}

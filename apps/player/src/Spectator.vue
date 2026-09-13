@@ -7,6 +7,7 @@ import { projectWorld, CIV_COLORS } from "./three/world-projection";
 import {
   incidentFor,
   newSpectator,
+  MOVEMENT_BUDGET,
   type SpectatorState,
   type resolveCouncil,
 } from "../../../packages/world/src/spectator";
@@ -39,19 +40,20 @@ const scenarios = [
     seed: 42,
     turns: 40,
     title: "Premiers pas",
-    detail: "40 tours pour découvrir les décisions et leurs conséquences.",
+    detail: "40 manches pour découvrir les décisions et leurs conséquences.",
   },
   {
     seed: 7,
     turns: 80,
     title: "Une histoire se construit",
-    detail: "80 tours pour suivre les villes et les projets des dirigeants.",
+    detail: "80 manches pour suivre les villes et les projets des dirigeants.",
   },
   {
     seed: 123,
     turns: 120,
     title: "Une longue chronique",
-    detail: "120 tours pour observer les trajectoires de quatre civilisations.",
+    detail:
+      "120 manches pour observer les trajectoires de quatre civilisations.",
   },
 ];
 const lastCampaignKey = "aevum:last-campaign";
@@ -80,6 +82,12 @@ function selectUnit(id: string) {
 function rulerStatus(id: FactionId) {
   if (world.value.civs.find((c) => c.id === id)?.fellOnTick !== null)
     return "Éteinte";
+  if (sequential.value) {
+    if (summary.value?.finished && latest.value) return "Chronique terminée";
+    if (activeRuler.value === id)
+      return busy.value && latest.value ? "Se prépare" : "À son tour";
+    return "À suivre";
+  }
   if (latest.value && busy.value) {
     const answer = loaded.value?.campaign.pending?.answers.find(
       (a) => a.civ === id,
@@ -205,11 +213,34 @@ const missionText = (text: string) =>
         "Un déplacement ne peut pas remplacer un ordre d’attaque",
     }) as Record<string, string>
   )[text] ?? text;
-const preview = newSpectator(42, "spectator-3");
+const preview = newSpectator(42, "spectator-4");
 const state = computed(() => loaded.value?.history[index.value] ?? preview);
 const world = computed(() => state.value.world);
+const sequential = computed(() => state.value.rules === "spectator-4");
+const activeRuler = computed(() => state.value.sequence?.activeCiv ?? null);
+const activeRulerName = computed(() =>
+  activeRuler.value ? names[activeRuler.value] : "dirigeant",
+);
+const lastRuler = computed(() =>
+  sequential.value ? answers.value[0]?.civ : undefined,
+);
+const displayRound = computed(() =>
+  sequential.value && latest.value && campaignFinished.value
+    ? (summary.value?.turns ?? world.value.tick)
+    : (state.value.sequence?.round ?? world.value.tick),
+);
+const movementBudget = (role: string) =>
+  MOVEMENT_BUDGET[role as keyof typeof MOVEMENT_BUDGET];
 const deliveries = computed(() =>
-  (state.value.economy ?? []).flatMap((ledger) => ledger.deliveries),
+  (state.value.economy ?? [])
+    .filter(
+      (ledger) =>
+        !sequential.value ||
+        world.value.simulation!.cities.some(
+          (city) => city.id === ledger.city && city.owner === lastRuler.value,
+        ),
+    )
+    .flatMap((ledger) => ledger.deliveries),
 );
 function cityName(id: string) {
   const city = world.value.simulation?.cities.find((c) => c.id === id);
@@ -221,7 +252,17 @@ const year = computed<Year>(() => ({
   events: [],
   rulings: [],
 }));
-const parcels = computed(() => projectWorld(year.value, [year.value]));
+const parcels = computed(() => {
+  const result = projectWorld(year.value, [year.value]);
+  if (sequential.value)
+    for (const parcel of result)
+      for (const asset of parcel.assets)
+        if (asset.unitId)
+          asset.movementPath = state.value.movement?.find(
+            (trace) => trace.unit === asset.unitId,
+          )?.path;
+  return result;
+});
 const civ = computed(() =>
   world.value.civs.find((c) => c.id === selected.value),
 );
@@ -271,7 +312,12 @@ const planTarget = computed(() => {
   return place ?? "Territoire à coloniser";
 });
 const incident = computed(() =>
-  incidentFor(world.value.seed, world.value.tick),
+  incidentFor(
+    world.value.seed,
+    sequential.value
+      ? (state.value.sequence?.round ?? 1) - 1
+      : world.value.tick,
+  ),
 );
 const outcome = computed(() => loaded.value?.outcomes[index.value - 1]);
 const followEvents = ref(false);
@@ -309,19 +355,17 @@ const latest = computed(
   () => index.value === (loaded.value?.history.length ?? 1) - 1,
 );
 const busy = computed(() => requesting.value || loaded.value?.busy);
-const campaignFinished = computed(
-  () =>
-    !!loaded.value?.campaign.maxTurns &&
-    loaded.value.campaign.turns.length >= loaded.value.campaign.maxTurns,
+const campaignFinished = computed(() => summary.value?.reason === "turn-limit");
+const over = computed(() => summary.value?.finished ?? false);
+const summary = computed(() =>
+  loaded.value
+    ? campaignSummary(
+        loaded.value.campaign,
+        loaded.value.state,
+        loaded.value.outcomes,
+      )
+    : null,
 );
-const over = computed(
-  () =>
-    campaignFinished.value ||
-    world.value.civs.filter((c) => c.fellOnTick === null).length < 2,
-);
-const summary = computed(() => loaded.value
-  ? campaignSummary(loaded.value.campaign, loaded.value.state, loaded.value.outcomes)
-  : null);
 const scoreboard = computed(() => summary.value?.standings ?? []);
 const importantTurns = computed(() =>
   (loaded.value?.outcomes ?? []).flatMap((turn, i) =>
@@ -384,9 +428,22 @@ async function list() {
   const data = await api<{
     campaigns: Summary[];
     providers: { id: string; configured: boolean }[];
+    defaultModels?: Record<string, string>;
   }>("/campaigns");
+  const firstConfiguration = providers.value.length === 0;
   catalogue.value = data.campaigns;
   providers.value = data.providers;
+  for (const id of ids) {
+    if (!models.value[id]?.trim() && data.defaultModels?.[id])
+      models.value[id] = data.defaultModels[id];
+  }
+  if (
+    firstConfiguration &&
+    data.providers.some(
+      (provider) => provider.id === "nous" && provider.configured,
+    )
+  )
+    mode.value = "remote";
 }
 async function load(id: string, follow = true) {
   const value = await api<Loaded>(`/campaigns/${id}`);
@@ -396,10 +453,7 @@ async function load(id: string, follow = true) {
   } catch {
     /* Private browsing may disable storage. */
   }
-  if (
-    value.campaign.maxTurns &&
-    value.campaign.turns.length >= value.campaign.maxTurns
-  )
+  if (campaignSummary(value.campaign, value.state, value.outcomes).finished)
     autoAdvance.value = false;
   if (follow) index.value = value.history.length - 1;
   else index.value = Math.min(index.value, value.history.length - 1);
@@ -534,8 +588,8 @@ onUnmounted(() => {
           loaded?.campaign.id === "nous-discovery"
             ? "Replay Nous · aucun appel en direct"
             : loaded?.campaign.mode === "remote"
-            ? "Dirigeants IA distants"
-            : "Gouvernance locale · sans appel IA"
+              ? "Dirigeants IA distants"
+              : "Gouvernance locale · sans appel IA"
         }}</small>
       </div>
       <nav aria-label="Interface du monde">
@@ -619,9 +673,9 @@ onUnmounted(() => {
       </div>
       <label
         >Durée de la chronique<select v-model.number="maxTurns">
-          <option :value="40">40 tours</option>
-          <option :value="80">80 tours</option>
-          <option :value="120">120 tours</option>
+          <option :value="40">40 manches</option>
+          <option :value="80">80 manches</option>
+          <option :value="120">120 manches</option>
         </select></label
       >
       <label
@@ -655,8 +709,9 @@ onUnmounted(() => {
             placeholder="fournisseur:identifiant du modèle"
             autocomplete="off" /></label
         ><small
-          >Les clés se configurent dans .env : OPENROUTER_API_KEY, GROQ_API_KEY
-          ou NOUS_API_KEY. Aucune clé dans cette page.</small
+          >Plusieurs dirigeants peuvent partager le même modèle. Les clés se
+          configurent dans .env : OPENROUTER_API_KEY, GROQ_API_KEY ou
+          NOUS_API_KEY. Aucune clé dans cette page.</small
         >
       </div>
       <button
@@ -810,7 +865,10 @@ onUnmounted(() => {
               {{ strategicPlan.updatedAt }}</small
             >
           </section>
-          <p v-else-if="state.rules === 'spectator-3'" class="plan-empty">
+          <p
+            v-else-if="state.rules === 'spectator-3' || sequential"
+            class="plan-empty"
+          >
             Aucun projet stratégique engagé à ce tour.
           </p>
           <dl class="reserves">
@@ -891,8 +949,21 @@ onUnmounted(() => {
               loaded ? "Le théâtre du monde" : "Le monde attend ses dirigeants"
             }}</span>
             <h1>
-              <small>Tour</small>{{ world.tick.toString().padStart(3, "0") }}
+              <small>{{ sequential ? "Manche" : "Tour" }}</small
+              >{{ displayRound.toString().padStart(3, "0") }}
             </h1>
+          </div>
+          <div v-if="sequential" class="sequence-status">
+            <strong>{{
+              over && latest
+                ? "Chronique terminée"
+                : `Au tour de ${activeRulerName}`
+            }}</strong>
+            <small v-if="lastRuler"
+              >{{ names[lastRuler] }} vient de jouer · action
+              {{ world.tick }}</small
+            >
+            <small v-else>Chaque civilisation joue successivement.</small>
           </div>
           <span class="world-count"
             >{{
@@ -922,8 +993,9 @@ onUnmounted(() => {
           <strong>{{ incident.title }}</strong
           ><span>{{ incident.description }}</span
           ><small
-            >Annonce commune · tours {{ incident.start }} à
-            {{ incident.end }}</small
+            >Annonce commune · {{ sequential ? "manches" : "tours" }}
+            {{ incident.start + (sequential ? 1 : 0) }} à
+            {{ incident.end + (sequential ? 1 : 0) }}</small
           >
         </div>
         <div v-else class="world-bulletin quiet">
@@ -980,6 +1052,10 @@ onUnmounted(() => {
           <p class="panel-help">
             Sélectionnez une unité pour afficher sa mission sur la carte.
           </p>
+          <p v-if="sequential" class="movement-help">
+            Par tour : civils 2 points, armées 3, marchands 4. Une case coûte 1
+            point ; forêt, colline et rivière coûtent 2 points.
+          </p>
           <button
             v-for="u in units"
             :key="u.id"
@@ -993,7 +1069,13 @@ onUnmounted(() => {
                 <small>{{
                   u.role === "soldier" ? u.strength : ""
                 }}</small></strong
-              ><small>{{ u.id }} · case {{ u.position }}</small></span
+              ><small>{{ u.id }} · case {{ u.position }}</small>
+              <small
+                v-if="sequential"
+                class="movement-budget"
+                title="Points par tour du dirigeant : plaine 1 point ; forêt, colline et rivière 2 points. Le déplacement s’arrête quand le budget ne permet plus d’entrer dans la case suivante."
+                >{{ movementBudget(u.role) }} points de mouvement / tour</small
+              ></span
             ><span
               >{{
                 actions[
@@ -1103,14 +1185,22 @@ onUnmounted(() => {
                   ? "Accord commercial"
                   : "En paix"
             }}</span
-            ><small v-if="r.truceUntil > world.tick"
-              >Trêve jusqu’au tour {{ r.truceUntil }}</small
+            ><small
+              v-if="
+                r.truceUntil >
+                (sequential ? (state.sequence?.round ?? 1) : world.tick)
+              "
+              >Trêve jusqu’à {{ sequential ? "la manche" : "au tour" }}
+              {{ r.truceUntil }}</small
             >
           </article>
           <p class="panel-help">
-            Les accords commerciaux et les paix nécessitent deux propositions
-            concordantes. Une déclaration de guerre reste unilatérale, hors
-            trêve.
+            {{
+              sequential
+                ? "Les offres de paix et de commerce restent ouvertes pour la réponse du prochain dirigeant concerné. Deux propositions concordantes scellent l’accord."
+                : "Les accords commerciaux et les paix nécessitent deux propositions concordantes."
+            }}
+            Une déclaration de guerre reste unilatérale, hors trêve.
           </p></template
         >
       </aside>
@@ -1135,7 +1225,8 @@ onUnmounted(() => {
         }}
       </h2>
       <p>
-        {{ loaded.campaign.turns.length }} tours enregistrés ·
+        {{ summary?.turns }}
+        {{ sequential ? "manches terminées" : "tours enregistrés" }} ·
         {{
           loaded.campaign.mode === "local"
             ? "Dirigeants locaux déterministes"
@@ -1153,7 +1244,9 @@ onUnmounted(() => {
               <th scope="col">Habitants</th>
               <th scope="col">Villes</th>
               <th scope="col">Découvertes</th>
-              <th v-if="loaded.state.rules === 'spectator-3'" scope="col">Plans accomplis</th>
+              <th v-if="loaded.state.rules === 'spectator-3'" scope="col">
+                Plans accomplis
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -1162,7 +1255,9 @@ onUnmounted(() => {
               <td>{{ entry.population }}</td>
               <td>{{ entry.cities }}</td>
               <td>{{ entry.advances }}</td>
-              <td v-if="loaded.state.rules === 'spectator-3'">{{ entry.completedPlans }}</td>
+              <td v-if="loaded.state.rules === 'spectator-3'">
+                {{ entry.completedPlans }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -1211,8 +1306,11 @@ onUnmounted(() => {
         <small>{{ importantTurns.length }}</small></label
       >
       <label class="scrubber"
-        >Tour {{ index }} /
-        {{ loaded?.campaign.maxTurns ?? (loaded?.history.length ?? 1) - 1
+        >{{ sequential ? "Action" : "Tour" }} {{ index }} /
+        {{
+          sequential
+            ? (loaded?.history.length ?? 1) - 1
+            : (loaded?.campaign.maxTurns ?? (loaded?.history.length ?? 1) - 1)
         }}<input
           type="range"
           min="0"
@@ -1231,14 +1329,20 @@ onUnmounted(() => {
           Voir le bilan
         </button>
         <small v-else-if="loaded?.campaign.maxTurns" class="remaining-turns"
-          >{{ loaded.campaign.maxTurns - loaded.campaign.turns.length }} tours à
-          venir</small
+          >{{ summary?.remainingTurns }}
+          {{ sequential ? "manches" : "tours" }} à venir</small
         >
         <span v-if="busy" role="status"
-          >Conseil en cours…
-          {{ loaded?.campaign.pending?.answers.length ?? 0 }}/{{
-            world.civs.filter((c) => c.fellOnTick === null).length
-          }}</span
+          >{{
+            sequential
+              ? `${activeRulerName} prépare son tour…`
+              : "Conseil en cours…"
+          }}
+          <template v-if="!sequential">
+            {{ loaded?.campaign.pending?.answers.length ?? 0 }}/{{
+              world.civs.filter((c) => c.fellOnTick === null).length
+            }}</template
+          ></span
         ><button
           v-if="!latest"
           @click="seek((loaded?.history.length ?? 1) - 1)"
@@ -1257,7 +1361,15 @@ onUnmounted(() => {
             :disabled="!loaded || busy || over"
             @click="next"
           >
-            {{ busy ? "Décisions en cours…" : "Résoudre le tour suivant" }}
+            {{
+              sequential
+                ? busy
+                  ? `${activeRulerName} se prépare…`
+                  : `Jouer le tour de ${activeRulerName}`
+                : busy
+                  ? "Décisions en cours…"
+                  : "Résoudre le tour suivant"
+            }}
           </button></template
         ><a
           v-if="loaded"

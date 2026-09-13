@@ -33,6 +33,7 @@ export {
   type StrategicPlan,
   type TrackedPlan,
 } from "./strategic-plans.js";
+export { MOVEMENT_BUDGET, movementCost } from "./commands.js";
 
 export const CouncilDecisionSchema = CommandBatchSchema.extend({
   objective: z.string().max(1000),
@@ -77,7 +78,33 @@ const MissionSchema = UnitCommandSchema.extend({
 });
 export const SpectatorStateSchema = z
   .object({
-    rules: z.enum(["spectator-1", "spectator-2", "spectator-3"]),
+    rules: z.enum(["spectator-1", "spectator-2", "spectator-3", "spectator-4"]),
+    sequence: z
+      .object({ activeCiv: FactionIdSchema, round: z.number().int().min(1) })
+      .optional(),
+    diplomacyOffers: z
+      .array(
+        z.object({
+          from: FactionIdSchema,
+          to: FactionIdSchema,
+          proposal: z.enum(["peace", "trade"]),
+          round: z.number().int().min(1),
+        }),
+      )
+      .max(12)
+      .optional(),
+    movement: z
+      .array(
+        z.object({
+          unit: z.string(),
+          budget: z.number().nonnegative(),
+          spent: z.number().nonnegative(),
+          remaining: z.number().nonnegative(),
+          path: z.array(z.number().int().nonnegative()),
+          attackReady: z.boolean(),
+        }),
+      )
+      .optional(),
     plans: z.record(TrackedPlanSchema).optional(),
     world: WorldSchema,
     economy: z.array(CityLedgerSchema).optional(),
@@ -92,6 +119,15 @@ export const SpectatorStateSchema = z
     "Spectator state requires the civilization data format",
   );
 export type SpectatorState = z.infer<typeof SpectatorStateSchema>;
+export function activeCiv(state: SpectatorState) {
+  return state.rules === "spectator-4"
+    ? (state.sequence?.activeCiv ??
+        state.world.civs
+          .filter((c) => c.fellOnTick === null && c.population > 0)
+          .sort((a, b) => a.id.localeCompare(b.id))[0]?.id ??
+        null)
+    : null;
+}
 export interface WorldIncident {
   id: string;
   title: string;
@@ -158,7 +194,14 @@ export function newSpectator(
   return {
     rules,
     world,
-    ...(rules === "spectator-3" ? { plans: {} } : {}),
+    ...(["spectator-3", "spectator-4"].includes(rules) ? { plans: {} } : {}),
+    ...(rules === "spectator-4"
+      ? {
+          sequence: { activeCiv: world.civs[0]!.id, round: 1 },
+          diplomacyOffers: [],
+          movement: [],
+        }
+      : {}),
     ...(rules !== "spectator-1"
       ? {
           economy: [],
@@ -191,6 +234,31 @@ export function resolveCouncil(
 ) {
   const state = SpectatorStateSchema.parse(input);
   let world = state.world;
+  const actor = activeCiv(state);
+  const sequential = state.rules === "spectator-4";
+  const roundNumber = state.sequence?.round ?? 1;
+  if (
+    sequential &&
+    (!actor ||
+      (submissions.length > 0 &&
+        (submissions.length !== 1 ||
+          !CouncilDecisionSchema.safeParse(submissions[0]).success ||
+          CouncilDecisionSchema.parse(submissions[0]).civ !== actor ||
+          CouncilDecisionSchema.parse(submissions[0]).turn !== world.tick)))
+  ) {
+    return {
+      state,
+      events: [] as TickEvent[],
+      rejected: [
+        {
+          civ: actor ?? "unknown",
+          unit: null as string | null,
+          detail: "Seul le dirigeant actif peut jouer ce tour.",
+        },
+      ],
+      incident: incidentFor(world.seed, roundNumber - 1),
+    };
+  }
   const rejected: { civ: string; unit: string | null; detail: string }[] = [];
   const valid: CouncilDecision[] = [];
   const parsed = submissions.map((s) => CouncilDecisionSchema.safeParse(s));
@@ -225,7 +293,10 @@ export function resolveCouncil(
   ) => events.push({ tick: world.tick + 1, civ, kind, detail });
   for (const d of valid) {
     const civ = world.civs.find((c) => c.id === d.civ)!;
-    if (state.rules === "spectator-3" && d.plan !== undefined) {
+    if (
+      ["spectator-3", "spectator-4"].includes(state.rules) &&
+      d.plan !== undefined
+    ) {
       state.plans ??= {};
       if (d.plan === null) {
         const previous = state.plans[civ.id];
@@ -322,7 +393,67 @@ export function resolveCouncil(
         });
     }
   }
+  if (sequential) {
+    state.diplomacyOffers = (state.diplomacyOffers ?? []).filter(
+      (o) => roundNumber - o.round < 8,
+    );
+    for (const proposal of valid[0]?.diplomacy ?? []) {
+      const r = world.simulation!.relations.find(
+        (r) =>
+          [r.a, r.b].includes(actor!) && [r.a, r.b].includes(proposal.target),
+      );
+      if (!r || proposal.target === actor) continue;
+      state.diplomacyOffers = state.diplomacyOffers.filter(
+        (o) => !(o.from === actor && o.to === proposal.target),
+      );
+      if (proposal.proposal === "war") {
+        if (roundNumber >= r.truceUntil) {
+          r.status = "war";
+          r.since = world.tick;
+          say(actor!, "WAR", `Guerre avec ${proposal.target}`);
+          state.diplomacyOffers = state.diplomacyOffers.filter(
+            (o) => !(o.from === proposal.target && o.to === actor),
+          );
+        }
+      } else {
+        const matching = state.diplomacyOffers.some(
+          (o) =>
+            o.from === proposal.target &&
+            o.to === actor &&
+            o.proposal === proposal.proposal,
+        );
+        if (matching && (proposal.proposal === "peace" || r.status !== "war")) {
+          if (r.status === "war") r.truceUntil = roundNumber + 8;
+          r.status = proposal.proposal;
+          r.since = world.tick;
+          state.diplomacyOffers = state.diplomacyOffers.filter(
+            (o) => !(o.from === proposal.target && o.to === actor),
+          );
+          say(
+            actor!,
+            "PEACE",
+            `Accord de ${proposal.proposal} avec ${proposal.target}`,
+          );
+        } else
+          state.diplomacyOffers.push({
+            from: actor!,
+            to: proposal.target,
+            proposal: proposal.proposal,
+            round: roundNumber,
+          });
+      }
+    }
+  }
   for (const r of world.simulation!.relations) {
+    if (sequential) {
+      if (r.status === "trade" && [r.a, r.b].includes(actor!)) {
+        const civ = world.civs.find((c) => c.id === actor)!;
+        civ.stock.wealth = round(
+          civ.stock.wealth + Math.min(15, civ.population * 0.025),
+        );
+      }
+      continue;
+    }
     const proposal = (a: string, b: string) =>
       valid.find((d) => d.civ === a)?.diplomacy.find((p) => p.target === b)
         ?.proposal;
@@ -359,9 +490,11 @@ export function resolveCouncil(
     world,
     state.missions,
     valid.map(({ civ, turn, orders }) => ({ civ, turn, orders })),
+    actor ?? undefined,
   );
   world = moved.world;
   state.missions = moved.missions;
+  if (sequential) state.movement = moved.movement;
   rejected.push(...moved.rejected);
   // Combat damage is accumulated from one snapshot and applied simultaneously.
   const losses = new Map<string, number>();
@@ -373,10 +506,15 @@ export function resolveCouncil(
     );
     if (
       m.action !== "attack" ||
+      (sequential &&
+        (m.civ !== actor ||
+          !moved.movement.some(
+            (trace) => trace.unit === m.unit && trace.attackReady,
+          ))) ||
       !u ||
       !before ||
       before.cooldown > 0 ||
-      distance(world, before.position, m.target) !== 1 ||
+      (!sequential && distance(world, before.position, m.target) !== 1) ||
       m.status === "interrupted" ||
       m.status === "completed" ||
       distance(world, u.position, m.target) !== 1
@@ -470,6 +608,12 @@ export function resolveCouncil(
     );
     for (const u of survivors) {
       u.position = target;
+      if (sequential) {
+        const trace = moved.movement.find((movement) => movement.unit === u.id);
+        if (trace && trace.path.at(-1) !== target) trace.path.push(target);
+      }
+      if (sequential)
+        moved.movement.find((trace) => trace.unit === u.id)?.path.push(target);
       const m = state.missions.find((m) => m.unit === u.id)!;
       m.status = "completed";
       m.detail = "Territoire conquis";
@@ -480,6 +624,7 @@ export function resolveCouncil(
   const foundations = state.missions.filter(
     (m) =>
       m.action === "settle" &&
+      (!sequential || m.civ === actor) &&
       m.status === "completed" &&
       world.simulation!.units.some(
         (u) =>
@@ -487,6 +632,7 @@ export function resolveCouncil(
       ),
   );
   for (const m of state.missions) {
+    if (sequential && m.civ !== actor) continue;
     const unit = world.simulation!.units.find((u) => u.id === m.unit);
     if (!unit) {
       m.status = "interrupted";
@@ -533,9 +679,9 @@ export function resolveCouncil(
   }
   // Long operations beyond friendly land need a supply line. Attrition is
   // explicit and bounded, with a turn of grace between checks.
-  if ((world.tick + 1) % 3 === 0)
+  if ((sequential ? roundNumber : world.tick + 1) % 3 === 0)
     for (const unit of world.simulation!.units)
-      if (unit.role === "soldier") {
+      if (unit.role === "soldier" && (!sequential || unit.owner === actor)) {
         const supplied = world.board.some(
           (p, i) =>
             p.owner === unit.owner && distance(world, i, unit.position) <= 3,
@@ -554,13 +700,38 @@ export function resolveCouncil(
       }
   world.tick++;
   world = census(world);
-  const incident = incidentFor(world.seed, input.world.tick);
+  const incident = incidentFor(
+    world.seed,
+    sequential ? roundNumber - 1 : input.world.tick,
+  );
+  const economyWorld = sequential
+    ? {
+        ...world,
+        simulation: {
+          ...world.simulation!,
+          units: world.simulation!.units.map((unit) => {
+            const path = moved.movement.find(
+              (trace) => trace.unit === unit.id,
+            )?.path;
+            return path && path.length > 1
+              ? { ...unit, previous: path[path.length - 2]! }
+              : unit;
+          }),
+        },
+      }
+    : world;
   if (state.rules !== "spectator-1")
     state.economy = world.civs.flatMap((c) =>
-      deriveCityEconomy(world, c.id, state.caravans),
+      sequential && c.id !== actor
+        ? (state.economy ?? []).filter((l) =>
+            world.simulation!.cities.some(
+              (city) => city.id === l.city && city.owner === c.id,
+            ),
+          )
+        : deriveCityEconomy(economyWorld, c.id, state.caravans),
     );
   for (const civ of world.civs)
-    if (civ.fellOnTick === null) {
+    if (civ.fellOnTick === null && (!sequential || civ.id === actor)) {
       let multiplier = incident?.foodMultiplier ?? 1;
       if (
         multiplier < 1 &&
@@ -574,6 +745,7 @@ export function resolveCouncil(
         manual: true,
         foodMultiplier: multiplier,
         research: state.research[civ.id] ?? null,
+        ...(sequential ? { seasonTick: roundNumber } : {}),
         ...(state.rules !== "spectator-1"
           ? {
               production: (state.economy ?? [])
@@ -596,7 +768,7 @@ export function resolveCouncil(
       });
     }
   world = cleanup(world, events);
-  initializeUnits(world, false);
+  initializeUnits(world, false, actor ?? undefined);
   world = cleanup(world, events);
   if (state.rules !== "spectator-1") {
     state.caravans = Object.fromEntries(
@@ -620,16 +792,27 @@ export function resolveCouncil(
     )
     .slice(-1024);
   state.world = world;
-  if (state.rules === "spectator-3") {
+  if (["spectator-3", "spectator-4"].includes(state.rules)) {
     state.plans ??= {};
     for (const [civ, plan] of Object.entries(state.plans))
-      state.plans[civ] = advancePlan(
-        plan,
-        world,
-        civ,
-        state.economy ?? [],
-        state.research[civ] ?? null,
-      );
+      if (!sequential || civ === actor)
+        state.plans[civ] = advancePlan(
+          plan,
+          world,
+          civ,
+          state.economy ?? [],
+          state.research[civ] ?? null,
+        );
+  }
+  if (sequential) {
+    const alive = world.civs
+      .filter((c) => c.fellOnTick === null && c.population > 0)
+      .sort((a, b) => a.id.localeCompare(b.id));
+    const next = alive.find((c) => c.id > actor!);
+    state.sequence = {
+      activeCiv: next?.id ?? alive[0]?.id ?? actor!,
+      round: roundNumber + (next ? 0 : 1),
+    };
   }
   for (const civ of world.civs)
     state.memory[civ.id] = [
@@ -799,7 +982,7 @@ export function localCouncil(
         : "Fonder des villes et assurer la prospérité",
     focus,
     research: technology?.name ?? null,
-    ...(state.rules === "spectator-3" &&
+    ...(["spectator-3", "spectator-4"].includes(state.rules) &&
     state.plans?.[civId]?.status !== "active"
       ? {
           plan: (() => {

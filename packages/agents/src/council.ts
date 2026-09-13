@@ -11,13 +11,24 @@ import type { CouncilAnswer } from "../../world/src/campaign.js";
 import { RemoteProvider } from "./provider.js";
 import { ENDPOINTS, type ProviderName } from "./endpoints.js";
 import { TECHNOLOGIES, BUILDING_RULES } from "../../world/src/development.js";
-import { COUNCIL_JSON_SCHEMA, STRATEGIC_COUNCIL_JSON_SCHEMA } from "./council-schema.js";
+import {
+  COUNCIL_JSON_SCHEMA,
+  STRATEGIC_COUNCIL_JSON_SCHEMA,
+} from "./council-schema.js";
 
 export function councilObservation(state: SpectatorState, civ: string) {
   const w = state.world;
   return {
     turn: w.tick,
     rules: state.rules,
+    ...(state.rules === "spectator-4"
+      ? {
+          sequence: state.sequence,
+          diplomacyOffers: state.diplomacyOffers?.filter(
+            (offer) => offer.from === civ || offer.to === civ,
+          ),
+        }
+      : {}),
     plan: state.plans?.[civ] ?? null,
     options: councilOptions(state, civ),
     economy: state.economy?.filter((l) =>
@@ -35,7 +46,10 @@ export function councilObservation(state: SpectatorState, civ: string) {
         verdant: "Steward: protect food reserves, population and diplomacy",
       } as Record<string, string>
     )[civ],
-    event: incidentFor(w.seed, w.tick),
+    event: incidentFor(
+      w.seed,
+      state.rules === "spectator-4" ? (state.sequence?.round ?? 1) - 1 : w.tick,
+    ),
     size: w.size,
     // Public board and public census; rival orders and objectives stay private.
     board: w.board.map((p, index) => ({
@@ -80,9 +94,36 @@ export async function requestCouncil(
   fetchImpl: typeof fetch = fetch,
   correction?: { previousDecision: unknown; issues: string[] },
 ): Promise<CouncilAnswer> {
-  const strategic = state.rules === "spectator-3";
-  const schema = strategic ? STRATEGIC_COUNCIL_JSON_SCHEMA : COUNCIL_JSON_SCHEMA;
-  const systemInstructions = instructions + (strategic ? " In spectator-3, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves." : "");
+  const strategic =
+    state.rules === "spectator-3" || state.rules === "spectator-4";
+  const schema = strategic
+    ? STRATEGIC_COUNCIL_JSON_SCHEMA
+    : COUNCIL_JSON_SCHEMA;
+  const turnInstructions =
+    state.rules === "spectator-4"
+      ? instructions
+          .replace(
+            "You govern one civilization in a simultaneous turn strategy simulation. All rulers see the same start-of-turn world.",
+            "You govern the ACTIVE civilization in a sequential turn strategy simulation. Only you act now. The next ruler will observe your resolved actions. A round ends when all living civilizations have played.",
+          )
+          .replace(
+            "Movement is cardinal, one tile per turn.",
+            "Movement is cardinal and spends points: soldiers 3, merchants 4, other roles 2 each own turn. Forest, hill and river tiles cost 2 points; other tiles cost 1. Long routes persist across your turns, but movement stops when the budget is exhausted. No rival units move during your turn.",
+          )
+          .replace(
+            "Attacks resolve simultaneously.",
+            "Your attacks resolve during your turn; defenders can respond in combat but cannot march.",
+          )
+          .replace(
+            "Trade and peace require matching proposals; war is unilateral subject to an 8-turn truce.",
+            "Trade and peace require matching proposals saved across successive ruler turns; war is unilateral subject to a truce. Read incoming diplomacy before responding.",
+          )
+      : instructions;
+  const systemInstructions =
+    turnInstructions +
+    (strategic
+      ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."
+      : "");
   if (mode === "local")
     return {
       civ,
@@ -244,12 +285,22 @@ export async function requestCouncil(
     const safe =
       error instanceof ZodError
         ? "Réponse IA incompatible avec le schéma des ordres : " +
-          error.issues.slice(0, 8).map(issue => {
-            // Report schema locations and codes, never provider values or bodies.
-            const path = issue.path.map(part => typeof part === "number" ? part :
-              /^[a-zA-Z][a-zA-Z0-9]{0,30}$/.test(part) ? part : "field").join(".");
-            return `${path || "decision"} (${issue.code})`;
-          }).join(", ")
+          error.issues
+            .slice(0, 8)
+            .map((issue) => {
+              // Report schema locations and codes, never provider values or bodies.
+              const path = issue.path
+                .map((part) =>
+                  typeof part === "number"
+                    ? part
+                    : /^[a-zA-Z][a-zA-Z0-9]{0,30}$/.test(part)
+                      ? part
+                      : "field",
+                )
+                .join(".");
+              return `${path || "decision"} (${issue.code})`;
+            })
+            .join(", ")
         : error instanceof SyntaxError
           ? "Réponse IA JSON illisible"
           : error instanceof Error && error.name === "TimeoutError"

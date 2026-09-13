@@ -1,5 +1,6 @@
 import type { SpectatorState } from "../../world/src/spectator.js";
 import type { UnitCommand } from "../../world/src/commands.js";
+import { MOVEMENT_BUDGET } from "../../world/src/commands.js";
 import type { Building } from "../../world/src/civilization-state.js";
 import {
   affordable,
@@ -85,6 +86,9 @@ export function councilOptions(state: SpectatorState, civId: string) {
         : [];
     return {
       unit: unit.id,
+      ...(state.rules === "spectator-4"
+        ? { movementBudget: MOVEMENT_BUDGET[unit.role] }
+        : {}),
       actions,
       foundationSites,
       workSites,

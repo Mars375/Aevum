@@ -2,6 +2,25 @@ import { z } from "zod";
 import { FactionIdSchema } from "@abs/contracts";
 import type { World } from "./state.js";
 import { unitPath } from "./units.js";
+import type { WorldUnit } from "./civilization-state.js";
+export const MOVEMENT_BUDGET: Record<WorldUnit["role"], number> = {
+  soldier: 3,
+  settler: 2,
+  farmer: 2,
+  lumberjack: 2,
+  miner: 2,
+  merchant: 4,
+};
+export const movementCost = (world: World, target: number) =>
+  world.board[target]?.kind === "plain" ? 1 : 2;
+export interface MovementTrace {
+  unit: string;
+  budget: number;
+  spent: number;
+  remaining: number;
+  path: number[];
+  attackReady: boolean;
+}
 
 /** Orders are intentions. Only the resolver changes positions. */
 export const UnitCommandSchema = z
@@ -53,6 +72,7 @@ export function resolveCommands(
   input: World,
   previous: readonly Mission[],
   submissions: readonly unknown[],
+  active?: CommandBatch["civ"],
 ) {
   if (!input.simulation)
     throw new Error("Commands require a civilization simulation");
@@ -62,7 +82,7 @@ export function resolveCommands(
       ...input.simulation,
       units: input.simulation.units.map((u) => ({
         ...u,
-        previous: u.position,
+        previous: active && u.owner !== active ? u.previous : u.position,
       })),
     },
   };
@@ -172,6 +192,104 @@ export function resolveCommands(
       });
     }
   }
+  if (active) {
+    const movement: MovementTrace[] = [];
+    for (const unit of world
+      .simulation!.units.filter((u) => u.owner === active)
+      .sort((a, b) => a.id.localeCompare(b.id))) {
+      const budget = MOVEMENT_BUDGET[unit.role];
+      const trace: MovementTrace = {
+        unit: unit.id,
+        budget,
+        spent: 0,
+        remaining: budget,
+        path: [unit.position],
+        attackReady: false,
+      };
+      movement.push(trace);
+      const mission = missions.get(unit.id);
+      if (
+        !mission ||
+        mission.status === "completed" ||
+        mission.status === "interrupted"
+      )
+        continue;
+      if (unit.cooldown > 0) {
+        unit.cooldown--;
+        mission.detail = "Terrain delay";
+        continue;
+      }
+      if (mission.action === "escort") {
+        const escorted = world.simulation!.units.find(
+          (u) => u.id === mission.escort && u.owner === active,
+        );
+        if (!escorted) {
+          mission.status = "interrupted";
+          mission.route = [];
+          continue;
+        }
+        mission.target = escorted.position;
+      }
+      unit.target = mission.target;
+      const owner = world.board[mission.target]?.owner;
+      mission.route =
+        owner === null || owner === active || mission.action === "attack"
+          ? unitPath(world, unit, mission.target)
+          : [];
+      if (!mission.route.length) {
+        mission.status = "blocked";
+        mission.detail = "Route no longer available";
+        continue;
+      }
+      mission.status = "active";
+      while (mission.route.length > 1) {
+        const next = mission.route[1]!,
+          cost = movementCost(world, next);
+        if (cost > trace.remaining) {
+          mission.detail = "Budget de mouvement épuisé";
+          break;
+        }
+        if (mission.action === "attack" && next === mission.target) {
+          trace.spent += cost;
+          trace.remaining -= cost;
+          trace.attackReady = true;
+          mission.detail = "Assaut préparé";
+          break;
+        }
+        if (
+          world.simulation!.units.some(
+            (other) => other.owner !== active && other.position === next,
+          )
+        ) {
+          mission.status = "blocked";
+          mission.detail = "Opposing unit contests this tile";
+          break;
+        }
+        unit.position = next;
+        unit.task = "march";
+        trace.path.push(next);
+        trace.spent += cost;
+        trace.remaining -= cost;
+        mission.route.shift();
+      }
+      if (unit.position === mission.target) {
+        mission.status =
+          mission.action === "defend" || mission.action === "escort"
+            ? "active"
+            : "completed";
+        unit.task = mission.action === "defend" ? "guard" : "idle";
+        mission.detail = "Destination reached";
+      }
+    }
+    return {
+      world,
+      missions: [...missions.values()].sort((a, b) =>
+        a.unit.localeCompare(b.unit),
+      ),
+      rejected,
+      movement,
+    };
+  }
   const intents = new Map<string, number>();
   for (const [id, mission] of missions) {
     if (mission.status === "completed" || mission.status === "interrupted")
@@ -268,5 +386,6 @@ export function resolveCommands(
       a.unit.localeCompare(b.unit),
     ),
     rejected,
+    movement: [] as MovementTrace[],
   };
 }

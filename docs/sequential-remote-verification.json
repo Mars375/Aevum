@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "id": "sequential-nous-pilot",
+      "seed": 42,
+      "actions": 4,
+      "completedRounds": 1,
+      "alive": 4,
+      "cities": 4,
+      "delivered": 0,
+      "rejected": 0,
+      "replay": true
+    }
+  ],
+  "legacy": []
+}
