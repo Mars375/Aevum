@@ -40,7 +40,8 @@
     "narrate": "tsx scripts/narrate.ts",
     "learning-curve": "tsx scripts/learning-curve.ts",
     "season-report": "tsx scripts/season-report.ts",
-    "verify-season-1": "tsx scripts/verify-season-1.ts"
+    "verify-season-1": "tsx scripts/verify-season-1.ts",
+    "launch": "node scripts/launch.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

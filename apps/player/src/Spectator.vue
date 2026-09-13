@@ -11,6 +11,7 @@ import {
   type resolveCouncil,
 } from "../../../packages/world/src/spectator";
 import type { Campaign } from "../../../packages/world/src/campaign";
+import { campaignSummary } from "../../../packages/world/src/campaign-summary";
 
 interface Loaded {
   campaign: Campaign;
@@ -30,6 +31,42 @@ const loaded = ref<Loaded | null>(null),
   catalogue = ref<Summary[]>([]),
   providers = ref<{ id: string; configured: boolean }[]>([]);
 const hud = ref(true);
+const maxTurns = ref(40),
+  momentsOnly = ref(false),
+  resultOpen = ref(true);
+const scenarios = [
+  {
+    seed: 42,
+    turns: 40,
+    title: "Premiers pas",
+    detail: "40 tours pour découvrir les décisions et leurs conséquences.",
+  },
+  {
+    seed: 7,
+    turns: 80,
+    title: "Une histoire se construit",
+    detail: "80 tours pour suivre les villes et les projets des dirigeants.",
+  },
+  {
+    seed: 123,
+    turns: 120,
+    title: "Une longue chronique",
+    detail: "120 tours pour observer les trajectoires de quatre civilisations.",
+  },
+];
+const lastCampaignKey = "aevum:last-campaign";
+function rememberedCampaign() {
+  try {
+    return localStorage.getItem(lastCampaignKey);
+  } catch {
+    return null;
+  }
+}
+function chooseScenario(scenario: (typeof scenarios)[number]) {
+  seed.value = scenario.seed;
+  maxTurns.value = scenario.turns;
+}
+
 const rosterOpen = ref(false),
   journalOpen = ref(false);
 function selectUnit(id: string) {
@@ -272,9 +309,56 @@ const latest = computed(
   () => index.value === (loaded.value?.history.length ?? 1) - 1,
 );
 const busy = computed(() => requesting.value || loaded.value?.busy);
-const over = computed(
-  () => world.value.civs.filter((c) => c.fellOnTick === null).length < 2,
+const campaignFinished = computed(
+  () =>
+    !!loaded.value?.campaign.maxTurns &&
+    loaded.value.campaign.turns.length >= loaded.value.campaign.maxTurns,
 );
+const over = computed(
+  () =>
+    campaignFinished.value ||
+    world.value.civs.filter((c) => c.fellOnTick === null).length < 2,
+);
+const summary = computed(() => loaded.value
+  ? campaignSummary(loaded.value.campaign, loaded.value.state, loaded.value.outcomes)
+  : null);
+const scoreboard = computed(() => summary.value?.standings ?? []);
+const importantTurns = computed(() =>
+  (loaded.value?.outcomes ?? []).flatMap((turn, i) =>
+    turn.events.some((event) =>
+      ["FOUNDED", "ROUTED", "ADVANCE", "STARVED"].includes(event.kind),
+    )
+      ? [i + 1]
+      : [],
+  ),
+);
+const nextMoment = computed(() =>
+  importantTurns.value.find((turn) => turn > index.value),
+);
+function playHistory() {
+  autoAdvance.value = false;
+  if (!playing.value && latest.value)
+    index.value = momentsOnly.value ? (importantTurns.value[0] ?? 0) : 0;
+  playing.value = !playing.value;
+}
+async function discover() {
+  requesting.value = true;
+  failure.value = "";
+  playing.value = autoAdvance.value = false;
+  try {
+    const { id } = await api<{ id: string }>("/demo", {});
+    await load(id);
+    setup.value = false;
+    resultOpen.value = false;
+    index.value = 0;
+    playing.value = true;
+    await list();
+  } catch (e) {
+    failure.value = e instanceof Error ? e.message : String(e);
+  } finally {
+    requesting.value = false;
+  }
+}
 let polling: ReturnType<typeof setInterval> | undefined,
   playTimer: ReturnType<typeof setInterval> | undefined;
 async function api<T>(path: string, body?: unknown): Promise<T> {
@@ -307,6 +391,16 @@ async function list() {
 async function load(id: string, follow = true) {
   const value = await api<Loaded>(`/campaigns/${id}`);
   loaded.value = value;
+  try {
+    localStorage.setItem(lastCampaignKey, id);
+  } catch {
+    /* Private browsing may disable storage. */
+  }
+  if (
+    value.campaign.maxTurns &&
+    value.campaign.turns.length >= value.campaign.maxTurns
+  )
+    autoAdvance.value = false;
   if (follow) index.value = value.history.length - 1;
   else index.value = Math.min(index.value, value.history.length - 1);
   const url = new URL(location.href);
@@ -331,8 +425,10 @@ async function create() {
       seed: seed.value,
       mode: mode.value,
       models: models.value,
+      maxTurns: maxTurns.value,
     });
     await load(id);
+    resultOpen.value = true;
     setup.value = false;
     await list();
   } catch (e) {
@@ -371,7 +467,7 @@ onMounted(async () => {
     await list();
     const id =
       new URLSearchParams(location.search).get("campaign") ??
-      catalogue.value.at(-1)?.id;
+      catalogue.value.find((c) => c.id === rememberedCampaign())?.id;
     if (id) await load(id);
     else setup.value = true;
   } catch (e) {
@@ -394,8 +490,20 @@ onMounted(async () => {
     elapsed += 0.1 * speed.value;
     if (elapsed >= 1) {
       elapsed = 0;
-      if (!latest.value) index.value++;
-      else playing.value = false;
+      if (momentsOnly.value) {
+        if (nextMoment.value !== undefined) index.value = nextMoment.value;
+        else {
+          playing.value = false;
+          if (campaignFinished.value) {
+            index.value = loaded.value!.history.length - 1;
+            resultOpen.value = true;
+          }
+        }
+      } else if (!latest.value) index.value++;
+      else {
+        playing.value = false;
+        if (over.value) resultOpen.value = true;
+      }
     }
   }, 100);
 });
@@ -417,13 +525,15 @@ onUnmounted(() => {
         ></a
       >
       <div class="session-title">
-        <span class="signal" :class="{ thinking: busy }"></span
-        >{{
+        <span class="signal" :class="{ thinking: busy }"></span>
+        {{
           loaded
             ? `Monde ${loaded.campaign.seed}`
             : "Observatoire des civilisations"
         }}<small>{{
-          loaded?.campaign.mode === "remote"
+          loaded?.campaign.id === "nous-discovery"
+            ? "Replay Nous · aucun appel en direct"
+            : loaded?.campaign.mode === "remote"
             ? "Dirigeants IA distants"
             : "Gouvernance locale · sans appel IA"
         }}</small>
@@ -477,6 +587,18 @@ onUnmounted(() => {
       aria-label="Configuration de la simulation"
     >
       <div class="setup-intro">
+        <button
+          class="discover-button primary"
+          :disabled="busy"
+          @click="discover"
+        >
+          {{ requesting ? "Préparation…" : "Découvrir Aevum" }}
+        </button>
+        <p class="discover-help">
+          Une chronique de 50 tours déjà jouée par les modèles Nous. Regardez
+          les décisions enregistrées sans configurer de clé, sélectionnez une
+          civilisation, puis suivez ses projets.
+        </p>
         <span>Une expérience de civilisation autonome</span>
         <h1>Le pouvoir change.<br />L’histoire reste.</h1>
         <p>
@@ -484,6 +606,24 @@ onUnmounted(() => {
           humaine. Lancez le monde, puis observez ce qu’ils en font.
         </p>
       </div>
+      <div class="scenario-choices" aria-label="Choisir une durée de partie">
+        <button
+          v-for="scenario in scenarios"
+          :key="scenario.turns"
+          :aria-pressed="seed === scenario.seed && maxTurns === scenario.turns"
+          @click="chooseScenario(scenario)"
+        >
+          <strong>{{ scenario.title }}</strong
+          ><span>{{ scenario.detail }}</span>
+        </button>
+      </div>
+      <label
+        >Durée de la chronique<select v-model.number="maxTurns">
+          <option :value="40">40 tours</option>
+          <option :value="80">80 tours</option>
+          <option :value="120">120 tours</option>
+        </select></label
+      >
       <label
         >Graine du monde<input
           v-model.number="seed"
@@ -791,9 +931,11 @@ onUnmounted(() => {
             over ? "Fin de cette ère" : "Le monde suit son cours"
           }}</strong
           ><span>{{
-            over
-              ? "Une seule civilisation demeure. La chronique reste consultable."
-              : "Aucun événement mondial actif à ce tour."
+            campaignFinished
+              ? "La durée prévue est atteinte. Retrouvez les moments importants et le bilan."
+              : over
+                ? "Une seule civilisation demeure. La chronique reste consultable."
+                : "Aucun événement mondial actif à ce tour."
           }}</span>
         </div>
         <div v-if="mission" class="route-caption">
@@ -973,6 +1115,72 @@ onUnmounted(() => {
         >
       </aside>
     </div>
+    <section
+      v-if="loaded && over && latest && hud && !setup && resultOpen"
+      class="campaign-result"
+      aria-label="Bilan de la chronique"
+    >
+      <button
+        class="panel-close"
+        @click="resultOpen = false"
+        aria-label="Fermer le bilan"
+      >
+        ×
+      </button>
+      <h2>
+        {{
+          campaignFinished
+            ? "La chronique est complète"
+            : "Une civilisation demeure"
+        }}
+      </h2>
+      <p>
+        {{ loaded.campaign.turns.length }} tours enregistrés ·
+        {{
+          loaded.campaign.mode === "local"
+            ? "Dirigeants locaux déterministes"
+            : "Décisions des modèles configurés"
+        }}
+      </p>
+      <div class="result-table">
+        <table>
+          <caption>
+            État final des civilisations, sans score de victoire artificiel
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Civilisation</th>
+              <th scope="col">Habitants</th>
+              <th scope="col">Villes</th>
+              <th scope="col">Découvertes</th>
+              <th v-if="loaded.state.rules === 'spectator-3'" scope="col">Plans accomplis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="entry in scoreboard" :key="entry.civ">
+              <th scope="row">{{ names[entry.civ] }}</th>
+              <td>{{ entry.population }}</td>
+              <td>{{ entry.cities }}</td>
+              <td>{{ entry.advances }}</td>
+              <td v-if="loaded.state.rules === 'spectator-3'">{{ entry.completedPlans }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="result-actions">
+        <button
+          @click="
+            resultOpen = false;
+            momentsOnly = true;
+            seek(0);
+            playing = true;
+          "
+          :disabled="!importantTurns.length"
+        >
+          Revoir les moments importants</button
+        ><button @click="setup = true">Créer une autre histoire</button>
+      </div>
+    </section>
     <footer class="turn-controls">
       <div class="playback">
         <button
@@ -982,11 +1190,12 @@ onUnmounted(() => {
         >
           ←</button
         ><button
-          :disabled="!loaded || latest"
-          @click="
-            playing = !playing;
-            autoAdvance = false;
+          :disabled="
+            !loaded ||
+            loaded.campaign.turns.length === 0 ||
+            (momentsOnly && !importantTurns.length)
           "
+          @click="playHistory"
         >
           {{ playing ? "Pause" : "Lire l’histoire" }}</button
         ><select v-model.number="speed" aria-label="Vitesse de lecture">
@@ -995,8 +1204,15 @@ onUnmounted(() => {
           <option :value="4">4×</option>
         </select>
       </div>
+      <label
+        class="moments-toggle"
+        title="Fondations, défaites, découvertes et famines enregistrées"
+        ><input type="checkbox" v-model="momentsOnly" />Moments importants
+        <small>{{ importantTurns.length }}</small></label
+      >
       <label class="scrubber"
-        >Tour {{ index }} / {{ (loaded?.history.length ?? 1) - 1
+        >Tour {{ index }} /
+        {{ loaded?.campaign.maxTurns ?? (loaded?.history.length ?? 1) - 1
         }}<input
           type="range"
           min="0"
@@ -1005,6 +1221,19 @@ onUnmounted(() => {
           @input="seek(Number(($event.target as HTMLInputElement).value))"
       /></label>
       <div class="live-controls">
+        <button
+          v-if="over"
+          @click="
+            resultOpen = true;
+            seek((loaded?.history.length ?? 1) - 1);
+          "
+        >
+          Voir le bilan
+        </button>
+        <small v-else-if="loaded?.campaign.maxTurns" class="remaining-turns"
+          >{{ loaded.campaign.maxTurns - loaded.campaign.turns.length }} tours à
+          venir</small
+        >
         <span v-if="busy" role="status"
           >Conseil en cours…
           {{ loaded?.campaign.pending?.answers.length ?? 0 }}/{{

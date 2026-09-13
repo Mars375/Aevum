@@ -32,6 +32,7 @@ export const CampaignSchema = z
     seed: z.number().int().nonnegative().max(2147483647),
     mode: z.enum(["local", "remote"]),
     models: z.record(z.string().max(180)),
+    maxTurns: z.number().int().min(12).max(300).optional(),
     turns: z
       .array(
         z.object({

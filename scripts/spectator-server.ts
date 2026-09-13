@@ -24,6 +24,7 @@ const CreateSchema = z
     seed: z.number().int().min(0).max(2147483647),
     mode: z.enum(["local", "remote"]),
     models: z.record(z.string().trim().max(180)).default({}),
+    maxTurns: z.number().int().min(12).max(300).optional(),
   })
   .strict();
 const StepSchema = z.object({ turn: z.number().int().nonnegative() }).strict();
@@ -137,6 +138,20 @@ export function createSpectatorServer(
     }
     try {
       const url = new URL(req.url ?? "/", "http://127.0.0.1:5174");
+      if (req.method === "GET" && url.pathname === "/api/health") {
+        send(200, { application: "aevum", ready: true });
+        return;
+      }
+      if (req.method === "POST" && url.pathname === "/api/demo") {
+        const demo = CampaignSchema.parse(JSON.parse(readFileSync(resolve("examples/nous-discovery.json"), "utf8")));
+        const id = "nous-discovery";
+        if (!existsSync(path(id))) {
+          replayCampaign(demo);
+          save({ ...demo, id, maxTurns: demo.turns.length });
+        }
+        send(200, { id });
+        return;
+      }
       if (req.method === "GET" && url.pathname === "/api/campaigns") {
         const campaigns = existsSync(directory)
           ? readdirSync(directory)
@@ -233,6 +248,10 @@ export function createSpectatorServer(
           }
           if (busy.has(id)) {
             send(202, { busy: true });
+            return;
+          }
+          if (campaign.maxTurns !== undefined && campaign.turns.length >= campaign.maxTurns) {
+            send(409, { error: "Cette campagne est terminée. Consultez le bilan ou lancez un nouveau monde." });
             return;
           }
           if (campaign.turns.length >= 1000) {
