@@ -20,7 +20,7 @@ Créer une simulation de civilisations gouvernées par IA, exclusivement spectat
 
 ## Chantier actif : âges des civilisations
 
-Branche : `codex/civilization-ages`.
+Branche de cette évolution : `codex/civilization-ages`. Implémentation `10155b7` poussée et fusionnée dans `main` le 13 septembre 2026.
 
 État actuel : premier lot implémenté dans les nouvelles campagnes `spectator-5`. Âges individuels, déblocages moteur, observations IA, villes et soldats 3D, conditions visibles et transitions dans le journal du spectateur. Les versions antérieures restent inchangées. Démonstration locale : http://127.0.0.1:5174/?campaign=ages-local-42 (620 actions enregistrées, aucun appel IA).
 
