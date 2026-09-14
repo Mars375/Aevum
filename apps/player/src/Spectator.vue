@@ -5,6 +5,7 @@ import {
   modernizationIssue,
   type ModernizationProject,
 } from "../../../packages/world/src/modernization";
+import { militaryProfile } from "../../../packages/world/src/military";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { FactionId } from "@abs/contracts";
 import type { Year } from "@abs/world";
@@ -219,11 +220,11 @@ const missionText = (text: string) =>
         "Un déplacement ne peut pas remplacer un ordre d’attaque",
     }) as Record<string, string>
   )[text] ?? text;
-const preview = newSpectator(42, "spectator-6");
+const preview = newSpectator(42, "spectator-7");
 const state = computed(() => loaded.value?.history[index.value] ?? preview);
 const world = computed(() => state.value.world);
 const sequential = computed(() =>
-  ["spectator-4", "spectator-5", "spectator-6"].includes(state.value.rules),
+  ["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(state.value.rules),
 );
 const activeRuler = computed(() => state.value.sequence?.activeCiv ?? null);
 const activeRulerName = computed(() =>
@@ -295,6 +296,18 @@ const modernizationSuspended = computed(
       (city) =>
         city.owner === civ.value?.id && city.buildings.includes("academy"),
     ),
+);
+const military = computed(() =>
+  state.value.rules === "spectator-7" &&
+  civ.value &&
+  state.value.ages?.[civ.value.id] &&
+  state.value.modernization?.[civ.value.id]
+    ? militaryProfile(
+        state.value.ages[civ.value.id]!.current,
+        civ.value.advances,
+        state.value.modernization[civ.value.id]!.completed,
+      )
+    : null,
 );
 const modernizationOptions = computed(() => {
   const owner = civ.value;
@@ -924,6 +937,20 @@ onUnmounted(() => {
                   </li>
                 </ol>
               </details>
+            </section>
+            <section
+              v-if="military"
+              aria-label="Capacités militaires"
+            >
+              <h3>Capacités militaires</h3>
+              <p>
+                Puissance {{ military.power }} · Défense
+                {{ military.resilience }}
+              </p>
+              <small>
+                Multiplieurs issus de l'âge et des technologies de la
+                civilisation.
+              </small>
             </section>
             <section
               v-if="modernization"

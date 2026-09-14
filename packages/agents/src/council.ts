@@ -13,6 +13,7 @@ import type { CouncilAnswer } from "../../world/src/campaign.js";
 import { RemoteProvider } from "./provider.js";
 import { ENDPOINTS, type ProviderName } from "./endpoints.js";
 import { TECHNOLOGIES, BUILDING_RULES } from "../../world/src/development.js";
+import { militaryProfile } from "../../world/src/military.js";
 import {
   COUNCIL_JSON_SCHEMA,
   STRATEGIC_COUNCIL_JSON_SCHEMA,
@@ -21,6 +22,19 @@ import {
 
 export function councilObservation(state: SpectatorState, civ: string) {
   const w = state.world;
+  const profiles =
+    state.rules === "spectator-7"
+      ? Object.fromEntries(
+          w.civs.map((c) => [
+            c.id,
+            militaryProfile(
+              state.ages![c.id]!.current,
+              c.advances,
+              state.modernization![c.id]!.completed,
+            ),
+          ]),
+        )
+      : null;
   return {
     ...(state.ages?.[civ]
       ? {
@@ -29,7 +43,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
             w,
             civ,
             state.ages[civ]!.current,
-            state.rules === "spectator-6"
+            ["spectator-6", "spectator-7"].includes(state.rules)
               ? state.modernization![civ]!.completed
               : undefined,
           ),
@@ -39,7 +53,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
       : {}),
     turn: w.tick,
     rules: state.rules,
-    ...(["spectator-4", "spectator-5", "spectator-6"].includes(state.rules)
+    ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(state.rules)
       ? {
           sequence: state.sequence,
           diplomacyOffers: state.diplomacyOffers?.filter(
@@ -48,7 +62,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
         }
       : {}),
     plan: state.plans?.[civ] ?? null,
-    ...(state.rules === "spectator-6" ? { currentPlanIssue: state.plans?.[civ] ? planIssue(w, civ, state.plans[civ]!) : null } : {}),
+    ...(["spectator-6", "spectator-7"].includes(state.rules) ? { currentPlanIssue: state.plans?.[civ] ? planIssue(w, civ, state.plans[civ]!) : null } : {}),
     options: councilOptions(state, civ),
     economy: state.economy?.filter((l) =>
       w.simulation!.cities.some((c) => c.id === l.city && c.owner === civ),
@@ -67,7 +81,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
     )[civ],
     event: incidentFor(
       w.seed,
-      ["spectator-4", "spectator-5", "spectator-6"].includes(state.rules)
+      ["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(state.rules)
         ? (state.sequence?.round ?? 1) - 1
         : w.tick,
     ),
@@ -81,6 +95,12 @@ export function councilObservation(state: SpectatorState, civ: string) {
     })),
     civilizations: w.civs.map((c) => ({
       ...(state.ages?.[c.id] ? { age: state.ages[c.id]!.current } : {}),
+      ...(profiles
+        ? {
+            power: profiles[c.id]!.power,
+            resilience: profiles[c.id]!.resilience,
+          }
+        : {}),
       id: c.id,
       population: c.population,
       soldiers: c.soldiers,
@@ -118,9 +138,9 @@ export async function requestCouncil(
 ): Promise<CouncilAnswer> {
   const strategic =
     state.rules === "spectator-3" ||
-    ["spectator-4", "spectator-5", "spectator-6"].includes(state.rules);
+    ["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(state.rules);
   const schema =
-    state.rules === "spectator-6"
+    ["spectator-6", "spectator-7"].includes(state.rules)
       ? MODERN_COUNCIL_JSON_SCHEMA
       : strategic
         ? STRATEGIC_COUNCIL_JSON_SCHEMA
@@ -129,6 +149,7 @@ export async function requestCouncil(
     "spectator-4",
     "spectator-5",
     "spectator-6",
+    "spectator-7",
   ].includes(state.rules)
     ? instructions
         .replace(
@@ -156,7 +177,12 @@ export async function requestCouncil(
     (strategic
       ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."
       : "") +
-    (state.rules === "spectator-6" ? " For this v6 council, currentPlanIssue is authoritative: when non-null, do NOT repeat that invalid plan. Set plan:null to abandon it or choose a currently legal target from options. Modernization is independent of the strategic plan; do not invent a modernization plan kind. You may launch modernization while plan:null and orders:[] if no other action is useful." : "");
+    (["spectator-6", "spectator-7"].includes(state.rules)
+      ? " For this v6 council, currentPlanIssue is authoritative: when non-null, do NOT repeat that invalid plan. Set plan:null to abandon it or choose a currently legal target from options. Modernization is independent of the strategic plan; do not invent a modernization plan kind. You may launch modernization while plan:null and orders:[] if no other action is useful."
+      : "") +
+    (state.rules === "spectator-7"
+      ? " In spectator-7 follow the same responseContract rules as spectator-6, keeping plan metadata out of your response. Military capability follows technology: every civilization carries power and resilience multipliers (civilizations array) derived from its age, research and completed modernization programmes. Power multiplies your attack damage, resilience multiplies the defender fortifications. Compare multipliers together with your armies before declaring war and avoid assaulting a technologically superior civilization without a clear advantage."
+      : "");
   if (mode === "local")
     return {
       civ,
@@ -228,7 +254,7 @@ export async function requestCouncil(
                 role: "user",
                 content: JSON.stringify({
                   ...councilObservation(state, civ),
-                  ...(state.rules === "spectator-6" ? { responseContract: schema } : {}),
+                  ...(["spectator-6", "spectator-7"].includes(state.rules) ? { responseContract: schema } : {}),
                   ...(correction
                     ? {
                         correction: {
@@ -285,7 +311,7 @@ export async function requestCouncil(
           " For escort orders, include escort: FRIENDLY_UNIT_ID; otherwise escort: null. Escort follows that unit's recorded position. Armies more than 3 tiles from friendly land suffer attrition every third turn. Use your memory of previous results.",
         JSON.stringify({
           ...councilObservation(state, civ),
-          ...(state.rules === "spectator-6" ? { responseContract: schema } : {}),
+          ...(["spectator-6", "spectator-7"].includes(state.rules) ? { responseContract: schema } : {}),
           ...(correction
             ? {
                 correction: {

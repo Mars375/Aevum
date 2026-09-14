@@ -6,6 +6,10 @@ Ce fichier est la référence de reprise. Le lire avant toute intervention et le
 
 Créer une simulation de civilisations gouvernées par IA, exclusivement spectateur pour le moment. Chaque dirigeant joue son tour, agit sur le monde et transmet la main au suivant. Les décisions doivent produire une histoire compréhensible et des conséquences visibles. À terme : Bronze, Antiquité, Moyen Âge, Industrie, Moderne, Futur, indépendamment pour chaque civilisation.
 
+## Chantier en cours : capacités militaires par technologie
+
+Branche `codex/military-technology`, base `main` (`1ea13e5`). Règles `spectator-7` implémentées et en cours de validation.
+
 ## Chantier en cours : extension jusqu'au futur
 
 Branche `codex/future-ages`. Version `spectator-6` implémentée et validée ; les anciennes campagnes gardent leur progression d'origine. Synchronisé dans `main` le 14 septembre 2026 (voir historique).
@@ -197,3 +201,12 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Validation re-exécutée ce jour : typecheck OK, build Vite OK, 536 tests passent. 5 échecs dans la suite de publication `aevum-release.test.ts` : environnementaux, car `os.userInfo()` échoue avec `uv_os_get_passwd ENOMEM` dans tout processus enfant tsx ici (suite déjà fragile sous Windows selon l'audit). `discovery.test.ts` a montré un unique timeout en parallèle, vert seul.
 - Limite : les scripts tsx enfants (probes serveur, vérification de publication) ne peuvent pas tourner dans cette sandbox ; artefacts publiés non régénérés sur ce poste aujourd'hui.
 - Prochaine action : ouvrir un nouveau chantier — différencier les capacités militaires par technologie.
+
+### 2026-09-14 — Capacités militaires par technologie
+
+- Branche `codex/military-technology`, base `main` (`1ea13e5`). Nouveaux mondes créés en `spectator-7` par le serveur.
+- Règles `spectator-7` : puissance d'attaque et défense des structures dérivées de l'âge, des recherches et des programmes de modernisation achevés (`militaryProfile`, multiplicateurs power/resilience). Les versions 1-6 conservent strictement leurs formules : replays inchangés.
+- IA : les dirigeants reçoivent power/resilience par civilisation dans leur observation et comparent l'avantage réel avant de proposer la guerre (politique locale). Le spectateur affiche puissance et défense dans la fiche du dirigeant.
+- Validation ré-exécutée : 5 tests dédiés (profil pur, dégâts v6=3 vs v7=4, replay v7 déterministe, observation v7/v6), 540 tests passent, typecheck et build OK. Mêmes 6 échecs environnementaux que précédemment (suite de publication ENOMEM tsx sous Windows, 1 timeout flaky discovery).
+- Limites : silhouettes militaires existantes (pas de nouvelle géométrie), pas encore de réseau électrique géographique ni de pollution ; multiplicateurs à équilibrer sur plusieurs graines.
+- Prochaine action : campagne v7 avec le conseil Nous distant, puis équilibrage des profils militaires et visualisation des forces relatives.

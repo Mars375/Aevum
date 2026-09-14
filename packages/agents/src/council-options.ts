@@ -96,7 +96,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         : [];
     return {
       unit: unit.id,
-      ...(["spectator-4", "spectator-5", "spectator-6"].includes(state.rules)
+      ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(state.rules)
         ? { movementBudget: MOVEMENT_BUDGET[unit.role] }
         : {}),
       actions,
@@ -111,7 +111,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         .flatMap((city) =>
           (Object.keys(BUILDING_RULES) as Building[]).flatMap((building) => {
             const { years, ...cost } = BUILDING_RULES[building];
-            return (!["spectator-5", "spectator-6"].includes(state.rules) ||
+            return (!["spectator-5", "spectator-6", "spectator-7"].includes(state.rules) ||
               ageAllows(
                 state.ages?.[civId]?.current ?? "bronze",
                 BUILDING_AGE[building],
@@ -126,7 +126,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const research = alive
     ? TECHNOLOGIES.filter(
         (technology) =>
-          (!["spectator-5", "spectator-6"].includes(state.rules) ||
+          (!["spectator-5", "spectator-6", "spectator-7"].includes(state.rules) ||
             ageAllows(
               state.ages?.[civId]?.current ?? "bronze",
               TECHNOLOGY_AGE[technology.name]!,
@@ -143,7 +143,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const recruitCost = { food: 50, timber: 60, wealth: 20 };
   return {
     units,
-    ...(state.rules === "spectator-6"
+    ...(["spectator-6", "spectator-7"].includes(state.rules)
       ? {
           modernizationState: state.modernization![civId],
           modernization: ModernizationProjectSchema.options.map((project) => {
@@ -175,7 +175,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
     },
     constraints: {
       sharedBudget:
-        state.rules === "spectator-6"
+        ["spectator-6", "spectator-7"].includes(state.rules)
           ? "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then construction, then recruitment. All purchases share national stocks."
           : "Construction and recruitment options are individually affordable, not jointly affordable. All purchases share the civilization stock; construction is paid before recruitment.",
       resolution:
