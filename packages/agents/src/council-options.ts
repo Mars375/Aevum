@@ -3,6 +3,11 @@ import {
   BUILDING_AGE,
   TECHNOLOGY_AGE,
 } from "../../world/src/ages.js";
+import {
+  MODERNIZATION,
+  ModernizationProjectSchema,
+  modernizationIssue,
+} from "../../world/src/modernization.js";
 import type { SpectatorState } from "../../world/src/spectator.js";
 import type { UnitCommand } from "../../world/src/commands.js";
 import { MOVEMENT_BUDGET } from "../../world/src/commands.js";
@@ -91,7 +96,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         : [];
     return {
       unit: unit.id,
-      ...(["spectator-4", "spectator-5"].includes(state.rules)
+      ...(["spectator-4", "spectator-5", "spectator-6"].includes(state.rules)
         ? { movementBudget: MOVEMENT_BUDGET[unit.role] }
         : {}),
       actions,
@@ -106,7 +111,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         .flatMap((city) =>
           (Object.keys(BUILDING_RULES) as Building[]).flatMap((building) => {
             const { years, ...cost } = BUILDING_RULES[building];
-            return (state.rules !== "spectator-5" ||
+            return (!["spectator-5", "spectator-6"].includes(state.rules) ||
               ageAllows(
                 state.ages?.[civId]?.current ?? "bronze",
                 BUILDING_AGE[building],
@@ -121,7 +126,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const research = alive
     ? TECHNOLOGIES.filter(
         (technology) =>
-          (state.rules !== "spectator-5" ||
+          (!["spectator-5", "spectator-6"].includes(state.rules) ||
             ageAllows(
               state.ages?.[civId]?.current ?? "bronze",
               TECHNOLOGY_AGE[technology.name]!,
@@ -138,6 +143,26 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const recruitCost = { food: 50, timber: 60, wealth: 20 };
   return {
     units,
+    ...(state.rules === "spectator-6"
+      ? {
+          modernizationState: state.modernization![civId],
+          modernization: ModernizationProjectSchema.options.map((project) => {
+            const issue = modernizationIssue(
+              world,
+              civId,
+              state.ages![civId]!.current,
+              state.modernization![civId]!,
+              project,
+            );
+            return {
+              project,
+              ...MODERNIZATION[project],
+              available: issue === null,
+              unavailableReason: issue,
+            };
+          }),
+        }
+      : {}),
     construction,
     research,
     recruitSettler: {
@@ -150,7 +175,9 @@ export function councilOptions(state: SpectatorState, civId: string) {
     },
     constraints: {
       sharedBudget:
-        "Construction and recruitment options are individually affordable, not jointly affordable. All purchases share the civilization stock; construction is paid before recruitment.",
+        state.rules === "spectator-6"
+          ? "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then construction, then recruitment. All purchases share national stocks."
+          : "Construction and recruitment options are individually affordable, not jointly affordable. All purchases share the civilization stock; construction is paid before recruitment.",
       resolution:
         "These are start-of-turn suggestions. Occupation, competing foundations and simultaneous orders may block an otherwise reachable destination. Route distance counts cardinal steps, not guaranteed travel turns.",
       attacks:

@@ -2,19 +2,29 @@ import { z } from "zod";
 import type { World } from "./state.js";
 import type { Building } from "./civilization-state.js";
 
-export const AgeSchema = z.enum(["bronze", "classical", "medieval"]);
+export const AgeSchema = z.enum([
+  "bronze",
+  "classical",
+  "medieval",
+  "industrial",
+  "modern",
+  "future",
+]);
 export type Age = z.infer<typeof AgeSchema>;
 export const AGE_NAMES: Record<Age, string> = {
   bronze: "Âge du bronze",
   classical: "Antiquité",
   medieval: "Moyen Âge",
+  industrial: "Âge industriel",
+  modern: "Âge moderne",
+  future: "Âge futuriste",
 };
 export const CivilizationAgeSchema = z.object({
   current: AgeSchema,
   enteredAt: z.number().int().nonnegative(),
   history: z
     .array(z.object({ age: AgeSchema, turn: z.number().int().nonnegative() }))
-    .max(3),
+    .max(6),
 });
 export const AgeTransitionSchema = z.object({
   civ: z.string(),
@@ -41,7 +51,12 @@ export const ageAllows = (current: Age, required: Age) =>
   AgeSchema.options.indexOf(current) >= AgeSchema.options.indexOf(required);
 
 /** Conditions are observed facts, not an AI assertion or a calendar deadline. */
-export function ageProgress(world: World, civId: string, currentAge: Age) {
+export function ageProgress(
+  world: World,
+  civId: string,
+  currentAge: Age,
+  modernization?: readonly string[],
+) {
   const civ = world.civs.find((c) => c.id === civId)!;
   const cities = world.simulation!.cities.filter((c) => c.owner === civId);
   const next: Age | null =
@@ -49,7 +64,10 @@ export function ageProgress(world: World, civId: string, currentAge: Age) {
       ? "classical"
       : currentAge === "classical"
         ? "medieval"
-        : null;
+        : modernization !== undefined
+          ? (AgeSchema.options[AgeSchema.options.indexOf(currentAge) + 1] ??
+            null)
+          : null;
   const requirements: {
     label: string;
     current: number;
@@ -96,6 +114,38 @@ export function ageProgress(world: World, civId: string, currentAge: Age) {
       cities.filter((c) => c.buildings.includes("market")).length,
     );
     add("Réserves de richesse", civ.stock.wealth, 80);
+  } else if (next === "industrial") {
+    add("Érudition maîtrisée", Number(civ.advances.includes("scholarship")));
+    add(
+      "Académie construite",
+      cities.filter((c) => c.buildings.includes("academy")).length,
+    );
+    add(
+      "Mécanisation achevée",
+      Number(modernization!.includes("mechanization")),
+    );
+    add("Villes possédées", cities.length, 2);
+  } else if (next === "modern") {
+    add(
+      "Réseau électrique achevé",
+      Number(modernization!.includes("power_grid")),
+    );
+    add("Informatique maîtrisée", Number(modernization!.includes("computing")));
+    add(
+      "Réserves alimentaires (2 par habitant)",
+      civ.stock.food,
+      Math.max(1, civ.population * 2),
+    );
+  } else if (next === "future") {
+    add(
+      "Énergie propre déployée",
+      Number(modernization!.includes("clean_energy")),
+    );
+    add(
+      "Automatisation achevée",
+      Number(modernization!.includes("automation")),
+    );
+    add("Villes possédées", cities.length, 2);
   }
   const progress = requirements.length
     ? requirements.reduce(

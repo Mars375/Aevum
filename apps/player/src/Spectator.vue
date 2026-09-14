@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { AGE_NAMES, ageProgress } from "../../../packages/world/src/ages";
+import {
+  MODERNIZATION,
+  modernizationIssue,
+  type ModernizationProject,
+} from "../../../packages/world/src/modernization";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { FactionId } from "@abs/contracts";
 import type { Year } from "@abs/world";
@@ -214,11 +219,11 @@ const missionText = (text: string) =>
         "Un déplacement ne peut pas remplacer un ordre d’attaque",
     }) as Record<string, string>
   )[text] ?? text;
-const preview = newSpectator(42, "spectator-5");
+const preview = newSpectator(42, "spectator-6");
 const state = computed(() => loaded.value?.history[index.value] ?? preview);
 const world = computed(() => state.value.world);
 const sequential = computed(() =>
-  ["spectator-4", "spectator-5"].includes(state.value.rules),
+  ["spectator-4", "spectator-5", "spectator-6"].includes(state.value.rules),
 );
 const activeRuler = computed(() => state.value.sequence?.activeCiv ?? null);
 const activeRulerName = computed(() =>
@@ -280,6 +285,46 @@ const parcels = computed(() => {
 const civ = computed(() =>
   world.value.civs.find((c) => c.id === selected.value),
 );
+const modernization = computed(() =>
+  civ.value ? state.value.modernization?.[civ.value.id] : undefined,
+);
+const modernizationSuspended = computed(
+  () =>
+    !!modernization.value?.active &&
+    !world.value.simulation!.cities.some(
+      (city) =>
+        city.owner === civ.value?.id && city.buildings.includes("academy"),
+    ),
+);
+const modernizationOptions = computed(() => {
+  const owner = civ.value;
+  const development = modernization.value;
+  const age = owner ? state.value.ages?.[owner.id]?.current : undefined;
+  if (!owner || !development || !age) return [];
+  return (Object.keys(MODERNIZATION) as ModernizationProject[])
+    .filter(
+      (project) =>
+        !development.completed.includes(project) &&
+        development.active?.project !== project,
+    )
+    .map((project) => ({
+      project,
+      ...MODERNIZATION[project],
+      issue: modernizationIssue(
+        world.value,
+        owner.id,
+        age,
+        development,
+        project,
+      ),
+      costLabel: Object.entries(MODERNIZATION[project].cost)
+        .map(
+          ([resource, amount]) =>
+            `${amount} ${{ food: "vivres", timber: "bois", ore: "minerai", wealth: "richesses" }[resource] ?? resource}`,
+        )
+        .join(" · "),
+    }));
+});
 const units = computed(() =>
   world.value.simulation!.units.filter(
     (u) => !selected.value || u.owner === selected.value,
@@ -841,8 +886,12 @@ onUnmounted(() => {
               <h3>{{ AGE_NAMES[state.ages[civ.id]!.current] }}</h3>
               <p
                 v-if="
-                  !ageProgress(state.world, civ.id, state.ages[civ.id]!.current)
-                    .next
+                  !ageProgress(
+                    state.world,
+                    civ.id,
+                    state.ages[civ.id]!.current,
+                    state.modernization?.[civ.id]?.completed,
+                  ).next
                 "
               >
                 Dernier âge disponible dans cette version.
@@ -853,6 +902,7 @@ onUnmounted(() => {
                     state.world,
                     civ.id,
                     state.ages[civ.id]!.current,
+                    state.modernization?.[civ.id]?.completed,
                   ).requirements"
                   :key="requirement.label"
                 >
@@ -862,6 +912,94 @@ onUnmounted(() => {
                   {{ requirement.required }}
                 </li>
               </ul>
+              <details>
+                <summary>Histoire des âges</summary>
+                <ol>
+                  <li
+                    v-for="entry in state.ages[civ.id]!.history"
+                    :key="entry.age"
+                  >
+                    {{ AGE_NAMES[entry.age] }} ·
+                    {{ sequential ? "action" : "tour" }} {{ entry.turn }}
+                  </li>
+                </ol>
+              </details>
+            </section>
+            <section
+              v-if="modernization"
+              aria-label="Modernisation de la civilisation"
+            >
+              <h3>Modernisation</h3>
+              <template v-if="modernization.active">
+                <p>
+                  <strong>{{
+                    MODERNIZATION[modernization.active.project].name
+                  }}</strong>
+                  · {{ modernization.active.remaining }} tours personnels
+                  restants
+                </p>
+                <progress
+                  :value="
+                    MODERNIZATION[modernization.active.project].turns -
+                    modernization.active.remaining
+                  "
+                  :max="MODERNIZATION[modernization.active.project].turns"
+                  aria-label="Avancement du programme de modernisation"
+                />
+                <p v-if="modernizationSuspended">
+                  Suspendu : aucune académie ne subsiste. Le programme reprendra
+                  lorsqu'une académie sera disponible.
+                </p>
+                <small
+                  >{{ MODERNIZATION[modernization.active.project].effect }} à
+                  l'achèvement.</small
+                >
+              </template>
+              <p v-else>
+                Aucun programme en cours. Le dirigeant choisit ses
+                investissements à son tour.
+              </p>
+              <ul v-if="modernization.completed.length">
+                <li v-for="project in modernization.completed" :key="project">
+                  <strong>{{ MODERNIZATION[project].name }} — achevé</strong
+                  ><br />{{ MODERNIZATION[project].effect }}
+                </li>
+              </ul>
+              <details v-if="modernizationOptions.length">
+                <summary>
+                  Programmes et conditions ({{ modernizationOptions.length }})
+                </summary>
+                <p>
+                  Académie et érudition requises. Les réserves et la science
+                  sont consommées au lancement.
+                </p>
+                <ul>
+                  <li
+                    v-for="program in modernizationOptions"
+                    :key="program.project"
+                  >
+                    <strong>{{ program.name }}</strong> ·
+                    {{
+                      program.issue ??
+                      "Disponible pour le prochain choix du dirigeant"
+                    }}<br />
+                    <small
+                      >{{ AGE_NAMES[program.age] }} · {{ program.turns }} tours
+                      personnels · {{ program.science }} science ·
+                      {{ program.costLabel }}</small
+                    ><br />
+                    <small v-if="program.requires.length"
+                      >Préalables :
+                      {{
+                        program.requires
+                          .map((project) => MODERNIZATION[project].name)
+                          .join(", ")
+                      }}.<br
+                    /></small>
+                    <small>{{ program.effect }}</small>
+                  </li>
+                </ul>
+              </details>
             </section>
             <h3>Intention du dirigeant</h3>
             <p>
@@ -1298,10 +1436,14 @@ onUnmounted(() => {
           <thead>
             <tr>
               <th scope="col">Civilisation</th>
+              <th v-if="loaded.state.ages" scope="col">Âge et parcours</th>
               <th scope="col">Habitants</th>
               <th scope="col">Villes</th>
               <th scope="col">Découvertes</th>
-              <th v-if="loaded.state.rules === 'spectator-3'" scope="col">
+              <th
+                v-if="loaded.state.rules === 'spectator-3' || sequential"
+                scope="col"
+              >
                 Plans accomplis
               </th>
             </tr>
@@ -1309,10 +1451,31 @@ onUnmounted(() => {
           <tbody>
             <tr v-for="entry in scoreboard" :key="entry.civ">
               <th scope="row">{{ names[entry.civ] }}</th>
+              <td v-if="loaded.state.ages">
+                <template v-if="loaded.state.ages[entry.civ]">
+                  <strong>{{
+                    AGE_NAMES[loaded.state.ages[entry.civ]!.current]
+                  }}</strong>
+                  <details>
+                    <summary>Comparer le parcours</summary>
+                    <ol>
+                      <li
+                        v-for="milestone in loaded.state.ages[entry.civ]!
+                          .history"
+                        :key="milestone.age"
+                      >
+                        {{ AGE_NAMES[milestone.age] }} ·
+                        {{ sequential ? "action" : "tour" }}
+                        {{ milestone.turn }}
+                      </li>
+                    </ol>
+                  </details>
+                </template>
+              </td>
               <td>{{ entry.population }}</td>
               <td>{{ entry.cities }}</td>
               <td>{{ entry.advances }}</td>
-              <td v-if="loaded.state.rules === 'spectator-3'">
+              <td v-if="loaded.state.rules === 'spectator-3' || sequential">
                 {{ entry.completedPlans }}
               </td>
             </tr>

@@ -1,0 +1,23 @@
+{
+  "rules": "spectator-6",
+  "civ": "azure",
+  "turn": 557,
+  "age": "medieval",
+  "model": "nous:meituan/longcat-2.0:free",
+  "source": "remote",
+  "service": {
+    "requestedModel": "nous:meituan/longcat-2.0:free",
+    "servedModel": "nous:meituan/longcat-2.0:free",
+    "provider": "nous",
+    "fallbackCount": 0,
+    "attempts": 1,
+    "latencyMs": 10457,
+    "servedByFallback": false
+  },
+  "chosenProgram": "mechanization",
+  "objective": "Débloquer l'ère industrielle par la mécanisation tout en consolidant la production et le commerce",
+  "review": null,
+  "error": null,
+  "rejected": [],
+  "valid": true
+}

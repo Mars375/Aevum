@@ -1,4 +1,5 @@
 import { ageProgress } from "../../world/src/ages.js";
+import { planIssue } from "../../world/src/strategic-plans.js";
 import { councilOptions } from "./council-options.js";
 import { ZodError } from "zod";
 import type { GeneralConfig } from "@abs/contracts";
@@ -15,6 +16,7 @@ import { TECHNOLOGIES, BUILDING_RULES } from "../../world/src/development.js";
 import {
   COUNCIL_JSON_SCHEMA,
   STRATEGIC_COUNCIL_JSON_SCHEMA,
+  MODERN_COUNCIL_JSON_SCHEMA,
 } from "./council-schema.js";
 
 export function councilObservation(state: SpectatorState, civ: string) {
@@ -23,14 +25,21 @@ export function councilObservation(state: SpectatorState, civ: string) {
     ...(state.ages?.[civ]
       ? {
           age: state.ages[civ],
-          ageProgress: ageProgress(w, civ, state.ages[civ]!.current),
+          ageProgress: ageProgress(
+            w,
+            civ,
+            state.ages[civ]!.current,
+            state.rules === "spectator-6"
+              ? state.modernization![civ]!.completed
+              : undefined,
+          ),
           advancementRule:
             "Meet every requirement during your own turn. Ages unlock technologies and buildings; calendar time alone never advances your civilization.",
         }
       : {}),
     turn: w.tick,
     rules: state.rules,
-    ...(["spectator-4", "spectator-5"].includes(state.rules)
+    ...(["spectator-4", "spectator-5", "spectator-6"].includes(state.rules)
       ? {
           sequence: state.sequence,
           diplomacyOffers: state.diplomacyOffers?.filter(
@@ -39,6 +48,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
         }
       : {}),
     plan: state.plans?.[civ] ?? null,
+    ...(state.rules === "spectator-6" ? { currentPlanIssue: state.plans?.[civ] ? planIssue(w, civ, state.plans[civ]!) : null } : {}),
     options: councilOptions(state, civ),
     economy: state.economy?.filter((l) =>
       w.simulation!.cities.some((c) => c.id === l.city && c.owner === civ),
@@ -57,7 +67,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
     )[civ],
     event: incidentFor(
       w.seed,
-      ["spectator-4", "spectator-5"].includes(state.rules)
+      ["spectator-4", "spectator-5", "spectator-6"].includes(state.rules)
         ? (state.sequence?.round ?? 1) - 1
         : w.tick,
     ),
@@ -108,11 +118,18 @@ export async function requestCouncil(
 ): Promise<CouncilAnswer> {
   const strategic =
     state.rules === "spectator-3" ||
-    ["spectator-4", "spectator-5"].includes(state.rules);
-  const schema = strategic
-    ? STRATEGIC_COUNCIL_JSON_SCHEMA
-    : COUNCIL_JSON_SCHEMA;
-  const turnInstructions = ["spectator-4", "spectator-5"].includes(state.rules)
+    ["spectator-4", "spectator-5", "spectator-6"].includes(state.rules);
+  const schema =
+    state.rules === "spectator-6"
+      ? MODERN_COUNCIL_JSON_SCHEMA
+      : strategic
+        ? STRATEGIC_COUNCIL_JSON_SCHEMA
+        : COUNCIL_JSON_SCHEMA;
+  const turnInstructions = [
+    "spectator-4",
+    "spectator-5",
+    "spectator-6",
+  ].includes(state.rules)
     ? instructions
         .replace(
           "You govern one civilization in a simultaneous turn strategy simulation. All rulers see the same start-of-turn world.",
@@ -133,9 +150,13 @@ export async function requestCouncil(
     : instructions;
   const systemInstructions =
     turnInstructions +
+    (state.rules === "spectator-6"
+      ? " In spectator-6 follow responseContract exactly, even when the provider does not enforce structured outputs. The observed plan contains engine metadata: NEVER copy status, startedAt, updatedAt, progress, detail or other metadata into your response plan. Its ONLY keys are kind, targetTile, targetCity, targetTech, targetBuilding, rationale. Modernization is a TOP-LEVEL field, never a plan field or a research technology. Include modernization: null or one project ID from options.modernization with available=true. Null keeps the current project running; it does not cancel it. Programs pay resources and science upfront and progress on your own turns while you own an academy. Their real production/science effects are described in the options. Budget modernization before construction and recruitment. Fulfil ageProgress requirements to advance independently through six ages; future age is not an automatic victory."
+      : "") +
     (strategic
       ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."
-      : "");
+      : "") +
+    (state.rules === "spectator-6" ? " For this v6 council, currentPlanIssue is authoritative: when non-null, do NOT repeat that invalid plan. Set plan:null to abandon it or choose a currently legal target from options. Modernization is independent of the strategic plan; do not invent a modernization plan kind. You may launch modernization while plan:null and orders:[] if no other action is useful." : "");
   if (mode === "local")
     return {
       civ,
@@ -207,6 +228,7 @@ export async function requestCouncil(
                 role: "user",
                 content: JSON.stringify({
                   ...councilObservation(state, civ),
+                  ...(state.rules === "spectator-6" ? { responseContract: schema } : {}),
                   ...(correction
                     ? {
                         correction: {
@@ -263,6 +285,7 @@ export async function requestCouncil(
           " For escort orders, include escort: FRIENDLY_UNIT_ID; otherwise escort: null. Escort follows that unit's recorded position. Armies more than 3 tiles from friendly land suffer attrition every third turn. Use your memory of previous results.",
         JSON.stringify({
           ...councilObservation(state, civ),
+          ...(state.rules === "spectator-6" ? { responseContract: schema } : {}),
           ...(correction
             ? {
                 correction: {

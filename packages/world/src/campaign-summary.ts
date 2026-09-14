@@ -58,7 +58,9 @@ export function campaignSummary(
         number
       >,
     }));
-  const turns = ["spectator-4", "spectator-5"].includes(state.rules)
+  const turns = ["spectator-4", "spectator-5", "spectator-6"].includes(
+    state.rules,
+  )
     ? (state.sequence?.round ?? 1) - 1
     : state.world.tick;
   const maxTurns = campaign.maxTurns ?? null;

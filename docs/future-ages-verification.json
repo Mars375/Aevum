@@ -1,0 +1,348 @@
+{
+  "mode": "local",
+  "remoteCalls": 0,
+  "archivesVerified": 10,
+  "rows": [
+    {
+      "seed": 42,
+      "actions": 1041,
+      "round": 301,
+      "rejected": 0,
+      "replayVerified": true,
+      "ages": {
+        "amber": {
+          "current": "classical",
+          "enteredAt": 197,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 197
+            }
+          ]
+        },
+        "azure": {
+          "current": "future",
+          "enteredAt": 706,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 146
+            },
+            {
+              "age": "medieval",
+              "turn": 466
+            },
+            {
+              "age": "industrial",
+              "turn": 580
+            },
+            {
+              "age": "modern",
+              "turn": 637
+            },
+            {
+              "age": "future",
+              "turn": 706
+            }
+          ]
+        },
+        "crimson": {
+          "current": "future",
+          "enteredAt": 878,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 203
+            },
+            {
+              "age": "medieval",
+              "turn": 602
+            },
+            {
+              "age": "industrial",
+              "turn": 671
+            },
+            {
+              "age": "modern",
+              "turn": 809
+            },
+            {
+              "age": "future",
+              "turn": 878
+            }
+          ]
+        },
+        "verdant": {
+          "current": "classical",
+          "enteredAt": 204,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 204
+            }
+          ]
+        }
+      },
+      "modernization": {
+        "amber": {
+          "completed": [],
+          "active": null
+        },
+        "azure": {
+          "completed": [
+            "mechanization",
+            "power_grid",
+            "computing",
+            "clean_energy",
+            "automation",
+            "orbital_network"
+          ],
+          "active": null
+        },
+        "crimson": {
+          "completed": [
+            "mechanization",
+            "power_grid",
+            "computing",
+            "clean_energy",
+            "automation",
+            "orbital_network"
+          ],
+          "active": null
+        },
+        "verdant": {
+          "completed": [],
+          "active": null
+        }
+      }
+    },
+    {
+      "seed": 7,
+      "actions": 1048,
+      "round": 301,
+      "rejected": 0,
+      "replayVerified": true,
+      "ages": {
+        "amber": {
+          "current": "bronze",
+          "enteredAt": 0,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            }
+          ]
+        },
+        "azure": {
+          "current": "future",
+          "enteredAt": 755,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 146
+            },
+            {
+              "age": "medieval",
+              "turn": 498
+            },
+            {
+              "age": "industrial",
+              "turn": 602
+            },
+            {
+              "age": "modern",
+              "turn": 656
+            },
+            {
+              "age": "future",
+              "turn": 755
+            }
+          ]
+        },
+        "crimson": {
+          "current": "classical",
+          "enteredAt": 211,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 211
+            }
+          ]
+        },
+        "verdant": {
+          "current": "industrial",
+          "enteredAt": 883,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 208
+            },
+            {
+              "age": "medieval",
+              "turn": 721
+            },
+            {
+              "age": "industrial",
+              "turn": 883
+            }
+          ]
+        }
+      },
+      "modernization": {
+        "amber": {
+          "completed": [],
+          "active": null
+        },
+        "azure": {
+          "completed": [
+            "mechanization",
+            "power_grid",
+            "computing",
+            "clean_energy",
+            "automation",
+            "orbital_network"
+          ],
+          "active": null
+        },
+        "crimson": {
+          "completed": [],
+          "active": null
+        },
+        "verdant": {
+          "completed": [
+            "mechanization",
+            "power_grid"
+          ],
+          "active": null
+        }
+      }
+    },
+    {
+      "seed": 123,
+      "actions": 579,
+      "round": 301,
+      "rejected": 0,
+      "replayVerified": true,
+      "ages": {
+        "amber": {
+          "current": "classical",
+          "enteredAt": 184,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 184
+            }
+          ]
+        },
+        "azure": {
+          "current": "classical",
+          "enteredAt": 140,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 140
+            }
+          ]
+        },
+        "crimson": {
+          "current": "modern",
+          "enteredAt": 570,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 192
+            },
+            {
+              "age": "medieval",
+              "turn": 469
+            },
+            {
+              "age": "industrial",
+              "turn": 552
+            },
+            {
+              "age": "modern",
+              "turn": 570
+            }
+          ]
+        },
+        "verdant": {
+          "current": "bronze",
+          "enteredAt": 0,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            }
+          ]
+        }
+      },
+      "modernization": {
+        "amber": {
+          "completed": [],
+          "active": null
+        },
+        "azure": {
+          "completed": [],
+          "active": null
+        },
+        "crimson": {
+          "completed": [
+            "mechanization",
+            "power_grid",
+            "computing"
+          ],
+          "active": {
+            "project": "clean_energy",
+            "remaining": 1,
+            "startedAt": 570
+          }
+        },
+        "verdant": {
+          "completed": [],
+          "active": null
+        }
+      }
+    }
+  ]
+}

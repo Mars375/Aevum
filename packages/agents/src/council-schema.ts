@@ -1,3 +1,5 @@
+import { ModernizationProjectSchema } from "../../world/src/modernization.js";
+
 const faction = {
   type: "string",
   enum: ["amber", "azure", "crimson", "verdant"],
@@ -80,13 +82,38 @@ export const STRATEGIC_COUNCIL_JSON_SCHEMA = object({
     anyOf: [
       { type: "null" },
       object({
-        kind: { type: "string", enum: ["settle", "build", "research", "trade"] },
+        kind: {
+          type: "string",
+          enum: ["settle", "build", "research", "trade"],
+        },
         targetTile: { type: ["integer", "null"], minimum: 0 },
         targetCity: { type: ["string", "null"] },
-        targetTech: { type: ["string", "null"], enum: [null, "irrigation", "masonry", "metallurgy", "coinage", "engineering", "scholarship"] },
-        targetBuilding: { type: ["string", "null"], enum: [null, "granary", "workshop", "market", "walls", "academy"] },
+        targetTech: {
+          type: ["string", "null"],
+          enum: [
+            null,
+            "irrigation",
+            "masonry",
+            "metallurgy",
+            "coinage",
+            "engineering",
+            "scholarship",
+          ],
+        },
+        targetBuilding: {
+          type: ["string", "null"],
+          enum: [null, "granary", "workshop", "market", "walls", "academy"],
+        },
         rationale: { type: "string", maxLength: 800 },
       }),
     ],
+  },
+});
+
+export const MODERN_COUNCIL_JSON_SCHEMA = object({
+  ...STRATEGIC_COUNCIL_JSON_SCHEMA.properties,
+  modernization: {
+    type: ["string", "null"],
+    enum: [null, ...ModernizationProjectSchema.options],
   },
 });
