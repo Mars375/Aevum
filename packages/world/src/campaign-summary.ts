@@ -58,7 +58,7 @@ export function campaignSummary(
         number
       >,
     }));
-  const turns = ["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(
+  const turns = ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
     state.rules,
   )
     ? (state.sequence?.round ?? 1) - 1

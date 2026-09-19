@@ -1,0 +1,475 @@
+{
+  "rules": "spectator-8",
+  "archivesVerified": 11,
+  "rows": [
+    {
+      "seed": 42,
+      "actions": 1041,
+      "round": 301,
+      "rejected": 0,
+      "replayVerified": true,
+      "ages": {
+        "amber": {
+          "current": "classical",
+          "enteredAt": 197,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 197
+            }
+          ]
+        },
+        "azure": {
+          "current": "future",
+          "enteredAt": 709,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 146
+            },
+            {
+              "age": "medieval",
+              "turn": 466
+            },
+            {
+              "age": "industrial",
+              "turn": 580
+            },
+            {
+              "age": "modern",
+              "turn": 637
+            },
+            {
+              "age": "future",
+              "turn": 709
+            }
+          ]
+        },
+        "crimson": {
+          "current": "modern",
+          "enteredAt": 950,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 203
+            },
+            {
+              "age": "medieval",
+              "turn": 602
+            },
+            {
+              "age": "industrial",
+              "turn": 833
+            },
+            {
+              "age": "modern",
+              "turn": 950
+            }
+          ]
+        },
+        "verdant": {
+          "current": "classical",
+          "enteredAt": 204,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 204
+            }
+          ]
+        }
+      },
+      "lastClimateReport": {
+        "event": {
+          "id": "42-24",
+          "title": "Sécheresse",
+          "description": "Les récoltes diminuent. L'irrigation atténue la pénurie.",
+          "foodMultiplier": 0.65,
+          "start": 291,
+          "end": 293
+        },
+        "startTick": 1014,
+        "endTick": 1023,
+        "civilizations": [
+          {
+            "civ": "azure",
+            "foodBefore": 179646.94,
+            "foodAfter": 180979.31,
+            "populationChange": 91,
+            "foodPerPerson": 88.8,
+            "protected": true,
+            "survived": true
+          },
+          {
+            "civ": "crimson",
+            "foodBefore": 4174,
+            "foodAfter": 4576.17,
+            "populationChange": -4,
+            "foodPerPerson": 22.6,
+            "protected": true,
+            "survived": true
+          },
+          {
+            "civ": "verdant",
+            "foodBefore": 1232.55,
+            "foodAfter": 1232.55,
+            "populationChange": 0,
+            "foodPerPerson": 14.9,
+            "protected": true,
+            "survived": true
+          }
+        ]
+      }
+    },
+    {
+      "seed": 7,
+      "actions": 1048,
+      "round": 301,
+      "rejected": 0,
+      "replayVerified": true,
+      "ages": {
+        "amber": {
+          "current": "bronze",
+          "enteredAt": 0,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            }
+          ]
+        },
+        "azure": {
+          "current": "future",
+          "enteredAt": 740,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 146
+            },
+            {
+              "age": "medieval",
+              "turn": 490
+            },
+            {
+              "age": "industrial",
+              "turn": 596
+            },
+            {
+              "age": "modern",
+              "turn": 650
+            },
+            {
+              "age": "future",
+              "turn": 740
+            }
+          ]
+        },
+        "crimson": {
+          "current": "medieval",
+          "enteredAt": 777,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 211
+            },
+            {
+              "age": "medieval",
+              "turn": 777
+            }
+          ]
+        },
+        "verdant": {
+          "current": "medieval",
+          "enteredAt": 721,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 208
+            },
+            {
+              "age": "medieval",
+              "turn": 721
+            }
+          ]
+        }
+      },
+      "lastClimateReport": {
+        "event": {
+          "id": "7-24",
+          "title": "Sécheresse",
+          "description": "Les récoltes diminuent. L'irrigation atténue la pénurie.",
+          "foodMultiplier": 0.65,
+          "start": 291,
+          "end": 293
+        },
+        "startTick": 1021,
+        "endTick": 1030,
+        "civilizations": [
+          {
+            "civ": "azure",
+            "foodBefore": 139890.41,
+            "foodAfter": 143883.65,
+            "populationChange": 118,
+            "foodPerPerson": 53.7,
+            "protected": true,
+            "survived": true
+          },
+          {
+            "civ": "crimson",
+            "foodBefore": 3029.4,
+            "foodAfter": 3029.4,
+            "populationChange": 0,
+            "foodPerPerson": 17.8,
+            "protected": true,
+            "survived": true
+          },
+          {
+            "civ": "verdant",
+            "foodBefore": 3504.6,
+            "foodAfter": 3504.6,
+            "populationChange": 0,
+            "foodPerPerson": 29.7,
+            "protected": true,
+            "survived": true
+          }
+        ]
+      }
+    },
+    {
+      "seed": 123,
+      "actions": 406,
+      "round": 128,
+      "rejected": 0,
+      "replayVerified": true,
+      "ages": {
+        "amber": {
+          "current": "classical",
+          "enteredAt": 184,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 184
+            }
+          ]
+        },
+        "azure": {
+          "current": "classical",
+          "enteredAt": 140,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 140
+            }
+          ]
+        },
+        "crimson": {
+          "current": "classical",
+          "enteredAt": 192,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            },
+            {
+              "age": "classical",
+              "turn": 192
+            }
+          ]
+        },
+        "verdant": {
+          "current": "bronze",
+          "enteredAt": 0,
+          "history": [
+            {
+              "age": "bronze",
+              "turn": 0
+            }
+          ]
+        }
+      },
+      "lastClimateReport": {
+        "event": {
+          "id": "123-10",
+          "title": "Sécheresse",
+          "description": "Les récoltes diminuent. L'irrigation atténue la pénurie.",
+          "foodMultiplier": 0.65,
+          "start": 120,
+          "end": 122
+        },
+        "startTick": 390,
+        "endTick": 398,
+        "civilizations": [
+          {
+            "civ": "amber",
+            "foodBefore": 1232.55,
+            "foodAfter": 986.04,
+            "populationChange": -83,
+            "foodPerPerson": 14.9,
+            "protected": true,
+            "survived": false
+          },
+          {
+            "civ": "azure",
+            "foodBefore": 1437.98,
+            "foodAfter": 1574.1,
+            "populationChange": -3,
+            "foodPerPerson": 13.2,
+            "protected": true,
+            "survived": true
+          },
+          {
+            "civ": "crimson",
+            "foodBefore": 7579.44,
+            "foodAfter": 7771.67,
+            "populationChange": -1,
+            "foodPerPerson": 65.3,
+            "protected": true,
+            "survived": true
+          }
+        ]
+      }
+    }
+  ],
+  "remote": [
+    {
+      "civ": "amber",
+      "turn": 84,
+      "forecast": {
+        "id": "42-2",
+        "title": "Hiver rigoureux",
+        "description": "Les récoltes diminuent. Les greniers protègent une partie de la production.",
+        "foodMultiplier": 0.75,
+        "start": 24,
+        "end": 26
+      },
+      "source": "remote",
+      "service": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 9795,
+        "servedByFallback": false
+      },
+      "objective": "Fonder une ville prospère à Ashlin-les-Champs et préparer l'âge classique",
+      "error": null,
+      "rejected": [],
+      "valid": true
+    },
+    {
+      "civ": "azure",
+      "turn": 85,
+      "forecast": {
+        "id": "42-2",
+        "title": "Hiver rigoureux",
+        "description": "Les récoltes diminuent. Les greniers protègent une partie de la production.",
+        "foodMultiplier": 0.75,
+        "start": 24,
+        "end": 26
+      },
+      "source": "remote",
+      "service": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 8240,
+        "servedByFallback": false
+      },
+      "objective": "Fonder des villes et assurer la prospérité",
+      "error": null,
+      "rejected": [],
+      "valid": true
+    },
+    {
+      "civ": "crimson",
+      "turn": 86,
+      "forecast": {
+        "id": "42-2",
+        "title": "Hiver rigoureux",
+        "description": "Les récoltes diminuent. Les greniers protègent une partie de la production.",
+        "foodMultiplier": 0.75,
+        "start": 24,
+        "end": 26
+      },
+      "source": "remote",
+      "service": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 9883,
+        "servedByFallback": false
+      },
+      "objective": "Développer les frontières et protéger nos intérêts",
+      "error": null,
+      "rejected": [],
+      "valid": true
+    },
+    {
+      "civ": "verdant",
+      "turn": 87,
+      "forecast": {
+        "id": "42-2",
+        "title": "Hiver rigoureux",
+        "description": "Les récoltes diminuent. Les greniers protègent une partie de la production.",
+        "foodMultiplier": 0.75,
+        "start": 24,
+        "end": 26
+      },
+      "source": "remote",
+      "service": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 10670,
+        "servedByFallback": false
+      },
+      "objective": "Consolider nos trois villes, achever la maçonnerie et préparer la modernisation",
+      "error": null,
+      "rejected": [],
+      "valid": true
+    }
+  ],
+  "valid": true
+}

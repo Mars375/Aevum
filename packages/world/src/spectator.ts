@@ -104,6 +104,8 @@ export const SpectatorStateSchema = z
       "spectator-5",
       "spectator-6",
       "spectator-7",
+
+      "spectator-8",
     ]),
     modernization: z.record(ModernizationSchema).optional(),
     ages: z.record(CivilizationAgeSchema).optional(),
@@ -149,19 +151,19 @@ export const SpectatorStateSchema = z
   )
   .refine(
     (s) =>
-      !["spectator-5", "spectator-6", "spectator-7"].includes(s.rules) ||
+      !["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(s.rules) ||
       (!!s.sequence && s.world.civs.every((c) => !!s.ages?.[c.id])),
     "Age rules require a sequence and an age for every civilization",
   )
   .refine(
     (s) =>
-      !["spectator-6", "spectator-7"].includes(s.rules) ||
+      !["spectator-6", "spectator-7", "spectator-8"].includes(s.rules) ||
       s.world.civs.every((c) => !!s.modernization?.[c.id]),
     "Modern rules require a modernization state for every civilization",
   );
 export type SpectatorState = z.infer<typeof SpectatorStateSchema>;
 export function activeCiv(state: SpectatorState) {
-  return ["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(state.rules)
+  return ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
     ? (state.sequence?.activeCiv ??
         state.world.civs
           .filter((c) => c.fellOnTick === null && c.population > 0)
@@ -211,6 +213,14 @@ export function incidentFor(seed: number, turn: number): WorldIncident | null {
     end: start + 2,
   };
 }
+/** Public forecast, shared by every ruler in a round, including block boundaries. */
+export function forecastFor(seed: number, turn: number): WorldIncident | null {
+  for (let ahead = 1; ahead <= 3; ahead++) {
+    const event = incidentFor(seed, turn + ahead);
+    if (event && event.start > turn) return event;
+  }
+  return null;
+}
 export function newSpectator(
   seed = 42,
   rules: SpectatorState["rules"] = "spectator-1",
@@ -233,7 +243,7 @@ export function newSpectator(
     });
   }
   return {
-    ...(["spectator-5", "spectator-6", "spectator-7"].includes(rules)
+    ...(["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(rules)
       ? {
           ages: Object.fromEntries(
             world.civs.map((c) => [
@@ -248,7 +258,7 @@ export function newSpectator(
           ageTransitions: [],
         }
       : {}),
-    ...(["spectator-6", "spectator-7"].includes(rules)
+    ...(["spectator-6", "spectator-7", "spectator-8"].includes(rules)
       ? {
           modernization: Object.fromEntries(
             world.civs.map((c) => [c.id, { completed: [], active: null }]),
@@ -257,12 +267,12 @@ export function newSpectator(
       : {}),
     rules,
     world,
-    ...(["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(
+    ...(["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
       rules,
     )
       ? { plans: {} }
       : {}),
-    ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(rules)
+    ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(rules)
       ? {
           sequence: { activeCiv: world.civs[0]!.id, round: 1 },
           diplomacyOffers: [],
@@ -302,7 +312,7 @@ export function resolveCouncil(
   const state = SpectatorStateSchema.parse(input);
   let world = state.world;
   const actor = activeCiv(state);
-  const sequential = ["spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(
+  const sequential = ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
     state.rules,
   );
   const roundNumber = state.sequence?.round ?? 1;
@@ -363,7 +373,7 @@ export function resolveCouncil(
   for (const d of valid) {
     const civ = world.civs.find((c) => c.id === d.civ)!;
     if (
-      ["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(
+      ["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
         state.rules,
       ) &&
       d.plan !== undefined
@@ -395,7 +405,7 @@ export function resolveCouncil(
         }
       }
     }
-    if (["spectator-6", "spectator-7"].includes(state.rules) && d.modernization) {
+    if (["spectator-6", "spectator-7", "spectator-8"].includes(state.rules) && d.modernization) {
       const issue = startModernization(
         world,
         civ.id,
@@ -413,7 +423,7 @@ export function resolveCouncil(
     }
     state.objectives[civ.id] = d.objective;
     if (
-      ["spectator-5", "spectator-6", "spectator-7"].includes(state.rules) &&
+      ["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules) &&
       d.research &&
       !ageAllows(
         state.ages?.[civ.id]?.current ?? "bronze",
@@ -447,7 +457,7 @@ export function resolveCouncil(
       );
       const { years, ...cost } = BUILDING_RULES[build.building];
       if (
-        (["spectator-5", "spectator-6", "spectator-7"].includes(state.rules) &&
+        (["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules) &&
           !ageAllows(
             state.ages?.[civ.id]?.current ?? "bronze",
             BUILDING_AGE[build.building],
@@ -647,7 +657,7 @@ export function resolveCouncil(
     const city = world.simulation!.cities.find((c) => c.position === target);
     const ownerCiv = world.civs.find((c) => c.id === owner)!;
     const defenceProfile =
-      state.rules === "spectator-7"
+      ["spectator-7", "spectator-8"].includes(state.rules)
         ? militaryProfile(
             state.ages![owner]!.current,
             ownerCiv.advances,
@@ -670,7 +680,7 @@ export function resolveCouncil(
       );
       const attackerCiv = world.civs.find((c) => c.id === attacker.owner)!;
       const attackProfile =
-        state.rules === "spectator-7"
+        ["spectator-7", "spectator-8"].includes(state.rules)
           ? militaryProfile(
               state.ages![attacker.owner]!.current,
               attackerCiv.advances,
@@ -855,7 +865,7 @@ export function resolveCouncil(
           )
         : deriveCityEconomy(economyWorld, c.id, state.caravans),
     );
-  if (["spectator-6", "spectator-7"].includes(state.rules) && actor) {
+  if (["spectator-6", "spectator-7", "spectator-8"].includes(state.rules) && actor) {
     const owned = new Set(
       world
         .simulation!.cities.filter((c) => c.owner === actor)
@@ -910,7 +920,7 @@ export function resolveCouncil(
           : {}),
       });
     }
-  if (["spectator-6", "spectator-7"].includes(state.rules) && actor) {
+  if (["spectator-6", "spectator-7", "spectator-8"].includes(state.rules) && actor) {
     const civ = world.civs.find((c) => c.id === actor)!;
     const owned = world.simulation!.cities.filter((c) => c.owner === actor);
     const programs = state.modernization![actor]!;
@@ -963,7 +973,7 @@ export function resolveCouncil(
     )
     .slice(-1024);
   state.world = world;
-  if (["spectator-5", "spectator-6", "spectator-7"].includes(state.rules)) {
+  if (["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules)) {
     state.ageTransitions = [];
     const age = actor ? state.ages?.[actor] : undefined;
     if (age && actor) {
@@ -971,7 +981,7 @@ export function resolveCouncil(
         world,
         actor,
         age.current,
-        ["spectator-6", "spectator-7"].includes(state.rules)
+        ["spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
           ? state.modernization![actor]!.completed
           : undefined,
       );
@@ -989,7 +999,7 @@ export function resolveCouncil(
     }
   }
   if (
-    ["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(
+    ["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
       state.rules,
     )
   ) {
@@ -1034,7 +1044,13 @@ export function localCouncil(
 ): CouncilDecision {
   const w = state.world,
     civ = w.civs.find((c) => c.id === civId)!;
-  const focus =
+  const climate = state.rules === "spectator-8"
+    ? incidentFor(w.seed, state.sequence!.round - 1) ??
+      forecastFor(w.seed, state.sequence!.round - 1)
+    : null;
+  const preparing = !!climate && climate.foodMultiplier < 1 &&
+    civ.stock.food < civ.population * 4;
+  const focus = preparing ? "growth" :
     civId === "crimson"
       ? "military"
       : civId === "azure"
@@ -1043,7 +1059,7 @@ export function localCouncil(
           ? "industry"
           : "growth";
   const militaryStrength = (id: string) =>
-    state.rules === "spectator-7"
+    ["spectator-7", "spectator-8"].includes(state.rules)
       ? militaryProfile(
           state.ages?.[id]?.current ?? "bronze",
           w.civs.find((x) => x.id === id)!.advances,
@@ -1154,7 +1170,7 @@ export function localCouncil(
     }
   }
   const modernization =
-    ["spectator-6", "spectator-7"].includes(state.rules)
+    ["spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
       ? (ModernizationProjectSchema.options.find(
           (p) =>
             !modernizationIssue(
@@ -1168,7 +1184,7 @@ export function localCouncil(
       : null;
   const technology = TECHNOLOGIES.find(
     (t) =>
-      (!["spectator-5", "spectator-6", "spectator-7"].includes(state.rules) ||
+      (!["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules) ||
         ageAllows(
           state.ages?.[civId]?.current ?? "bronze",
           TECHNOLOGY_AGE[t.name]!,
@@ -1185,7 +1201,7 @@ export function localCouncil(
     const building = (
       [
         focus === "science" &&
-        !["spectator-5", "spectator-6", "spectator-7"].includes(state.rules)
+        !["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
           ? "academy"
           : "granary",
         "market",
@@ -1196,7 +1212,7 @@ export function localCouncil(
     ).find((b) => {
       const { years: _, ...cost } = BUILDING_RULES[b];
       return (
-        (!["spectator-5", "spectator-6", "spectator-7"].includes(state.rules) ||
+        (!["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules) ||
           ageAllows(
             state.ages?.[civId]?.current ?? "bronze",
             BUILDING_AGE[b],
@@ -1212,16 +1228,18 @@ export function localCouncil(
     }
   }
   return {
-    ...(["spectator-6", "spectator-7"].includes(state.rules) ? { modernization } : {}),
+    ...(["spectator-6", "spectator-7", "spectator-8"].includes(state.rules) ? { modernization } : {}),
     civ: civId,
     turn: w.tick,
     objective:
-      focus === "military"
+      preparing
+        ? `Préparer les réserves alimentaires face à ${climate!.title.toLowerCase()}`
+        : focus === "military"
         ? "Développer les frontières et protéger nos intérêts"
         : "Fonder des villes et assurer la prospérité",
     focus,
     research: technology?.name ?? null,
-    ...(["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7"].includes(
+    ...(["spectator-3", "spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
       state.rules,
     ) && state.plans?.[civId]?.status !== "active"
       ? {
@@ -1264,7 +1282,7 @@ export function localCouncil(
     construction: construction.slice(0, 16),
     orders: orders.slice(0, 64),
     recruitSettler:
-      civ.stock.food > civ.population * 4 &&
+      !preparing && civ.stock.food > civ.population * 4 &&
       w.simulation!.cities.filter((c) => c.owner === civId).length < 6 &&
       w.simulation!.units.filter(
         (u) => u.owner === civId && u.role === "settler",

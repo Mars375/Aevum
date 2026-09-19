@@ -2,6 +2,16 @@
 
 Ce fichier est la référence de reprise. Le lire avant toute intervention et le mettre à jour à chaque modification, même petite : changement, validation, limite et prochaine action. Ne jamais présenter un travail prévu comme terminé.
 
+## État actuel
+
+- Objectif : simulation de civilisations gouvernées par IA, exclusivement spectateur, du Bronze au Futur, indépendamment pour chaque civilisation.
+- Chantier actif : `codex/forecast-crises` (règles v8) ; règles v7 intégrées dans `main` (`77f0f0a`).
+- Validation : 552 tests réussis en suite complète ; TypeScript et build réussis.
+- Replays : 11 archives et 3 graines rejouées, zéro ordre rejeté ; 4 décisions Nous valides, pas une campagne complète.
+- Démo `climate-local-42` : 1 041 actions chargées, 1 042 entrées d'historique, aucun message d'erreur ; contrôle visuel navigateur indisponible (jeton d'authentification absent).
+- Reste à faire : infrastructures / énergie / pollution, obligations diplomatiques, fiabilité de la publication.
+- Tout ce qui suit dans ce fichier est constitué d'entrées datées historiques.
+
 ### 2026-09-19 — Reprise et fiabilité des validations
 
 - Repris la branche militaire déjà sauvegardée. Audit des lacunes de livraison délégué au profil local `deepseek-v4-flash`, en lecture seule.
@@ -10,6 +20,40 @@ Ce fichier est la référence de reprise. Le lire avant toute intervention et le
 - Validation globale après ce changement à effectuer. Prochaine action : terminer la validation v7, intégrer la branche puis poursuivre les fonctions spectateur.
 
 ## Objectif
+
+### 2026-09-19 — Validation des crises préparables
+
+- 552 tests réussis, TypeScript réussi, build lancé par le lanceur réussi. Serveur local prêt sur 5174.
+- Probe : onze campagnes archivées rejouées ; graines 42/7/123, respectivement 1 041/1 048/406 actions, zéro ordre rejeté et replay identique.
+- Quatre décisions Nous réelles sous v8 avec prévision climatique : toutes valides, aucun remplacement local. Rapport `docs/release-verification.json`. Ceci valide une manche, pas la fiabilité distante sur 300 manches.
+- Démonstration générée sans écrasement : `climate-local-42`. Contrôle visuel bloqué par l'outil navigateur (« Codex auth token is unavailable »), ne pas présenter ce contrôle comme réussi.
+- Revue ciblée déléguée avant intégration. Prochain lot : infrastructures avancées localisées et effets énergétiques.
+
+### 2026-09-19 — Vérification reproductible v8
+
+- Neuf tests ciblés moteur et TypeScript passent. Ajouté le contrôle de l'observation des quatre dirigeants (prévision commune, capacités militaires/modernisation conservées, aucune prévision v7).
+- Ajouté un probe de livraison : replays sauvegardés, trois graines locales jusqu'à 300 manches, arrêt si une seule civilisation subsiste, démo sans écrasement ; option distante explicite bornée à quatre décisions.
+- Rapport et démo pas encore générés à cette étape. Une manche distante réussie ne sera pas présentée comme une campagne distante complète.
+
+### 2026-09-19 — Interface des prévisions et parties longues
+
+- Bulletin d'anticipation avant l'événement et bilan par civilisation dans les événements. L'historique est tronqué à l'action affichée pour ne pas révéler le futur lors d'un replay.
+- Ajouté le format « À travers les âges » de 300 manches dans le choix de partie ; atteindre le futur dépend toujours des dirigeants.
+- TypeScript moteur passe. Corrigé une assertion de test : avant la clôture du deuxième événement, le bilan du premier doit rester consultable.
+- Prochaine action : validation moteur/IA/interface, puis démonstration navigateur.
+
+### 2026-09-19 — Comparaison des crises
+
+- Ajouté un rapport dérivé des instantanés existants : réserves et protections au début, réserves et variation de population à la fin. Aucun état de sauvegarde dupliqué ni attribution causale inventée.
+- Ajouté les tests de calendrier, protection des règles v7, réaction locale et replay v8 sur 110 actions.
+- Validation en cours. Le rapport nécessite une crise terminée et un historique couvrant ses deux bornes ; les données futures ne doivent pas être fournies depuis l'interface.
+
+### 2026-09-19 — Règles v8 et prévisions
+
+- Étendu les consommateurs séquentiels à v8 sans modifier les versions précédentes. Les nouvelles campagnes utilisent v8.
+- Prévision publique déterministe trois manches avant les événements existants, y compris au changement de bloc climatique. Les dirigeants distants reçoivent calendrier et options de préparation.
+- Politique locale v8 : en cas de pénurie annoncée/active et de réserves sous quatre vivres par habitant, priorité alimentaire et suspension du recrutement de colons.
+- Validation à effectuer : limites de calendrier, réaction locale, observation IA et replay. Prochaine action : bilan factuel dans l'interface.
 
 ### 2026-09-19 — Compatibilité de la politique locale
 
@@ -21,7 +65,13 @@ Créer une simulation de civilisations gouvernées par IA, exclusivement spectat
 
 ## Chantier en cours : capacités militaires par technologie
 
-Branche `codex/military-technology`, base `main` (`1ea13e5`). Règles `spectator-7` implémentées et validées localement ; intégration dans main en cours.
+Règles `spectator-7` intégrées et poussées dans main (`77f0f0a`). Chantier actif : `codex/forecast-crises`, crises préparables sous règles v8.
+
+### 2026-09-19 — Périmètre de livraison
+
+- Consigné les lots et critères dans `docs/release-spectateur.md` : simulation spectateur locale, crises, infrastructures, diplomatie, lecture visuelle et accès fiable. Mode dieu conservé hors périmètre conformément au choix utilisateur.
+- Fusion et push du lot militaire réussis. Branche dédiée aux crises créée.
+- Prochaine action : prévision déterministe à trois manches, réaction locale versionnée et comparaison factuelle avant/après ; pas de nouvelles commandes à apprendre.
 
 ## Chantier en cours : extension jusqu'au futur
 
@@ -230,3 +280,8 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - L'audit délégué confirme des chantiers distincts : fiabilité des campagnes distantes longues, infrastructures/énergie, distribution autonome. Ses constats historiques de publication sont dépassés par la validation locale de ce jour.
 - Les simulations locales et un conseil v6 réel ne constituent pas une preuve de campagne distante v7 complète. Cette limite reste ouverte.
 - Prochaine évolution : crises annoncées, préparation et lecture des conséquences ; puis infrastructures localisées et diplomatie avec obligations.
+### 2026-09-19 — Correctif de la prévision après la fin de campagne
+
+- Revue DeepSeek : la prévision pouvait être émise après la fin de campagne. Correctif du worker DeepSeek : condition `forecast && !over` et textes d'avertissement restants corrigés.
+- Racine vérifiée : diff contrôlé et 4 tests climatiques réussis ; build en cours de reconstruction.
+- Mode de travail : la racine orchestre, DeepSeek implémente/revient/corrige ; écritures via `exec_command`, pas via `apply_patch`.
