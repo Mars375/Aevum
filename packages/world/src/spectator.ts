@@ -1043,7 +1043,7 @@ export function localCouncil(
           ? "industry"
           : "growth";
   const militaryStrength = (id: string) =>
-    ["spectator-6", "spectator-7"].includes(state.rules)
+    state.rules === "spectator-7"
       ? militaryProfile(
           state.ages?.[id]?.current ?? "bronze",
           w.civs.find((x) => x.id === id)!.advances,

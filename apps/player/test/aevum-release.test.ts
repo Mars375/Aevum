@@ -100,7 +100,7 @@ describe("pipeline de publication Aevum", () => {
     });
     expect(existsSync(freshWorkspace.guardLog)).toBe(false);
     expect(existsSync(splitWorkspace.guardLog)).toBe(false);
-  });
+  }, 20_000);
 
   it("derive le mode silencieux quand aucune cle ne permet un fournisseur", () => {
     const { root, guardLog } = workspace();

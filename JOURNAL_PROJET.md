@@ -2,13 +2,26 @@
 
 Ce fichier est la référence de reprise. Le lire avant toute intervention et le mettre à jour à chaque modification, même petite : changement, validation, limite et prochaine action. Ne jamais présenter un travail prévu comme terminé.
 
+### 2026-09-19 — Reprise et fiabilité des validations
+
+- Repris la branche militaire déjà sauvegardée. Audit des lacunes de livraison délégué au profil local `deepseek-v4-flash`, en lecture seule.
+- Suite globale : 545 tests réussis, deux dépassements de cinq secondes. Les treize tests concernés réussissent avec un seul worker ; les erreurs ENOMEM historiques ne se reproduisent pas.
+- Porté à vingt secondes uniquement les deux scénarios d'intégration longs (48 tours HTTP et trois processus de publication), sans retirer d'assertion ni modifier le moteur.
+- Validation globale après ce changement à effectuer. Prochaine action : terminer la validation v7, intégrer la branche puis poursuivre les fonctions spectateur.
+
 ## Objectif
+
+### 2026-09-19 — Compatibilité de la politique locale
+
+- Revue v7 : trouvé un calcul de puissance militaire appliqué par erreur aussi aux décisions locales v6. Restreint ce calcul à v7 pour préserver les anciennes décisions diplomatiques.
+- Test de régression reproduit avant correction : v6 proposait le commerce au lieu de la guerre prévue par ses règles historiques. Le même scénario doit rester prudent en v7.
+- Prochaine action : repasser ce test et les validations globales avant fusion. Aucun changement des dégâts ni des sauvegardes.
 
 Créer une simulation de civilisations gouvernées par IA, exclusivement spectateur pour le moment. Chaque dirigeant joue son tour, agit sur le monde et transmet la main au suivant. Les décisions doivent produire une histoire compréhensible et des conséquences visibles. À terme : Bronze, Antiquité, Moyen Âge, Industrie, Moderne, Futur, indépendamment pour chaque civilisation.
 
 ## Chantier en cours : capacités militaires par technologie
 
-Branche `codex/military-technology`, base `main` (`1ea13e5`). Règles `spectator-7` implémentées et en cours de validation.
+Branche `codex/military-technology`, base `main` (`1ea13e5`). Règles `spectator-7` implémentées et validées localement ; intégration dans main en cours.
 
 ## Chantier en cours : extension jusqu'au futur
 
@@ -210,3 +223,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Validation ré-exécutée : 5 tests dédiés (profil pur, dégâts v6=3 vs v7=4, replay v7 déterministe, observation v7/v6), 540 tests passent, typecheck et build OK. Mêmes 6 échecs environnementaux que précédemment (suite de publication ENOMEM tsx sous Windows, 1 timeout flaky discovery).
 - Limites : silhouettes militaires existantes (pas de nouvelle géométrie), pas encore de réseau électrique géographique ni de pollution ; multiplicateurs à équilibrer sur plusieurs graines.
 - Prochaine action : campagne v7 avec le conseil Nous distant, puis équilibrage des profils militaires et visualisation des forces relatives.
+
+### 2026-09-19 — Validation du lot militaire
+
+- Suite globale après ajustement des deux délais : 547 tests réussis, TypeScript et build réussis. Après correction de la compatibilité diplomatique v6, les six tests militaires moteur/observation réussissent, dont la nouvelle régression.
+- L'audit délégué confirme des chantiers distincts : fiabilité des campagnes distantes longues, infrastructures/énergie, distribution autonome. Ses constats historiques de publication sont dépassés par la validation locale de ce jour.
+- Les simulations locales et un conseil v6 réel ne constituent pas une preuve de campagne distante v7 complète. Cette limite reste ouverte.
+- Prochaine évolution : crises annoncées, préparation et lecture des conséquences ; puis infrastructures localisées et diplomatie avec obligations.

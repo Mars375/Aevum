@@ -31,6 +31,16 @@ function decision(overrides: Record<string, unknown> = {}) {
 }
 
 describe("military profiles by technology", () => {
+  it("preserves legacy local diplomacy while v7 considers technological inferiority", () => {
+    const state = newSpectator(42, "spectator-6");
+    state.world.tick = 80;
+    state.world.civs.find((c) => c.id === "crimson")!.soldiers = 100;
+    state.world.civs.find((c) => c.id === "azure")!.soldiers = 50;
+    state.ages!.azure!.current = "future";
+    expect(localCouncil(state, "crimson").diplomacy.find((d) => d.target === "azure")?.proposal).toBe("war");
+    state.rules = "spectator-7";
+    expect(localCouncil(state, "crimson").diplomacy.find((d) => d.target === "azure")?.proposal).toBe("trade");
+  });
   it("scales power and resilience with age, research and programmes", () => {
     expect(militaryProfile("bronze", [], [])).toEqual({
       age: "bronze",

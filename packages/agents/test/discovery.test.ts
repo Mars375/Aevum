@@ -84,4 +84,4 @@ it("offers a verified recorded demo without credentials and stops bounded campai
     await new Promise<void>((resolve) => server.close(() => resolve()));
     rmSync(directory, { recursive: true, force: true });
   }
-});
+}, 20_000);
