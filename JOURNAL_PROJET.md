@@ -5,15 +5,12 @@ Ce fichier est la référence de reprise. Le lire avant toute intervention et le
 ## État actuel
 
 - Objectif : simulation de civilisations gouvernées par IA, exclusivement spectateur, du Bronze au Futur, indépendamment pour chaque civilisation.
-- Chantier actif : `codex/infrastructure-v9` (infrastructures localisées), non fusionné (aucun commit ni push) ; règles v8 fusionnées et poussées dans `main` (`b880895`).
-- Implémentation v9 : six infrastructures localisées, réseaux énergétiques par composante de territoire, pollution fractionnaire par site, une file par civilisation, panneau spectateur et modèles/projection raccordés.
-- Validation locale : 592 tests complets, typecheck et build racine verts avant le dernier import et les raffinements de consignes IA (porte finale à relancer) ; 18 tests de domaine racine, dont le nettoyage des orphelins ; index eager du bundle réduit 491 Ko → 280 Ko (split des métadonnées).
-- Replays : les 12 archives relâchées/anciennes rejouées ; graines 42/7/123 zéro rejet local ; 13/13/0 sites construits, 26 au total. `docs/infrastructure-verification.json` fait foi.
-- Conseil distant v9 réel : la centrale thermique autorisée est choisie, mais d'autres ordres de plan/unités sont rejetés → rapport `valid: false` ; ni validation distante complète ni fonctionnalité complète globale revendiquées.
-- Démo : la démo v9 expérimentale sous règles antérieures est archivée dans `worlds/spectator/drafts` (pas une campagne relâchée) ; une démo fraîche `infrastructure-local-42` existe.
-- Aperçu `docs/previews/infrastructure-v9.png` (1400×900) généré ; inspection d'image non supportée et auth navigateur indisponible → aucun contrôle visuel revendiqué.
-- Dernières corrections : budget réservé avant l'infrastructure, approvisionnement des réseaux déficitaires, élagage des orphelins, arrondi UI uniquement, script warm-up corrigé pour ne pas faire avancer l'acteur.
-- Reste à faire : porte finale (suite complète après le dernier import et les raffinements de prompts), amélioration de la qualité d'action distante, obligations diplomatiques, fiabilité de la publication.
+- Chantier actif : `codex/feasible-ai-orders` ; lot v9 infrastructures localisées livré (commit `0d150a2` poussé et fusionné fast-forward dans `origin/main`). Choix IA réalisables délégués en cours : ni implémentés ni vérifiés.
+- Validation v9 : 592 tests complets, typecheck, vérification de saison et build racine passés.
+- Conseil distant v9 réel : l'infrastructure autorisée (centrale thermique) est choisie, mais d'autres ordres (plan/unités) sont rejetés → rapport `valid: false` ; ni validation distante complète ni fonctionnalité complète globale revendiquées.
+- Vérification API racine `infrastructure-local-42` : spectator-9, 1041 actions, 13 sites, 1042 entrées d'historique, `error: null`.
+- Aperçu `docs/previews/infrastructure-v9.png` (1400×900) généré uniquement ; inspection d'image non supportée et auth navigateur indisponible → aucun contrôle visuel.
+- Reste à faire : obligations diplomatiques et qualité de sortie (fiabilité de la publication).
 - Tout ce qui suit dans ce fichier est constitué d'entrées datées historiques.
 
 ### 2026-09-20 — Clôture de documentation infrastructures v9
@@ -302,3 +299,13 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Tests `apps/player/test/infrastructure-projection.test.ts` : les six types sur la ville correspondante, immuabilite des entrees, ordre stable + doublons, projection anterieure identique sans sites, ville inconnue ou future sans rendu, reduction du modele de ville conditionnee aux sites.
 - Validation : 16 tests cibles verts (world-projection, infrastructure-models, infrastructure-projection) et vue-tsc player OK. TypeScript global reste bloque par le module moteur en cours d'ecriture par le worker domaine (`packages/world/src/infrastructure.ts` + son test) — hors perimetre.
 - Limite : l'appelant UI n'est pas encore branche aux sites ; rien n'est committe ni pousse. Prochaine action : brancher l'appelant UI une fois le contrat moteur stabilise.
+
+### 2026-09-20 — Livraison v9 et chantier des choix IA réalisables
+
+- Commit `0d150a2` (v9) poussé et fusionné fast-forward dans `origin/main` ; branche actuelle : `codex/feasible-ai-orders`.
+- Validation : 592 tests complets, typecheck, vérification de saison et build racine passés.
+- Vérification API racine sur `infrastructure-local-42` : spectator-9, 1041 actions, 13 sites, 1042 entrées d'historique, `error: null`.
+- Conseil distant v9 réel : l'infrastructure autorisée est choisie, mais d'autres ordres (plan/unités) sont rejetés → rapport `valid: false`.
+- Inspection d'image non supportée et auth navigateur indisponible : seul un PNG 1400×900 généré.
+- Choix IA réalisables délégués (DeepSeek) en cours, ni implémentés ni vérifiés ; la racine orchestre.
+- Reste à faire : obligations diplomatiques et qualité de sortie.

@@ -11,13 +11,14 @@ import {
 import type { SpectatorState } from "../../world/src/spectator.js";
 import type { UnitCommand } from "../../world/src/commands.js";
 import { MOVEMENT_BUDGET } from "../../world/src/commands.js";
-import type { Building } from "../../world/src/civilization-state.js";
+import type { Building, WorldUnit } from "../../world/src/civilization-state.js";
 import {
   affordable,
   BUILDING_RULES,
   TECHNOLOGIES,
 } from "../../world/src/development.js";
 import { unitPath } from "../../world/src/units.js";
+import { neighbours } from "../../world/src/state.js";
 import {
   INFRASTRUCTURE,
   INFRASTRUCTURE_KINDS,
@@ -35,6 +36,18 @@ export const INFRASTRUCTURE_REASONS: Record<InfrastructureKind, string> = {
   spaceport: "+15 % de richesse et +1 science quand il est alimenté",
 };
 
+/** v9-only unit shape; optional fields are absent from older rulesets. */
+type UnitOptions = {
+  unit: string;
+  movementBudget?: number;
+  role?: WorldUnit["role"];
+  actions: UnitCommand["action"][];
+  moveTargets?: number[];
+  foundationSites: { target: number; route: number[]; distance: number }[];
+  workSites: { target: number; route: number[] }[];
+  tradeDestinations: { city: string; target: number; route: number[] }[];
+};
+
 /** Start-of-council suggestions, never authority to bypass the simultaneous resolver. */
 export function councilOptions(state: SpectatorState, civId: string) {
   const world = state.world;
@@ -43,6 +56,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const simulation = world.simulation;
   if (!simulation) throw new Error("Civilization simulation required");
   const alive = civ.fellOnTick === null && civ.population > 0;
+  const v9 = state.rules === "spectator-9";
   const distance = (a: number, b: number) =>
     Math.abs((a % world.size) - (b % world.size)) +
     Math.abs(Math.floor(a / world.size) - Math.floor(b / world.size));
@@ -54,13 +68,17 @@ export function councilOptions(state: SpectatorState, civId: string) {
       ? [index]
       : [],
   );
-  const units = ownUnits.map((unit) => {
-    const actions: UnitCommand["action"][] = alive
-      ? ["move", "explore", "retreat"]
-      : [];
-    if (alive && unit.role === "soldier")
-      actions.push("defend", "attack", "escort");
-    if (alive && unit.role === "settler") actions.push("settle");
+  const units = ownUnits.map((unit): UnitOptions => {
+    const moveTargets =
+      v9 && alive
+        ? neighbours(world.size, unit.position).filter((target) => {
+            const owner = world.board[target]!.owner;
+            return (
+              (owner === null || owner === civ.id) &&
+              unitPath(world, unit, target).length > 1
+            );
+          })
+        : [];
     const foundationSites =
       alive && unit.role === "settler"
         ? foundationTiles
@@ -70,6 +88,17 @@ export function councilOptions(state: SpectatorState, civId: string) {
             .sort((a, b) => a.distance - b.distance || a.target - b.target)
             .slice(0, 6)
         : [];
+    const actions: UnitCommand["action"][] = alive
+      ? v9
+        ? moveTargets.length > 0
+          ? ["move", "explore", "retreat"]
+          : []
+        : ["move", "explore", "retreat"]
+      : [];
+    if (alive && unit.role === "soldier")
+      actions.push("defend", "attack", "escort");
+    if (alive && unit.role === "settler" && (!v9 || foundationSites.length > 0))
+      actions.push("settle");
     const workKind =
       unit.role === "farmer"
         ? ["plain", "river"]
@@ -115,7 +144,9 @@ export function councilOptions(state: SpectatorState, civId: string) {
       ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
         ? { movementBudget: MOVEMENT_BUDGET[unit.role] }
         : {}),
+      ...(v9 ? { role: unit.role } : {}),
       actions,
+      ...(v9 ? { moveTargets } : {}),
       foundationSites,
       workSites,
       tradeDestinations,
@@ -214,6 +245,19 @@ export function councilOptions(state: SpectatorState, civId: string) {
               available,
             };
           })(),
+        }
+      : {}),
+    ...(["spectator-9"].includes(state.rules)
+      ? {
+          settlementPlanSites: Array.from(
+            new Set(
+              units
+                .filter((entry) => entry.role === "settler")
+                .flatMap((entry) =>
+                  entry.foundationSites.map((site) => site.target),
+                ),
+            ),
+          ).sort((a, b) => a - b),
         }
       : {}),
     construction,

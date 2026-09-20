@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-09-20T08:43:58.422Z",
+  "checkedAt": "2026-09-20T20:03:48.785Z",
   "rules": "spectator-9",
-  "archivesVerified": 12,
+  "archivesVerified": 13,
   "invalidArchives": 0,
   "archiveFailures": 0,
   "rows": [
@@ -288,35 +288,19 @@
         "provider": "nous",
         "fallbackCount": 0,
         "attempts": 1,
-        "latencyMs": 10581,
+        "latencyMs": 11327,
         "servedByFallback": false
       },
       "source": "remote",
       "chosen": {
         "city": "city-amber",
-        "kind": "thermal_plant"
+        "kind": "research_center"
       },
-      "rejections": [
-        {
-          "civ": "azure",
-          "unit": null,
-          "detail": "Le site de fondation est occupé ou trop proche d'une ville."
-        },
-        {
-          "civ": "azure",
-          "unit": "azure-164",
-          "detail": "No traversable route"
-        },
-        {
-          "civ": "azure",
-          "unit": "azure-166",
-          "detail": "No traversable route"
-        }
-      ],
-      "valid": false,
+      "rejections": [],
+      "valid": true,
       "error": null
     }
   ],
   "builtAcrossSeeds": 26,
-  "valid": false
+  "valid": true
 }
