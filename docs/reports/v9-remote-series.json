@@ -1,0 +1,141 @@
+{
+  "checkedAt": "2026-09-20T23:24:28.496Z",
+  "rules": "spectator-9",
+  "seeds": 5,
+  "remoteCalls": 5,
+  "warmedSeeds": 5,
+  "servedByModelItself": 4,
+  "validCouncils": 3,
+  "totalRejections": 1,
+  "choseInfrastructure": 3,
+  "rows": [
+    {
+      "seed": 42,
+      "warmed": true,
+      "warmTurn": 639,
+      "civ": "azure",
+      "localCandidate": {
+        "city": "city-amber",
+        "kind": "foundry"
+      },
+      "source": "remote",
+      "served": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 8688,
+        "servedByFallback": false
+      },
+      "servedItself": true,
+      "chosen": {
+        "city": "city-amber",
+        "kind": "research_center"
+      },
+      "rejections": [],
+      "valid": true,
+      "error": null
+    },
+    {
+      "seed": 7,
+      "warmed": true,
+      "warmTurn": 652,
+      "civ": "azure",
+      "localCandidate": {
+        "city": "city-azure",
+        "kind": "foundry"
+      },
+      "source": "remote",
+      "served": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 8711,
+        "servedByFallback": false
+      },
+      "servedItself": true,
+      "chosen": {
+        "city": "city-azure",
+        "kind": "thermal_plant"
+      },
+      "rejections": [],
+      "valid": true,
+      "error": null
+    },
+    {
+      "seed": 1,
+      "warmed": true,
+      "warmTurn": 653,
+      "civ": "azure",
+      "localCandidate": {
+        "city": "city-azure",
+        "kind": "foundry"
+      },
+      "source": "unavailable",
+      "served": null,
+      "servedItself": false,
+      "chosen": null,
+      "rejections": [],
+      "valid": false,
+      "error": "Réponse IA incompatible avec le schéma des ordres : plan.targetTech (invalid_enum_value)"
+    },
+    {
+      "seed": 17,
+      "warmed": true,
+      "warmTurn": 583,
+      "civ": "azure",
+      "localCandidate": {
+        "city": "city-amber",
+        "kind": "foundry"
+      },
+      "source": "remote",
+      "served": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 7385,
+        "servedByFallback": false
+      },
+      "servedItself": true,
+      "chosen": null,
+      "rejections": [
+        "Conseil: Aucun colon ne peut atteindre ce site."
+      ],
+      "valid": false,
+      "error": null
+    },
+    {
+      "seed": 314,
+      "warmed": true,
+      "warmTurn": 911,
+      "civ": "verdant",
+      "localCandidate": {
+        "city": "city-verdant",
+        "kind": "foundry"
+      },
+      "source": "remote",
+      "served": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 11886,
+        "servedByFallback": false
+      },
+      "servedItself": true,
+      "chosen": {
+        "city": "city-verdant",
+        "kind": "foundry"
+      },
+      "rejections": [],
+      "valid": true,
+      "error": null
+    }
+  ]
+}

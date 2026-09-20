@@ -82,16 +82,44 @@ génération du plateau.
 
 ## Ce qui mérite une décision
 
-**1. « Zéro rejet » vient de dirigeants locaux et ne prouve rien sur le
-distant.** Les trois graines affichent `rejected: 0`, mais elles sont jouées par
+**1. Un appel distant valide n'est pas un taux — mesuré : 3 sur 5.** Les trois
+graines du rapport affichent `rejected: 0`, mais elles sont jouées par
 `localCouncil`, qui n'émettait déjà pas d'ordres invalides. C'est le piège du
 point 3 de CLAUDE.md sous une autre forme : _servi ≠ a répondu_ devient ici
-_zéro rejet local ≠ zéro rejet réel_. La preuve distante est d'un seul appel —
-tick 639, `longcat-2.0` servi par lui-même (`fallbackCount: 0`,
-`servedByFallback: false`, 11,3 s), `valid: true`. La preuve de service est
-exemplaire ; l'échantillon vaut 1. Le design le dit déjà honnêtement ; ce qui
-manque pour trancher est une série sur plusieurs graines avec la part servie
-affichée.
+_zéro rejet local ≠ zéro rejet réel_. La preuve distante du lot valait un appel.
+J'ai refait le même protocole sur les cinq graines qui construisent réellement
+(`scripts/v9-remote-series-probe.ts`, rapport
+`docs/reports/v9-remote-series.json`) : chauffe locale gratuite, puis un conseil
+distant par graine, avec la correction bornée que le moteur accorde déjà — soit
+cinq conseils et entre cinq et dix appels modèle réels.
+
+|                                               |                           |
+| --------------------------------------------- | ------------------------- |
+| conseils distants demandés                    | 5 (graines 42/7/1/17/314) |
+| **servis par le modèle lui-même**             | **4 sur 5** (80 %)        |
+| repli silencieux par une politique locale     | **0**                     |
+| **conseils valides, zéro ordre rejeté**       | **3 sur 5** (60 %)        |
+| ayant effectivement choisi une infrastructure | 3 sur 5                   |
+
+La part servie par le modèle lui-même, 80 %, passe la barre des 70 % de
+CLAUDE.md : `longcat-2.0` est classable. Et le point capital tient — **aucune
+substitution silencieuse** : la graine qui échoue est rapportée `unavailable`,
+pas remplacée par un dirigeant local.
+
+Mais les deux échecs sont instructifs, et différents :
+
+- **Graine 1 — un conseil entier jeté pour un champ facultatif.** `plan.targetTech`
+  portait une valeur d'énumération invalide ; toute la décision est refusée au
+  schéma, correction comprise. Or le point 5 de CLAUDE.md dit l'inverse : « un
+  champ absent, `null`, ou dans une autre forme, n'est pas une erreur… plutôt
+  que de jeter une bonne décision pour une question de forme ». `plan` est déjà
+  `nullable().optional()` : ramener un `targetTech` invalide à `plan: null` au
+  lieu de refuser le lot suivrait la doctrine que le dépôt s'est donnée, et
+  récupérerait ici un conseil sur cinq.
+- **Graine 17 — le durcissement de `f79fcf3` réduit sans supprimer.** Le seul
+  ordre rejeté de la série est « Aucun colon ne peut atteindre ce site », c'est-
+  à-dire exactement ce que `settlementPlanSites` devait rendre impossible. La
+  consigne est donnée, le modèle ne la suit pas toujours.
 
 **2. La pollution monte lentement, puis n'est plus réversible.** Les états
 finaux des trois graines sont tous extrêmes — 0 ou le plafond 80 — ce qui m'a
@@ -170,16 +198,24 @@ suffirait.
   non-déterminisme et dans l'interdiction d'importer le lecteur
   (`boundaries.test.ts`), et le paragraphe de `CLAUDE.md` qui décrivait ce trou
   est à jour.
-- Deux sondes de mesure ajoutées, toutes deux en rejeu déterministe sans appel
-  distant : `options-narrowing-probe.ts` et `pollution-regime-probe.ts`.
-- Points 1, 2 et 3 restent ouverts : ils demandent des appels distants ou des
-  graines supplémentaires, pas du code.
+- Quatre sondes ajoutées. Trois sont locales et ne coûtent rien :
+  `options-narrowing-probe.ts`, `pollution-regime-probe.ts` et
+  `infrastructure-seeds-probe.ts`. La quatrième,
+  `v9-remote-series-probe.ts`, chauffe en local et ne demande qu'un conseil
+  distant par graine ; elle écrit son propre rapport et n'écrase jamais
+  `infrastructure-verification.json`.
+- Points 2 et 3 mesurés sur douze graines, point 1 sur cinq conseils distants.
+- **Reste ouvert, et c'est une décision, pas du code** : tolérer un champ de
+  plan malformé plutôt que de jeter le conseil entier (point 1, graine 1) ;
+  décider si le plafond de pollution doit rester absorbant en pratique
+  (point 2) ; faire dire à `docs/infrastructure-v9-design.md` §8 quel mécanisme
+  garantit le rejeu (point 5).
 
 ## Limites de cette revue
 
-Lecture de code et rejeu déterministe uniquement. Aucun appel distant, aucun
-contrôle visuel du rendu 3D ni du panneau (l'aperçu PNG n'a pas été inspecté),
-aucune vérification de la publication. Les deux mesures portent sur la seule
-campagne v9 archivée, `infrastructure-local-42`, conduite par des dirigeants
-locaux : les graines 7 et 123 n'existent que dans le rapport de vérification,
-pas sur disque.
+Aucun contrôle visuel du rendu 3D ni du panneau — l'aperçu PNG n'a pas été
+inspecté — et aucune vérification de la publication. Les mesures locales sont
+conduites par `localCouncil` : elles décrivent ce que fait la politique locale,
+pas ce que ferait un modèle. La série distante porte sur cinq graines et un seul
+modèle (`longcat-2.0` via Nous) ; elle ne dit rien des trois autres dirigeants
+ni d'une campagne distante longue, qui reste non prouvée.
