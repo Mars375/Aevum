@@ -188,6 +188,59 @@ function zeroPrice(value: unknown): boolean {
   );
 }
 
+/** Schema locations and codes only — never a provider value or body. */
+function describeIssues(error: ZodError): string {
+  return error.issues
+    .slice(0, 8)
+    .map((issue) => {
+      const path = issue.path
+        .map((part) =>
+          typeof part === "number"
+            ? part
+            : /^[a-zA-Z][a-zA-Z0-9]{0,30}$/.test(part)
+              ? part
+              : "field",
+        )
+        .join(".");
+      return `${path || "decision"} (${issue.code})`;
+    })
+    .join(", ");
+}
+
+/**
+ * A malformed strategic plan must not cost the whole council.
+ *
+ * Measured on a five-seed remote series: one council in five was discarded
+ * whole because `plan.targetTech` carried a value outside its enum, while the
+ * orders and the infrastructure choice in the same answer were perfectly legal.
+ * The repo's own rule is that a field in another shape is not an error, and
+ * that a good decision is not thrown away over a question of form.
+ *
+ * The plan is DROPPED, never invented and never nulled: `plan: null` means the
+ * ruler cancels its standing plan, which is a decision it did not take.
+ * Removing the key leaves the standing plan exactly where it was. Only issues
+ * inside `plan` are forgiven — a malformed order still sinks the answer,
+ * because an order is the thing the engine must be able to trust. The repair
+ * is reported on the answer, so it is recorded rather than silent.
+ */
+function parseDecision(raw: unknown): {
+  decision: ReturnType<typeof CouncilDecisionSchema.parse>;
+  repaired: string | null;
+} {
+  const first = CouncilDecisionSchema.safeParse(raw);
+  if (first.success) return { decision: first.data, repaired: null };
+  const onlyPlan =
+    first.error.issues.length > 0 &&
+    first.error.issues.every((issue) => issue.path[0] === "plan");
+  if (!onlyPlan || !raw || typeof raw !== "object" || !("plan" in raw))
+    throw first.error;
+  const { plan: _dropped, ...rest } = raw as Record<string, unknown>;
+  return {
+    decision: CouncilDecisionSchema.parse(rest),
+    repaired: "Plan ignoré, ordres conservés : " + describeIssues(first.error),
+  };
+}
+
 export async function requestCouncil(
   state: SpectatorState,
   civ: GeneralConfig["factionId"],
@@ -397,7 +450,7 @@ export async function requestCouncil(
       service = response.service;
     }
     if (!text) throw new Error("Modèle indisponible ou réponse vide");
-    const decision = CouncilDecisionSchema.parse(
+    const { decision, repaired } = parseDecision(
       JSON.parse(text.replace(/^```(?:json)?\s*/, " ").replace(/\s*```$/, "")),
     );
     if (decision.civ !== civ || decision.turn !== state.world.tick)
@@ -408,29 +461,14 @@ export async function requestCouncil(
       source: "remote",
       model: service?.servedModel ?? model,
       service,
-      error: null,
+      error: repaired,
     };
   } catch (error) {
     // Never surface transport error bodies, headers or credentials in the UI.
     const safe =
       error instanceof ZodError
         ? "Réponse IA incompatible avec le schéma des ordres : " +
-          error.issues
-            .slice(0, 8)
-            .map((issue) => {
-              // Report schema locations and codes, never provider values or bodies.
-              const path = issue.path
-                .map((part) =>
-                  typeof part === "number"
-                    ? part
-                    : /^[a-zA-Z][a-zA-Z0-9]{0,30}$/.test(part)
-                      ? part
-                      : "field",
-                )
-                .join(".");
-              return `${path || "decision"} (${issue.code})`;
-            })
-            .join(", ")
+          describeIssues(error)
         : error instanceof SyntaxError
           ? "Réponse IA JSON illisible"
           : error instanceof Error && error.name === "TimeoutError"

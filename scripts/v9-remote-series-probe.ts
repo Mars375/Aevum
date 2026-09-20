@@ -36,7 +36,7 @@ const RULES = "spectator-9";
 const SEEDS = process.argv[2]
   ? process.argv[2].split(",").map(Number)
   : [42, 7, 1, 17, 314];
-const OUT = "docs/reports/v9-remote-series.json";
+const OUT = process.argv[3] ?? "docs/reports/v9-remote-series.json";
 
 interface Row {
   seed: number;
