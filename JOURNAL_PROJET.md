@@ -342,3 +342,11 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Vérifié : 64 fichiers, 609 tests, `tsc`, `vue-tsc` et build du lecteur.
 - Limites inchangées : un seul modèle distant, cinq graines, aucun contrôle visuel, campagne distante longue toujours non prouvée.
 - Prochaine action : décider si le plafond de pollution doit rester absorbant, et faire dire à `docs/infrastructure-v9-design.md` §8 quel mécanisme garantit le rejeu (`stateSignature`).
+
+### 2026-09-21 — Ce qu'un build statique publie réellement
+
+- Vérifié sur le `dist` reconstruit : les trois catalogues résolvent entièrement. Quatre batailles annoncées, quatre livrées ; deux mondes annoncés, deux livrés ; les rapports aussi. **Le mode bataille fonctionne donc sur un hébergeur statique**, contrairement à ce que `CLAUDE.md` affirmait depuis longtemps. Le seul absent est `worlds/status.json`, et c'est normal : il décrit un monde entretenu, pas une archive.
+- `apps/player/test/published-catalogue.test.ts` garde ce fait au lieu de le promettre : chaque entrée des trois catalogues doit pointer vers un fichier publié. Les trois conventions d'adresse diffèrent (racine du site pour un monde, relatif à `replays/` pour une bataille, `slug` pour un rapport), ce qui est exactement le détail qu'on casse en déplaçant un fichier.
+- Le piège rendait la panne invisible : avec `try_files`, une adresse absente répond 200 avec la page de l'application, donc `res.ok` est vrai et seul `res.json()` échoue, loin de la cause.
+- `CLAUDE.md` corrigé sur ce point.
+- Vérifié : 65 fichiers, 613 tests, `tsc`, `vue-tsc` et build du lecteur.

@@ -57,17 +57,22 @@ pas exister.
 va chercher `worlds/index.json`, `worlds/status.json` et `replays/index.json` en
 chemin relatif. Deux sources les fournissent :
 
-- `apps/player/public/worlds/` est **suivi par git** et porte le monde
-  `aevum-season-1` avec son index. Il part donc dans `dist` à chaque build —
+- `apps/player/public/` est **suivi par git** et porte les deux mondes
+  (`aevum-season-1`, `civilization-w10`), les quatre batailles de référence et
+  les rapports, chacun avec son index. Tout part dans `dist` à chaque build —
   vérifié. C'est ce qui fait qu'un build statique a quelque chose à montrer.
 - `docker-compose.yml` monte en plus `./worlds` et `./replays` en lecture seule
   par-dessus, délibérément, pour qu'un monde vivant se mette à jour sans
   reconstruire. La racine porte seize mondes ; un seul est publié.
 
-Ce qu'un `vite build` seul ne contient pas : **les replays et `status.json`.** Le
-mode bataille n'a donc aucun catalogue sur un hébergeur statique, et l'état de
-veille reste muet. Ce n'est pas une panne — chaque `fetch` est gardé et commenté
-pour ce cas — mais c'est à décider avant de parler de déploiement, pas après.
+Le seul absent d'un `vite build` est **`worlds/status.json`**, et c'est normal :
+il décrit un monde qu'on entretient, pas une archive. L'état de veille reste donc
+muet sur un hébergeur statique, et le `fetch` est gardé pour ce cas. Le mode
+bataille, lui, **fonctionne** : les quatre entrées de `replays/index.json`
+pointent vers des fichiers réellement livrés. Cette page a longtemps dit
+l'inverse ; `apps/player/test/published-catalogue.test.ts` vérifie désormais que
+chaque entrée des trois catalogues résout, pour que la réponse cesse de dépendre
+d'une phrase écrite un jour dans un fichier.
 
 Un piège de serveur à connaître : avec `try_files $uri $uri/ /index.html`, un
 JSON absent revient en **200 avec du HTML**, pas en 404. `res.ok` est alors vrai
