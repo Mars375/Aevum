@@ -17,8 +17,12 @@ import {
  * claims everywhere else; the architecture deserves the same.
  *
  * Deliberately a plain text scan rather than a graph: the rules are about who
- * may name whom, the packages are five, and a parser would be a heavier way to
+ * may name whom, the packages are six, and a parser would be a heavier way to
  * learn the same thing.
+ *
+ * `metrics` was missing from two of these lists for as long as they existed. It
+ * was clean every time someone checked it by hand — which is exactly the
+ * situation this file exists to end.
  */
 
 const ROOT = resolve(import.meta.dirname, "../../..");
@@ -73,6 +77,9 @@ describe("le moteur et le monde ne lisent jamais l'horloge ni un de", () => {
 
   it("packages/engine", () => expect(offenders("packages/engine/src", NONDETERMINISM)).toEqual([]));
   it("packages/world", () => expect(offenders("packages/world/src", NONDETERMINISM)).toEqual([]));
+  // `metrics` replays worlds through tickWorld to measure them. A clock there
+  // would make a measurement irreproducible the way it breaks a replay.
+  it("packages/metrics", () => expect(offenders("packages/metrics/src", NONDETERMINISM)).toEqual([]));
 });
 
 describe("les contrats ne dependent de personne", () => {
@@ -84,7 +91,7 @@ describe("les contrats ne dependent de personne", () => {
 
 describe("aucun paquet n'importe le lecteur", () => {
   it("le lecteur est une feuille de l'arbre", () => {
-    for (const dir of ["packages/contracts/src", "packages/engine/src", "packages/world/src", "packages/agents/src"]) {
+    for (const dir of ["packages/contracts/src", "packages/engine/src", "packages/world/src", "packages/agents/src", "packages/metrics/src"]) {
       expect(offenders(dir, /from ["'].*apps\/player/), dir).toEqual([]);
     }
   });

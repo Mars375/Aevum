@@ -286,6 +286,7 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - L'audit délégué confirme des chantiers distincts : fiabilité des campagnes distantes longues, infrastructures/énergie, distribution autonome. Ses constats historiques de publication sont dépassés par la validation locale de ce jour.
 - Les simulations locales et un conseil v6 réel ne constituent pas une preuve de campagne distante v7 complète. Cette limite reste ouverte.
 - Prochaine évolution : crises annoncées, préparation et lecture des conséquences ; puis infrastructures localisées et diplomatie avec obligations.
+
 ### 2026-09-19 — Correctif de la prévision après la fin de campagne
 
 - Revue DeepSeek : la prévision pouvait être émise après la fin de campagne. Correctif du worker DeepSeek : condition `forecast && !over` et textes d'avertissement restants corrigés.
@@ -309,3 +310,15 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Inspection d'image non supportée et auth navigateur indisponible : seul un PNG 1400×900 généré.
 - Choix IA réalisables délégués (DeepSeek) en cours, ni implémentés ni vérifiés ; la racine orchestre.
 - Reste à faire : obligations diplomatiques et qualité de sortie.
+
+### 2026-09-21 — Revue du lot infrastructures v9 (session parallèle)
+
+- Revue menée depuis un worktree isolé (`codex/revue-infrastructure-v9`, base `f79fcf3`), sans écrire une seule fois dans l'arbre de travail du chantier. Rapport : `docs/reports/revue-infrastructure-v9.md`.
+- Vérifié : suite complète verte — 62 fichiers, 597 tests, 30,6 s. Les six échecs « environnementaux » du journal (`aevum-release.test.ts` en ENOMEM, flaky `discovery`) **ne se reproduisent pas** dans un worktree neuf ; ils tenaient au poste, pas au code.
+- Vérifié : W4 est couvert par `stateSignature`, qui hache l'état spectateur entier (`sites`, `queues`, `pollution`), et non par `fingerprint()` qui n'est jamais appelé sur une campagne spectateur. Refus enregistrés sans réécriture, versions antérieures intactes, pas de non-déterminisme.
+- Trois hypothèses de défaut réfutées à la mesure, écrites pour éviter qu'on les refasse : le resserrement d'options de `f79fcf3` n'est pas une tutelle (sur 7 093 tours-unité, 96 unités reçoivent une liste vide et **aucune** n'avait de case atteignable selon `unitPath`) ; `borders.ts` n'est pas dans le chemin spectateur ; une ville ne peut pas être fondée sur une rivière.
+- Corrigé : `queueInfrastructure` et les deux `tick*` improvisaient un état sur le contexte temporaire du caller. Le coût aurait été prélevé sur le stock partagé et la file jetée avec le contexte, sans erreur. `records(ctx)` lève désormais ; test ajouté qui vérifie que la réserve reste intacte.
+- Corrigé : `packages/metrics` entre dans `boundaries.test.ts` (non-déterminisme et interdiction d'importer le lecteur) — le trou que `CLAUDE.md` documentait depuis l'origine. Paragraphe de `CLAUDE.md` mis à jour.
+- Mesuré : la pollution n'est pas binaire comme je l'avais d'abord écrit. Montée sur 234 tours (730 → 964), bandes intermédiaires peuplées (76/80/78), mais **zéro retour sous le plafond** sur les 77 tours suivants, et une seule ville touchée sur 24 602 observations ville-tour.
+- Limites : aucun appel distant, aucun contrôle visuel, une seule campagne v9 archivée (graines 7 et 123 absentes du disque). La preuve distante du lot vaut toujours **un** appel, et le « zéro rejet » des trois graines vient de dirigeants locaux.
+- Prochaine action : série distante multi-graines avec part servie affichée, pour trancher les points 1 et 3 du rapport. Elle dépense du quota et attend un feu vert.

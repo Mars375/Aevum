@@ -195,6 +195,25 @@ describe("queueInfrastructure", () => {
     );
   });
 
+  /**
+   * Callers build their context inline, so a helper that quietly created its
+   * own records would have written the queue into a throwaway object — after
+   * `pay()` had already taken the reserves from the shared stock. Complaining
+   * is the point: the loss would otherwise leave no trace at all.
+   */
+  it("faults on missing records instead of paying into a void", () => {
+    const ctx = fresh();
+    ctx.modernization!.amber!.completed = ["mechanization"];
+    const civ = rich(ctx);
+    const city = amberCity(ctx);
+    const before = { ...civ.stock };
+    const orphan = { world: ctx.world, modernization: ctx.modernization };
+    expect(() => queueInfrastructure(orphan, "amber", "foundry", city)).toThrow(
+      "Infrastructure records required",
+    );
+    expect(civ.stock).toEqual(before);
+  });
+
   it("validates the same rules through infrastructureIssue", () => {
     const ctx = fresh();
     ctx.modernization!.amber!.completed = ["mechanization"];

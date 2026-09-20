@@ -131,6 +131,23 @@ export function infrastructureIssue(
 }
 
 /**
+ * The v9 records, or a fault. Never an empty set built on the spot.
+ *
+ * Every caller assembles its context inline — `{ world, modernization,
+ * infrastructure: state.infrastructure }` — so a helper that answered a missing
+ * `infrastructure` by creating one assigned it to that throwaway object.
+ * `queueInfrastructure` would then debit `civ.stock`, which IS shared, and push
+ * the construction into a state nobody holds a reference to: the reserves gone,
+ * the site never built, and not one word of complaint. The schema already
+ * requires the records under `spectator-9`, so their absence is an engine
+ * fault, and a fault is worth more than a silent recovery.
+ */
+function records(ctx: InfrastructureContext): InfrastructureState {
+  if (!ctx.infrastructure) throw new Error("Infrastructure records required");
+  return ctx.infrastructure;
+}
+
+/**
  * Pays the cost up front and enqueues one construction per civilisation.
  * Mutates the already-cloned context; returns the issue or null once queued.
  */
@@ -144,7 +161,7 @@ export function queueInfrastructure(
   if (issue) return issue;
   const civ = ctx.world.civs.find((c) => c.id === civId)!;
   const rule = INFRASTRUCTURE[kind];
-  const state = ctx.infrastructure ?? (ctx.infrastructure = emptyInfrastructure());
+  const state = records(ctx);
   pay(civ.stock, rule.cost);
   state.queues.push({ city, kind, remaining: rule.turns, owner: civId as FactionId });
   return null;
@@ -288,7 +305,7 @@ const clamp = (value: number, min: number, max: number): number =>
  * pollution of destroyed cities are pruned.
  */
 export function tickInfrastructure(ctx: InfrastructureContext, civId: string): InfrastructureContext {
-  const state = ctx.infrastructure ?? (ctx.infrastructure = emptyInfrastructure());
+  const state = records(ctx);
   const cities = ctx.world.simulation?.cities ?? [];
   const existing = new Set(cities.map((c) => c.id));
   // Orphan sites of destroyed cities vanish, and so does their pollution.
@@ -322,7 +339,7 @@ export function tickInfrastructure(ctx: InfrastructureContext, civId: string): I
  * [0, POLLUTION_CAP]. Unused plants emit nothing.
  */
 export function tickEnergy(ctx: InfrastructureContext, civId: string): InfrastructureContext {
-  const state = ctx.infrastructure ?? (ctx.infrastructure = emptyInfrastructure());
+  const state = records(ctx);
   const components = ownedComponents(ctx, civId);
   const plants = new Set(
     state.sites.filter((s) => s.kind === "thermal_plant").map((s) => s.city),

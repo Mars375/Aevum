@@ -77,12 +77,12 @@ tation ; c'est la raison.
 ## Deux gardes à connaître avant d'éditer
 
 **`packages/contracts/test/boundaries.test.ts`** applique la table du README au
-lieu de la promettre : pas d'horloge ni d'aléatoire dans `engine` et `world`,
-`contracts` n'importe personne, aucun paquet n'importe le lecteur, aucune clé
-dans une source. Il a un trou : il parle de cinq paquets et **`packages/metrics`
-n'est listé nulle part** — ni dans le contrôle de non-déterminisme, ni dans celui
-qui interdit d'importer le lecteur. Vérifié à la main : `metrics` est propre
-aujourd'hui. Il n'est pas gardé pour autant.
+lieu de la promettre : pas d'horloge ni d'aléatoire dans `engine`, `world` et
+`metrics`, `contracts` n'importe personne, aucun paquet n'importe le lecteur,
+aucune clé dans une source. Le trou qu'il avait est bouché : `packages/metrics`
+ne figurait ni dans le contrôle de non-déterminisme ni dans celui qui interdit
+d'importer le lecteur, et restait propre par vérification à la main — ce que ce
+fichier existe précisément pour ne plus avoir à faire.
 
 **`apps/player/test/branding.test.ts`** interdit l'ancien nom public hors d'une
 liste blanche, comparée par `toEqual`. C'est une **égalité exacte**, donc elle
