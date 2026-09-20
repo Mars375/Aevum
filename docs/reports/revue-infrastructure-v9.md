@@ -82,7 +82,7 @@ génération du plateau.
 
 ## Ce qui mérite une décision
 
-**1. Un appel distant valide n'est pas un taux — mesuré : 3 sur 5.** Les trois
+**1. Un appel distant valide n'est pas un taux — mesuré : 7 sur 10.** Les trois
 graines du rapport affichent `rejected: 0`, mais elles sont jouées par
 `localCouncil`, qui n'émettait déjà pas d'ordres invalides. C'est le piège du
 point 3 de CLAUDE.md sous une autre forme : _servi ≠ a répondu_ devient ici
@@ -95,31 +95,55 @@ cinq conseils et entre cinq et dix appels modèle réels.
 
 |                                               |                           |
 | --------------------------------------------- | ------------------------- |
-| conseils distants demandés                    | 5 (graines 42/7/1/17/314) |
+| conseils demandés, premier tirage             | 5 (graines 42/7/1/17/314) |
 | **servis par le modèle lui-même**             | **4 sur 5** (80 %)        |
 | repli silencieux par une politique locale     | **0**                     |
 | **conseils valides, zéro ordre rejeté**       | **3 sur 5** (60 %)        |
 | ayant effectivement choisi une infrastructure | 3 sur 5                   |
 
-La part servie par le modèle lui-même, 80 %, passe la barre des 70 % de
-CLAUDE.md : `longcat-2.0` est classable. Et le point capital tient — **aucune
-substitution silencieuse** : la graine qui échoue est rapportée `unavailable`,
-pas remplacée par un dirigeant local.
+Le point capital tient : **aucune substitution silencieuse**. La graine qui
+échoue est rapportée `unavailable`, jamais remplacée par un dirigeant local.
 
-Mais les deux échecs sont instructifs, et différents :
+**Puis un second tirage a réfuté le taux que je venais d'écrire.** Mêmes cinq
+graines, mêmes ticks, quelques minutes plus tard : **5/5 servis** et **4/5
+valides**, là où le premier donnait 4/5 et 3/5. La validité d'un conseil n'est
+donc pas une propriété de la graine — la graine 1 a échoué au schéma, puis rendu
+un JSON illisible, puis réussi, sur trois exécutions du même tick. Ce qu'on peut
+affirmer, c'est l'agrégat des deux tirages :
 
-- **Graine 1 — un conseil entier jeté pour un champ facultatif.** `plan.targetTech`
-  portait une valeur d'énumération invalide ; toute la décision est refusée au
-  schéma, correction comprise. Or le point 5 de CLAUDE.md dit l'inverse : « un
-  champ absent, `null`, ou dans une autre forme, n'est pas une erreur… plutôt
-  que de jeter une bonne décision pour une question de forme ». `plan` est déjà
-  `nullable().optional()` : ramener un `targetTech` invalide à `plan: null` au
-  lieu de refuser le lot suivrait la doctrine que le dépôt s'est donnée, et
-  récupérerait ici un conseil sur cinq.
-- **Graine 17 — le durcissement de `f79fcf3` réduit sans supprimer.** Le seul
-  ordre rejeté de la série est « Aucun colon ne peut atteindre ce site », c'est-
-  à-dire exactement ce que `settlementPlanSites` devait rendre impossible. La
-  consigne est donnée, le modèle ne la suit pas toujours.
+|                                        |                 |
+| -------------------------------------- | --------------- |
+| conseils distants demandés (2 tirages) | 10              |
+| servis par le modèle lui-même          | **9/10 (90 %)** |
+| valides, zéro ordre rejeté             | **7/10 (70 %)** |
+
+90 % passe largement la barre des 70 % de CLAUDE.md : `longcat-2.0` est
+classable. Et la leçon de méthode vaut pour la suite — **un `valid: true`
+unique, comme celui du lot, ne mesure rien ; il faut répéter le même tick.**
+
+Les deux échecs restants disent deux choses différentes :
+
+- **Un conseil entier jeté pour un champ facultatif — corrigé.** Au premier
+  tirage, `plan.targetTech` portait une valeur hors énumération et toute la
+  décision était refusée au schéma, correction comprise, alors que ses ordres
+  étaient légaux. Le point 5 de CLAUDE.md dit l'inverse : « un champ absent,
+  `null`, ou dans une autre forme, n'est pas une erreur… plutôt que de jeter une
+  bonne décision pour une question de forme ». Le plan est désormais **retiré**
+  — et non mis à `null`, qui annulerait le plan en cours, une décision que le
+  dirigeant n'a pas prise. Seules les anomalies situées dans `plan` sont
+  pardonnées ; un ordre malformé coule toujours la réponse. **Honnêteté sur la
+  preuve** : l'erreur de schéma n'est pas réapparue dans les tirages suivants,
+  donc la correction est démontrée par test unitaire, pas sur le terrain.
+- **Graine 17 — le modèle choisit hors de ce qu'on lui annonce.** Elle échoue
+  aux deux tirages, sur une cible de plan de fondation, avec deux motifs
+  différents (« Aucun colon ne peut atteindre ce site », puis « Le site est
+  occupé ou trop proche d'une ville »). On pourrait croire que
+  `settlementPlanSites` annonce des sites que le validateur refuse. Vérifié, et
+  c'est faux : `foundationTiles` applique exactement les règles de `planIssue`.
+  J'en ai fait une garde exécutable (`advertised-plan-sites.test.ts`) plutôt
+  qu'une lecture. Le refus vient donc du modèle, qui sort de ses options
+  annoncées — et le moteur a raison de le refuser. C'est le contrat qui
+  fonctionne, pas un défaut.
 
 **2. La pollution monte lentement, puis n'est plus réversible.** Les états
 finaux des trois graines sont tous extrêmes — 0 ou le plafond 80 — ce qui m'a
@@ -191,6 +215,23 @@ section ne nomme cependant toujours aucun mécanisme, et une session qui cherche
 la garantie de rejeu n'a rien à suivre. Une mention de `stateSignature`
 suffirait.
 
+## Un défaut trouvé en chemin, hors du lot v9
+
+En vérifiant comment le lecteur se comporte quand un fichier n'est pas servi,
+j'ai trouvé le piège que `CLAUDE.md` décrit — appliqué à moitié. `try_files`
+renvoie la page de l'application en **200 avec du HTML** pour un JSON absent :
+`res.ok` est vrai et c'est `res.json()` qui échoue. `replay-loading.ts` portait
+déjà la parade (`NotServed`, qui teste le type déclaré puis le premier
+caractère), mais **seules les batailles s'en servaient**. Un monde absent
+arrivait donc au lecteur sous la forme :
+
+> Impossible de charger worlds/…json — Unexpected token '<'
+
+On annonce un fichier corrompu pour une simple absence, sur la page même que
+l'hébergeur statique est censé servir. La garde est maintenant partagée
+(`fetchServedJson`) et le chargement de monde la traverse ; l'absence est
+nommée comme une absence. Deux tests l'attestent.
+
 ## Suites données
 
 - Point 4 corrigé dans `packages/world/src/infrastructure.ts`, test ajouté.
@@ -204,7 +245,13 @@ suffirait.
   `v9-remote-series-probe.ts`, chauffe en local et ne demande qu'un conseil
   distant par graine ; elle écrit son propre rapport et n'écrase jamais
   `infrastructure-verification.json`.
-- Points 2 et 3 mesurés sur douze graines, point 1 sur cinq conseils distants.
+- Points 2 et 3 mesurés sur douze graines ; point 1 sur dix conseils distants,
+  en deux tirages, parce que le premier ne suffisait pas.
+- Point 1 corrigé dans `packages/agents/src/council.ts` : un plan malformé ne
+  coûte plus le conseil entier. Garde ajoutée sur les sites de fondation
+  annoncés (`advertised-plan-sites.test.ts`).
+- Défaut hors lot corrigé : la garde « pas servi » du lecteur couvre enfin les
+  mondes et plus seulement les batailles.
 - **Reste ouvert, et c'est une décision, pas du code** : tolérer un champ de
   plan malformé plutôt que de jeter le conseil entier (point 1, graine 1) ;
   décider si le plafond de pollution doit rester absorbant en pratique

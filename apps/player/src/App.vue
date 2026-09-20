@@ -10,7 +10,7 @@ import { JournalSchema, WORLD_VERSION, fingerprint, replay as replayWorld, world
 import type { PublishedLearningCurve } from "./components/LearningCurve.vue";
 import { alliesOfAt, knowledgeOf } from "./fog";
 import { createRequestGuard } from "./request-guard";
-import { fetchReplay, NotServed, parseReplay, replayUrlFromSearch } from "./replay-loading";
+import { fetchReplay, fetchServedJson, NotServed, parseReplay, replayUrlFromSearch } from "./replay-loading";
 import { addressForMode, modeFromSearch, wants3d, type ViewMode } from "./view-address";
 // Three.js is ~400 KB. The card requires the 2D mode to stay performant, so a
 // reader who never opens the 3D view never downloads it.
@@ -150,9 +150,7 @@ async function openWorld(path: string) {
   worldLoading.value = true;
   learningCurves.value = [];
   try {
-    const res = await fetch(path);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const raw = await res.json();
+    const raw = await fetchServedJson(path);
     if (!worldRequests.isCurrent(request)) return;
 
     // An archived world is not a broken file, and saying "Invalid literal
@@ -195,7 +193,13 @@ async function openWorld(path: string) {
   } catch (err) {
     if (!worldRequests.isCurrent(request)) return;
     journal.value = null;
-    worldError.value = `Impossible de charger ${path} — ${(err as Error).message}`;
+    // Un monde qui n'est pas servi n'est pas un monde cassé. Sur un hébergeur
+    // statique, la page de repli répond 200 avec du HTML : l'analyseur
+    // annonçait alors un fichier illisible pour une simple absence.
+    worldError.value =
+      err instanceof NotServed
+        ? `Aucun monde n'est servi à ${path}. Cette page n'en publie peut-être qu'un seul ; la chronique complète demande le serveur local.`
+        : `Impossible de charger ${path} — ${(err as Error).message}`;
   } finally {
     if (worldRequests.isCurrent(request)) worldLoading.value = false;
   }

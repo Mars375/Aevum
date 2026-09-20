@@ -20,7 +20,15 @@ export class NotServed extends Error {
   }
 }
 
-export async function fetchReplay(url: string, fetcher: typeof fetch = fetch): Promise<unknown> {
+/**
+ * La même garde, pour tout JSON demandé à un hébergeur statique.
+ *
+ * Elle n'a longtemps servi qu'aux batailles. Un monde absent arrivait donc
+ * encore au lecteur sous la forme « Unexpected token '<' » : on lui annonçait
+ * un fichier corrompu là où il n'y avait qu'une absence — précisément ce que
+ * `NotServed` existe pour éviter.
+ */
+export async function fetchServedJson(url: string, fetcher: typeof fetch = fetch): Promise<unknown> {
   const response = await fetcher(url);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const type = response.headers.get("content-type") ?? "";
@@ -30,6 +38,10 @@ export async function fetchReplay(url: string, fetcher: typeof fetch = fetch): P
   // le premier caractère tranche sans avoir à analyser quoi que ce soit.
   if (body.trimStart().startsWith("<")) throw new NotServed(url);
   return JSON.parse(body);
+}
+
+export async function fetchReplay(url: string, fetcher: typeof fetch = fetch): Promise<unknown> {
+  return fetchServedJson(url, fetcher);
 }
 
 export function parseReplay(raw: unknown) {
