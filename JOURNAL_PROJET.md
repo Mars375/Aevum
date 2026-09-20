@@ -350,3 +350,6 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Le piège rendait la panne invisible : avec `try_files`, une adresse absente répond 200 avec la page de l'application, donc `res.ok` est vrai et seul `res.json()` échoue, loin de la cause.
 - `CLAUDE.md` corrigé sur ce point.
 - Vérifié : 65 fichiers, 613 tests, `tsc`, `vue-tsc` et build du lecteur.
+
+- Vérification en service réel, sur le `dist` servi par `vite preview` (même repli SPA que la production) : `replays/index.json`, une bataille, `worlds/index.json`, un monde et `reports/index.json` reviennent tous en **200 `application/json`**. `worlds/status.json`, le seul réellement absent, revient en **200 `text/html`** avec `<` en premier caractère — le piège reproduit en direct, et c'est précisément ce que la garde partagée intercepte par ses deux mécanismes.
+- Contrôle visuel toujours impossible sur ce poste : le navigateur Playwright n'est pas installé et le serveur MCP pointe vers un chemin Linux. Aucune capture n'est revendiquée.
