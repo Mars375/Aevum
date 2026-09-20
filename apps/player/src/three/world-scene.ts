@@ -1,4 +1,9 @@
 import { ageModel } from "./age-models";
+import {
+  INFRASTRUCTURE_ASSETS,
+  infrastructureModel,
+  type InfrastructureKind,
+} from "./infrastructure-models";
 import { AgeSchema } from "../../../../packages/world/src/ages";
 import { pathOffset, sampleOffset, type MotionOffset } from "./movement-path";
 import * as THREE from "three";
@@ -9,6 +14,7 @@ import type { FactionId } from "@abs/contracts";
 import {
   CIV_COLORS,
   WORLD_ASSETS,
+  type InfrastructureAsset,
   type WorldAsset,
   type WorldParcel,
 } from "./world-projection";
@@ -34,7 +40,7 @@ export class WorldScene {
   private routeLine: THREE.Line | null = null;
   private routeMarkers = new THREE.Group();
   private foundation = new THREE.Group();
-  private models = new Map<WorldAsset, ModelPart[]>();
+  private models = new Map<WorldAsset | InfrastructureAsset, ModelPart[]>();
   private tiles: THREE.InstancedMesh | null = null;
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
@@ -184,7 +190,15 @@ export class WorldScene {
   async load() {
     const loader = new GLTFLoader();
     await Promise.all(
-      WORLD_ASSETS.map(async (asset) => {
+      [...WORLD_ASSETS, ...INFRASTRUCTURE_ASSETS].map(async (asset) => {
+        if (asset.startsWith("infra_")) {
+          const parts = infrastructureModel(
+            asset.slice("infra_".length) as InfrastructureKind,
+          );
+          if (this.disposed) this.disposeParts(parts);
+          else this.models.set(asset, parts);
+          return;
+        }
         const age = AgeSchema.safeParse(asset.split("_")[0]);
         if (age.success) {
           const parts = ageModel(age.data, asset.endsWith("_soldier"));
@@ -265,7 +279,7 @@ export class WorldScene {
     const placements = new Map<
       string,
       {
-        asset: WorldAsset;
+        asset: WorldAsset | InfrastructureAsset;
         faction?: FactionId;
         transforms: THREE.Matrix4[];
         offsets: MotionOffset[];

@@ -18,6 +18,22 @@ import {
   TECHNOLOGIES,
 } from "../../world/src/development.js";
 import { unitPath } from "../../world/src/units.js";
+import {
+  INFRASTRUCTURE,
+  INFRASTRUCTURE_KINDS,
+  infrastructureIssue,
+  type InfrastructureKind,
+} from "../../world/src/infrastructure.js";
+
+/** Readable purpose of each infrastructure kind for observers and rulers. */
+export const INFRASTRUCTURE_REASONS: Record<InfrastructureKind, string> = {
+  foundry: "Augmente la production de minerai (+10 %) quand elle est alimentée",
+  thermal_plant: "Fournit 6 d'énergie fossile au réseau",
+  solar_array: "Fournit 4 d'énergie propre et +10 % de nourriture",
+  research_center: "+1 science par tour personnel quand il est alimenté",
+  automated_factory: "+8 % de bois, minerai et richesse quand elle est alimentée",
+  spaceport: "+15 % de richesse et +1 science quand il est alimenté",
+};
 
 /** Start-of-council suggestions, never authority to bypass the simultaneous resolver. */
 export function councilOptions(state: SpectatorState, civId: string) {
@@ -96,7 +112,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         : [];
     return {
       unit: unit.id,
-      ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
+      ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
         ? { movementBudget: MOVEMENT_BUDGET[unit.role] }
         : {}),
       actions,
@@ -111,7 +127,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         .flatMap((city) =>
           (Object.keys(BUILDING_RULES) as Building[]).flatMap((building) => {
             const { years, ...cost } = BUILDING_RULES[building];
-            return (!["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules) ||
+            return (!["spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) ||
               ageAllows(
                 state.ages?.[civId]?.current ?? "bronze",
                 BUILDING_AGE[building],
@@ -126,7 +142,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const research = alive
     ? TECHNOLOGIES.filter(
         (technology) =>
-          (!["spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules) ||
+          (!["spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) ||
             ageAllows(
               state.ages?.[civId]?.current ?? "bronze",
               TECHNOLOGY_AGE[technology.name]!,
@@ -143,7 +159,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const recruitCost = { food: 50, timber: 60, wealth: 20 };
   return {
     units,
-    ...(["spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
+    ...(["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
       ? {
           modernizationState: state.modernization![civId],
           modernization: ModernizationProjectSchema.options.map((project) => {
@@ -163,6 +179,43 @@ export function councilOptions(state: SpectatorState, civId: string) {
           }),
         }
       : {}),
+    ...(["spectator-9"].includes(state.rules)
+      ? {
+          infrastructure: (() => {
+            const ctx = {
+              world,
+              modernization: state.modernization,
+              infrastructure: state.infrastructure,
+            };
+            const available = simulation.cities
+              .filter((city) => city.owner === civ.id)
+              .flatMap((city) =>
+                INFRASTRUCTURE_KINDS.map((kind) => {
+                  const issue = infrastructureIssue(ctx, civId, kind, city.id);
+                  const rule = INFRASTRUCTURE[kind];
+                  return {
+                    city: city.id,
+                    kind,
+                    cost: { ...rule.cost },
+                    turns: rule.turns,
+                    unlock: rule.unlock,
+                    supply: rule.supply,
+                    demand: rule.demand,
+                    reason: INFRASTRUCTURE_REASONS[kind],
+                    available: issue === null,
+                    unavailableReason: issue,
+                  };
+                }),
+              );
+            return {
+              queue: (state.infrastructure?.queues ?? []).filter(
+                (queue) => queue.owner === civ.id,
+              ),
+              available,
+            };
+          })(),
+        }
+      : {}),
     construction,
     research,
     recruitSettler: {
@@ -175,8 +228,10 @@ export function councilOptions(state: SpectatorState, civId: string) {
     },
     constraints: {
       sharedBudget:
-        ["spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
-          ? "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then construction, then recruitment. All purchases share national stocks."
+        ["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+          ? state.rules === "spectator-9"
+            ? "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then infrastructure (one queued site per civilization, paid immediately), then construction, then recruitment. All purchases share national stocks."
+            : "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then construction, then recruitment. All purchases share national stocks."
           : "Construction and recruitment options are individually affordable, not jointly affordable. All purchases share the civilization stock; construction is paid before recruitment.",
       resolution:
         "These are start-of-turn suggestions. Occupation, competing foundations and simultaneous orders may block an otherwise reachable destination. Route distance counts cardinal steps, not guaranteed travel turns.",

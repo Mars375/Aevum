@@ -5,19 +5,28 @@ Ce fichier est la référence de reprise. Le lire avant toute intervention et le
 ## État actuel
 
 - Objectif : simulation de civilisations gouvernées par IA, exclusivement spectateur, du Bronze au Futur, indépendamment pour chaque civilisation.
-- Chantier actif : `codex/forecast-crises` (règles v8) ; règles v7 intégrées dans `main` (`77f0f0a`).
-- Validation : 552 tests réussis en suite complète ; TypeScript et build réussis.
-- Replays : 11 archives et 3 graines rejouées, zéro ordre rejeté ; 4 décisions Nous valides, pas une campagne complète.
-- Démo `climate-local-42` : 1 041 actions chargées, 1 042 entrées d'historique, aucun message d'erreur ; contrôle visuel navigateur indisponible (jeton d'authentification absent).
-- Reste à faire : infrastructures / énergie / pollution, obligations diplomatiques, fiabilité de la publication.
+- Chantier actif : `codex/infrastructure-v9` (infrastructures localisées), non fusionné (aucun commit ni push) ; règles v8 fusionnées et poussées dans `main` (`b880895`).
+- Implémentation v9 : six infrastructures localisées, réseaux énergétiques par composante de territoire, pollution fractionnaire par site, une file par civilisation, panneau spectateur et modèles/projection raccordés.
+- Validation locale : 592 tests complets, typecheck et build racine verts avant le dernier import et les raffinements de consignes IA (porte finale à relancer) ; 18 tests de domaine racine, dont le nettoyage des orphelins ; index eager du bundle réduit 491 Ko → 280 Ko (split des métadonnées).
+- Replays : les 12 archives relâchées/anciennes rejouées ; graines 42/7/123 zéro rejet local ; 13/13/0 sites construits, 26 au total. `docs/infrastructure-verification.json` fait foi.
+- Conseil distant v9 réel : la centrale thermique autorisée est choisie, mais d'autres ordres de plan/unités sont rejetés → rapport `valid: false` ; ni validation distante complète ni fonctionnalité complète globale revendiquées.
+- Démo : la démo v9 expérimentale sous règles antérieures est archivée dans `worlds/spectator/drafts` (pas une campagne relâchée) ; une démo fraîche `infrastructure-local-42` existe.
+- Aperçu `docs/previews/infrastructure-v9.png` (1400×900) généré ; inspection d'image non supportée et auth navigateur indisponible → aucun contrôle visuel revendiqué.
+- Dernières corrections : budget réservé avant l'infrastructure, approvisionnement des réseaux déficitaires, élagage des orphelins, arrondi UI uniquement, script warm-up corrigé pour ne pas faire avancer l'acteur.
+- Reste à faire : porte finale (suite complète après le dernier import et les raffinements de prompts), amélioration de la qualité d'action distante, obligations diplomatiques, fiabilité de la publication.
 - Tout ce qui suit dans ce fichier est constitué d'entrées datées historiques.
 
-### 2026-09-19 — Reprise et fiabilité des validations
+### 2026-09-20 — Clôture de documentation infrastructures v9
 
-- Repris la branche militaire déjà sauvegardée. Audit des lacunes de livraison délégué au profil local `deepseek-v4-flash`, en lecture seule.
-- Suite globale : 545 tests réussis, deux dépassements de cinq secondes. Les treize tests concernés réussissent avec un seul worker ; les erreurs ENOMEM historiques ne se reproduisent pas.
-- Porté à vingt secondes uniquement les deux scénarios d'intégration longs (48 tours HTTP et trois processus de publication), sans retirer d'assertion ni modifier le moteur.
-- Validation globale après ce changement à effectuer. Prochaine action : terminer la validation v7, intégrer la branche puis poursuivre les fonctions spectateur.
+- Documentation uniquement (journal, `docs/infrastructure-v9-design.md`, `docs/release-spectateur.md`) ; aucun changement de source, aucun commit.
+- Implémentation v9 : six infrastructures localisées, réseaux énergétiques par composante de territoire (rivières coupantes), pollution fractionnaire par site (émissions proportionnelles à la génération fossile consommée), une file par civilisation, bonus fractionnaires mis à l'échelle par `powerRatio` ; panneau spectateur, modèles et projection raccordés.
+- Validation : 592 tests complets, typecheck et build racine verts avant le dernier import et les raffinements de consignes IA (porte finale en attente) ; 18 tests de domaine racine incluant le nettoyage des orphelins ; index eager réduit 491 Ko → 280 Ko (split des métadonnées).
+- Replays : les 12 archives relâchées/anciennes rejouées ; graines 42/7/123, zéro rejet local, 13/13/0 sites, 26 au total (`docs/infrastructure-verification.json` fait foi).
+- Conseil distant v9 réel : la centrale thermique autorisée est choisie mais d'autres ordres (plan/unités) sont rejetés → `valid: false` ; ni validation distante complète ni fonctionnalité complète globale revendiquées.
+- Démo expérimentale v9 sous règles antérieures archivée dans `worlds/spectator/drafts` (pas une campagne relâchée) ; démo fraîche `infrastructure-local-42` créée.
+- Aperçu `docs/previews/infrastructure-v9.png` (1400×900) généré ; inspection d'image non supportée et auth navigateur indisponible → aucun contrôle visuel.
+- Dernières corrections consignées : budget réservé avant l'infrastructure, approvisionnement des réseaux déficitaires, élagage des orphelins, arrondi UI uniquement (moteur intact), script warm-up corrigé pour ne pas faire avancer l'acteur.
+- Prochaines actions : porte finale (suite complète après le dernier import et les raffinements de prompts), amélioration de la qualité d'action distante avant les obligations diplomatiques, puis fusion de la branche.
 
 ## Objectif
 
@@ -285,3 +294,11 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Revue DeepSeek : la prévision pouvait être émise après la fin de campagne. Correctif du worker DeepSeek : condition `forecast && !over` et textes d'avertissement restants corrigés.
 - Racine vérifiée : diff contrôlé et 4 tests climatiques réussis ; build en cours de reconstruction.
 - Mode de travail : la racine orchestre, DeepSeek implémente/revient/corrige ; écritures via `exec_command`, pas via `apply_patch`.
+
+### 2026-09-20 — Projection visuelle des infrastructures (lot rendu)
+
+- `world-projection.ts` : signature etendue `projectWorld(year, history, ages?, sites?)`, retrocompatible — sans argument, la projection archivee est identique (verifie par egalite structurelle). Les sites ne se posent que sur une ville existante (`City.id`), dans un ordre canonique fixe et dedoublonne, a six emplacements fixes en bord de parcelle, echelle 0.24 ; le modele de ville est legerement reduit (0.82 au lieu de 0.92) uniquement quand la ville accueille des sites. Villes inconnues ou uniquement futures ignorees.
+- `world-scene.ts` : le catalogue de chargement etend `WORLD_ASSETS` par `INFRASTRUCTURE_ASSETS` ; le prefixed `infra_` est detecte avant le chargeur GLTF et les geometries procedurales sont mises en cache puis disposees par le chemin normal (`disposeParts`).
+- Tests `apps/player/test/infrastructure-projection.test.ts` : les six types sur la ville correspondante, immuabilite des entrees, ordre stable + doublons, projection anterieure identique sans sites, ville inconnue ou future sans rendu, reduction du modele de ville conditionnee aux sites.
+- Validation : 16 tests cibles verts (world-projection, infrastructure-models, infrastructure-projection) et vue-tsc player OK. TypeScript global reste bloque par le module moteur en cours d'ecriture par le worker domaine (`packages/world/src/infrastructure.ts` + son test) — hors perimetre.
+- Limite : l'appelant UI n'est pas encore branche aux sites ; rien n'est committe ni pousse. Prochaine action : brancher l'appelant UI une fois le contrat moteur stabilise.

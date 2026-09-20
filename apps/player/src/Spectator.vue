@@ -11,6 +11,7 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { FactionId } from "@abs/contracts";
 import type { Year } from "@abs/world";
 import WorldDiorama from "./components/WorldDiorama.vue";
+import InfrastructurePanel from "./components/InfrastructurePanel.vue";
 import { projectWorld, CIV_COLORS } from "./three/world-projection";
 import {
   incidentFor,
@@ -228,11 +229,11 @@ const missionText = (text: string) =>
         "Un déplacement ne peut pas remplacer un ordre d’attaque",
     }) as Record<string, string>
   )[text] ?? text;
-const preview = newSpectator(42, "spectator-8");
+const preview = newSpectator(42, "spectator-9");
 const state = computed(() => loaded.value?.history[index.value] ?? preview);
 const world = computed(() => state.value.world);
 const sequential = computed(() =>
-  ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.value.rules),
+  ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.value.rules),
 );
 const activeRuler = computed(() => state.value.sequence?.activeCiv ?? null);
 const activeRulerName = computed(() =>
@@ -281,6 +282,7 @@ const parcels = computed(() => {
           ]),
         )
       : undefined,
+    state.value.infrastructure?.sites,
   );
   if (sequential.value)
     for (const parcel of result)
@@ -297,6 +299,11 @@ const civ = computed(() =>
 const modernization = computed(() =>
   civ.value ? state.value.modernization?.[civ.value.id] : undefined,
 );
+const infrastructureForSelected = computed(() =>
+  civ.value && ["spectator-9"].includes(state.value.rules)
+    ? state.value.infrastructure ?? null
+    : null,
+);
 const modernizationSuspended = computed(
   () =>
     !!modernization.value?.active &&
@@ -306,7 +313,7 @@ const modernizationSuspended = computed(
     ),
 );
 const military = computed(() =>
-  ["spectator-7", "spectator-8"].includes(state.value.rules) &&
+  ["spectator-7", "spectator-8", "spectator-9"].includes(state.value.rules) &&
   civ.value &&
   state.value.ages?.[civ.value.id] &&
   state.value.modernization?.[civ.value.id]
@@ -400,9 +407,12 @@ const incident = computed(() =>
   ),
 );
 const outcome = computed(() => loaded.value?.outcomes[index.value - 1]);
-const forecast = computed(() => state.value.rules === "spectator-8"
-  ? forecastFor(world.value.seed, state.value.sequence!.round - 1)
-  : null);
+const forecast = computed(() =>
+  ["spectator-8", "spectator-9"].includes(state.value.rules) &&
+  state.value.sequence
+    ? forecastFor(world.value.seed, state.value.sequence.round - 1)
+    : null,
+);
 const climateReport = computed(() =>
   latestClimateReport(loaded.value?.history.slice(0, index.value + 1) ?? []),
 );
@@ -1043,6 +1053,12 @@ onUnmounted(() => {
                 </ul>
               </details>
             </section>
+            <InfrastructurePanel
+              v-if="infrastructureForSelected"
+              :civ-id="civ.id"
+              :world="world"
+              :infrastructure="infrastructureForSelected"
+            />
             <h3>Intention du dirigeant</h3>
             <p>
               {{

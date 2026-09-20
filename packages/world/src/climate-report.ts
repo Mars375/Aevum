@@ -5,7 +5,7 @@ import { incidentFor, type SpectatorState } from "./spectator.js";
  */
 export function latestClimateReport(history: readonly SpectatorState[]) {
   const current = history.at(-1);
-  if (current?.rules !== "spectator-8" || !current.sequence) return null;
+  if (current === undefined || !["spectator-8", "spectator-9"].includes(current.rules) || !current.sequence) return null;
   const turn = current.sequence.round - 1;
   for (let ago = 1; ago <= 15; ago++) {
     if (turn - ago < 0) break;

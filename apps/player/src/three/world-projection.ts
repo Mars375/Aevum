@@ -1,6 +1,12 @@
 import type { Age } from "../../../../packages/world/src/ages";
 import type { FactionId } from "@abs/contracts";
 import type { Year } from "@abs/world";
+import {
+  INFRASTRUCTURE_ASSETS,
+  type InfrastructureAsset,
+  type InfrastructureKind,
+} from "./infrastructure-assets";
+export type { InfrastructureAsset } from "./infrastructure-assets";
 
 export const WORLD_ASSETS = [
   "bronze_city",
@@ -44,7 +50,7 @@ export const LAND_NAMES = {
   river: "Rivière",
 } as const;
 export interface Placement {
-  asset: WorldAsset;
+  asset: WorldAsset | InfrastructureAsset;
   x: number;
   z: number;
   scale: number;
@@ -71,10 +77,26 @@ export function detailNoise(seed: number, index: number, salt: number): number {
   return (h >>> 0) / 4294967296;
 }
 
+/** Canonical, deduplicated infrastructure kind order for a city. */
+const SITE_KINDS = INFRASTRUCTURE_ASSETS.map(
+  (asset) => asset.slice("infra_".length) as InfrastructureKind,
+);
+const SITE_SCALE = 0.24;
+/** Six fixed rim offsets that keep the city hub clear; assigned in canonical order. */
+const SITE_POSITIONS: readonly (readonly [number, number])[] = [
+  [-0.38, -0.38],
+  [0.38, -0.38],
+  [0.38, 0.38],
+  [-0.38, 0.38],
+  [-0.38, 0],
+  [0.38, 0],
+];
+
 export function projectWorld(
   year: Year,
   history: readonly Year[],
   ages?: Record<string, Age>,
+  sites?: readonly { city: string; kind: InfrastructureKind }[],
 ) {
   const { world } = year;
   const formerSeats = new Set<number>();
@@ -89,10 +111,22 @@ export function projectWorld(
     const ruins = place.owner === null && formerSeats.has(index);
     const noise = (salt: number) => detailNoise(world.seed, index, salt);
     const assets: Placement[] = [];
-    const add = (asset: WorldAsset, x = 0, z = 0, scale = 1, angle = 0) =>
+    const add = (
+      asset: WorldAsset | InfrastructureAsset,
+      x = 0,
+      z = 0,
+      scale = 1,
+      angle = 0,
+    ) =>
       assets.push({ asset, x, z, scale, angle });
     const city = world.simulation?.cities.find((c) => c.position === index);
     if (city) {
+      // Extant city only: unknown or future-only ids are ignored by the match below.
+      const hosted = sites
+        ? SITE_KINDS.filter((kind) =>
+            sites.some((site) => site.city === city.id && site.kind === kind),
+          )
+        : [];
       add(
         ages?.[city.owner]
           ? (`${ages[city.owner]}_city` as WorldAsset)
@@ -103,8 +137,12 @@ export function projectWorld(
               : "hamlet",
         0,
         0,
-        0.92,
+        hosted.length ? 0.82 : 0.92,
       );
+      hosted.forEach((kind, slot) => {
+        const [x, z] = SITE_POSITIONS[slot]!;
+        add(`infra_${kind}` as InfrastructureAsset, x, z, SITE_SCALE);
+      });
     } else if (capital) {
       add(
         civ.population >= 450 && civ.advances.length >= 3

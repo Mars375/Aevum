@@ -1,0 +1,322 @@
+{
+  "checkedAt": "2026-09-20T08:43:58.422Z",
+  "rules": "spectator-9",
+  "archivesVerified": 12,
+  "invalidArchives": 0,
+  "archiveFailures": 0,
+  "rows": [
+    {
+      "seed": 42,
+      "actions": 1041,
+      "round": 301,
+      "rejected": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "builtSites": 13,
+      "sitesByKind": {
+        "foundry": 4,
+        "thermal_plant": 2,
+        "solar_array": 3,
+        "research_center": 2,
+        "automated_factory": 1,
+        "spaceport": 1
+      },
+      "sitesByCiv": {
+        "azure": {
+          "total": 11,
+          "byKind": {
+            "foundry": 3,
+            "thermal_plant": 1,
+            "solar_array": 3,
+            "research_center": 2,
+            "automated_factory": 1,
+            "spaceport": 1
+          }
+        },
+        "crimson": {
+          "total": 2,
+          "byKind": {
+            "foundry": 1,
+            "thermal_plant": 1,
+            "solar_array": 0,
+            "research_center": 0,
+            "automated_factory": 0,
+            "spaceport": 0
+          }
+        }
+      },
+      "pollution": {
+        "maxObserved": 80,
+        "currentMax": 80,
+        "currentTotal": 80,
+        "affectedCities": 1
+      },
+      "energy": {
+        "amber": {
+          "components": 0,
+          "cities": 0,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        },
+        "azure": {
+          "components": 6,
+          "cities": 24,
+          "supply": 18,
+          "cleanSupply": 12,
+          "thermalSupply": 6,
+          "demand": 24,
+          "fossilUsed": 6,
+          "deficit": 8
+        },
+        "crimson": {
+          "components": 3,
+          "cities": 5,
+          "supply": 6,
+          "cleanSupply": 0,
+          "thermalSupply": 6,
+          "demand": 3,
+          "fossilUsed": 3,
+          "deficit": 0
+        },
+        "verdant": {
+          "components": 0,
+          "cities": 1,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        }
+      },
+      "ages": {
+        "amber": "classical",
+        "azure": "future",
+        "crimson": "industrial",
+        "verdant": "classical"
+      },
+      "queues": []
+    },
+    {
+      "seed": 7,
+      "actions": 1048,
+      "round": 301,
+      "rejected": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "builtSites": 13,
+      "sitesByKind": {
+        "foundry": 5,
+        "thermal_plant": 3,
+        "solar_array": 2,
+        "research_center": 3,
+        "automated_factory": 0,
+        "spaceport": 0
+      },
+      "sitesByCiv": {
+        "crimson": {
+          "total": 12,
+          "byKind": {
+            "foundry": 4,
+            "thermal_plant": 3,
+            "solar_array": 2,
+            "research_center": 3,
+            "automated_factory": 0,
+            "spaceport": 0
+          }
+        },
+        "azure": {
+          "total": 1,
+          "byKind": {
+            "foundry": 1,
+            "thermal_plant": 0,
+            "solar_array": 0,
+            "research_center": 0,
+            "automated_factory": 0,
+            "spaceport": 0
+          }
+        }
+      },
+      "pollution": {
+        "maxObserved": 80,
+        "currentMax": 80,
+        "currentTotal": 152,
+        "affectedCities": 2
+      },
+      "energy": {
+        "amber": {
+          "components": 0,
+          "cities": 0,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        },
+        "azure": {
+          "components": 5,
+          "cities": 5,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 3,
+          "fossilUsed": 0,
+          "deficit": 3
+        },
+        "crimson": {
+          "components": 6,
+          "cities": 10,
+          "supply": 26,
+          "cleanSupply": 8,
+          "thermalSupply": 18,
+          "demand": 21,
+          "fossilUsed": 13,
+          "deficit": 0
+        },
+        "verdant": {
+          "components": 1,
+          "cities": 1,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        }
+      },
+      "ages": {
+        "amber": "bronze",
+        "azure": "future",
+        "crimson": "medieval",
+        "verdant": "medieval"
+      },
+      "queues": []
+    },
+    {
+      "seed": 123,
+      "actions": 406,
+      "round": 128,
+      "rejected": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "builtSites": 0,
+      "sitesByKind": {
+        "foundry": 0,
+        "thermal_plant": 0,
+        "solar_array": 0,
+        "research_center": 0,
+        "automated_factory": 0,
+        "spaceport": 0
+      },
+      "sitesByCiv": {},
+      "pollution": {
+        "maxObserved": 0,
+        "currentMax": 0,
+        "currentTotal": 0,
+        "affectedCities": 0
+      },
+      "energy": {
+        "amber": {
+          "components": 0,
+          "cities": 0,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        },
+        "azure": {
+          "components": 0,
+          "cities": 0,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        },
+        "crimson": {
+          "components": 10,
+          "cities": 22,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        },
+        "verdant": {
+          "components": 0,
+          "cities": 0,
+          "supply": 0,
+          "cleanSupply": 0,
+          "thermalSupply": 0,
+          "demand": 0,
+          "fossilUsed": 0,
+          "deficit": 0
+        }
+      },
+      "ages": {
+        "amber": "classical",
+        "azure": "classical",
+        "crimson": "classical",
+        "verdant": "bronze"
+      },
+      "queues": []
+    }
+  ],
+  "remote": [
+    {
+      "warmed": true,
+      "warmTurn": 639,
+      "warmCiv": "azure",
+      "requested": {
+        "city": "city-amber",
+        "kind": "foundry"
+      },
+      "turn": 639,
+      "civ": "azure",
+      "served": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 10581,
+        "servedByFallback": false
+      },
+      "source": "remote",
+      "chosen": {
+        "city": "city-amber",
+        "kind": "thermal_plant"
+      },
+      "rejections": [
+        {
+          "civ": "azure",
+          "unit": null,
+          "detail": "Le site de fondation est occupé ou trop proche d'une ville."
+        },
+        {
+          "civ": "azure",
+          "unit": "azure-164",
+          "detail": "No traversable route"
+        },
+        {
+          "civ": "azure",
+          "unit": "azure-166",
+          "detail": "No traversable route"
+        }
+      ],
+      "valid": false,
+      "error": null
+    }
+  ],
+  "builtAcrossSeeds": 26,
+  "valid": false
+}

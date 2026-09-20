@@ -117,3 +117,26 @@ export const MODERN_COUNCIL_JSON_SCHEMA = object({
     enum: [null, ...ModernizationProjectSchema.options],
   },
 });
+/** spectator-9 schema: modern contract plus the required nullable infrastructure command. */
+export const INFRASTRUCTURE_COUNCIL_JSON_SCHEMA = object({
+  ...MODERN_COUNCIL_JSON_SCHEMA.properties,
+  infrastructure: {
+    type: ["object", "null"],
+    properties: {
+      city: { type: "string" },
+      kind: {
+        type: "string",
+        enum: [
+          "foundry",
+          "thermal_plant",
+          "solar_array",
+          "research_center",
+          "automated_factory",
+          "spaceport",
+        ],
+      },
+    },
+    required: ["city", "kind"],
+    additionalProperties: false,
+  },
+});

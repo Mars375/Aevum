@@ -77,7 +77,7 @@ export function createSpectatorServer(
         throw new Error("La partie est terminée");
       campaign.pending ??= { turn: state.world.tick, answers: [] };
       save(campaign);
-      const current = ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
+      const current = ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(
         state.rules,
       )
         ? activeCiv(state)
@@ -108,7 +108,7 @@ export function createSpectatorServer(
       campaign.pending.answers.sort((a, b) => a.civ.localeCompare(b.civ));
       const answers = campaign.pending.answers;
       if (
-        ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(state.rules) &&
+        ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) &&
         answers.some((a) => a.source === "unavailable")
       ) {
         // Retry the same ruler on the next click; do not skip a failed AI turn.
@@ -233,7 +233,7 @@ export function createSpectatorServer(
           return;
         }
         const campaign: Campaign = {
-          version: "spectator-8",
+          version: "spectator-9",
           id: randomUUID(),
           ...options,
           turns: [],
@@ -271,7 +271,7 @@ export function createSpectatorServer(
             error: errors.get(id) ?? null,
             nextIncident: incidentFor(
               campaign.seed,
-              ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
+              ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(
                 restored.state.rules,
               )
                 ? (restored.state.sequence?.round ?? 1) - 1
@@ -301,7 +301,7 @@ export function createSpectatorServer(
           }
           if (
             campaign.turns.length >=
-            (["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8"].includes(
+            (["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(
               campaign.version,
             )
               ? 1200
