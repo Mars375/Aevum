@@ -110,25 +110,36 @@ chose, et je me corrige. Rejeu complet de `infrastructure-local-42`
 
 Le gradient existe donc : 234 tours de montée, réparties assez également entre
 les trois bandes intermédiaires. Ce qui manque n'est pas la montée, c'est la
-**descente** — une fois à 80, la valeur n'en redescend jamais dans cette
-campagne, alors que la règle `−1` par tour du propriétaire devrait la faire
-reculer dès que le solaire couvre la demande. Deux lectures possibles : soit le
-dirigeant n'a jamais posé le solaire qui l'aurait sauvé (et c'est un résultat,
-pas un défaut), soit `utilisation` reste à 1 pour une raison structurelle. Le
-départage demande une graine où le solaire arrive après la centrale — aucune des
-trois ne l'offre.
+**descente**. Une campagne ne suffisait pas à le dire, alors j'ai élargi à douze
+graines en simulation locale (`scripts/infrastructure-seeds-probe.ts`) :
+**quatre graines atteignent le plafond, aucune n'en redescend.** Une seule
+graine (314) reste en régime intermédiaire durable, à 13.
 
-Deuxième fait, indépendant : la mécanique est à peine exercée. Une seule ville
-polluée sur 24 602 observations ville-tour, et rien avant le tour 730 sur 1 041.
-Ce que trois relevés disent de la pollution est donc très mince.
+La règle n'est pourtant pas bloquante : `+2 × utilisation − 1` décroît dès que
+l'utilisation passe sous 0,5, c'est-à-dire dès que le solaire couvre la moitié
+de la demande fossile. Le levier existe donc et personne ne s'en sert — ce qui
+est **un résultat sur les dirigeants, pas un défaut du moteur**, et à ce titre
+exactement ce que le projet cherche à observer. La question reste ouverte pour
+un modèle distant, qui pourrait voir le levier que la politique locale ignore.
 
-**3. Treize sites ne sont pas treize observations.** La répartition est très
-concentrée : graine 42, azure porte 11 sites sur 13 ; graine 7, crimson en porte
-12 sur 13 ; graine 123, aucun site en 406 actions. Le système est exercé par une
-civilisation dominante par graine, et pas du tout dans un cas sur trois. Cela
-n'invalide rien du lot, mais toute mesure ultérieure comparant des modèles sur
-l'usage des infrastructures se heurtera au bruit de plateau documenté dans
-`board-noise.md`.
+**3. Treize sites ne sont pas treize observations — et douze graines le
+confirment.** Mesure locale sur douze graines :
+
+|                                             |                                 |
+| ------------------------------------------- | ------------------------------- |
+| graines qui construisent au moins un site   | **5 sur 12**                    |
+| sites au total                              | 92                              |
+| part de la civilisation dominante (médiane) | **83,3 %** (min 29,4, max 92,3) |
+| premier site le plus précoce                | action 617 sur 1 200            |
+| ordres rejetés, toutes graines confondues   | 0                               |
+
+Le système est donc **tardif et concentré** : il ne s'allume jamais avant le
+dernier tiers d'une campagne, sept graines sur douze ne le déclenchent pas du
+tout, et quand il se déclenche une seule civilisation emporte typiquement plus
+de quatre sites sur cinq. Ce n'est pas un défaut du lot — c'est la forme réelle
+du phénomène, et elle dit qu'une comparaison de modèles sur l'usage des
+infrastructures demanderait beaucoup de graines avant de dépasser le bruit de
+plateau documenté dans `board-noise.md`.
 
 **4. Un repli mort qui paierait sans construire.** `queueInfrastructure` et les
 deux `tick*` reçoivent un contexte construit à la volée :
