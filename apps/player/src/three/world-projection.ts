@@ -6,7 +6,12 @@ import {
   type InfrastructureAsset,
   type InfrastructureKind,
 } from "./infrastructure-assets";
+// Métadonnées seules, jamais les builders : ce module est sur le chemin
+// immédiat de l'interface, et en tirer Three ferait entrer le moteur 3D dans
+// le bundle initial.
+import type { CivilianAsset } from "./civilian-assets";
 export type { InfrastructureAsset } from "./infrastructure-assets";
+export type { CivilianAsset } from "./civilian-assets";
 
 export const WORLD_ASSETS = [
   "bronze_city",
@@ -50,7 +55,7 @@ export const LAND_NAMES = {
   river: "Rivière",
 } as const;
 export interface Placement {
-  asset: WorldAsset | InfrastructureAsset;
+  asset: WorldAsset | InfrastructureAsset | CivilianAsset;
   x: number;
   z: number;
   scale: number;
@@ -68,6 +73,26 @@ export const UNIT_NAMES = {
   merchant: "Marchands",
 } as const;
 export type UnitRole = keyof typeof UNIT_NAMES;
+
+/**
+ * La silhouette d'une unité, à son âge quand on le connaît.
+ *
+ * `UNIT_NAMES` n'a pas de clé `settler` : le code repliait donc un colon sur
+ * `merchant` pour se typer, et ce repli avait débordé du texte vers le visuel.
+ * L'étiquette disait « Colons » pendant que la silhouette dessinait un
+ * marchand. Ici le rôle réel décide, et seul le nom affiché garde son repli.
+ *
+ * Sans contexte d'âge — une vue ancienne, un monde d'avant les âges — on rend
+ * le nom nu, exactement comme avant : la projection archivée ne bouge pas.
+ */
+export function unitAsset(
+  role: UnitRole | "settler",
+  age?: Age,
+): WorldAsset | CivilianAsset {
+  if (!age) return (role === "settler" ? "merchant" : role) as WorldAsset;
+  if (role === "soldier") return `${age}_soldier` as WorldAsset;
+  return `civilian_${age}_${role}` as CivilianAsset;
+}
 
 /** Stable parcel detail: seeking backwards must not randomly regrow a forest. */
 export function detailNoise(seed: number, index: number, salt: number): number {
@@ -117,8 +142,7 @@ export function projectWorld(
       z = 0,
       scale = 1,
       angle = 0,
-    ) =>
-      assets.push({ asset, x, z, scale, angle });
+    ) => assets.push({ asset, x, z, scale, angle });
     const city = world.simulation?.cities.find((c) => c.position === index);
     if (city) {
       // Extant city only: unknown or future-only ids are ignored by the match below.
@@ -204,10 +228,8 @@ export function projectWorld(
         `${unit.owner} · ${unit.role === "settler" ? "Colons" : UNIT_NAMES[role]}${unit.role === "soldier" ? ` (${unit.strength})` : ""} · ${unit.task}`,
       );
       parcel.assets.push({
-        asset:
-          role === "soldier" && ages?.[unit.owner]
-            ? (`${ages[unit.owner]}_soldier` as WorldAsset)
-            : role,
+        // Le rôle réel, pas le repli d'affichage : un colon n'est pas un marchand.
+        asset: unitAsset(unit.role, ages?.[unit.owner]),
         faction: unit.owner,
         unitId: unit.id,
         previousPosition: unit.previous,

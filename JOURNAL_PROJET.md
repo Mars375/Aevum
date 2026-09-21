@@ -384,3 +384,15 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Les quatre critères du backlog sont donc atteints et vérifiés. Seul le mot « signée » ne l'est pas, et ne peut pas l'être depuis un dépôt : `manifest.json` porte `signed: false`.
 - Vérifié : 66 fichiers, 619 tests, `tsc`, `vue-tsc`, et le paquet reconstruit puis démarré.
 - Reste hors périmètre : installateur, désinstallation, mise à jour automatique, plateformes autres que Windows.
+
+### 2026-09-21 — Travail A de la passation : modèles civils raccordés
+
+- Repris sur `codex/civilian-integration`, depuis `origin/main` (`b3c9328`) avec `codex/civilian-age-models` (`f928768`) fusionné en avance rapide. Les trois fichiers du worker étaient committés et poussés, mais **non branchés** : rien ne les appelait.
+- **Le défaut que la passation demandait de vérifier est réel.** `world-projection.ts` faisait `const role = unit.role === "settler" ? "merchant" : unit.role`, puis utilisait ce rôle replié pour choisir la silhouette. La raison du repli est textuelle — `UNIT_NAMES` n'a pas de clé `settler` — mais il avait débordé sur le visuel : l'étiquette disait « Colons » pendant que le modèle dessinait un marchand. `unitAsset(role, age)` tranche désormais sur le rôle réel ; seul le nom affiché garde son repli.
+- Raccordement : la projection émet `civilian_{age}_{role}` pour les cinq rôles civils quand l'âge de la civilisation est connu, et `world-scene.ts` route le préfixe `civilian_`. **Cette branche précède celle des âges**, pour la même raison que `infra_` : le premier segment n'est pas un âge, le nom tomberait donc dans le chargeur GLTF et ferait échouer tout le chargement de la scène sur un fichier absent.
+- **Sans contexte d'âge, rien ne change** : nom de rôle nu, colon toujours replié sur marchand. Les projections archivées ne se réécrivent pas parce qu'on a ajouté des modèles.
+- Séparation du bundle préservée, et mesurée : le module de projection n'importe que les **métadonnées** (`civilian-assets.ts`, sans Three). Bundle initial **280,57 Ko** contre 280,49 avant — +0,08 Ko. Les builders atterrissent dans le chunk 3D paresseux, 90,31 → 98,35 Ko. Le couplage que la passation redoutait (280 → 491 Ko) ne s'est pas produit.
+- Sept tests ajoutés (`civilian-projection.test.ts`), dont la garde qui compte : **aucun nom produit par la projection ne peut manquer au catalogue chargeable**. C'est exactement le piège ci-dessus, et il ne se voit pas à la compilation.
+- Vérifié : 68 fichiers, 630 tests, `tsc`, `vue-tsc`, build du lecteur.
+- Limite inchangée : **aucun contrôle visuel**. Le navigateur Playwright n'est pas installé sur ce poste. Des builders et une projection testés ne sont pas une preuve de rendu.
+- Prochaine action : travail B, la diplomatie v10, dont la conception est un brouillon avec huit points à corriger avant de coder.

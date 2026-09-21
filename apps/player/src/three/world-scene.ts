@@ -4,6 +4,12 @@ import {
   infrastructureModel,
   type InfrastructureKind,
 } from "./infrastructure-models";
+import { civilianModel } from "./civilian-models";
+import {
+  CIVILIAN_ASSETS,
+  type CivilianAsset,
+  type CivilianRole,
+} from "./civilian-assets";
 import { AgeSchema } from "../../../../packages/world/src/ages";
 import { pathOffset, sampleOffset, type MotionOffset } from "./movement-path";
 import * as THREE from "three";
@@ -40,7 +46,10 @@ export class WorldScene {
   private routeLine: THREE.Line | null = null;
   private routeMarkers = new THREE.Group();
   private foundation = new THREE.Group();
-  private models = new Map<WorldAsset | InfrastructureAsset, ModelPart[]>();
+  private models = new Map<
+    WorldAsset | InfrastructureAsset | CivilianAsset,
+    ModelPart[]
+  >();
   private tiles: THREE.InstancedMesh | null = null;
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
@@ -190,38 +199,54 @@ export class WorldScene {
   async load() {
     const loader = new GLTFLoader();
     await Promise.all(
-      [...WORLD_ASSETS, ...INFRASTRUCTURE_ASSETS].map(async (asset) => {
-        if (asset.startsWith("infra_")) {
-          const parts = infrastructureModel(
-            asset.slice("infra_".length) as InfrastructureKind,
+      [...WORLD_ASSETS, ...INFRASTRUCTURE_ASSETS, ...CIVILIAN_ASSETS].map(
+        async (asset) => {
+          if (asset.startsWith("infra_")) {
+            const parts = infrastructureModel(
+              asset.slice("infra_".length) as InfrastructureKind,
+            );
+            if (this.disposed) this.disposeParts(parts);
+            else this.models.set(asset, parts);
+            return;
+          }
+          // Avant la branche des âges, et pour la même raison que `infra_` :
+          // `civilian_bronze_farmer` commence par un segment qui n'est pas un âge,
+          // il tomberait donc dans le chargeur GLTF et ferait échouer tout le
+          // chargement sur un fichier qui n'existe pas.
+          if (asset.startsWith("civilian_")) {
+            const [, civilianAge, role] = asset.split("_");
+            const parsed = AgeSchema.safeParse(civilianAge);
+            if (parsed.success) {
+              const parts = civilianModel(parsed.data, role as CivilianRole);
+              if (this.disposed) this.disposeParts(parts);
+              else this.models.set(asset, parts);
+              return;
+            }
+          }
+          const age = AgeSchema.safeParse(asset.split("_")[0]);
+          if (age.success) {
+            const parts = ageModel(age.data, asset.endsWith("_soldier"));
+            if (this.disposed) this.disposeParts(parts);
+            else this.models.set(asset, parts);
+            return;
+          }
+          const gltf = await loader.loadAsync(
+            `${import.meta.env.BASE_URL}models/world/${asset}.glb`,
           );
+          gltf.scene.updateMatrixWorld(true);
+          const parts: ModelPart[] = [];
+          gltf.scene.traverse((object) => {
+            if (!(object instanceof THREE.Mesh)) return;
+            const geometry = object.geometry
+              .clone()
+              .applyMatrix4(object.matrixWorld);
+            object.geometry.dispose();
+            parts.push({ geometry, material: object.material });
+          });
           if (this.disposed) this.disposeParts(parts);
           else this.models.set(asset, parts);
-          return;
-        }
-        const age = AgeSchema.safeParse(asset.split("_")[0]);
-        if (age.success) {
-          const parts = ageModel(age.data, asset.endsWith("_soldier"));
-          if (this.disposed) this.disposeParts(parts);
-          else this.models.set(asset, parts);
-          return;
-        }
-        const gltf = await loader.loadAsync(
-          `${import.meta.env.BASE_URL}models/world/${asset}.glb`,
-        );
-        gltf.scene.updateMatrixWorld(true);
-        const parts: ModelPart[] = [];
-        gltf.scene.traverse((object) => {
-          if (!(object instanceof THREE.Mesh)) return;
-          const geometry = object.geometry
-            .clone()
-            .applyMatrix4(object.matrixWorld);
-          object.geometry.dispose();
-          parts.push({ geometry, material: object.material });
-        });
-        if (this.disposed) this.disposeParts(parts);
-        else this.models.set(asset, parts);
-      }),
+        },
+      ),
     );
   }
 
@@ -279,7 +304,7 @@ export class WorldScene {
     const placements = new Map<
       string,
       {
-        asset: WorldAsset | InfrastructureAsset;
+        asset: WorldAsset | InfrastructureAsset | CivilianAsset;
         faction?: FactionId;
         transforms: THREE.Matrix4[];
         offsets: MotionOffset[];
