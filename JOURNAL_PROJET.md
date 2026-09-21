@@ -465,3 +465,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - `CLAUDE.md` corrigé une troisième fois : il affirmait que `branding.test.ts` scanne l'arbre de travail entier, fichiers non suivis compris. C'est faux depuis qu'il demande sa liste à `git ls-files` — il ne voit que ce qui est suivi.
 - `docs/release-spectateur.md` à jour : lot 4 livré avec ses chiffres, et la ligne « reste à livrer » ne l'annonce plus.
 - Vérifié : 73 fichiers, 674 tests, `tsc`, `vue-tsc`.
+
+### 2026-09-21 — Clôture de la reprise
+
+- `PASSATION_AGENT.md` versé dans le dépôt. Il n'était **pas suivi par git** et aurait disparu avec le dossier de travail d'Astra. Conservé tel qu'écrit, avec un en-tête d'état : ses travaux A et B sont faits, et une session qui les suivrait referait du travail livré.
+- Vérification finale de bout en bout : **73 fichiers, 674 tests**, `tsc`, `vue-tsc`, et le paquet autonome reconstruit puis **démarré pour de vrai** — disposition complète, zéro secret, site servi, sauvegardes hors de l'installation, redémarrage après fermeture brutale avec reprise du verrou.
+- État des lots de `docs/release-spectateur.md` : 1, 2, 3 et **4 livrés**. Restent 5 (lecture et identité) et 6 (accès et fiabilité).
+- Les trois limites qui traversent tout le projet, et qu'aucune mesure locale ne lèvera : **aucune campagne distante longue** n'a jamais été jouée, sous aucune version ; **aucun contrôle visuel** n'est possible sur ce poste, le navigateur n'étant pas installé ; le paquet **n'est pas signé**, faute de certificat.
