@@ -1,14 +1,8 @@
 # Infrastructure v9 — contrat d'implémentation (infrastructures localisées)
 
-Statut : **implémenté et validé localement sur `codex/infrastructure-v9` ; branche non fusionnée,
-porte finale en attente après le dernier import et les raffinements de consignes IA.**
+Statut : **livré** — `0d150a2` (infrastructures localisées v9) et `f79fcf3` (choix IA réalisables) poussés puis fusionnés fast-forward dans `origin/main`.
 
-Validation locale passée (592 tests complets, typecheck et build racine) avant ces derniers
-raffinements, à revalider. Un conseil distant v9 réel a répondu `valid: false` (rejets d'ordres
-plan/unités) : la qualité d'action distante reste prioritaire, cette branche n'est pas présentée
-comme validée de bout en bout et aucune revue n'est inventée. Le root orchestre uniquement les
-implémentations, revues et corrections DeepSeek ; ce document décrit l'API réellement exportée et
-l'état d'implémentation (plus un brouillon en attente).
+Validation au 20 septembre 2026 : 597 tests complets, typecheck et build ; 13 archives rejouées sans échec ; graines 42/7/123 = 1041/1048/406 actions, zéro rejet local, 13/13/0 sites ; conseil distant réel au tick 639 `valid: true`, zéro rejet, aucun fallback (`docs/infrastructure-verification.json` fait foi). Contrat effectivement implémenté : pollution fractionnaire plafonnée à 80 et bonus mis à l'échelle par `powerRatio` (sections ci-dessous). Un conseil valide ne prouve pas une campagne distante longue ; distribution autonome non acquise. Le root orchestre les implémentations, revues et corrections DeepSeek ; ce document décrit l'API réellement exportée.
 
 ## 1. Principes
 - Les programmes nationaux (`modernization.ts`) gardent leurs bonus existants.
@@ -125,7 +119,7 @@ Coûts et durées initiaux conservés tels quels (`INFRASTRUCTURE`).
 ## 8. Replay et compatibilité
 - Champs optionnels uniquement sur `SpectatorState.infrastructure` : les campagnes `spectator-8` et
   antérieures se rejouent à l'identique (état absent ⇒ chemin inchangé) ; le schéma exige
-  `infrastructure` pour les règles `spectator-9`. Les 12 archives relâchées/anciennes se rejouent
+  `infrastructure` pour les règles `spectator-9`. Les 13 archives relâchées/anciennes se rejouent
   sans rejet local (graines 42/7/123 : 13/13/0 sites, 26 au total).
 - Aucun changement des programmes nationaux existants ni de `modernizationProduction`.
 

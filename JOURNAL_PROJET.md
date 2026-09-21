@@ -5,12 +5,13 @@ Ce fichier est la référence de reprise. Le lire avant toute intervention et le
 ## État actuel
 
 - Objectif : simulation de civilisations gouvernées par IA, exclusivement spectateur, du Bronze au Futur, indépendamment pour chaque civilisation.
-- Chantier actif : `codex/feasible-ai-orders` ; lot v9 infrastructures localisées livré (commit `0d150a2` poussé et fusionné fast-forward dans `origin/main`). Choix IA réalisables délégués en cours : ni implémentés ni vérifiés.
-- Validation v9 : 592 tests complets, typecheck, vérification de saison et build racine passés.
-- Conseil distant v9 réel : l'infrastructure autorisée (centrale thermique) est choisie, mais d'autres ordres (plan/unités) sont rejetés → rapport `valid: false` ; ni validation distante complète ni fonctionnalité complète globale revendiquées.
-- Vérification API racine `infrastructure-local-42` : spectator-9, 1041 actions, 13 sites, 1042 entrées d'historique, `error: null`.
+- Livré et fusionné fast-forward dans `origin/main` (poussés) : infrastructures localisées v9 (`0d150a2`) et choix IA réalisables (`f79fcf3`, options restreintes aux unités/bâtiments réellement atteignables).
+- Branche courante : `codex/feasible-ai-orders` (documentation uniquement, aucun commit ajouté).
+- Validation : 597 tests complets, typecheck, vérification de saison et build racine passés ; 13 archives rejouées sans échec ; graines 42/7/123 = 1041/1048/406 actions, zéro rejet local, 13/13/0 sites (26 au total).
+- Conseil distant v9 réel au tick 639 : civilisation azure, `research_center` choisi sur `city-amber` (foundry demandée), conseil valide zéro rejet, rapport `valid: true` confirmé à la lecture de `docs/infrastructure-verification.json`, aucun fallback local. Un conseil n'est pas une campagne distante complète.
+- Vérification API racine `infrastructure-local-42` : spectator-9, 1041 actions, 13 sites, `error: null`.
 - Aperçu `docs/previews/infrastructure-v9.png` (1400×900) généré uniquement ; inspection d'image non supportée et auth navigateur indisponible → aucun contrôle visuel.
-- Reste à faire : obligations diplomatiques et qualité de sortie (fiabilité de la publication).
+- Reste à faire : obligations diplomatiques ; distribution autonome signée et campagne distante longue non acquises.
 - Tout ce qui suit dans ce fichier est constitué d'entrées datées historiques.
 
 ### 2026-09-20 — Clôture de documentation infrastructures v9
@@ -24,6 +25,16 @@ Ce fichier est la référence de reprise. Le lire avant toute intervention et le
 - Aperçu `docs/previews/infrastructure-v9.png` (1400×900) généré ; inspection d'image non supportée et auth navigateur indisponible → aucun contrôle visuel.
 - Dernières corrections consignées : budget réservé avant l'infrastructure, approvisionnement des réseaux déficitaires, élagage des orphelins, arrondi UI uniquement (moteur intact), script warm-up corrigé pour ne pas faire avancer l'acteur.
 - Prochaines actions : porte finale (suite complète après le dernier import et les raffinements de prompts), amélioration de la qualité d'action distante avant les obligations diplomatiques, puis fusion de la branche.
+
+### 2026-09-20 — Synchronisation de documentation : v9 et choix IA réalisables livrés
+
+- Documentation uniquement (journal, `docs/release-spectateur.md`, `docs/infrastructure-v9-design.md`) ; aucun changement de source, aucun commit.
+- `0d150a2` (infrastructures v9) et `f79fcf3` (choix IA réalisables) poussés puis fusionnés fast-forward dans `origin/main` ; branche courante `codex/feasible-ai-orders`.
+- Validation : 597 tests complets, typecheck, vérification de saison et build racine passés ; 13 archives relâchées/anciennes rejouées sans échec ; graines 42/7/123 = 1041/1048/406 actions, zéro rejet local, 13/13/0 sites.
+- Conseil distant réel au tick 639 : `research_center` choisi sur `city-amber` (foundry demandée), conseil entier valide zéro rejet, rapport `valid: true`, aucun fallback — `docs/infrastructure-verification.json` relu et confirmé. Une manche valide ne vaut pas campagne distante complète.
+- API racine `infrastructure-local-42` : spectator-9, 1041 actions, 13 sites, `error: null`.
+- PNG 1400×900 seul artefact visuel (inspection d'image non supportée, auth navigateur indisponible) ; aucun contrôle visuel revendiqué.
+- Prochaines actions : obligations diplomatiques, puis distribution autonome signée et qualification distante de campagne longue.
 
 ## Objectif
 
