@@ -140,3 +140,57 @@ export const INFRASTRUCTURE_COUNCIL_JSON_SCHEMA = object({
     additionalProperties: false,
   },
 });
+
+/**
+ * spectator-10 : le contrat v9, plus la commande d'accord.
+ *
+ * Plate et à champs nuls à dessein. Une forme imbriquée se rend moins
+ * fidèlement qu'une forme plate, et un accord malformé coule la réponse — la
+ * tolérance accordée au plan ne s'y étend pas, parce qu'un plan est une
+ * annotation et un accord un engagement qui déplace des ressources.
+ */
+const PARCEL = {
+  type: ["object", "null"],
+  properties: {
+    food: { type: "integer", minimum: 0 },
+    timber: { type: "integer", minimum: 0 },
+    ore: { type: "integer", minimum: 0 },
+    wealth: { type: "integer", minimum: 0 },
+  },
+  required: ["food", "timber", "ore", "wealth"],
+  additionalProperties: false,
+} as const;
+
+export const AGREEMENT_COUNCIL_JSON_SCHEMA = object({
+  ...INFRASTRUCTURE_COUNCIL_JSON_SCHEMA.properties,
+  agreement: {
+    type: ["object", "null"],
+    properties: {
+      action: {
+        type: "string",
+        enum: ["propose", "accept", "decline", "renounce"],
+      },
+      // On répond à une offre par son identifiant : une offre remplacée ne doit
+      // pas être acceptée à la place de celle qui l'a remplacée.
+      offerId: { type: ["string", "null"] },
+      target: { type: ["string", "null"] },
+      kind: {
+        type: ["string", "null"],
+        enum: [null, "nonaggression", "transfer"],
+      },
+      duration: { type: ["integer", "null"], enum: [null, 4, 8, 12] },
+      give: PARCEL,
+      receive: PARCEL,
+    },
+    required: [
+      "action",
+      "offerId",
+      "target",
+      "kind",
+      "duration",
+      "give",
+      "receive",
+    ],
+    additionalProperties: false,
+  },
+});

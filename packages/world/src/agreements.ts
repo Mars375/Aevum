@@ -598,3 +598,39 @@ export function agreementView(
     recent: state.history.filter((entry) => entry.a === civ || entry.b === civ),
   };
 }
+
+export interface AgreementOption {
+  civ: string;
+  trust: number;
+  pactRoundsLeft: number | null;
+  nonaggression: boolean;
+  transfer: boolean;
+}
+
+/**
+ * Ce qu'un dirigeant peut légalement proposer, et à qui.
+ *
+ * Les règles restent ici plutôt que d'être redites dans l'observation : une
+ * liste d'options qui annonce ce que le moteur refuse ensuite est pire que pas
+ * de liste du tout — c'est la leçon de `settlementPlanSites` en v9.
+ */
+export function agreementOptions(
+  ctx: AgreementContext,
+  civ: string,
+  round: number,
+): AgreementOption[] {
+  const state = records(ctx);
+  return ctx.world.civs
+    .filter((other) => other.id !== civ && alive(ctx.world, other.id))
+    .map((other) => {
+      const war = atWar(ctx.world, civ, other.id);
+      const pact = pactBetween(state, civ, other.id);
+      return {
+        civ: other.id,
+        trust: trustOf(state, civ, other.id),
+        pactRoundsLeft: pact ? Math.max(0, pact.endRound - round) : null,
+        nonaggression: !war && !pact,
+        transfer: !war,
+      };
+    });
+}

@@ -427,3 +427,13 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Le test de rejeu a d'abord échoué, et c'était **mon test** : j'enrichissais les réserves après la création alors qu'un rejeu repart d'un monde neuf. W4 l'a signalé au premier tour — exactement son rôle. Corrigé en dimensionnant l'échange sur les réserves initiales.
 - Vérifié : 71 fichiers, 662 tests, `tsc`, `vue-tsc`.
 - **Reste pour rendre v10 utilisable par un modèle** : le contrat IA (schéma fournisseur, consigne) et l'observation (`councilOptions`), puis le panneau spectateur. Sans eux, aucun dirigeant distant ne peut proposer quoi que ce soit.
+
+### 2026-09-21 — Travail B, étape 4 : le contrat IA et l'observation
+
+- Même traitement que pour le moteur : les gardes de version de `packages/agents` passent au seuil (20 listes et 5 comparaisons exactes converties). Sans cela, v10 aurait hérité de **rien** — ni plan, ni modernisation, ni infrastructures — et rien ne l'aurait signalé.
+- `AGREEMENT_COUNCIL_JSON_SCHEMA` : le contrat v9 plus la commande d'accord, plate et à champs nuls. `offerId`, `give` et `receive` sont exigés dans la forme.
+- Observation : `agreements` porte offres entrantes et sortantes avec leurs identifiants, pactes et manches restantes, confiance de l'acteur, et les **options légales** calculées par la couche qui détient les règles — pas redites dans l'observation. C'est la leçon de `settlementPlanSites` : une liste qui annonce ce que le moteur refuse ensuite est pire que pas de liste.
+- Consigne v10 explicite sur ce qui coule une réponse, sur les deux contributions d'un échange, et sur le fait qu'une offre remplacée voit son identifiant refusé.
+- **Sept tests**, dont celui qui compte pour la confidentialité : les réserves d'une rivale ne fuient pas dans l'observation. Une offre dit ce qu'elle demande, jamais ce que l'autre possède.
+- Vérifié : 72 fichiers, 669 tests, `tsc`, `vue-tsc`.
+- Reste : le panneau spectateur, puis une sonde de rejeu et un échantillon distant borné.

@@ -1,9 +1,6 @@
 import { ageProgress } from "../../world/src/ages.js";
 import { planIssue } from "../../world/src/strategic-plans.js";
-import {
-  councilOptions,
-  INFRASTRUCTURE_REASONS,
-} from "./council-options.js";
+import { councilOptions, INFRASTRUCTURE_REASONS } from "./council-options.js";
 import {
   INFRASTRUCTURE,
   INFRASTRUCTURE_KINDS,
@@ -12,7 +9,9 @@ import {
 } from "../../world/src/infrastructure.js";
 import { ZodError } from "zod";
 import type { GeneralConfig } from "@abs/contracts";
+import { agreementOptions, agreementView } from "../../world/src/agreements.js";
 import {
+  atLeast,
   CouncilDecisionSchema,
   incidentFor,
   forecastFor,
@@ -29,23 +28,23 @@ import {
   STRATEGIC_COUNCIL_JSON_SCHEMA,
   MODERN_COUNCIL_JSON_SCHEMA,
   INFRASTRUCTURE_COUNCIL_JSON_SCHEMA,
+  AGREEMENT_COUNCIL_JSON_SCHEMA,
 } from "./council-schema.js";
 
 export function councilObservation(state: SpectatorState, civ: string) {
   const w = state.world;
-  const profiles =
-    ["spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
-      ? Object.fromEntries(
-          w.civs.map((c) => [
-            c.id,
-            militaryProfile(
-              state.ages![c.id]!.current,
-              c.advances,
-              state.modernization![c.id]!.completed,
-            ),
-          ]),
-        )
-      : null;
+  const profiles = atLeast(state.rules, "spectator-7")
+    ? Object.fromEntries(
+        w.civs.map((c) => [
+          c.id,
+          militaryProfile(
+            state.ages![c.id]!.current,
+            c.advances,
+            state.modernization![c.id]!.completed,
+          ),
+        ]),
+      )
+    : null;
   return {
     ...(state.ages?.[civ]
       ? {
@@ -54,7 +53,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
             w,
             civ,
             state.ages[civ]!.current,
-            ["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+            atLeast(state.rules, "spectator-6")
               ? state.modernization![civ]!.completed
               : undefined,
           ),
@@ -64,11 +63,14 @@ export function councilObservation(state: SpectatorState, civ: string) {
       : {}),
     turn: w.tick,
     rules: state.rules,
-    ...(["spectator-8", "spectator-9"].includes(state.rules) ? {
-      forecast: forecastFor(w.seed, state.sequence!.round - 1),
-      climatePreparation: "Forecast start/end are zero-based rounds; add 1 for displayed rounds. Forecasts appear three rounds before their start; remaining warning is forecast.start - (sequence.round - 1) own turns. Preserve food, consider growth focus, irrigation and granaries before poor harvests. Forecasts do not reduce production before their start. Stock changes also reflect trade, recruitment and consumption.",
-    } : {}),
-    ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+    ...(atLeast(state.rules, "spectator-8")
+      ? {
+          forecast: forecastFor(w.seed, state.sequence!.round - 1),
+          climatePreparation:
+            "Forecast start/end are zero-based rounds; add 1 for displayed rounds. Forecasts appear three rounds before their start; remaining warning is forecast.start - (sequence.round - 1) own turns. Preserve food, consider growth focus, irrigation and granaries before poor harvests. Forecasts do not reduce production before their start. Stock changes also reflect trade, recruitment and consumption.",
+        }
+      : {}),
+    ...(atLeast(state.rules, "spectator-4")
       ? {
           sequence: state.sequence,
           diplomacyOffers: state.diplomacyOffers?.filter(
@@ -77,8 +79,14 @@ export function councilObservation(state: SpectatorState, civ: string) {
         }
       : {}),
     plan: state.plans?.[civ] ?? null,
-    ...(["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) ? { currentPlanIssue: state.plans?.[civ] ? planIssue(w, civ, state.plans[civ]!) : null } : {}),
-    ...(state.rules === "spectator-9"
+    ...(atLeast(state.rules, "spectator-6")
+      ? {
+          currentPlanIssue: state.plans?.[civ]
+            ? planIssue(w, civ, state.plans[civ]!)
+            : null,
+        }
+      : {}),
+    ...(atLeast(state.rules, "spectator-9")
       ? {
           energy: energyReport(
             {
@@ -92,8 +100,8 @@ export function councilObservation(state: SpectatorState, civ: string) {
             queue: (state.infrastructure?.queues ?? []).filter(
               (queue) => queue.owner === civ,
             ),
-            available: w.simulation!.cities
-              .filter((city) => city.owner === civ)
+            available: w
+              .simulation!.cities.filter((city) => city.owner === civ)
               .flatMap((city) =>
                 INFRASTRUCTURE_KINDS.map((kind) => {
                   const issue = infrastructureIssue(
@@ -124,6 +132,22 @@ export function councilObservation(state: SpectatorState, civ: string) {
           },
         }
       : {}),
+    ...(atLeast(state.rules, "spectator-10")
+      ? {
+          agreements: {
+            ...agreementView(
+              { world: w, agreement: state.agreement },
+              civ,
+              state.sequence?.round ?? 1,
+            ),
+            options: agreementOptions(
+              { world: w, agreement: state.agreement },
+              civ,
+              state.sequence?.round ?? 1,
+            ),
+          },
+        }
+      : {}),
     options: councilOptions(state, civ),
     economy: state.economy?.filter((l) =>
       w.simulation!.cities.some((c) => c.id === l.city && c.owner === civ),
@@ -142,7 +166,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
     )[civ],
     event: incidentFor(
       w.seed,
-      ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+      atLeast(state.rules, "spectator-4")
         ? (state.sequence?.round ?? 1) - 1
         : w.tick,
     ),
@@ -261,25 +285,17 @@ export async function requestCouncil(
   correction?: { previousDecision: unknown; issues: string[] },
 ): Promise<CouncilAnswer> {
   const strategic =
-    state.rules === "spectator-3" ||
-    ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules);
-  const schema =
-    state.rules === "spectator-9"
+    state.rules === "spectator-3" || atLeast(state.rules, "spectator-4");
+  const schema = atLeast(state.rules, "spectator-10")
+    ? AGREEMENT_COUNCIL_JSON_SCHEMA
+    : atLeast(state.rules, "spectator-9")
       ? INFRASTRUCTURE_COUNCIL_JSON_SCHEMA
-      : ["spectator-6", "spectator-7", "spectator-8"].includes(state.rules)
+      : atLeast(state.rules, "spectator-6")
         ? MODERN_COUNCIL_JSON_SCHEMA
         : strategic
           ? STRATEGIC_COUNCIL_JSON_SCHEMA
           : COUNCIL_JSON_SCHEMA;
-  const turnInstructions = [
-    "spectator-4",
-    "spectator-5",
-    "spectator-6",
-    "spectator-7",
-
-    "spectator-8",
-    "spectator-9",
-  ].includes(state.rules)
+  const turnInstructions = atLeast(state.rules, "spectator-4")
     ? instructions
         .replace(
           "You govern one civilization in a simultaneous turn strategy simulation. All rulers see the same start-of-turn world.",
@@ -303,16 +319,19 @@ export async function requestCouncil(
     (state.rules === "spectator-6"
       ? " In spectator-6 follow responseContract exactly, even when the provider does not enforce structured outputs. The observed plan contains engine metadata: NEVER copy status, startedAt, updatedAt, progress, detail or other metadata into your response plan. Its ONLY keys are kind, targetTile, targetCity, targetTech, targetBuilding, rationale. Modernization is a TOP-LEVEL field, never a plan field or a research technology. Include modernization: null or one project ID from options.modernization with available=true. Null keeps the current project running; it does not cancel it. Programs pay resources and science upfront and progress on your own turns while you own an academy. Their real production/science effects are described in the options. Budget modernization before construction and recruitment. Fulfil ageProgress requirements to advance independently through six ages; future age is not an automatic victory."
       : "") +
-    (state.rules === "spectator-9"
+    (atLeast(state.rules, "spectator-9")
       ? " In spectator-9 you may issue infrastructure: a single TOP-LEVEL command {city, kind} or null, never a plan field. Kinds come from options.infrastructure.available with available=true and must target an owned city. The cost is paid immediately from national stocks after modernization and before construction and recruitment. One queued site per civilization; it advances one personal turn each own turn and its bonuses apply from your NEXT own turn. When any energy component is deficient, prefer to build supply (clean solar_array when unlocked, otherwise thermal_plant); otherwise build useful consumers (foundry, research_center, automated_factory, spaceport) in powered cities. Never sacrifice food reserves to build. Only soldier units may defend, attack or escort. To leave a civilian idle, omit it from orders; omission preserves its current mission. There is no wait or hold action. During correction remove unsupported orders or choose an action listed for that exact unit in options.units. An optional settle plan target must come from options.settlementPlanSites; when it is empty, return plan:null or choose a different eligible plan. Civilian orders must use that unit's advertised moveTargets, workSites, tradeDestinations or foundationSites; otherwise omit that civilian order. Advertised destinations are possibilities, not guarantees: resolution may still block them."
+      : "") +
+    (atLeast(state.rules, "spectator-10")
+      ? " In spectator-10 you may also issue agreement: a single TOP-LEVEL object or null, never a plan field. One agreement per personal turn. action is propose, accept, decline or renounce. Propose needs target and kind: nonaggression needs duration 4, 8 or 12; transfer needs at least one positive integer across give and receive. give is what YOU hand over, receive is what you ask for — an exchange has two sides, and a gift is simply receive at zero. Accept and decline need offerId, taken verbatim from agreements.incoming: a replaced offer is gone, and its id will be refused. Only offers addressed to you can be accepted. An exchange settles before anything you spend this turn, and it is refused outright if either side cannot pay — nothing moves on a partial. A pact you carry to its end raises trust on both sides; renouncing it, or declaring a war the engine accepts, lowers the trust your partner holds in you. options.agreements lists who you may propose what to, with the trust you hold in them. A malformed agreement sinks the whole answer: leave it null when in doubt."
       : "") +
     (strategic
       ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."
       : "") +
-    (["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+    (atLeast(state.rules, "spectator-6")
       ? " For this v6 council, currentPlanIssue is authoritative: when non-null, do NOT repeat that invalid plan. Set plan:null to abandon it or choose a currently legal target from options. Modernization is independent of the strategic plan; do not invent a modernization plan kind. You may launch modernization while plan:null and orders:[] if no other action is useful."
       : "") +
-    (["spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+    (atLeast(state.rules, "spectator-7")
       ? " In spectator-7 and later follow the same responseContract rules as spectator-6, keeping plan metadata out of your response. Military capability follows technology: every civilization carries power and resilience multipliers (civilizations array) derived from its age, research and completed modernization programmes. Power multiplies your attack damage, resilience multiplies the defender fortifications. Compare multipliers together with your armies before declaring war and avoid assaulting a technologically superior civilization without a clear advantage."
       : "");
   if (mode === "local")
@@ -393,7 +412,9 @@ export async function requestCouncil(
                 role: "user",
                 content: JSON.stringify({
                   ...councilObservation(state, civ),
-                  ...(["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) ? { responseContract: schema } : {}),
+                  ...(atLeast(state.rules, "spectator-6")
+                    ? { responseContract: schema }
+                    : {}),
                   ...(correction
                     ? {
                         correction: {
@@ -450,7 +471,9 @@ export async function requestCouncil(
           " For escort orders, include escort: FRIENDLY_UNIT_ID; otherwise escort: null. Escort follows that unit's recorded position. Armies more than 3 tiles from friendly land suffer attrition every third turn. Use your memory of previous results.",
         JSON.stringify({
           ...councilObservation(state, civ),
-          ...(["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) ? { responseContract: schema } : {}),
+          ...(atLeast(state.rules, "spectator-6")
+            ? { responseContract: schema }
+            : {}),
           ...(correction
             ? {
                 correction: {

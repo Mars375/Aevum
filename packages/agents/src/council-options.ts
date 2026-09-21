@@ -8,10 +8,13 @@ import {
   ModernizationProjectSchema,
   modernizationIssue,
 } from "../../world/src/modernization.js";
-import type { SpectatorState } from "../../world/src/spectator.js";
+import { atLeast, type SpectatorState } from "../../world/src/spectator.js";
 import type { UnitCommand } from "../../world/src/commands.js";
 import { MOVEMENT_BUDGET } from "../../world/src/commands.js";
-import type { Building, WorldUnit } from "../../world/src/civilization-state.js";
+import type {
+  Building,
+  WorldUnit,
+} from "../../world/src/civilization-state.js";
 import {
   affordable,
   BUILDING_RULES,
@@ -32,7 +35,8 @@ export const INFRASTRUCTURE_REASONS: Record<InfrastructureKind, string> = {
   thermal_plant: "Fournit 6 d'énergie fossile au réseau",
   solar_array: "Fournit 4 d'énergie propre et +10 % de nourriture",
   research_center: "+1 science par tour personnel quand il est alimenté",
-  automated_factory: "+8 % de bois, minerai et richesse quand elle est alimentée",
+  automated_factory:
+    "+8 % de bois, minerai et richesse quand elle est alimentée",
   spaceport: "+15 % de richesse et +1 science quand il est alimenté",
 };
 
@@ -56,7 +60,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const simulation = world.simulation;
   if (!simulation) throw new Error("Civilization simulation required");
   const alive = civ.fellOnTick === null && civ.population > 0;
-  const v9 = state.rules === "spectator-9";
+  const v9 = atLeast(state.rules, "spectator-9");
   const distance = (a: number, b: number) =>
     Math.abs((a % world.size) - (b % world.size)) +
     Math.abs(Math.floor(a / world.size) - Math.floor(b / world.size));
@@ -141,7 +145,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         : [];
     return {
       unit: unit.id,
-      ...(["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+      ...(atLeast(state.rules, "spectator-4")
         ? { movementBudget: MOVEMENT_BUDGET[unit.role] }
         : {}),
       ...(v9 ? { role: unit.role } : {}),
@@ -158,7 +162,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
         .flatMap((city) =>
           (Object.keys(BUILDING_RULES) as Building[]).flatMap((building) => {
             const { years, ...cost } = BUILDING_RULES[building];
-            return (!["spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) ||
+            return (!atLeast(state.rules, "spectator-5") ||
               ageAllows(
                 state.ages?.[civId]?.current ?? "bronze",
                 BUILDING_AGE[building],
@@ -173,7 +177,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const research = alive
     ? TECHNOLOGIES.filter(
         (technology) =>
-          (!["spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) ||
+          (!atLeast(state.rules, "spectator-5") ||
             ageAllows(
               state.ages?.[civId]?.current ?? "bronze",
               TECHNOLOGY_AGE[technology.name]!,
@@ -190,7 +194,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
   const recruitCost = { food: 50, timber: 60, wealth: 20 };
   return {
     units,
-    ...(["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
+    ...(atLeast(state.rules, "spectator-6")
       ? {
           modernizationState: state.modernization![civId],
           modernization: ModernizationProjectSchema.options.map((project) => {
@@ -210,7 +214,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
           }),
         }
       : {}),
-    ...(["spectator-9"].includes(state.rules)
+    ...(atLeast(state.rules, "spectator-9")
       ? {
           infrastructure: (() => {
             const ctx = {
@@ -247,7 +251,7 @@ export function councilOptions(state: SpectatorState, civId: string) {
           })(),
         }
       : {}),
-    ...(["spectator-9"].includes(state.rules)
+    ...(atLeast(state.rules, "spectator-9")
       ? {
           settlementPlanSites: Array.from(
             new Set(
@@ -271,12 +275,11 @@ export function councilOptions(state: SpectatorState, civId: string) {
         affordable(civ.stock, recruitCost),
     },
     constraints: {
-      sharedBudget:
-        ["spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules)
-          ? state.rules === "spectator-9"
-            ? "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then infrastructure (one queued site per civilization, paid immediately), then construction, then recruitment. All purchases share national stocks."
-            : "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then construction, then recruitment. All purchases share national stocks."
-          : "Construction and recruitment options are individually affordable, not jointly affordable. All purchases share the civilization stock; construction is paid before recruitment.",
+      sharedBudget: atLeast(state.rules, "spectator-6")
+        ? atLeast(state.rules, "spectator-9")
+          ? "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then infrastructure (one queued site per civilization, paid immediately), then construction, then recruitment. All purchases share national stocks."
+          : "Options are individually affordable, not jointly affordable. Modernization is paid first (including science), then construction, then recruitment. All purchases share national stocks."
+        : "Construction and recruitment options are individually affordable, not jointly affordable. All purchases share the civilization stock; construction is paid before recruitment.",
       resolution:
         "These are start-of-turn suggestions. Occupation, competing foundations and simultaneous orders may block an otherwise reachable destination. Route distance counts cardinal steps, not guaranteed travel turns.",
       attacks:
