@@ -417,3 +417,13 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Trois invariants du §10 ne sont **pas** ici, et le fichier de test le dit : budget partagé sur un tour, régression des rejeux v1 à v9, et « un seul accord par tour » se mesurent à l'intégration moteur.
 - Vérifié : 70 fichiers, 655 tests, `tsc`, `vue-tsc`.
 - **Rien n'est encore branché** : `spectator.ts` ignore ce module, aucune règle `spectator-10` n'existe, aucun contrat IA ne porte `agreement`. Prochaine action : l'intégration moteur, avec l'extension des énumérations de version que la conception §9 détaille.
+
+### 2026-09-21 — Travail B, étape 3 : v10 branchée au moteur
+
+- **La cause de la répétition, traitée avant d'ajouter une 93ᵉ occurrence.** Les gardes de version étaient écrites en clair — `["spectator-6", …, "spectator-9"].includes(state.rules)` — 92 fois dans le dépôt, sous **sept formes qui sont toutes le même seuil**. `SPECTATOR_RULES` + `atLeast(rules, plancher)` le disent une fois : 29 listes et 9 comparaisons exactes converties dans le moteur, et le schéma de campagne partage désormais le même catalogue que l'état. Refactor **neutre, vérifié** : 655 tests inchangés avant/après.
+- v10 branchée dans `resolveCouncil`, dans l'ordre fixé par la conception : expiration des offres en début de tour, **l'accord réglé avant toute dépense**, la diplomatie héritée inchangée derrière, puis `dissolveOnDeath` **avant** `tickPacts`. Une guerre que le moteur accepte rompt le pacte ; une guerre refusée par une trêve ne passe jamais par là.
+- Huit types d'événements ajoutés à l'union de `events.ts`. Vérifié que les consommateurs filtrent par type au lieu d'exhausiver : un type ajouté n'efface rien.
+- **Sept tests d'intégration**, dont les trois invariants que le module seul ne pouvait pas prouver : aucune réserve en négatif après un échange qui vide une ressource (W6), rejeu v10 à l'identique (W4), et une campagne v9 qui traverse le moteur modifié **sans gagner un champ ni changer de signature**.
+- Le test de rejeu a d'abord échoué, et c'était **mon test** : j'enrichissais les réserves après la création alors qu'un rejeu repart d'un monde neuf. W4 l'a signalé au premier tour — exactement son rôle. Corrigé en dimensionnant l'échange sur les réserves initiales.
+- Vérifié : 71 fichiers, 662 tests, `tsc`, `vue-tsc`.
+- **Reste pour rendre v10 utilisable par un modèle** : le contrat IA (schéma fournisseur, consigne) et l'observation (`councilOptions`), puis le panneau spectateur. Sans eux, aucun dirigeant distant ne peut proposer quoi que ce soit.

@@ -5,6 +5,7 @@ import {
   newSpectator,
   resolveCouncil,
   type SpectatorState,
+  SPECTATOR_RULES,
 } from "./spectator.js";
 import { ServiceEvidenceSchema, FactionIdSchema } from "@abs/contracts";
 
@@ -27,18 +28,9 @@ export const CouncilAnswerSchema = z.object({
 export type CouncilAnswer = z.infer<typeof CouncilAnswerSchema>;
 export const CampaignSchema = z
   .object({
-    version: z.enum([
-      "spectator-1",
-      "spectator-2",
-      "spectator-3",
-      "spectator-4",
-      "spectator-5",
-      "spectator-6",
-      "spectator-7",
-
-      "spectator-8",
-      "spectator-9",
-    ]),
+    // Le meme catalogue que l etat : une campagne d une version que l etat
+    // accepte doit pouvoir se parser, donc se rejouer.
+    version: z.enum(SPECTATOR_RULES),
     id: z.string().regex(/^[a-z0-9-]{1,80}$/),
     seed: z.number().int().nonnegative().max(2147483647),
     mode: z.enum(["local", "remote"]),

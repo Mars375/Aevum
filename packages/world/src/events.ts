@@ -40,7 +40,23 @@ export interface TickEvent {
     /** A capital changed hands. Not the same as losing a field. */
     | "CAPITAL_LOST"
     | "CAPITAL_MOVED"
-    | "BUILT" | "FOUNDED" | "RECRUITED" | "WAR" | "PEACE";
+    | "BUILT"
+    | "FOUNDED"
+    | "RECRUITED"
+    | "WAR"
+    | "PEACE"
+    /**
+     * Diplomatie suivie (v10). Le detail porte les termes ; ces types existent
+     * pour qu'une chronique puisse les distinguer d'une guerre ou d'un achat.
+     */
+    | "OFFERED"
+    | "OFFER_EXPIRED"
+    | "DECLINED"
+    | "TRANSFER"
+    | "PACT"
+    | "PACT_FULFILLED"
+    | "PACT_BROKEN"
+    | "PACT_DISSOLVED";
   detail: string;
 }
 
@@ -61,12 +77,28 @@ export interface LifeEvent extends TickEvent {
  * presentation text around an event. `detail` remains part of the fact because
  * two losses of different amounts in the same year are different evidence.
  */
-export function eventId(event: TickEvent, tick: number, civ: Civ["id"]): string {
-  const ordered = "order" in event && typeof event.order === "number" ? event.order : 0;
-  return ["world-event-v1", tick, civ, ordered, event.kind, encodeURIComponent(event.detail)].join(":");
+export function eventId(
+  event: TickEvent,
+  tick: number,
+  civ: Civ["id"],
+): string {
+  const ordered =
+    "order" in event && typeof event.order === "number" ? event.order : 0;
+  return [
+    "world-event-v1",
+    tick,
+    civ,
+    ordered,
+    event.kind,
+    encodeURIComponent(event.detail),
+  ].join(":");
 }
 
-export function lifeEvent(event: TickEvent, order: number, version: World["worldVersion"] = "w8"): LifeEvent {
+export function lifeEvent(
+  event: TickEvent,
+  order: number,
+  version: World["worldVersion"] = "w8",
+): LifeEvent {
   const ordered = { ...event, order };
   return {
     ...ordered,
