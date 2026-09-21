@@ -9,6 +9,7 @@ export * from "./apply.js";
 export * from "./chronicle.js";
 export * from "./fingerprint.js";
 export * from "./turning.js";
+export * from "./plan-history.js";
 export * from "./advances.js";
 export * from "./civilization-state.js";
 export * from "./civilization.js";

@@ -13,6 +13,7 @@ import type { Year } from "@abs/world";
 import WorldDiorama from "./components/WorldDiorama.vue";
 import InfrastructurePanel from "./components/InfrastructurePanel.vue";
 import AgreementsPanel from "./components/AgreementsPanel.vue";
+import PlanHistory from "./components/PlanHistory.vue";
 import { projectWorld, CIV_COLORS } from "./three/world-projection";
 import {
   incidentFor,
@@ -1067,6 +1068,12 @@ onUnmounted(() => {
               :world="world"
               :agreement="agreementForSelected"
               :round="state.sequence?.round ?? 1"
+            />
+            <PlanHistory
+              v-if="loaded"
+              :civ-id="civ.id"
+              :history="loaded.history"
+              :up-to="index"
             />
             <h3>Intention du dirigeant</h3>
             <p>

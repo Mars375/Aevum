@@ -472,3 +472,13 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Vérification finale de bout en bout : **73 fichiers, 674 tests**, `tsc`, `vue-tsc`, et le paquet autonome reconstruit puis **démarré pour de vrai** — disposition complète, zéro secret, site servi, sauvegardes hors de l'installation, redémarrage après fermeture brutale avec reprise du verrou.
 - État des lots de `docs/release-spectateur.md` : 1, 2, 3 et **4 livrés**. Restent 5 (lecture et identité) et 6 (accès et fiabilité).
 - Les trois limites qui traversent tout le projet, et qu'aucune mesure locale ne lèvera : **aucune campagne distante longue** n'a jamais été jouée, sous aucune version ; **aucun contrôle visuel** n'est possible sur ce poste, le navigateur n'étant pas installé ; le paquet **n'est pas signé**, faute de certificat.
+
+### 2026-09-21 — Lot 5, première pièce : décision, action, conséquence
+
+- La navigation par moments importants existait déjà côté spectateur ; ce qui manquait au lot 5 est le **lien entre une décision et ce qu'elle a produit**.
+- `packages/world/src/plan-history.ts` reconstitue l'histoire des plans d'une civilisation **sans rien ajouter à l'état**. Le moteur ne garde que le plan courant ; son passé n'a pas besoin d'exister, puisqu'une campagne conserve tous ses états et que le rejeu les reproduit à l'identique (W4). Zéro octet de plus dans la signature de rejeu.
+- **Deux voix, jamais mélangées.** `rationale` est ce que le dirigeant a écrit, mot pour mot ; `detail` est ce que le moteur a mesuré — « Colons à 3 case(s) de l'objectif », « La case de fondation est indisponible ». Le lecteur compare une intention à son résultat sans qu'on lui souffle la conclusion, et rien n'invente un raisonnement que personne n'a tenu.
+- Un chapitre par plan adopté. Un plan remplacé se referme sur le dernier état connu **sans qu'on lui invente une fin** : changer d'avis est un fait de l'histoire, pas une anomalie. Un pas n'est montré que s'il dit quelque chose de neuf.
+- `PlanHistory.vue` : bilan (« 3 plans adoptés — 1 tenu, 1 bloqué, 1 abandonné »), puis chaque chapitre avec sa citation et ses constats. **Le panneau ne montre pas l'avenir du curseur** : il tronque l'histoire à la position du lecteur, sinon il divulguerait la fin d'une campagne qu'on parcourt.
+- 7 tests sur la dérivation, 6 sur le panneau — dont l'absence de tout contrôle et le fait qu'une autre civilisation n'apparaît jamais.
+- Vérifié : 75 fichiers, 687 tests, `tsc`, `vue-tsc`, build (bundle 285,12 → 288,34 Ko).
