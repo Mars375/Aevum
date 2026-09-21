@@ -1,0 +1,152 @@
+{
+  "checkedAt": "2026-09-21T18:05:09.388Z",
+  "rules": "spectator-10",
+  "seeds": 6,
+  "maxRounds": 120,
+  "replaysVerified": 6,
+  "seedsWithAnyAgreement": 6,
+  "totals": {
+    "offered": 99,
+    "accepted": 86,
+    "pacts": 60,
+    "fulfilled": 27,
+    "broken": 0,
+    "dissolved": 0,
+    "transfers": 26,
+    "declined": 10,
+    "expired": 0
+  },
+  "rejectedAgreementOrders": 0,
+  "rejectedOrdersAllKinds": 6,
+  "trustBounds": [
+    -100,
+    100
+  ],
+  "rows": [
+    {
+      "seed": 42,
+      "actions": 480,
+      "rejected": 0,
+      "rejectedAgreements": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "events": {
+        "OFFERED": 16,
+        "PACT": 10,
+        "TRANSFER": 5,
+        "DECLINED": 1,
+        "PACT_FULFILLED": 5
+      },
+      "pactsStanding": 2,
+      "offersPending": 1,
+      "trustRange": [
+        -35,
+        100
+      ]
+    },
+    {
+      "seed": 7,
+      "actions": 396,
+      "rejected": 0,
+      "rejectedAgreements": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "events": {
+        "OFFERED": 16,
+        "PACT": 11,
+        "TRANSFER": 4,
+        "PACT_FULFILLED": 6
+      },
+      "pactsStanding": 0,
+      "offersPending": 0,
+      "trustRange": [
+        -35,
+        100
+      ]
+    },
+    {
+      "seed": 123,
+      "actions": 390,
+      "rejected": 0,
+      "rejectedAgreements": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "events": {
+        "OFFERED": 15,
+        "PACT": 12,
+        "TRANSFER": 3,
+        "PACT_FULFILLED": 7
+      },
+      "pactsStanding": 1,
+      "offersPending": 0,
+      "trustRange": [
+        -35,
+        100
+      ]
+    },
+    {
+      "seed": 1,
+      "actions": 480,
+      "rejected": 0,
+      "rejectedAgreements": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "events": {
+        "OFFERED": 18,
+        "PACT": 9,
+        "TRANSFER": 4,
+        "DECLINED": 3,
+        "PACT_FULFILLED": 3
+      },
+      "pactsStanding": 3,
+      "offersPending": 0,
+      "trustRange": [
+        -35,
+        100
+      ]
+    },
+    {
+      "seed": 17,
+      "actions": 480,
+      "rejected": 1,
+      "rejectedAgreements": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "events": {
+        "OFFERED": 17,
+        "PACT": 9,
+        "TRANSFER": 5,
+        "PACT_FULFILLED": 3,
+        "DECLINED": 3
+      },
+      "pactsStanding": 3,
+      "offersPending": 0,
+      "trustRange": [
+        -35,
+        100
+      ]
+    },
+    {
+      "seed": 314,
+      "actions": 447,
+      "rejected": 5,
+      "rejectedAgreements": 0,
+      "rejectDetails": [],
+      "replayVerified": true,
+      "events": {
+        "OFFERED": 17,
+        "PACT": 9,
+        "TRANSFER": 5,
+        "PACT_FULFILLED": 3,
+        "DECLINED": 3
+      },
+      "pactsStanding": 1,
+      "offersPending": 0,
+      "trustRange": [
+        -35,
+        100
+      ]
+    }
+  ],
+  "valid": true
+}

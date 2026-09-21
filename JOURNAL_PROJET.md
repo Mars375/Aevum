@@ -447,3 +447,12 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Bundle initial 280,57 → **285,12 Ko** (+4,5 Ko) pour le panneau et le module d'accords. Build vert.
 - Vérifié : 73 fichiers, 674 tests, `tsc`, `vue-tsc`, build du lecteur.
 - Reste : une sonde de rejeu v10 et un échantillon distant borné, puis le bilan du lot 4 dans `release-spectateur.md`.
+
+### 2026-09-21 — Travail B, étape 6 : la diplomatie se produit vraiment
+
+- **Un module testé ne prouve pas qu'une campagne en fera usage.** `localCouncil` ne s'engageait jamais : la fonctionnalité aurait existé dans le moteur et nulle part ailleurs, et le parcours sans clé — la démonstration — aurait toujours affiché « aucune promesse échangée ». La politique locale répond désormais à ce qu'on lui propose, et ne propose qu'à défaut.
+- `scripts/agreements-probe.ts` joue six campagnes locales complètes, compte les événements réels puis **rejoue chaque campagne**. Résultat : **6 rejeux sur 6 vérifiés** (W4 tient sous v10), 99 offres, 86 acceptées dont **60 pactes et 26 échanges**, 10 refusées, 27 pactes menés à terme, **zéro accord refusé par le moteur**.
+- **Deux corrections que la mesure a imposées**, et je les écris parce qu'elles disent quelque chose. Premier relevé : 84 offres, 84 acceptées, **0 échange** — la politique ne proposait jamais de commerce, donc le chemin bilatéral n'était exercé que par des tests unitaires. Elle commerce maintenant une fois ses pactes signés. Second : le rapport annonçait « 6 accords refusés », ce qui était **faux** — la sonde comptait tous les rejets du tour. Deux compteurs distincts désormais, et le vrai chiffre est zéro.
+- Limites écrites dans `docs/reports/diplomatie-v10.md` : ni rupture, ni dissolution, ni expiration observées en campagne — les trois chemins sont bornés par des tests mais ne se produisent pas, donc la confiance n'est jamais descendue. Et **aucun modèle distant n'a joué la v10**.
+- Lot 4 de `docs/release-spectateur.md` marqué livré, avec ses chiffres et ses limites.
+- Vérifié : 73 fichiers, 674 tests, `tsc`, `vue-tsc`.

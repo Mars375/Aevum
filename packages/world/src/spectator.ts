@@ -29,6 +29,8 @@ import {
   emptyAgreement,
   expireOffers,
   tickPacts,
+  trustOf,
+  type AgreementCommand,
 } from "./agreements.js";
 import {
   CivilizationAgeSchema,
@@ -1482,6 +1484,149 @@ export function localCouncil(
   );
   const construction: CouncilDecision["construction"] = [];
   if (infrastructure) pay(budget, INFRASTRUCTURE[infrastructure.kind].cost);
+  /**
+   * La politique locale sait desormais s'engager.
+   *
+   * Sans cela, une campagne locale — le parcours sans cle, celui de la
+   * demonstration — n'aurait jamais montre un seul accord : la fonctionnalite
+   * aurait existe dans le moteur et nulle part ailleurs, et le panneau aurait
+   * toujours dit « aucune promesse echangee ».
+   *
+   * Prudente et deterministe, comme le reste de cette politique : elle repond
+   * d'abord a ce qu'on lui propose, et ne propose qu'a defaut. Un modele
+   * distant reste libre de jouer tout autrement.
+   */
+  let agreement: AgreementCommand | null = null;
+  if (atLeast(state.rules, "spectator-10") && state.agreement) {
+    const records = state.agreement;
+    const round = state.sequence?.round ?? 1;
+    const atWarWith = (other: string) =>
+      w.simulation!.relations.some(
+        (r) =>
+          r.status === "war" &&
+          [r.a, r.b].includes(civId) &&
+          [r.a, r.b].includes(other as CouncilDecision["civ"]),
+      );
+    const pactWith = (other: string) =>
+      records.pacts.some(
+        (p) =>
+          (p.a === civId && p.b === other) || (p.a === other && p.b === civId),
+      );
+    const worth = (parcel: {
+      food: number;
+      timber: number;
+      ore: number;
+      wealth: number;
+    }) => parcel.food + parcel.timber + parcel.ore + parcel.wealth;
+
+    const incoming = records.offers.find((offer) => offer.to === civId);
+    if (incoming) {
+      if (incoming.kind === "nonaggression") {
+        // On ne signe pas avec qui l'on est en guerre, ni deux fois, ni avec
+        // quelqu'un dont on n'attend plus rien de bon.
+        agreement =
+          !atWarWith(incoming.from) &&
+          !pactWith(incoming.from) &&
+          trustOf(records, civId, incoming.from) >= 0
+            ? {
+                action: "accept",
+                offerId: incoming.id,
+                target: null,
+                kind: null,
+                duration: null,
+                give: null,
+                receive: null,
+              }
+            : {
+                action: "decline",
+                offerId: incoming.id,
+                target: null,
+                kind: null,
+                duration: null,
+                give: null,
+                receive: null,
+              };
+      } else {
+        // Un echange s'accepte s'il rapporte au moins ce qu'il coute, et si la
+        // reserve suit une fois les depenses du tour deja prevues.
+        const fair =
+          worth(incoming.give) >= worth(incoming.receive) &&
+          affordable(budget, incoming.receive);
+        agreement = {
+          action: fair ? "accept" : "decline",
+          offerId: incoming.id,
+          target: null,
+          kind: null,
+          duration: null,
+          give: null,
+          receive: null,
+        };
+      }
+    } else {
+      const neighbours = w.civs.filter(
+        (other) =>
+          other.id !== civId &&
+          other.fellOnTick === null &&
+          other.population > 0 &&
+          !atWarWith(other.id) &&
+          !pactWith(other.id) &&
+          !records.offers.some(
+            (offer) => offer.from === civId && offer.to === other.id,
+          ),
+      );
+      const trusted = [...neighbours].sort(
+        (a, b) =>
+          trustOf(records, civId, b.id) - trustOf(records, civId, a.id) ||
+          a.id.localeCompare(b.id),
+      )[0];
+      if (trusted && focus !== "military" && round > 2)
+        agreement = {
+          action: "propose",
+          offerId: null,
+          target: trusted.id,
+          kind: "nonaggression",
+          duration: 8,
+          give: null,
+          receive: null,
+        };
+      else if (focus !== "military" && round > 2) {
+        // Plus personne avec qui signer : on commerce. Un surplus de vivres
+        // contre le minerai qui manque, et seulement si la reserve tient le
+        // coup une fois les depenses du tour deja prevues.
+        const partner = w.civs
+          .filter(
+            (other) =>
+              other.id !== civId &&
+              other.fellOnTick === null &&
+              other.population > 0 &&
+              !atWarWith(other.id) &&
+              !records.offers.some(
+                (offer) => offer.from === civId && offer.to === other.id,
+              ),
+          )
+          .sort(
+            (x, y) =>
+              trustOf(records, civId, y.id) - trustOf(records, civId, x.id) ||
+              x.id.localeCompare(y.id),
+          )[0];
+        if (
+          partner &&
+          budget.food > civ.population * 6 &&
+          budget.food > 60 &&
+          budget.ore < 40
+        )
+          agreement = {
+            action: "propose",
+            offerId: null,
+            target: partner.id,
+            kind: "transfer",
+            duration: null,
+            give: { food: 40, timber: 0, ore: 0, wealth: 0 },
+            receive: { food: 0, timber: 0, ore: 20, wealth: 0 },
+          };
+      }
+    }
+  }
   for (const city of w.simulation!.cities.filter(
     (c) => c.owner === civId && !c.queue,
   )) {
@@ -1516,6 +1661,7 @@ export function localCouncil(
   return {
     ...(atLeast(state.rules, "spectator-6") ? { modernization } : {}),
     ...(atLeast(state.rules, "spectator-9") ? { infrastructure } : {}),
+    ...(atLeast(state.rules, "spectator-10") ? { agreement } : {}),
     civ: civId,
     turn: w.tick,
     objective: preparing
