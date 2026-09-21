@@ -188,6 +188,16 @@ function zeroPrice(value: unknown): boolean {
   );
 }
 
+/**
+ * Le numero d'un jeu de regles, « spectator-9 » donnant 9 et « spectator-10 »
+ * donnant 10. Sans nom reconnaissable, on rend la chaine telle quelle plutot
+ * que d'inventer un chiffre.
+ */
+export function rulesNumber(rules: string): string {
+  const match = /-(\d+)$/.exec(rules);
+  return match?.[1] ?? rules;
+}
+
 /** Schema locations and codes only — never a provider value or body. */
 function describeIssues(error: ZodError): string {
   return error.issues
@@ -310,7 +320,14 @@ export async function requestCouncil(
       civ,
       decision: localCouncil(state, civ),
       source: "local",
-      model: `local/deterministic-council-v${state.rules.slice(-1)}`,
+      // Le numero de regles, pas son dernier caractere.
+      //
+      // `state.rules.slice(-1)` marchait tant que les versions tenaient sur un
+      // chiffre. A « spectator-10 » il rend « 0 », et la provenance annoncerait
+      // un conseil v0 — un mensonge silencieux dans le seul champ qui dit d'ou
+      // vient une decision. Ce depot refuse de maquiller la provenance ; il la
+      // lit donc apres le tiret, quelle que soit sa longueur.
+      model: `local/deterministic-council-v${rulesNumber(state.rules)}`,
       service: null,
       error: null,
     };
