@@ -53,8 +53,19 @@ async function body(req: IncomingMessage) {
   }
   return JSON.parse(text || "{}");
 }
+/**
+ * Ou vivent les parties, qui n est pas forcement ou vit l application.
+ *
+ * Une copie empaquetee gardait ses campagnes dans son propre dossier. Mettre
+ * a jour l application, c est-a-dire remplacer ce dossier, effacait donc les
+ * parties enregistrees : le critere « mises a jour et sauvegardes preservees »
+ * etait perdu par construction. AEVUM_DATA les sort de l installation. Sans
+ * lui, rien ne change pour le depot ni pour les tests.
+ */
+export const dataRoot = () => process.env.AEVUM_DATA?.trim() || process.cwd();
+
 export function createSpectatorServer(
-  directory = resolve("worlds/spectator"),
+  directory = resolve(dataRoot(), "worlds/spectator"),
   env: NodeJS.ProcessEnv = process.env,
 ) {
   const busy = new Set<string>(),
@@ -381,7 +392,7 @@ if (
 ) {
   if (existsSync(".env")) process.loadEnvFile(".env");
   loadWindowsNousEnvironment();
-  const lockPath = resolve("worlds/spectator/server.lock");
+  const lockPath = resolve(dataRoot(), "worlds/spectator/server.lock");
   // Fermer la fenetre du lanceur tue ce processus sans lui laisser liberer
   // son verrou. On le reprend quand son proprietaire est mort, et on le dit.
   if (reclaimStaleLock(lockPath))

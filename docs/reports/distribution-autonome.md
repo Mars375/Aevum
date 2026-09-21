@@ -5,9 +5,9 @@ installable signée », avec quatre critères : démarrage en un clic, arrêt pr
 du service, mises à jour et sauvegardes préservées, aucune clé livrée avec
 l'application.
 
-Trois de ces quatre critères sont atteints et vérifiés. Le quatrième ne l'est
-pas, et un cinquième point — la signature — ne peut pas l'être depuis un dépôt.
-Ce rapport dit exactement où s'arrête la garantie.
+Les quatre critères sont atteints et vérifiés. Le mot « signée » ne l'est pas,
+et ne peut pas l'être depuis un dépôt. Ce rapport dit exactement où s'arrête la
+garantie.
 
 ## Ce que le lanceur demandait à l'utilisateur
 
@@ -43,15 +43,17 @@ plus rien exiger de la machine d'en face.
 Il ne se contente pas de produire, il contrôle ce qu'il vient de produire et
 refuse de rendre un paquet qui échoue. Relevé de `dist-app/manifest.json` :
 
-| contrôle                                     | résultat |
-| -------------------------------------------- | -------- |
-| disposition attendue complète                | oui      |
-| **secrets trouvés dans les fichiers livrés** | **0**    |
-| démarre réellement, sur un port libre        | oui      |
-| sert le site, pas seulement l'API            | oui      |
-| **redémarre après une fermeture brutale**    | **oui**  |
-| verrou repris au redémarrage                 | oui      |
-| signé                                        | **non**  |
+| contrôle                                      | résultat |
+| --------------------------------------------- | -------- |
+| disposition attendue complète                 | oui      |
+| **secrets trouvés dans les fichiers livrés**  | **0**    |
+| démarre réellement, sur un port libre         | oui      |
+| sert le site, pas seulement l'API             | oui      |
+| **redémarre après une fermeture brutale**     | **oui**  |
+| verrou repris au redémarrage                  | oui      |
+| **partie enregistrée hors de l'installation** | **oui**  |
+| **installation sans aucune donnée**           | **oui**  |
+| signé                                         | **non**  |
 
 Le contrôle des secrets réutilise les motifs de `scripts/secrets.ts`, nomme le
 fichier et le motif, jamais la valeur — et **détruit le paquet** plutôt que de
@@ -85,6 +87,24 @@ La vérification a changé en conséquence : mesurer un arrêt poli mesurerait u
 chose qui n'arrive jamais chez l'utilisateur. Le paquet est donc démarré, tué
 brutalement, puis **redémarré** — et c'est ce second démarrage qui fait foi.
 
+## Les parties sortent de l'installation
+
+Le paquet gardait ses campagnes dans son propre dossier. Mettre à jour
+l'application — c'est-à-dire remplacer ce dossier — aurait donc effacé les
+parties enregistrées : le critère « mises à jour et sauvegardes préservées »
+était perdu par construction, et aucun soin apporté à l'installateur ne l'aurait
+rattrapé.
+
+`AEVUM_DATA` les en sort. Sans cette variable, rien ne change — le dépôt et les
+tests continuent de résoudre `worlds/` depuis le répertoire courant. Le lanceur
+du paquet la place dans `%LOCALAPPDATA%\Aevum`.
+
+La vérification ne se contente pas de le supposer : elle démarre le paquet,
+crée une vraie partie par `POST /api/demo`, puis contrôle **les deux moitiés** —
+que la partie est bien arrivée dans le dossier de données, et que
+l'installation, elle, ne contient aucune donnée. C'est cette seconde moitié qui
+autorise à dire qu'un remplacement de dossier ne peut rien emporter.
+
 ## Le port cesse d'être figé
 
 Le service écoutait 5174 en dur. Deux conséquences : impossible de vérifier un
@@ -98,12 +118,6 @@ répéter.
 - **La signature.** Elle demande un certificat de signature de code, qui n'a
   rien à faire dans un dépôt. Le manifeste porte `signed: false` plutôt que de
   laisser croire le contraire.
-- **Les mises à jour avec préservation des sauvegardes.** Les campagnes vivent
-  dans `worlds/` **à l'intérieur** du paquet. Remplacer le dossier par une
-  nouvelle version effacerait donc les parties enregistrées. Le critère n'est
-  pas atteint, et la correction n'est pas cosmétique : il faut sortir les
-  données du dossier d'installation, ce qui change la résolution des chemins du
-  serveur. À faire avant de parler d'installateur.
 - **Un installateur, une désinstallation, une mise à jour automatique.** Le
   paquet est un dossier qu'on copie.
 - **Windows uniquement.** `runtime/node.exe` et un lanceur `.cmd`. Rien

@@ -364,3 +364,12 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Vérifié : 66 fichiers, 619 tests, `tsc`, `vue-tsc`, build du lecteur, et le paquet démarré pour de bon.
 - **Non livré, et dit comme tel** : la signature (elle demande un certificat qui n'a rien à faire dans un dépôt — `manifest.json` porte `signed: false`) ; la préservation des sauvegardes à la mise à jour, car les campagnes vivent dans `worlds/` **à l'intérieur** du paquet et un remplacement de dossier les effacerait ; installateur, désinstallation et mise à jour automatique ; les plateformes autres que Windows.
 - Prochaine action : sortir les données du dossier d'installation avant de parler d'installateur. C'est ce qui bloque le critère « mises à jour et sauvegardes préservées ».
+
+### 2026-09-21 — Les parties sortent du dossier d'installation
+
+- Suite immédiate de l'entrée précédente, dont l'action suivante annoncée était précisément celle-ci. Le paquet gardait ses campagnes dans son propre dossier : mettre à jour l'application, c'est-à-dire remplacer ce dossier, aurait effacé les parties. Le critère « mises à jour et sauvegardes préservées » était perdu par construction, et aucun soin apporté à un futur installateur ne l'aurait rattrapé.
+- `AEVUM_DATA` les en sort (`dataRoot()` dans `spectator-server.ts`, utilisé par le répertoire des campagnes **et** par le verrou). Sans la variable, rien ne change : le dépôt et les tests continuent de résoudre `worlds/` depuis le répertoire courant, et les tests passaient déjà un répertoire explicite. Le lanceur du paquet la place dans `%LOCALAPPDATA%\Aevum`.
+- La vérification ne le suppose pas : l'empaqueteur démarre le paquet, crée une vraie partie par `POST /api/demo`, puis contrôle **les deux moitiés** — la partie est bien arrivée dans le dossier de données, et l'installation ne contient aucune donnée. C'est la seconde moitié qui autorise à dire qu'un remplacement de dossier n'emporte rien. `savesLandOutsideInstall` et `installHoldsNoSaves` au manifeste.
+- Les quatre critères du backlog sont donc atteints et vérifiés. Seul le mot « signée » ne l'est pas, et ne peut pas l'être depuis un dépôt : `manifest.json` porte `signed: false`.
+- Vérifié : 66 fichiers, 619 tests, `tsc`, `vue-tsc`, et le paquet reconstruit puis démarré.
+- Reste hors périmètre : installateur, désinstallation, mise à jour automatique, plateformes autres que Windows.

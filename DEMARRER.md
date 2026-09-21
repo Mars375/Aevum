@@ -4,7 +4,7 @@
 
 `npm run package` produit un dossier `dist-app/` autonome : le site déjà construit, le serveur en un seul fichier et une copie de l'interpréteur Node à côté. On le copie où l'on veut, on double-clique **Lancer Aevum.cmd**, et rien n'est téléchargé ni compilé au lancement. Aucune clé n'y est livrée : les réglages Nous restent lus dans les variables d'environnement de la machine qui l'exécute.
 
-Deux limites à connaître avant de le distribuer : le paquet **n'est pas signé**, et les campagnes enregistrées vivent dans `worlds/` à l'intérieur du dossier — remplacer celui-ci par une version plus récente les effacerait. `docs/reports/distribution-autonome.md` dit ce qui est vérifié et ce qui ne l'est pas.
+Les parties enregistrées vivent **hors** du dossier, dans `%LOCALAPPDATA%\Aevum` : remplacer l'installation par une version plus récente ne les emporte pas. Une limite demeure, et elle compte si vous diffusez le paquet : il **n'est pas signé**. `docs/reports/distribution-autonome.md` dit ce qui est vérifié et ce qui ne l'est pas.
 
 ## Depuis le dépôt
 

@@ -27,6 +27,7 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   readdirSync,
   rmSync,
@@ -34,6 +35,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { createServer } from "node:net";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { build } from "esbuild";
 import { SECRET_PATTERNS } from "./secrets.js";
@@ -131,9 +133,8 @@ cpSync(
   resolve(ROOT, "examples/nous-discovery.json"),
   resolve(OUT, "examples/nous-discovery.json"),
 );
-// Le serveur cree et verrouille ce dossier ; le livrer vide evite qu'un
-// premier lancement echoue sur un dossier absent selon les droits.
-mkdirSync(resolve(OUT, "worlds/spectator"), { recursive: true });
+// Rien d'ecrivable ne vit dans l'installation : les parties sont ailleurs,
+// sinon remplacer ce dossier pour mettre a jour les effacerait.
 
 // 4) L'interpreteur, pour que la machine d'en face n'ait rien a installer.
 step("copie de l'interpreteur…");
@@ -153,8 +154,9 @@ writeFileSync(
   ].join("\n"),
 );
 
-// 5) Le double-clic. Il fixe le repertoire courant, parce que le serveur
-//    resout worlds/, examples/ et le site relativement a lui.
+// 5) Le double-clic. Il fixe le repertoire courant, parce que le serveur y
+//    cherche le site et la demonstration — mais pas les parties, qui vivent
+//    hors de l'installation pour survivre a son remplacement.
 step("ecriture du lanceur…");
 writeFileSync(
   resolve(OUT, LAUNCHER),
@@ -162,6 +164,10 @@ writeFileSync(
     "@echo off",
     'cd /d "%~dp0"',
     "echo Demarrage d'Aevum...",
+    // Les parties vivent hors de l'installation, sinon la remplacer pour
+    // mettre a jour les effacerait.
+    'if "%AEVUM_DATA%"=="" set AEVUM_DATA=%LOCALAPPDATA%\\Aevum',
+    'if not exist "%AEVUM_DATA%" mkdir "%AEVUM_DATA%"',
     // Le port reste 5174 sauf si la machine en impose un autre, et le
     // navigateur doit ouvrir celui-la, pas une adresse sans port.
     'if "%AEVUM_PORT%"=="" set AEVUM_PORT=5174',
@@ -197,10 +203,10 @@ if (leaks.length) {
 }
 
 /** Demarre le paquet comme un utilisateur le ferait, et attend sa reponse. */
-async function boot(port: number) {
+async function boot(port: number, data: string) {
   const child = spawn(resolve(OUT, "runtime/node.exe"), [SERVER], {
     cwd: OUT,
-    env: { ...process.env, AEVUM_PORT: String(port) },
+    env: { ...process.env, AEVUM_PORT: String(port), AEVUM_DATA: data },
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
   });
@@ -239,7 +245,10 @@ const abruptlyStop = async (child: ReturnType<typeof spawn>) => {
 
 step("demarrage reel du serveur empaquete…");
 const port = await sparePort();
-const first = await boot(port);
+// Des donnees hors de l'installation, comme chez l'utilisateur : c'est ce qui
+// permet de verifier qu'une mise a jour n'emporte pas les parties.
+const data = mkdtempSync(join(tmpdir(), "aevum-paquet-"));
+const first = await boot(port, data);
 if (!first.ready) {
   first.child.kill();
   throw new Error(`Le paquet n'a pas repondu :\n${first.log()}`);
@@ -252,11 +261,25 @@ if (!served) {
   first.child.kill();
   throw new Error("Le paquet repond mais ne sert pas le site.");
 }
+// Une partie enregistree, pour savoir OU elle atterrit.
+await fetch(`http://127.0.0.1:${port}/api/demo`, { method: "POST" });
+const saved = existsSync(resolve(data, "worlds/spectator/nous-discovery.json"));
 await abruptlyStop(first.child);
 
+// Le critere « mises a jour et sauvegardes preservees » se joue ici : si rien
+// d'ecrivable ne vit dans l'installation, remplacer ce dossier par une version
+// plus recente ne peut pas emporter les parties.
+const installHoldsSaves = existsSync(resolve(OUT, "worlds"));
+if (!saved)
+  throw new Error("La partie enregistree n'atteint pas le dossier de donnees.");
+if (installHoldsSaves)
+  throw new Error(
+    "L'installation contient des donnees : une mise a jour les effacerait.",
+  );
+
 step("redemarrage apres une fermeture brutale…");
-const lockSurvived = existsSync(resolve(OUT, "worlds/spectator/server.lock"));
-const second = await boot(port);
+const lockSurvived = existsSync(resolve(data, "worlds/spectator/server.lock"));
+const second = await boot(port, data);
 const exitCode = await abruptlyStop(second.child);
 if (!second.ready)
   throw new Error(
@@ -281,6 +304,8 @@ const manifest = {
     servesSite: true,
     // Fermer la fenetre ne libere pas le verrou sous Windows ; ce qui compte
     // est que le lancement suivant le reprenne au lieu de refuser de demarrer.
+    savesLandOutsideInstall: true,
+    installHoldsNoSaves: true,
     lockSurvivesAbruptStop: lockSurvived,
     restartsAfterAbruptStop: true,
     lockReclaimedOnRestart: reclaimed,
