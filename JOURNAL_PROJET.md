@@ -437,3 +437,13 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **Sept tests**, dont celui qui compte pour la confidentialité : les réserves d'une rivale ne fuient pas dans l'observation. Une offre dit ce qu'elle demande, jamais ce que l'autre possède.
 - Vérifié : 72 fichiers, 669 tests, `tsc`, `vue-tsc`.
 - Reste : le panneau spectateur, puis une sonde de rejeu et un échantillon distant borné.
+
+### 2026-09-21 — Travail B, étape 5 : le panneau spectateur
+
+- `AgreementsPanel.vue` : pactes actifs et manches restantes, propositions reçues et émises **avec leurs deux contributions**, confiance qualifiée (bonne / neutre / abîmée) plutôt qu'un nombre nu, faits récents. Branché dans la fiche du dirigeant, sous le panneau d'infrastructures.
+- **Strictement en lecture.** Un test vérifie qu'aucun `<button>`, `<input>`, `<select>` ni `<form>` n'est rendu : le choix du projet est « spectateur uniquement », et un contrôle ici le trahirait sans qu'on s'en aperçoive.
+- Un autre test vérifie qu'une offre entre deux tiers n'apparaît pas dans la fiche d'une troisième civilisation.
+- **Le même piège trouvé côté lecteur, et corrigé** : `Spectator.vue` gardait `["spectator-9"].includes(...)`, qui aurait **masqué les infrastructures en v10**. Quatre listes converties au seuil ; l'aperçu de démonstration passe en `spectator-10`.
+- Bundle initial 280,57 → **285,12 Ko** (+4,5 Ko) pour le panneau et le module d'accords. Build vert.
+- Vérifié : 73 fichiers, 674 tests, `tsc`, `vue-tsc`, build du lecteur.
+- Reste : une sonde de rejeu v10 et un échantillon distant borné, puis le bilan du lot 4 dans `release-spectateur.md`.

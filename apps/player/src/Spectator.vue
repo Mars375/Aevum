@@ -12,10 +12,12 @@ import type { FactionId } from "@abs/contracts";
 import type { Year } from "@abs/world";
 import WorldDiorama from "./components/WorldDiorama.vue";
 import InfrastructurePanel from "./components/InfrastructurePanel.vue";
+import AgreementsPanel from "./components/AgreementsPanel.vue";
 import { projectWorld, CIV_COLORS } from "./three/world-projection";
 import {
   incidentFor,
   forecastFor,
+  atLeast,
   newSpectator,
   MOVEMENT_BUDGET,
   type SpectatorState,
@@ -69,7 +71,8 @@ const scenarios = [
     seed: 42,
     turns: 300,
     title: "À travers les âges",
-    detail: "300 manches pour suivre le développement jusqu'aux âges avancés, selon les choix des dirigeants.",
+    detail:
+      "300 manches pour suivre le développement jusqu'aux âges avancés, selon les choix des dirigeants.",
   },
 ];
 const lastCampaignKey = "aevum:last-campaign";
@@ -229,12 +232,10 @@ const missionText = (text: string) =>
         "Un déplacement ne peut pas remplacer un ordre d’attaque",
     }) as Record<string, string>
   )[text] ?? text;
-const preview = newSpectator(42, "spectator-9");
+const preview = newSpectator(42, "spectator-10");
 const state = computed(() => loaded.value?.history[index.value] ?? preview);
 const world = computed(() => state.value.world);
-const sequential = computed(() =>
-  ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.value.rules),
-);
+const sequential = computed(() => atLeast(state.value.rules, "spectator-4"));
 const activeRuler = computed(() => state.value.sequence?.activeCiv ?? null);
 const activeRulerName = computed(() =>
   activeRuler.value ? names[activeRuler.value] : "dirigeant",
@@ -300,8 +301,13 @@ const modernization = computed(() =>
   civ.value ? state.value.modernization?.[civ.value.id] : undefined,
 );
 const infrastructureForSelected = computed(() =>
-  civ.value && ["spectator-9"].includes(state.value.rules)
-    ? state.value.infrastructure ?? null
+  civ.value && atLeast(state.value.rules, "spectator-9")
+    ? (state.value.infrastructure ?? null)
+    : null,
+);
+const agreementForSelected = computed(() =>
+  civ.value && atLeast(state.value.rules, "spectator-10")
+    ? (state.value.agreement ?? null)
     : null,
 );
 const modernizationSuspended = computed(
@@ -313,7 +319,7 @@ const modernizationSuspended = computed(
     ),
 );
 const military = computed(() =>
-  ["spectator-7", "spectator-8", "spectator-9"].includes(state.value.rules) &&
+  atLeast(state.value.rules, "spectator-7") &&
   civ.value &&
   state.value.ages?.[civ.value.id] &&
   state.value.modernization?.[civ.value.id]
@@ -408,8 +414,7 @@ const incident = computed(() =>
 );
 const outcome = computed(() => loaded.value?.outcomes[index.value - 1]);
 const forecast = computed(() =>
-  ["spectator-8", "spectator-9"].includes(state.value.rules) &&
-  state.value.sequence
+  atLeast(state.value.rules, "spectator-8") && state.value.sequence
     ? forecastFor(world.value.seed, state.value.sequence.round - 1)
     : null,
 );
@@ -963,10 +968,7 @@ onUnmounted(() => {
                 </ol>
               </details>
             </section>
-            <section
-              v-if="military"
-              aria-label="Capacités militaires"
-            >
+            <section v-if="military" aria-label="Capacités militaires">
               <h3>Capacités militaires</h3>
               <p>
                 Puissance {{ military.power }} · Défense
@@ -1058,6 +1060,13 @@ onUnmounted(() => {
               :civ-id="civ.id"
               :world="world"
               :infrastructure="infrastructureForSelected"
+            />
+            <AgreementsPanel
+              v-if="agreementForSelected"
+              :civ-id="civ.id"
+              :world="world"
+              :agreement="agreementForSelected"
+              :round="state.sequence?.round ?? 1"
             />
             <h3>Intention du dirigeant</h3>
             <p>
@@ -1241,10 +1250,20 @@ onUnmounted(() => {
             {{ incident.end + (sequential ? 1 : 0) }}</small
           >
         </div>
-        <div v-else-if="forecast && !over" class="world-bulletin forecast" role="status">
+        <div
+          v-else-if="forecast && !over"
+          class="world-bulletin forecast"
+          role="status"
+        >
           <strong>{{ forecast.title }} annoncée</strong>
-          <span>Dans {{ forecast.start + 1 - state.sequence!.round }} manche(s) · {{ forecast.description }}</span>
-          <small>Préparation des réserves · manches {{ forecast.start + 1 }} à {{ forecast.end + 1 }}</small>
+          <span
+            >Dans {{ forecast.start + 1 - state.sequence!.round }} manche(s) ·
+            {{ forecast.description }}</span
+          >
+          <small
+            >Préparation des réserves · manches {{ forecast.start + 1 }} à
+            {{ forecast.end + 1 }}</small
+          >
         </div>
         <div v-else class="world-bulletin quiet">
           <strong>{{
@@ -1356,11 +1375,33 @@ onUnmounted(() => {
           ><h2>Ce tour a changé le monde</h2>
           <details v-if="climateReport" class="climate-report" open>
             <summary>{{ climateReport.event.title }} · bilan observé</summary>
-            <p class="panel-help">Manches {{ climateReport.event.start + 1 }}–{{ climateReport.event.end + 1 }}. Les variations incluent aussi consommation, commerce, guerre et recrutement.</p>
-            <article v-for="row in climateReport.civilizations" :key="row.civ" class="event-row">
+            <p class="panel-help">
+              Manches {{ climateReport.event.start + 1 }}–{{
+                climateReport.event.end + 1
+              }}. Les variations incluent aussi consommation, commerce, guerre
+              et recrutement.
+            </p>
+            <article
+              v-for="row in climateReport.civilizations"
+              :key="row.civ"
+              class="event-row"
+            >
               <strong>{{ names[row.civ] }}</strong>
-              <p>{{ row.foodPerPerson }} vivres / habitant au départ · {{ row.protected ? "irrigation ou grenier présent" : "sans protection agricole" }}</p>
-              <small>Réserves {{ Math.round(row.foodBefore) }} → {{ Math.round(row.foodAfter) }} · Population {{ row.populationChange > 0 ? "+" : "" }}{{ row.populationChange }}{{ row.survived ? "" : " · civilisation disparue" }}</small>
+              <p>
+                {{ row.foodPerPerson }} vivres / habitant au départ ·
+                {{
+                  row.protected
+                    ? "irrigation ou grenier présent"
+                    : "sans protection agricole"
+                }}
+              </p>
+              <small
+                >Réserves {{ Math.round(row.foodBefore) }} →
+                {{ Math.round(row.foodAfter) }} · Population
+                {{ row.populationChange > 0 ? "+" : ""
+                }}{{ row.populationChange
+                }}{{ row.survived ? "" : " · civilisation disparue" }}</small
+              >
             </article>
           </details>
           <article
