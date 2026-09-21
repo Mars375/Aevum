@@ -41,7 +41,8 @@
     "learning-curve": "tsx scripts/learning-curve.ts",
     "season-report": "tsx scripts/season-report.ts",
     "verify-season-1": "tsx scripts/verify-season-1.ts",
-    "launch": "node scripts/launch.mjs"
+    "launch": "node scripts/launch.mjs",
+    "package": "tsx scripts/package-app.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

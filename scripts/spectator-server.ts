@@ -18,9 +18,22 @@ import {
 import { campaignSummary } from "../packages/world/src/campaign-summary.js";
 import { defaultCouncilModels } from "../packages/agents/src/default-models.js";
 import { requestValidatedCouncil } from "../packages/agents/src/council-review.js";
-import { atomicWrite, lockWorld } from "./world-storage.js";
+import { atomicWrite, lockWorld, reclaimStaleLock } from "./world-storage.js";
 import { ENDPOINTS } from "../packages/agents/src/endpoints.js";
 import { loadWindowsNousEnvironment } from "./windows-env.js";
+
+/**
+ * Le port du service, 5174 par defaut.
+ *
+ * Il etait fige. Une copie empaquetee ne pouvait donc ni cohabiter avec une
+ * instance deja lancee, ni etre demarree pour verification sans prendre la
+ * place de celle de l'utilisateur : un conflit de port transformait le
+ * demarrage en un clic en echec sans recours.
+ */
+export const SERVICE_PORT = (() => {
+  const raw = Number(process.env.AEVUM_PORT);
+  return Number.isInteger(raw) && raw > 0 && raw < 65536 ? raw : 5174;
+})();
 
 const CreateSchema = z
   .object({
@@ -152,7 +165,12 @@ export function createSpectatorServer(
     };
     // Local service only. Reject foreign browser origins, including null origins.
     const origin = req.headers.origin;
-    const allowed = /^http:\/\/(127\.0\.0\.1|localhost):(5173|5174)$/;
+    // 5173 est le serveur de developpement Vite ; SERVICE_PORT est celui
+    // d'ici, et il n'est pas toujours 5174 : une copie empaquetee doit
+    // pouvoir se decaler.
+    const allowed = new RegExp(
+      `^http://(127\\.0\\.0\\.1|localhost):(5173|${SERVICE_PORT})$`,
+    );
     if (origin && !allowed.test(origin)) {
       send(403, { error: "Origine non autorisée" });
       return;
@@ -363,14 +381,21 @@ if (
 ) {
   if (existsSync(".env")) process.loadEnvFile(".env");
   loadWindowsNousEnvironment();
-  const release = lockWorld(resolve("worlds/spectator/server.lock"));
+  const lockPath = resolve("worlds/spectator/server.lock");
+  // Fermer la fenetre du lanceur tue ce processus sans lui laisser liberer
+  // son verrou. On le reprend quand son proprietaire est mort, et on le dit.
+  if (reclaimStaleLock(lockPath))
+    console.log(
+      "Verrou repris : le serveur precedent a ete ferme sans arret propre.",
+    );
+  const release = lockWorld(lockPath);
   const server = createSpectatorServer();
   process.once("exit", release);
   for (const signal of ["SIGINT", "SIGTERM"] as const)
     process.once(signal, () => server.close(() => process.exit(0)));
-  server.listen(5174, "127.0.0.1", () =>
+  server.listen(SERVICE_PORT, "127.0.0.1", () =>
     console.log(
-      "Observatoire : http://127.0.0.1:5174 (API locale ; npm run player:build pour le site)",
+      `Observatoire : http://127.0.0.1:${SERVICE_PORT} (API locale ; npm run player:build pour le site)`,
     ),
   );
 }

@@ -1,5 +1,13 @@
 # Découvrir Aevum
 
+## Sans rien installer
+
+`npm run package` produit un dossier `dist-app/` autonome : le site déjà construit, le serveur en un seul fichier et une copie de l'interpréteur Node à côté. On le copie où l'on veut, on double-clique **Lancer Aevum.cmd**, et rien n'est téléchargé ni compilé au lancement. Aucune clé n'y est livrée : les réglages Nous restent lus dans les variables d'environnement de la machine qui l'exécute.
+
+Deux limites à connaître avant de le distribuer : le paquet **n'est pas signé**, et les campagnes enregistrées vivent dans `worlds/` à l'intérieur du dossier — remplacer celui-ci par une version plus récente les effacerait. `docs/reports/distribution-autonome.md` dit ce qui est vérifié et ce qui ne l'est pas.
+
+## Depuis le dépôt
+
 Sous Windows, installez Node.js 22 ou plus récent, puis double-cliquez sur **Lancer Aevum.cmd**. Le premier lancement installe les dépendances, prépare le site et ouvre le navigateur. Gardez la fenêtre du lanceur ouverte pendant la simulation. Relancer le fichier réutilise le serveur s'il est déjà prêt.
 
 Dans le site, **Découvrir** charge une campagne enregistrée de 50 tours, réellement jouée par quatre modèles Nous. Ce parcours ne nécessite aucune clé et ne déclenche aucun appel IA. Les indisponibilités historiques sont conservées. Les boutons de lecture parcourent l'enregistrement ; les moments importants permettent de sauter aux événements marquants.

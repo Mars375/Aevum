@@ -31,3 +31,4 @@ worlds/status.json
 
 # Caches d'outils locaux, regeneres a chaque edition.
 .impeccable/
+dist-app/
