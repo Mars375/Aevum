@@ -406,3 +406,14 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Point rétabli : « `stateSignature` couvre v10 sans toucher `campaign.ts` » est **faux**. Les énumérations de `CampaignSchema` et de `SpectatorStateSchema` sont littérales ; sans extension, une campagne v10 ne se parse pas, donc ne se rejoue pas.
 - Vérifié : 69 fichiers, 633 tests, `tsc`, `vue-tsc`.
 - Prochaine action : implémenter `packages/world/src/agreements.ts` et ses tests contre les quinze invariants du §10, puis l'intégration moteur. **Aucun code v10 n'est écrit à ce jour.**
+
+### 2026-09-21 — Travail B, étape 2 : le module d'accords
+
+- `packages/world/src/agreements.ts` : schémas zod, règles et helpers purs, sur le modèle d'`infrastructure.ts`. Aucune dépendance au spectateur, ni horloge ni aléatoire. Ids déterministes `agreement-v1:<round>:<from>:<to>:<kind>:<seq>`.
+- Il implémente la conception corrigée, et chaque règle porte le défaut qui l'a demandée : échange **bilatéral** (`give`/`receive`, les deux côtés vérifiés avant que rien ne bouge, application atomique) ; acceptation bloquée seulement par un **pacte actif**, jamais par l'existence d'une offre ; `accept`/`decline` par **`offerId`** ; `dissolveOnDeath` sans blâme **ni prime**, à exécuter avant `tickPacts`.
+- Refus nommés, jamais de réécriture silencieuse : quatorze motifs explicites. Une offre refusée survit jusqu'à son expiration au lieu d'être consommée.
+- `records(ctx)` lève plutôt que d'improviser un état — la leçon de la revue v9, reprise telle quelle.
+- **22 tests** (`packages/world/test/agreements.test.ts`). Un a d'abord échoué et c'était mon fixture, pas le code : mes offres de remplissage partageaient une paire, donc `propose` les remplaçait au lieu de les empiler. Corrigé sur douze paires ordonnées réellement distinctes, ce qui a permis de fixer au passage un comportement utile : **à saturation, remplacer sa propre offre reste possible**, puisque le remplacement ne fait pas grandir la file.
+- Trois invariants du §10 ne sont **pas** ici, et le fichier de test le dit : budget partagé sur un tour, régression des rejeux v1 à v9, et « un seul accord par tour » se mesurent à l'intégration moteur.
+- Vérifié : 70 fichiers, 655 tests, `tsc`, `vue-tsc`.
+- **Rien n'est encore branché** : `spectator.ts` ignore ce module, aucune règle `spectator-10` n'existe, aucun contrat IA ne porte `agreement`. Prochaine action : l'intégration moteur, avec l'extension des énumérations de version que la conception §9 détaille.
