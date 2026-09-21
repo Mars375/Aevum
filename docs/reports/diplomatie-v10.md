@@ -92,9 +92,33 @@ désormais, et le vrai chiffre est zéro.
   en campagne : la politique locale ne déclare pas la guerre à un partenaire de
   pacte, et accepte assez vite pour qu'aucune offre n'atteigne son expiration.
   La confiance n'est donc jamais descendue.
-- **Aucun modèle distant n'a joué la v10.** Tout ce qui précède est local. Ce
-  qu'un dirigeant distant fait d'un `offerId` ou de deux contributions reste à
-  mesurer, et la leçon de la v9 vaut ici : un appel valide n'est pas un taux,
-  il faut répéter le même tick.
 - **Aucun contrôle visuel.** Le panneau est testé par rendu, pas regardé — le
   navigateur n'est pas disponible sur ce poste.
+
+## Un dirigeant distant sait-il répondre à une offre ?
+
+La question concrète que le design posait : un modèle va-t-il **recopier**
+l'identifiant qu'on lui annonce, ou en fabriquer un ? Un identifiant inventé est
+refusé, et c'est voulu — mais si aucun modèle ne sait en copier un, le choix de
+`offerId` serait joli et inutilisable.
+
+`scripts/v10-remote-probe.ts` chauffe localement jusqu'au premier tour où
+l'acteur a une offre à traiter, puis fait **un seul** appel par graine.
+
+|                                         |                               |
+| --------------------------------------- | ----------------------------- |
+| conseils demandés                       | 3 (graines 42, 7, 1)          |
+| servis par le modèle lui-même           | 2 sur 3                       |
+| ayant répondu à l'offre                 | 2 sur 2 des réponses obtenues |
+| **ayant recopié l'identifiant annoncé** | **2 sur 2**                   |
+| ordres rejetés                          | **0**                         |
+
+Les deux réponses sont exactement conformes : `accept` avec l'identifiant exact,
+tous les autres champs à `null` — la forme plate et nullable tient. La troisième
+graine a expiré côté transport (« Délai de réponse IA dépassé ») et est
+rapportée `unavailable`, jamais remplacée en silence par un dirigeant local.
+
+Ce que cela ne prouve pas : trois appels ne font pas un taux, la leçon de la v9
+reste valable, et **aucune campagne distante longue sous v10 n'a été jouée**.
+Le chemin `propose` avec deux contributions n'a pas encore été emprunté par un
+modèle — seul `accept` l'a été.

@@ -456,3 +456,12 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Limites écrites dans `docs/reports/diplomatie-v10.md` : ni rupture, ni dissolution, ni expiration observées en campagne — les trois chemins sont bornés par des tests mais ne se produisent pas, donc la confiance n'est jamais descendue. Et **aucun modèle distant n'a joué la v10**.
 - Lot 4 de `docs/release-spectateur.md` marqué livré, avec ses chiffres et ses limites.
 - Vérifié : 73 fichiers, 674 tests, `tsc`, `vue-tsc`.
+
+### 2026-09-21 — Travail B, étape 7 : un dirigeant distant répond à une offre
+
+- La question concrète que la conception posait : un modèle **recopie-t-il** l'identifiant qu'on lui annonce, ou en fabrique-t-il un ? Un identifiant inventé est refusé, et c'est voulu — mais si aucun modèle ne sait en copier un, le choix de `offerId` serait joli et inutilisable.
+- `scripts/v10-remote-probe.ts` : chauffe locale gratuite jusqu'au premier tour où l'acteur a une offre à traiter, puis **un seul** appel par graine. Trois conseils demandés : **2 servis par le modèle lui-même, 2 valides, 0 rejet, et 2 sur 2 ont recopié l'identifiant exact** — `accept` avec tous les autres champs à `null`, la forme plate tient. La troisième graine a expiré côté transport et est rapportée `unavailable`, jamais remplacée en silence.
+- Limites écrites : trois appels ne font pas un taux, et le chemin `propose` avec deux contributions n'a pas encore été emprunté par un modèle — seul `accept` l'a été. Aucune campagne distante longue sous v10.
+- `CLAUDE.md` corrigé une troisième fois : il affirmait que `branding.test.ts` scanne l'arbre de travail entier, fichiers non suivis compris. C'est faux depuis qu'il demande sa liste à `git ls-files` — il ne voit que ce qui est suivi.
+- `docs/release-spectateur.md` à jour : lot 4 livré avec ses chiffres, et la ligne « reste à livrer » ne l'annonce plus.
+- Vérifié : 73 fichiers, 674 tests, `tsc`, `vue-tsc`.

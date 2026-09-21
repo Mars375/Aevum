@@ -1,0 +1,91 @@
+{
+  "checkedAt": "2026-09-21T18:09:21.491Z",
+  "rules": "spectator-10",
+  "seeds": 3,
+  "remoteCalls": 3,
+  "warmedSeeds": 3,
+  "servedByModelItself": 2,
+  "validCouncils": 2,
+  "answeredTheOffer": 2,
+  "copiedTheAdvertisedId": 2,
+  "totalRejections": 0,
+  "rows": [
+    {
+      "seed": 42,
+      "warmed": true,
+      "warmRound": 3,
+      "civ": "azure",
+      "pendingOfferId": "agreement-v1:3:amber:azure:nonaggression:1",
+      "source": "remote",
+      "served": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 8911,
+        "servedByFallback": false
+      },
+      "servedItself": true,
+      "answered": {
+        "action": "accept",
+        "offerId": "agreement-v1:3:amber:azure:nonaggression:1",
+        "target": null,
+        "kind": null,
+        "duration": null,
+        "give": null,
+        "receive": null
+      },
+      "usedTheAdvertisedId": true,
+      "rejections": [],
+      "valid": true,
+      "error": null
+    },
+    {
+      "seed": 7,
+      "warmed": true,
+      "warmRound": 3,
+      "civ": "azure",
+      "pendingOfferId": "agreement-v1:3:amber:azure:nonaggression:1",
+      "source": "remote",
+      "served": {
+        "requestedModel": "nous:meituan/longcat-2.0:free",
+        "servedModel": "nous:meituan/longcat-2.0:free",
+        "provider": "nous",
+        "fallbackCount": 0,
+        "attempts": 1,
+        "latencyMs": 8993,
+        "servedByFallback": false
+      },
+      "servedItself": true,
+      "answered": {
+        "action": "accept",
+        "offerId": "agreement-v1:3:amber:azure:nonaggression:1",
+        "target": null,
+        "kind": null,
+        "duration": null,
+        "give": null,
+        "receive": null
+      },
+      "usedTheAdvertisedId": true,
+      "rejections": [],
+      "valid": true,
+      "error": null
+    },
+    {
+      "seed": 1,
+      "warmed": true,
+      "warmRound": 3,
+      "civ": "azure",
+      "pendingOfferId": "agreement-v1:3:amber:azure:nonaggression:1",
+      "source": "unavailable",
+      "served": null,
+      "servedItself": false,
+      "answered": null,
+      "usedTheAdvertisedId": null,
+      "rejections": [],
+      "valid": false,
+      "error": "Délai de réponse IA dépassé"
+    }
+  ]
+}

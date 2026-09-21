@@ -3,8 +3,8 @@
 Ce fichier existe pour une raison précise : **éviter qu'une session neuve
 redécouvre, et surtout refasse, ce qui a déjà été mesuré.** Ce qui coûte cher à
 retrouver n'est pas où se trouve une fonction — un `grep` le dit en une
-seconde — c'est *pourquoi c'est ainsi* et *ce qu'on a déjà essayé qui ne
-marchait pas.*
+seconde — c'est _pourquoi c'est ainsi_ et _ce qu'on a déjà essayé qui ne
+marchait pas._
 
 Garder ce fichier court est le but. S'il grossit, il ne sera plus lu.
 
@@ -33,7 +33,7 @@ plus facilement :
 
 - **W4 — rejouer le journal reproduit l'état.** Il est tombé une fois, en
   silence : une décision différée était appliquée à l'année où la question avait
-  été *posée* et non répondue. Un monde se déclarait alors éteint pendant qu'un
+  été _posée_ et non répondue. Un monde se déclarait alors éteint pendant qu'un
   rejeu le montrait vivant.
 - **Rien de non déterministe dans `engine` et `world`.** Pas d'horloge, pas de
   `Math.random`. Les saisons, les bandits et les catastrophes viennent d'un hash
@@ -91,10 +91,15 @@ fichier existe précisément pour ne plus avoir à faire.
 
 **`apps/player/test/branding.test.ts`** interdit l'ancien nom public hors d'une
 liste blanche, comparée par `toEqual`. C'est une **égalité exacte**, donc elle
-coupe des deux côtés : ajouter l'ancien nom quelque part la casse, et *le retirer
-d'un fichier listé la casse aussi* — il faut alors retirer le chemin de la liste.
-Elle scanne l'arbre de travail entier, fichiers non suivis compris : un cache
-d'outil local (`.impeccable/hook.cache.json`) l'a déjà fait tomber.
+coupe des deux côtés : ajouter l'ancien nom quelque part la casse, et _le retirer
+d'un fichier listé la casse aussi_ — il faut alors retirer le chemin de la liste.
+Elle demande sa liste à `git ls-files`, donc **elle ne voit que ce qui est
+suivi**. Ce n'était pas le cas au départ : elle parcourait l'arbre de travail
+avec une liste d'exclusions, et n'importe quel fichier local la faisait tomber
+au milieu d'un travail sans rapport — un cache d'outil, l'état d'un monde en
+cours de veille. Chacun réclamait une exclusion de plus, et aucun n'était
+publié. Demander la liste à git dit exactement ce que le test veut dire : ce
+que le dépôt publie, c'est ce qu'il versionne.
 
 ## Ce qui a déjà été réfuté — ne pas refaire
 
@@ -151,13 +156,13 @@ mode normal.
 
 ## Où regarder
 
-| | |
-| --- | --- |
-| les règles et les six invariants | `docs/spec/world-w8.md`, puis `world-w9.md` |
-| tout ce qui a été mesuré | `docs/reports/` |
-| l'identité visuelle et la vue 3D | `docs/spec/visual-identity.md` |
-| la refonte du lecteur, validée, non commencée | `docs/superpowers/specs/2026-08-25-aevum-observatory-redesign-design.md` |
-| les conventions et le défaut qui a enseigné chacune | skill `project-conventions` |
+|                                                     |                                                                          |
+| --------------------------------------------------- | ------------------------------------------------------------------------ |
+| les règles et les six invariants                    | `docs/spec/world-w8.md`, puis `world-w9.md`                              |
+| tout ce qui a été mesuré                            | `docs/reports/`                                                          |
+| l'identité visuelle et la vue 3D                    | `docs/spec/visual-identity.md`                                           |
+| la refonte du lecteur, validée, non commencée       | `docs/superpowers/specs/2026-08-25-aevum-observatory-redesign-design.md` |
+| les conventions et le défaut qui a enseigné chacune | skill `project-conventions`                                              |
 
 ## Le principe, qui prime sur le reste
 
@@ -171,8 +176,8 @@ possibilités — des ressources, des progrès, des terres à prendre — **jama
 garde-fous qui garantissent la réussite**.
 
 La distinction qui tranche les cas douteux : corriger un comportement
-*automatique du moteur* est légitime (personne ne l'a décidé) ; empêcher une
-décision *d'un dirigeant* ne l'est pas, même mauvaise. Le moteur refusait en
+_automatique du moteur_ est légitime (personne ne l'a décidé) ; empêcher une
+décision _d'un dirigeant_ ne l'est pas, même mauvaise. Le moteur refusait en
 silence les attaques perdues d'avance — c'était une tutelle, elle a été retirée
 en w8.
 
