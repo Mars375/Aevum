@@ -18,7 +18,7 @@ Une application locale simple à lancer pour regarder quatre civilisations gouve
 Les six lots sont livrés, le sixième partiellement. Trois limites subsistent, chacune hors de portée d'une mesure locale et chacune écrite là où elle compte :
 
 - **La campagne distante longue n'a pas lieu.** Ce n'est pas le contrat — 10 tours consécutifs joués sans un seul ordre rejeté — mais le point d'inférence, qui cesse de répondre après deux complétions dans un même processus (`docs/reports/campagne-distante.md`).
-- **Le paquet n'est pas signé.** Il demande un certificat de signature de code, qui n'a rien à faire dans un dépôt.
+- **Le paquet n'est pas signé, et il y manque plus qu'un certificat.** Vérifié sur le paquet produit : `runtime/node.exe` est **déjà signé et valide, par l'OpenJS Foundation** — le resigner usurperait son éditeur — et `Lancer Aevum.cmd` renvoie `UnknownError`, parce qu'un fichier batch ne peut pas porter de signature Authenticode. Le paquet ne contient donc **rien qui nous appartienne et qui soit signable** : il faudrait d'abord produire notre propre exécutable, puis un certificat, puis le SDK Windows (`docs/reports/distribution-autonome.md`).
 - **Le contrôle visuel est partiel.** Une campagne v10 a été ouverte dans le navigateur d’Orca et les panneaux du dirigeant vérifiés sur la page — ce qui a d’ailleurs révélé un défaut qu’aucun test ne voyait. La vue 3D et les autres écrans n’ont pas été regardés.
 
 ## Validation finale

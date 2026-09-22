@@ -115,8 +115,16 @@ répéter.
 
 ## Ce qui n'est pas livré
 
-- **La signature.** Elle demande un certificat de signature de code, qui n'a
-  rien à faire dans un dépôt. Le manifeste porte `signed: false` plutôt que de
+- **La signature — et ce n'est pas qu'une affaire de certificat.** Je l'ai
+  d'abord écrit ainsi ; c'était faux. Vérifié sur le paquet produit :
+  `runtime/node.exe` est **déjà signé et valide, par l'OpenJS Foundation** — le
+  resigner reviendrait à usurper son éditeur ; `Lancer Aevum.cmd` renvoie
+  `UnknownError`, parce qu'un fichier batch **ne peut pas porter** de signature
+  Authenticode ; et `signtool.exe` n'est pas installé ici. Autrement dit, **le
+  paquet ne contient rien qui nous appartienne et qui soit signable.** Une
+  application signée demande d'abord de produire notre propre exécutable — un
+  binaire unique à la manière de Node SEA — puis un certificat, puis le SDK
+  Windows. Trois choses, pas une. Le manifeste porte `signed: false` plutôt que de
   laisser croire le contraire.
 - **Un installateur, une désinstallation, une mise à jour automatique.** Le
   paquet est un dossier qu'on copie.
