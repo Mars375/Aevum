@@ -34,7 +34,11 @@ plus facilement :
 - **W4 — rejouer le journal reproduit l'état.** Il est tombé une fois, en
   silence : une décision différée était appliquée à l'année où la question avait
   été _posée_ et non répondue. Un monde se déclarait alors éteint pendant qu'un
-  rejeu le montrait vivant.
+  rejeu le montrait vivant. Corollaire appris depuis : W4 vaut **à l'intérieur
+  d'une version**. Changer le comportement d'un jeu de règles déjà joué invalide
+  ses enregistrements — un correctif qui fait émettre un événement de plus change
+  `state.memory`, donc la signature. La prochaine évolution d'un jeu de règles
+  livré prend un numéro, pas une correction en place.
 - **Rien de non déterministe dans `engine` et `world`.** Pas d'horloge, pas de
   `Math.random`. Les saisons, les bandits et les catastrophes viennent d'un hash
   pur de `(seed, tick)`. `packages/contracts/test/boundaries.test.ts` le vérifie,
@@ -79,7 +83,7 @@ JSON absent revient en **200 avec du HTML**, pas en 404. `res.ok` est alors vrai
 et c'est `res.json()` qui lève. La spec de refonte en fait un critère d'accep­
 tation ; c'est la raison.
 
-## Deux gardes à connaître avant d'éditer
+## Trois gardes à connaître avant d'éditer
 
 **`packages/contracts/test/boundaries.test.ts`** applique la table du README au
 lieu de la promettre : pas d'horloge ni d'aléatoire dans `engine`, `world` et
@@ -88,6 +92,17 @@ aucune clé dans une source. Le trou qu'il avait est bouché : `packages/metrics
 ne figurait ni dans le contrôle de non-déterminisme ni dans celui qui interdit
 d'importer le lecteur, et restait propre par vérification à la main — ce que ce
 fichier existe précisément pour ne plus avoir à faire.
+
+**Un seuil de version s'écrit une fois.** `SPECTATOR_RULES` et
+`atLeast(règles, plancher)`, dans `packages/world/src/spectator.ts`, sont le seul
+endroit où l'échelle s'énumère ; `boundaries.test.ts` refuse désormais toute
+autre liste de deux `"spectator-N"` consécutifs. La raison : une garde recopiée
+en clair **ne casse rien** quand une version paraît, elle **retire une capacité
+en silence** à la nouvelle. Six l'avaient fait pour `spectator-10` — le rapport
+climatique disparaissait, le bilan comptait des tours en les appelant des
+manches, et le serveur consultait les quatre dirigeants au lieu du seul acteur,
+soit quatre appels distants par tour au lieu d'un. Aucune n'a fait échouer un
+test ; il a fallu ouvrir la page.
 
 **`apps/player/test/branding.test.ts`** interdit l'ancien nom public hors d'une
 liste blanche, comparée par `toEqual`. C'est une **égalité exacte**, donc elle

@@ -103,4 +103,20 @@ describe("finite campaign reporting", () => {
     ).toBe(1);
     expect(campaignSummary(campaign, second).plansScope).toBe("current-plan");
   });
+
+  /**
+   * Le meme seuil recopie en clair : sous « spectator-10 », le bilan comptait
+   * `world.tick` — un tour par dirigeant — en l'appelant « manches ». Quatre
+   * fois trop, donc une campagne declaree finie bien avant son horizon.
+   */
+  it("compte des manches, et non des tours, sous la version suivante", () => {
+    const state = newSpectator(42, "spectator-10");
+    state.sequence!.round = 13;
+    state.world.tick = 48;
+    const v10 = { ...campaign, version: "spectator-10" as const, maxTurns: 20 };
+    expect(campaignSummary(v10, state)).toMatchObject({
+      finished: false,
+      remainingTurns: 8,
+    });
+  });
 });

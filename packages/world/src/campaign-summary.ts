@@ -1,5 +1,5 @@
 import type { Campaign } from "./campaign.js";
-import type { SpectatorState } from "./spectator.js";
+import { atLeast, type SpectatorState } from "./spectator.js";
 import type { FactionId } from "@abs/contracts";
 
 /** Reporting only: ending an observation period does not assert a military victory.
@@ -58,9 +58,7 @@ export function campaignSummary(
         number
       >,
     }));
-  const turns = ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(
-    state.rules,
-  )
+  const turns = atLeast(state.rules, "spectator-4")
     ? (state.sequence?.round ?? 1) - 1
     : state.world.tick;
   const maxTurns = campaign.maxTurns ?? null;

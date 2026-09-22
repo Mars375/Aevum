@@ -70,3 +70,27 @@ it("reports only completed visible crises and replays v8 without rejected orders
   });
   expect(replayCampaign(campaign).state).toEqual(state);
 }, 20_000);
+
+/**
+ * La garde de version etait recopiee en clair ici : sous « spectator-10 », la
+ * liste ["spectator-8", "spectator-9"] ne contenait plus la version courante,
+ * et `latestClimateReport` rendait `null`. Le rapport climatique — les crises
+ * annoncees trois manches a l'avance, tout le lot 2 — disparaissait de la
+ * nouvelle version sans qu'aucun test ne bronche, puisque tous jouaient en v8.
+ */
+it("rend le meme rapport climatique sous la version suivante", () => {
+  const run = (rules: "spectator-8" | "spectator-10") => {
+    let state = newSpectator(42, rules);
+    const history = [state];
+    for (let i = 0; i < 110; i++) {
+      const civ = activeCiv(state);
+      if (!civ) break;
+      state = resolveCouncil(state, [localCouncil(state, civ)]).state;
+      history.push(state);
+    }
+    return latestClimateReport(history);
+  };
+  const v10 = run("spectator-10");
+  expect(v10).not.toBeNull();
+  expect(v10!.event.id).toBe(run("spectator-8")!.event.id);
+});

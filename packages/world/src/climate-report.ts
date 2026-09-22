@@ -1,11 +1,11 @@
-import { incidentFor, type SpectatorState } from "./spectator.js";
+import { atLeast, incidentFor, type SpectatorState } from "./spectator.js";
 
 /** Observed changes across a completed event, never a claim of causal loss.
  * Callers supply history only through the currently displayed snapshot.
  */
 export function latestClimateReport(history: readonly SpectatorState[]) {
   const current = history.at(-1);
-  if (current === undefined || !["spectator-8", "spectator-9"].includes(current.rules) || !current.sequence) return null;
+  if (current === undefined || !atLeast(current.rules, "spectator-8") || !current.sequence) return null;
   const turn = current.sequence.round - 1;
   for (let ago = 1; ago <= 15; ago++) {
     if (turn - ago < 0) break;

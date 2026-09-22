@@ -109,6 +109,36 @@ describe("aucune cle ne peut se glisser dans une source", () => {
   });
 });
 
+/**
+ * Un seuil de version s'ecrit une fois.
+ *
+ * Les gardes etaient recopiees en clair a travers le depot sous la forme
+ * `["spectator-4", ..., "spectator-9"].includes(x)`. Une liste pareille ne
+ * casse rien quand une version parait : elle **retire une capacite en
+ * silence** a la nouvelle. Six l'avaient fait pour `spectator-10` — le rapport
+ * climatique disparaissait, le bilan comptait des tours en les appelant des
+ * manches, et le serveur consultait les quatre dirigeants au lieu du seul
+ * acteur. Aucune n'a fait echouer un test ; il a fallu regarder la page.
+ *
+ * `atLeast(regles, plancher)` dit la meme chose une fois et suit la suite.
+ * Seul `spectator.ts`, qui definit l'echelle, a le droit de l'enumerer.
+ */
+describe("aucun seuil de version n'est recopie en clair", () => {
+  const LISTE = /"spectator-\d+",\s*"spectator-\d+"/;
+  const ECHELLE = "packages/world/src/spectator.ts";
+
+  it("dans aucun paquet, ni dans le lecteur, ni dans les scripts", () => {
+    for (const dir of ["packages", "apps/player/src", "scripts"]) {
+      expect(
+        offenders(dir, LISTE).filter(
+          (f) => f.split("\\").join("/") !== ECHELLE,
+        ),
+        dir,
+      ).toEqual([]);
+    }
+  });
+});
+
 describe("les preuves de service restent publiques et bien formees", () => {
   const service = {
     requestedModel: "requested/model",

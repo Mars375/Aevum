@@ -14,6 +14,7 @@ import {
   resolveCouncil,
   incidentFor,
   activeCiv,
+  atLeast,
 } from "../packages/world/src/spectator.js";
 import { campaignSummary } from "../packages/world/src/campaign-summary.js";
 import { defaultCouncilModels } from "../packages/agents/src/default-models.js";
@@ -101,9 +102,7 @@ export function createSpectatorServer(
         throw new Error("La partie est terminée");
       campaign.pending ??= { turn: state.world.tick, answers: [] };
       save(campaign);
-      const current = ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(
-        state.rules,
-      )
+      const current = atLeast(state.rules, "spectator-4")
         ? activeCiv(state)
         : null;
       // Persist every answer; an interrupted process resumes only missing rulers.
@@ -132,7 +131,7 @@ export function createSpectatorServer(
       campaign.pending.answers.sort((a, b) => a.civ.localeCompare(b.civ));
       const answers = campaign.pending.answers;
       if (
-        ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(state.rules) &&
+        atLeast(state.rules, "spectator-4") &&
         answers.some((a) => a.source === "unavailable")
       ) {
         // Retry the same ruler on the next click; do not skip a failed AI turn.
@@ -300,9 +299,7 @@ export function createSpectatorServer(
             error: errors.get(id) ?? null,
             nextIncident: incidentFor(
               campaign.seed,
-              ["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(
-                restored.state.rules,
-              )
+              atLeast(restored.state.rules, "spectator-4")
                 ? (restored.state.sequence?.round ?? 1) - 1
                 : restored.state.world.tick,
             ),
@@ -328,15 +325,11 @@ export function createSpectatorServer(
             });
             return;
           }
-          if (
-            campaign.turns.length >=
-            (["spectator-4", "spectator-5", "spectator-6", "spectator-7", "spectator-8", "spectator-9"].includes(
-              campaign.version,
-            )
-              ? 1200
-              : 1000)
-          ) {
-            send(409, { error: "Limite de 1000 tours atteinte" });
+          // Le message nommait 1000 quelle que soit la limite appliquee ;
+          // un joueur arrete a 1200 lisait donc un chiffre qui n'etait pas le sien.
+          const cap = atLeast(campaign.version, "spectator-4") ? 1200 : 1000;
+          if (campaign.turns.length >= cap) {
+            send(409, { error: `Limite de ${cap} tours atteinte` });
             return;
           }
           busy.add(id);
