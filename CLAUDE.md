@@ -141,6 +141,14 @@ que le dépôt publie, c'est ce qu'il versionne.
    de 129 pour la même fenêtre, dont 46 % de famine — deux fois plus cher, et
    surtout des questions forcées. Aucune conquête non plus : elle demande qu'un
    dirigeant choisisse la pression, et un monde muet ne décide rien.
+10. **Ce qui empêche une campagne distante longue n'est pas le contrat.** Sur
+    10 tours distants consécutifs réellement joués, **zéro ordre rejeté** et
+    quatre rejeux vérifiés sur quatre. Ce qui arrête la campagne est le point
+    d'inférence, qui cesse de répondre après deux complétions dans un même
+    processus. Écarté par la mesure : le modèle (le même pour les quatre
+    dirigeants), la taille de la demande (celle qui échoue est la plus petite),
+    la cadence (15 s puis 60 s ne changent rien) et le catalogue (six requêtes
+    d'affilée, six 200 sous 500 ms). Voir `docs/reports/campagne-distante.md`.
 
 ## Avant de dépenser du quota
 
@@ -153,6 +161,12 @@ npm run board-fairness   # le bruit du plateau, donc ce qu'une mesure peut prouv
 Le palier gratuit est un **budget d'appels**, pas une limite de débit — mesuré
 deux fois. Tout script long reprend là où il s'est arrêté ; s'arrêter est le
 mode normal.
+
+Ce n'est pourtant pas tout : **le point d'inférence cesse de répondre après deux
+complétions dans un même processus**, et attendre une minute n'y change rien
+(point 10 ci-dessus). Un script qui enchaîne des appels doit donc écrire son
+état à chaque tour et savoir repartir d'un processus neuf, sinon il s'arrêtera
+au troisième sans que le quota y soit pour quoi que ce soit.
 
 ## Où regarder
 

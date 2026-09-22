@@ -1,0 +1,73 @@
+{
+  "checkedAt": "2026-09-22T07:26:21.112Z",
+  "rules": "spectator-10",
+  "seed": 42,
+  "paceSeconds": 0,
+  "turnsRequested": 4,
+  "turnsPlayed": 4,
+  "councilsRequested": 4,
+  "transportRetries": 0,
+  "recoveredByRetry": 0,
+  "servedByModelItself": 4,
+  "unavailable": 0,
+  "totalRejectedOrders": 0,
+  "turnsWithoutRejection": 4,
+  "latencyMs": {
+    "min": 9530,
+    "median": 12285,
+    "max": 12291
+  },
+  "replayVerified": true,
+  "replayError": null,
+  "archive": "worlds/spectator/remote-campaign-diag.json",
+  "rows": [
+    {
+      "turn": 0,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:meituan/longcat-2.0:free",
+      "servedModel": "nous:meituan/longcat-2.0:free",
+      "servedItself": true,
+      "latencyMs": 12291,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 1,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:meituan/longcat-2.0:free",
+      "servedModel": "nous:meituan/longcat-2.0:free",
+      "servedItself": true,
+      "latencyMs": 12285,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 2,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:meituan/longcat-2.0:free",
+      "servedModel": "nous:meituan/longcat-2.0:free",
+      "servedItself": true,
+      "latencyMs": 10194,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 3,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:meituan/longcat-2.0:free",
+      "servedModel": "nous:meituan/longcat-2.0:free",
+      "servedItself": true,
+      "latencyMs": 9530,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    }
+  ]
+}

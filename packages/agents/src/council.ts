@@ -363,8 +363,17 @@ export async function requestCouncil(
       const catalog = await fetchImpl(
         "https://inference-api.nousresearch.com/v1/models",
         { headers, signal: AbortSignal.timeout(15000) },
-      );
-      if (!catalog.ok) throw new Error("Catalogue Nous indisponible");
+      ).catch((error: Error) => {
+        if (error.name === "TimeoutError")
+          throw new Error("Délai dépassé sur le catalogue Nous");
+        throw error;
+      });
+      if (!catalog.ok) {
+        // Un corps jamais lu garde sa connexion hors du pool : quelques refus
+        // suffisent alors a faire expirer toutes les requetes suivantes.
+        await catalog.body?.cancel();
+        throw new Error("Catalogue Nous indisponible");
+      }
       const data = (await catalog.json()) as {
         data?: Array<{
           id: string;
@@ -435,8 +444,15 @@ export async function requestCouncil(
           }),
           signal: AbortSignal.timeout(45000),
         },
-      );
-      if (!response.ok) throw new Error(`Nous HTTP ${response.status}`);
+      ).catch((error: Error) => {
+        if (error.name === "TimeoutError")
+          throw new Error("Délai dépassé sur la complétion Nous");
+        throw error;
+      });
+      if (!response.ok) {
+        await response.body?.cancel();
+        throw new Error(`Nous HTTP ${response.status}`);
+      }
       const body = (await response.json()) as {
         model?: string;
         choices?: Array<{ message?: { content?: string } }>;
@@ -514,7 +530,7 @@ export async function requestCouncil(
           : error instanceof Error && error.name === "TimeoutError"
             ? "Délai de réponse IA dépassé"
             : error instanceof Error &&
-                /^(Clé Nous|Catalogue Nous|Gratuité|Nous HTTP|Modèle indisponible|Identité)/.test(
+                /^(Clé Nous|Catalogue Nous|Délai dépassé|Gratuité|Nous HTTP|Modèle indisponible|Identité)/.test(
                   error.message,
                 )
               ? error.message

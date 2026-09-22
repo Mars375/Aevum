@@ -42,7 +42,11 @@
     "season-report": "tsx scripts/season-report.ts",
     "verify-season-1": "tsx scripts/verify-season-1.ts",
     "launch": "node scripts/launch.mjs",
-    "package": "tsx scripts/package-app.ts"
+    "package": "tsx scripts/package-app.ts",
+    "agreements:probe": "tsx scripts/agreements-probe.ts",
+    "agreements:remote": "tsx scripts/v10-remote-probe.ts",
+    "remote:campaign": "tsx scripts/remote-campaign-probe.ts",
+    "civilization:seeds": "tsx scripts/infrastructure-seeds-probe.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
