@@ -29,5 +29,17 @@ export default defineConfig({
   test: {
     include: ["packages/*/test/**/*.test.ts", "apps/*/test/**/*.test.ts"],
     environment: "node",
+    /**
+     * Cinq secondes mesuraient la charge de la machine, pas la correction.
+     *
+     * Plusieurs tests d'ici rejouent des centaines de tours de moteur — 1 100
+     * actions pour la modernisation, une campagne entière pour la démo, une
+     * chauffe jusqu'au tour 639 pour les ordres réalisables — et le contrôle de
+     * marque lit tous les fichiers suivis. Chacun passe largement seul ; en
+     * parallèle ils dépassaient les cinq secondes par défaut et la suite
+     * échouait sans qu'aucune régression n'existe. Un échec environnemental
+     * qu'on apprend à ignorer est pire qu'un test lent.
+     */
+    testTimeout: 30000,
   },
 });

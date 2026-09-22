@@ -204,5 +204,9 @@ describe("modernization programs", () => {
     expect(
       Object.values(state.ages!).some((age) => age.current === "future"),
     ).toBe(true);
-  }, 20000);
+    // Vingt secondes suffisaient quand ce test etait seul de son espece ; la
+    // suite en compte desormais plusieurs aussi lourds, et en parallele
+    // celui-ci depassait de deux secondes. Un delai propre l'emporte sur le
+    // defaut global, donc il faut le relever ici aussi.
+  }, 45000);
 });

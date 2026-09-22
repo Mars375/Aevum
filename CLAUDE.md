@@ -141,14 +141,16 @@ que le dépôt publie, c'est ce qu'il versionne.
    de 129 pour la même fenêtre, dont 46 % de famine — deux fois plus cher, et
    surtout des questions forcées. Aucune conquête non plus : elle demande qu'un
    dirigeant choisisse la pression, et un monde muet ne décide rien.
-10. **Ce qui empêche une campagne distante longue n'est pas le contrat.** Sur
+10. **Ce qui empêche une campagne distante longue n’est pas le contrat.** Sur
     10 tours distants consécutifs réellement joués, **zéro ordre rejeté** et
     quatre rejeux vérifiés sur quatre. Ce qui arrête la campagne est le point
-    d'inférence, qui cesse de répondre après deux complétions dans un même
-    processus. Écarté par la mesure : le modèle (le même pour les quatre
-    dirigeants), la taille de la demande (celle qui échoue est la plus petite),
-    la cadence (15 s puis 60 s ne changent rien) et le catalogue (six requêtes
-    d'affilée, six 200 sous 500 ms). Voir `docs/reports/campagne-distante.md`.
+    d’inférence, qui cesse de répondre après quelques appels. Écarté par la
+    mesure : le modèle, la taille de la demande (celle qui échoue est parmi
+    les plus petites), la cadence (15 s puis 60 s n’y changent rien), le
+    catalogue (six requêtes d’affilée, six 200 sous 500 ms) — **et la reprise
+    dans un processus neuf**, qui échoue dès son premier appel. La règle exacte
+    n’est pas établie ; ne pas lui en inventer une.
+    Voir `docs/reports/campagne-distante.md`.
 
 ## Avant de dépenser du quota
 

@@ -40,7 +40,7 @@ une campagne distante partielle.
 plutôt que de faire jouer un dirigeant local : une campagne où le moteur
 remplace le modèle n'est pas une campagne distante.
 
-Quatre hypothèses testées, trois écartées :
+Quatre hypothèses testées, quatre écartées :
 
 - **Le modèle ?** Non. Les quatre dirigeants partagent le même
   (`defaultCouncilModels` rend le même identifiant pour tous), et les deux
@@ -56,6 +56,40 @@ Quatre hypothèses testées, trois écartées :
 
 Reste le point d'inférence lui-même. L'erreur le dit désormais :
 **`Délai dépassé sur la complétion Nous`**.
+
+### Une cinquième hypothèse, écartée par sa propre expérience
+
+Les quatre premières exécutions donnaient toutes « deux appels réussis, puis
+l'arrêt », ce qui suggérait une limite **par processus**. Si c'était le cas,
+reprendre la campagne dans un processus neuf devait la faire avancer deux tours
+de plus à chaque fois.
+
+La reprise a donc été implémentée (`--resume` : relecture de l'archive, rejeu
+pour retrouver l'état, poursuite) et essayée trois fois de suite. Résultat :
+
+| processus | tours repris | tours ajoutés                  |
+| --------- | ------------ | ------------------------------ |
+| 1         | 0            | 2                              |
+| 2         | 2            | **0** — échec au premier appel |
+| 3         | 2            | **0** — échec au premier appel |
+
+**L'hypothèse est fausse.** Un processus neuf qui reprend n'obtient pas ses deux
+appels : il échoue dès le premier. Le même conseil a par ailleurs réussi une
+fois en troisième position. L'échec ne suit donc ni le rang de l'appel dans le
+processus, ni la civilisation, ni le contenu de la demande — l'observation
+bloquée mesure 23 301 caractères, la deuxième plus petite des quatre, sans
+mémoire accumulée.
+
+Ce qui reste compatible avec tout cela : une **allocation de compte sur une
+fenêtre de temps**, que le fournisseur épuise en cessant de répondre plutôt
+qu'en refusant. Cette session avait déjà consommé plusieurs dizaines d'appels.
+Cette explication n'est pas établie : la vérifier demande d'attendre des heures
+et de dépenser davantage, ce qui n'a pas été fait.
+
+La reprise est conservée malgré tout. Elle est correcte, elle vérifie par rejeu
+ce qu'elle reprend, et c'est la bonne architecture pour une campagne longue dès
+que les appels sont disponibles. Elle ne contourne simplement pas cette
+limite-ci.
 
 ## Deux défauts corrigés en chemin
 
@@ -78,21 +112,23 @@ résultat qui tient peut-être au hasard.
 
 `CLAUDE.md` affirme : « Le palier gratuit est un budget d'appels, pas une limite
 de débit — mesuré deux fois. » **Cette mesure-ci le contredit** pour ce
-fournisseur et ce modèle aujourd'hui : le budget n'est pas en cause — le
-catalogue répond, et des processus successifs obtiennent chacun leurs deux
-premières complétions — mais l'inférence cesse de répondre après deux appels
-dans un même processus, et attendre une minute n'y change rien.
+fournisseur et ce modèle aujourd'hui : le catalogue, lui, répond toujours, donc
+ce n'est pas l'accès au compte qui est coupé — mais l'inférence cesse de
+répondre après quelques appels, et ni attendre une minute ni repartir d'un
+processus neuf n'y change quoi que ce soit.
 
-Ce n'est donc ni un budget, ni un débit au sens habituel. C'est une
-indisponibilité du point d'inférence dont la règle exacte n'est pas établie.
+Ce n'est donc ni un budget au sens où la page l'entend, ni un débit au sens
+habituel. C'est une indisponibilité du point d'inférence dont **la règle exacte
+n'est pas établie**, et il vaut mieux l'écrire ainsi que de lui prêter une
+explication qui tiendrait jusqu'à la prochaine mesure.
 
 ## Ce qui reste à faire
 
 Une campagne distante longue demande de traiter cette indisponibilité, pas le
-contrat. Trois pistes, par coût croissant : un nouvel essai espacé bien plus
-longtemps qu'une minute ; une file qui reprend la campagne là où elle s'est
-arrêtée entre deux processus — l'archive est déjà écrite à chaque tour, donc la
-reprise ne demande que de la relire ; ou un autre fournisseur.
+contrat — et la reprise entre processus, pourtant implémentée et vérifiée par
+rejeu, ne suffit pas. Deux pistes restent : reprendre la campagne après une
+attente bien plus longue qu'une minute, en s'appuyant sur le `--resume` qui
+existe désormais ; ou changer de fournisseur.
 
 Tant que ce n'est pas fait, **la qualité d'une campagne distante longue reste
 non mesurée**, et aucun rapport ne doit prétendre le contraire.

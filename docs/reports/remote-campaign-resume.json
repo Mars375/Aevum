@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-09-22T07:35:29.772Z",
+  "rules": "spectator-10",
+  "seed": 42,
+  "paceSeconds": 0,
+  "turnsRequested": 2,
+  "turnsPlayed": 2,
+  "turnsResumed": 2,
+  "turnsAddedThisRun": 0,
+  "councilsRequested": 2,
+  "transportRetries": 1,
+  "recoveredByRetry": 0,
+  "servedByModelItself": 0,
+  "unavailable": 1,
+  "totalRejectedOrders": 0,
+  "turnsWithoutRejection": 0,
+  "latencyMs": {
+    "min": null,
+    "median": null,
+    "max": null
+  },
+  "replayVerified": true,
+  "replayError": null,
+  "archive": "worlds/spectator/remote-resume.json",
+  "rows": [
+    {
+      "turn": 2,
+      "civ": "crimson",
+      "source": "unavailable",
+      "requestedModel": "nous:meituan/longcat-2.0:free",
+      "servedModel": null,
+      "servedItself": false,
+      "latencyMs": null,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": "Délai dépassé sur la complétion Nous"
+    }
+  ]
+}

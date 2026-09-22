@@ -20,7 +20,7 @@
  *
  * Aucune cle n'est lue, journalisee ni imprimee ici.
  */
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import {
   activeCiv,
   newSpectator,
@@ -76,6 +76,32 @@ const campaign: Campaign = {
   turns: [],
   pending: null,
 };
+
+/**
+ * Reprendre une campagne d'un processus a l'autre.
+ *
+ * Le point d'inference cesse de repondre apres deux completions dans un meme
+ * processus — mesure, et ni la cadence ni la taille de la demande n'y changent
+ * rien (`docs/reports/campagne-distante.md`). Un processus neuf, lui, obtient
+ * ses deux appels. Reprendre l'archive contourne donc l'indisponibilite sans
+ * rien maquiller : ce sont les memes decisions distantes, jouees en plusieurs
+ * fois, et le rejeu le verifie d'un bout a l'autre.
+ */
+let resumed = 0;
+if (process.argv.includes("--resume") && existsSync(ARCHIVE)) {
+  const saved = CampaignSchema.parse(JSON.parse(readFileSync(ARCHIVE, "utf8")));
+  if (saved.seed !== SEED || saved.version !== RULES)
+    throw new Error(
+      "L'archive ne correspond pas a cette graine ou ces regles.",
+    );
+  // Le rejeu est la seule facon honnete de retrouver l'etat : il verifie au
+  // passage que ce qu'on reprend est bien ce qui a ete joue.
+  state = replayCampaign(saved).state;
+  campaign.turns = saved.turns;
+  campaign.models = saved.models;
+  resumed = saved.turns.length;
+  console.error(`reprise : ${resumed} tour(s) deja joue(s)`);
+}
 const rows: TurnRow[] = [];
 let retries = 0;
 let recovered = 0;
@@ -191,6 +217,8 @@ const report = {
   paceSeconds: PACE,
   turnsRequested: TURNS,
   turnsPlayed: campaign.turns.length,
+  turnsResumed: resumed,
+  turnsAddedThisRun: campaign.turns.length - resumed,
   councilsRequested: rows.length + retries,
   transportRetries: retries,
   recoveredByRetry: recovered,

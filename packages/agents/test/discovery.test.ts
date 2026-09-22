@@ -84,4 +84,7 @@ it("offers a verified recorded demo without credentials and stops bounded campai
     await new Promise<void>((resolve) => server.close(() => resolve()));
     rmSync(directory, { recursive: true, force: true });
   }
-}, 20_000);
+  // Ce test rejoue une campagne entiere. Vingt secondes tenaient quand la
+  // suite en comptait peu d aussi lourds ; en parallele il les depasse. Un
+  // delai propre l emporte sur le defaut global, donc il se releve ici.
+}, 45_000);
