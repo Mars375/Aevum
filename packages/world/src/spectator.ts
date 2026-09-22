@@ -440,6 +440,11 @@ export function resolveCouncil(
     kind: TickEvent["kind"],
     detail: string,
   ) => events.push({ tick: world.tick + 1, civ, kind, detail });
+  /** Emet ce que la couche accords vient d'ecrire depuis `seen`. */
+  const sayAgreements = (seen: number) => {
+    for (const entry of state.agreement!.history.slice(seen))
+      say(entry.a, entry.kind, entry.detail);
+  };
   for (const d of valid) {
     const civ = world.civs.find((c) => c.id === d.civ)!;
     if (atLeast(state.rules, "spectator-3") && d.plan !== undefined) {
@@ -484,9 +489,7 @@ export function resolveCouncil(
           unit: null,
           detail: `Accord refusé : ${d.agreement.action} (${issue})`,
         });
-      else
-        for (const entry of state.agreement!.history.slice(seen))
-          say(civ.id, entry.kind, entry.detail);
+      else sayAgreements(seen);
     }
     if (atLeast(state.rules, "spectator-6") && d.modernization) {
       const issue = startModernization(
@@ -637,13 +640,16 @@ export function resolveCouncil(
           r.status = "war";
           r.since = world.tick;
           say(actor!, "WAR", `Guerre avec ${proposal.target}`);
-          if (atLeast(state.rules, "spectator-10"))
+          if (atLeast(state.rules, "spectator-10")) {
+            const seen = state.agreement!.history.length;
             breakPactsOnWar(
               { world, agreement: state.agreement },
               actor!,
               proposal.target,
               roundNumber,
             );
+            sayAgreements(seen);
+          }
           state.diplomacyOffers = state.diplomacyOffers.filter(
             (o) => !(o.from === proposal.target && o.to === actor),
           );
@@ -695,13 +701,16 @@ export function resolveCouncil(
     if ((a === "war" || b === "war") && world.tick >= r.truceUntil) {
       if (r.status !== "war") {
         say(r.a, "WAR", `Guerre avec ${r.b}`);
-        if (atLeast(state.rules, "spectator-10"))
+        if (atLeast(state.rules, "spectator-10")) {
+          const seen = state.agreement!.history.length;
           breakPactsOnWar(
             { world, agreement: state.agreement },
             r.a,
             r.b,
             roundNumber,
           );
+          sayAgreements(seen);
+        }
       }
       r.status = "war";
     } else if (a === "peace" && b === "peace") {

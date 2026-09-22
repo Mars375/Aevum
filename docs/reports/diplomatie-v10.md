@@ -73,6 +73,7 @@ Un module testé ne prouve pas qu'une campagne en fera usage.
 | acceptées                         | 86 — dont **60 pactes** et **26 échanges** |
 | refusées                          | 10                                         |
 | pactes menés à terme              | 27                                         |
+| **pactes rompus par une guerre**  | **18**                                     |
 | **accords refusés par le moteur** | **0**                                      |
 
 Premier relevé, avant correction : **84 offres, 84 acceptées, 0 refus, 0
@@ -85,15 +86,36 @@ Le premier rapport annonçait aussi « 6 accords refusés ». C'était faux : la
 sonde comptait **tous** les rejets du tour, pas ceux des accords. Deux compteurs
 désormais, et le vrai chiffre est zéro.
 
+## Le contrôle visuel a trouvé ce que les tests ne voyaient pas
+
+Le panneau a fini par être **regardé**, dans le navigateur d'Orca, sur une
+campagne v10 de 480 tours. Il affichait, pour amber : pacte en cours avec azure,
+une proposition reçue de verdant, et une confiance de **−35 envers crimson**.
+
+Or −35 est exactement `TRUST_DELTAS.brokenByWar`. Un pacte avait donc été rompu
+par une guerre — alors que la sonde, qui compte les **événements**, rapportait
+`broken: 0`, et que ce rapport écrivait « aucune rupture observée ».
+
+Les deux disaient vrai chacun à sa manière, et c'est ce qui rendait le défaut
+invisible. `breakPactsOnWar` consignait bien la rupture dans l'historique et
+faisait chuter la confiance ; mais les deux autres blocs v10 émettent leurs
+événements en relisant l'historique juste après leur propre appel, et celui-ci,
+logé dans le bloc diplomatie, n'émettait rien. **Une trahison par la guerre ne
+parvenait jamais à la chronique** — dans un projet dont le point est qu'une
+promesse rompue se voie.
+
+Corrigé, avec une régression qui exige l'événement et pas seulement l'entrée
+d'historique. La mesure refaite donne **18 ruptures** là où elle en annonçait
+zéro. Aucun test ne couvrait ce cas : il fallait regarder la page.
+
 ## Ce que ces mesures ne prouvent pas
 
-- **Aucune rupture, aucune dissolution, aucune expiration observée.** Les trois
-  chemins existent et sont bornés par des tests, mais ne se sont pas produits
-  en campagne : la politique locale ne déclare pas la guerre à un partenaire de
-  pacte, et accepte assez vite pour qu'aucune offre n'atteigne son expiration.
-  La confiance n'est donc jamais descendue.
-- **Aucun contrôle visuel.** Le panneau est testé par rendu, pas regardé — le
-  navigateur n'est pas disponible sur ce poste.
+- **Aucune dissolution ni expiration observée.** Les deux chemins existent et
+  sont bornés par des tests, mais ne se produisent pas en campagne : la
+  politique locale accepte assez vite pour qu'aucune offre n'atteigne son
+  expiration, et aucune civilisation ne s'éteint en portant un pacte.
+- **Le contrôle visuel porte sur une campagne et sur les panneaux du dirigeant**,
+  pas sur la vue 3D ni sur l'ensemble des écrans.
 
 ## Un dirigeant distant sait-il répondre à une offre ?
 

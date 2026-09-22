@@ -12,7 +12,7 @@
  * signature. Simulation locale seulement : aucun appel distant, aucun quota
  * depense, aucun fichier du depot ecrase.
  */
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import {
   CouncilDecisionSchema,
   activeCiv,
@@ -33,10 +33,14 @@ import {
 } from "../packages/world/src/agreements.js";
 
 const RULES = "spectator-10" as const;
-const SEEDS = process.argv[2]
-  ? process.argv[2].split(",").map(Number)
+// Les positionnels, drapeaux exclus : sans ce filtre, un --write-demo passe
+// en troisieme position devenait le chemin du rapport, et le rapport partait
+// dans un fichier nomme comme le drapeau.
+const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const SEEDS = positional[0]
+  ? positional[0].split(",").map(Number)
   : [42, 7, 123, 1, 17, 314];
-const OUT = process.argv[3] ?? "docs/reports/agreements-verification.json";
+const OUT = positional[1] ?? "docs/reports/agreements-verification.json";
 const MAX_ROUNDS = 120;
 
 interface Row {
@@ -112,6 +116,15 @@ for (const seed of SEEDS) {
         },
       ],
     });
+  }
+
+  // --write-demo : une campagne v10 regardable dans le lecteur, ecrite une
+  // seule fois et jamais par-dessus une existante.
+  if (process.argv.includes("--write-demo") && seed === 42) {
+    const id = `agreements-local-${seed}`;
+    const demo = `worlds/spectator/${id}.json`;
+    if (!existsSync(demo))
+      writeFileSync(demo, JSON.stringify({ ...campaign, id }));
   }
 
   let replayVerified = true;

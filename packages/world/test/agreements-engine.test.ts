@@ -269,3 +269,50 @@ describe("rejeu (W4)", () => {
     ).toBe(true);
   });
 });
+
+/**
+ * Une trahison doit se voir.
+ *
+ * `breakPactsOnWar` consignait bien la rupture et faisait chuter la confiance,
+ * mais l'entrée n'était jamais émise en événement : la chronique n'annonçait
+ * donc rien. Le défaut s'est vu en regardant une campagne dans le navigateur —
+ * la confiance affichait −35 alors que la sonde, qui compte les événements,
+ * rapportait zéro rupture. Aucun test ne le couvrait.
+ */
+describe("une guerre déclarée pendant un pacte s'annonce", () => {
+  it("émet PACT_BROKEN, et pas seulement dans l'historique", () => {
+    let state = newSpectator(42, "spectator-10");
+    state = playUntil(state, "amber").state;
+
+    const proposal = withAgreement(state, {
+      action: "propose",
+      kind: "nonaggression",
+      target: "azure",
+      duration: 8,
+    });
+    state = resolveCouncil(state, [proposal.decision]).state;
+    const offer = state.agreement!.offers.at(-1)!;
+
+    state = playUntil(state, "azure").state;
+    state = resolveCouncil(state, [
+      withAgreement(state, { action: "accept", offerId: offer.id }).decision,
+    ]).state;
+    expect(state.agreement!.pacts).toHaveLength(1);
+
+    // amber déclare la guerre à son propre partenaire de pacte.
+    state = playUntil(state, "amber").state;
+    const actor = activeCiv(state)!;
+    const war = CouncilDecisionSchema.parse({
+      ...localCouncil(state, actor),
+      diplomacy: [{ target: "azure", proposal: "war" }],
+    });
+    const result = resolveCouncil(state, [war]);
+
+    expect(result.state.agreement!.pacts).toHaveLength(0);
+    expect(result.events.some((event) => event.kind === "PACT_BROKEN")).toBe(
+      true,
+    );
+    // La confiance du partenaire tombe, et elle seule.
+    expect(result.state.agreement!.trust.azure?.amber).toBeLessThan(0);
+  });
+});
