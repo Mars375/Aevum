@@ -513,3 +513,11 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Ajouté `--write-demo` à la sonde v10 : elle écrit `worlds/spectator/agreements-local-42.json`, une campagne regardable, jamais par-dessus une existante.
 - Vérifié : 75 fichiers, 688 tests, `tsc`, `vue-tsc`.
 - La leçon, qui vaut d'être gardée : deux mesures pouvaient dire vrai chacune à sa manière — l'historique portait la rupture, les événements ne la portaient pas — et c'est l'écart entre les deux, visible seulement sur la page, qui a révélé le défaut.
+
+### 2026-09-22 — Le contrôle navigateur de la « Validation finale »
+
+- Le navigateur d'Orca permet aussi de cocher, à l'écran, les items que le fichier de livraison réclamait sans preuve. Campagne v10 de 480 tours servie en local.
+- **Reprise** : le lecteur restaure seul la dernière campagne visitée — ouvert sur `/`, il revient sur `?campaign=agreements-local-42`.
+- **Navigation historique, et ma propre règle vérifiée en vrai.** Curseur déplacé de 480 à 120 : « 6 plans adoptés, 4 tenus, 2 bloqués » devient « 4 adoptés, 3 tenus, 0 bloqué » ; le plan `masonry`, *tenu* à la fin, s'affiche **« en cours »** au tour 120 ; la confiance envers azure passe de 100 à 45. Le panneau montre donc l'état **connu à ce moment-là**, pas l'issue finale — exactement ce que le test affirmait, désormais constaté.
+- **Bilan** : « 480 manches terminées · Dirigeants locaux déterministes », tableau comparant âge et parcours, habitants, villes, découvertes et plans accomplis. Ce sont les « forces comparables » du lot 5, vues et non plus seulement dérivées.
+- Limite restante : la **vue 3D** n'a pas été inspectée, et le runtime du navigateur tombait par intermittence — la machine manquait de mémoire, au point de tuer le serveur une fois.

@@ -23,8 +23,8 @@ Les six lots sont livrés, le sixième partiellement. Trois limites subsistent, 
 
 ## Validation finale
 
-- Tests moteur, contrats IA, replays historiques, vérification TypeScript et build.
-- Contrôle navigateur du lancement, création/reprise, progression, navigation historique et bilan.
+- Tests moteur, contrats IA, replays historiques, vérification TypeScript et build. **688 tests, `tsc` et `vue-tsc` verts.**
+- **Contrôle navigateur fait** (navigateur d'Orca, campagne v10 de 480 tours servie en local) : le lecteur **restaure seul la dernière campagne** ; les panneaux du dirigeant rendent avec de vraies données — infrastructures, accords, décisions et conséquences ; la **navigation historique** fonctionne, et déplacer le curseur de 480 à 120 réduit correctement l'histoire montrée — un plan tenu à la fin s'affiche « en cours » au tour 120, la confiance passe de 100 à 45 ; le **bilan** compare âge, habitants, villes, découvertes et plans accomplis. Ce contrôle a révélé un défaut qu'aucun test ne voyait : une rupture de pacte par la guerre n'était jamais annoncée. La vue 3D n'a pas été inspectée.
 - Campagnes locales multi-graines et échantillon distant borné ; limites et coût d'appels consignés.
 - Journal à jour, dépôt propre, branches d'évolution poussées et intégrées.
 
