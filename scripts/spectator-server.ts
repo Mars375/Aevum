@@ -379,10 +379,19 @@ export function createSpectatorServer(
     }
   });
 }
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+let started = false;
+
+/**
+ * Démarre le service : verrou, serveur, écoute. Une seule fois par processus.
+ *
+ * Exporté pour `Aevum.exe`, qui ne peut pas compter sur la garde ci-dessous.
+ * Mesuré : dans l'exécutable autonome, `import.meta.url` est indéfini dans ce
+ * module chargé à la demande. La garde concluait « pas lancé directement »,
+ * et le paquet se terminait aussitôt, code 0, sans un mot.
+ */
+export function startServer(): void {
+  if (started) return;
+  started = true;
   if (existsSync(".env")) process.loadEnvFile(".env");
   loadWindowsNousEnvironment();
   const lockPath = resolve(dataRoot(), "worlds/spectator/server.lock");
@@ -403,3 +412,8 @@ if (
     ),
   );
 }
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+)
+  startServer();

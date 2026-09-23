@@ -80,6 +80,11 @@ watch(current, () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBeha
 <style scoped>
 .reports {
   display: grid;
+  /* Sans colonne explicite, la piste implicite prend la largeur minimale du
+     contenu le plus large — les tableaux du rapport — au lieu de les laisser
+     défiler dans leur cadre. Mesuré à 375 px : 864 px de page, et un téléphone
+     dézoomait tout « À propos » pour la faire tenir. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
   align-items: start;
 }

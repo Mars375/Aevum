@@ -7,6 +7,17 @@ une poignée, chacune dans son propre processus.
 
 Elle l'est maintenant. Le résultat est négatif, et il est précis.
 
+> **Mise à jour du 23 septembre — ce rapport se trompait sur la cause.**
+> La campagne longue a eu lieu : 39 tours consécutifs avec un autre modèle
+> gratuit de Nous, rejeu vérifié. L'« allocation de compte » donnée plus bas
+> comme meilleure explication est **réfutée** : sur le même compte, le même
+> jour, `longcat` bloque encore au même conseil. La cause est établie — sur
+> certaines requêtes, `longcat` raisonne jusqu'à son plafond de 6 000 jetons
+> et ne répond jamais, quels que soient les réglages de raisonnement envoyés.
+> Et l'hypothèse « le modèle ? non » était écartée à tort. Tout est dans
+> `docs/reports/fournisseurs.md` ; le texte ci-dessous est conservé tel qu'il
+> a été écrit, parce qu'une erreur effacée n'apprend rien.
+
 ## Ce qui a été joué
 
 `scripts/remote-campaign-probe.ts` joue des tours **consécutifs**, un conseil
@@ -44,7 +55,9 @@ Quatre hypothèses testées, quatre écartées :
 
 - **Le modèle ?** Non. Les quatre dirigeants partagent le même
   (`defaultCouncilModels` rend le même identifiant pour tous), et les deux
-  premiers conseils réussissent en 8 à 12 secondes.
+  premiers conseils réussissent en 8 à 12 secondes. _[23 septembre : ce
+  raisonnement ne prouvait rien. Partager un modèle ne l'innocente pas ; en
+  essayer un autre, si — et c'était bien le modèle.]_
 - **La taille de la demande ?** Non. Observations mesurées au tour concerné :
   amber 24 171, azure 24 224, crimson 23 422, verdant 23 407 caractères. Celle
   qui échoue est **la plus petite**.

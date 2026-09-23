@@ -169,16 +169,18 @@ que le dépôt publie, c'est ce qu'il versionne.
    de 129 pour la même fenêtre, dont 46 % de famine — deux fois plus cher, et
    surtout des questions forcées. Aucune conquête non plus : elle demande qu'un
    dirigeant choisisse la pression, et un monde muet ne décide rien.
-10. **Ce qui empêche une campagne distante longue n’est pas le contrat.** Sur
-    10 tours distants consécutifs réellement joués, **zéro ordre rejeté** et
-    quatre rejeux vérifiés sur quatre. Ce qui arrête la campagne est le point
-    d’inférence, qui cesse de répondre après quelques appels. Écarté par la
-    mesure : le modèle, la taille de la demande (celle qui échoue est parmi
-    les plus petites), la cadence (15 s puis 60 s n’y changent rien), le
-    catalogue (six requêtes d’affilée, six 200 sous 500 ms) — **et la reprise
-    dans un processus neuf**, qui échoue dès son premier appel. La règle exacte
-    n’est pas établie ; ne pas lui en inventer une.
-    Voir `docs/reports/campagne-distante.md`.
+10. **Ce qui empêchait une campagne distante longue n’était ni le contrat ni
+    le compte : c’était le modèle.** `longcat-2.0` raisonne, sur certaines
+    requêtes, jusqu’à son plafond de 6 000 jetons et ne répond jamais — 133 s,
+    zéro caractère — en ignorant `effort: "none"`, `"low"`, `enabled: false` et
+    un plafond de raisonnement. Notre délai de 45 s le coupait avant, d’où un
+    « délai dépassé » qui ressemblait à une panne du fournisseur. Avec
+    `laguna-s-2.1`, même compte, même jour : **39 tours consécutifs**, rejeu
+    vérifié. La leçon est de méthode : « le modèle ? non, les quatre dirigeants
+    partagent le même » avait été écrit comme une réfutation — **partager un
+    modèle ne l’innocente pas ; en essayer un autre, si.** Et un conseil fait
+    9 197 jetons d’entrée : Groq gratuit (8 000 par minute) ne peut pas en
+    servir un seul. Voir `docs/reports/fournisseurs.md`.
 
 ## Avant de dépenser du quota
 
@@ -192,11 +194,14 @@ Le palier gratuit est un **budget d'appels**, pas une limite de débit — mesur
 deux fois. Tout script long reprend là où il s'est arrêté ; s'arrêter est le
 mode normal.
 
-Ce n'est pourtant pas tout : **le point d'inférence cesse de répondre après deux
-complétions dans un même processus**, et attendre une minute n'y change rien
-(point 10 ci-dessus). Un script qui enchaîne des appels doit donc écrire son
-état à chaque tour et savoir repartir d'un processus neuf, sinon il s'arrêtera
-au troisième sans que le quota y soit pour quoi que ce soit.
+Ce n'est pourtant pas tout. Un modèle peut ne pas répondre **à une requête
+précise**, toujours la même, sans que le quota ni le compte y soient pour rien
+(point 10 ci-dessus) : relancer le même état redonne le même blocage. Un script
+qui enchaîne des appels doit donc écrire son état à chaque tour — il pourra
+reprendre — et un « délai dépassé » se diagnostique en rejouant **cette**
+requête avec un délai long et en lisant `finish_reason` et les jetons de sortie.
+Nous, lui, refuse franchement quand il limite : un **HTTP 429**, observé à la
+45ᵉ requête d'une campagne.
 
 ## Où regarder
 

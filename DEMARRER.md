@@ -2,9 +2,9 @@
 
 ## Sans rien installer
 
-`npm run package` produit un dossier `dist-app/` autonome : le site déjà construit, le serveur en un seul fichier et une copie de l'interpréteur Node à côté. On le copie où l'on veut, on double-clique **Lancer Aevum.cmd**, et rien n'est téléchargé ni compilé au lancement. Aucune clé n'y est livrée : les réglages Nous restent lus dans les variables d'environnement de la machine qui l'exécute.
+`npm run package` produit un dossier `dist-app/` autonome : le site déjà construit et un seul exécutable, **Aevum.exe**, qui porte l'interpréteur et le serveur. On le copie où l'on veut, on double-clique **Aevum.exe** — il ouvre le navigateur une fois le serveur prêt —, et rien n'est téléchargé ni compilé au lancement. Aucune clé n'y est livrée : les réglages Nous restent lus dans les variables d'environnement de la machine qui l'exécute.
 
-Les parties enregistrées vivent **hors** du dossier, dans `%LOCALAPPDATA%\Aevum` : remplacer l'installation par une version plus récente ne les emporte pas. Une limite demeure, et elle compte si vous diffusez le paquet : il **n'est pas signé**. `docs/reports/distribution-autonome.md` dit ce qui est vérifié et ce qui ne l'est pas.
+Les parties enregistrées vivent **hors** du dossier, dans `%LOCALAPPDATA%\Aevum` : remplacer l'installation par une version plus récente ne les emporte pas. Une limite demeure, et elle compte si vous diffusez le paquet : il **n'est pas signé par défaut**. L'exécutable est signable — `AEVUM_SIGN_THUMBPRINT` désigne un certificat de signature de code et `npm run package` le signe —, mais un certificat que Windows reconnaît s'achète et suppose une vérification d'identité. `docs/reports/distribution-autonome.md` dit ce qui est vérifié et ce qui ne l'est pas.
 
 ## Depuis le dépôt
 

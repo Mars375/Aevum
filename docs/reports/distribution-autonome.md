@@ -5,9 +5,11 @@ installable signée », avec quatre critères : démarrage en un clic, arrêt pr
 du service, mises à jour et sauvegardes préservées, aucune clé livrée avec
 l'application.
 
-Les quatre critères sont atteints et vérifiés. Le mot « signée » ne l'est pas,
-et ne peut pas l'être depuis un dépôt. Ce rapport dit exactement où s'arrête la
-garantie.
+Les quatre critères sont atteints et vérifiés. Le mot « signée » l'est à moitié,
+et ce qui manque ne peut pas venir d'un dépôt : le paquet est désormais **notre
+propre exécutable, signable et signé de bout en bout lors d'un essai**, mais une
+signature que Windows reconnaît demande un certificat acheté, au nom d'une
+identité vérifiée. Ce rapport dit exactement où s'arrête la garantie.
 
 ## Ce que le lanceur demandait à l'utilisateur
 
@@ -26,38 +28,51 @@ c'est une installation déguisée.
 
 Un dossier `dist-app/` qui ne télécharge ni ne compile rien au lancement :
 
-|                                          |                                               |
-| ---------------------------------------- | --------------------------------------------- |
-| fichiers                                 | 67                                            |
-| poids total                              | **101,2 Mo**                                  |
-| dont l'interpréteur (`runtime/node.exe`) | 99 Mo                                         |
-| dont le site déjà construit              | 2,4 Mo                                        |
-| serveur                                  | un seul fichier, `aevum-server.mjs` (esbuild) |
-| `node_modules` livré                     | aucun                                         |
+|                             |                                                       |
+| --------------------------- | ----------------------------------------------------- |
+| fichiers                    | 74                                                    |
+| poids total                 | **101,4 Mo**                                          |
+| dont `Aevum.exe`            | 98,9 Mo — l'interpréteur et le serveur, en un fichier |
+| dont le site déjà construit | 2,3 Mo                                                |
+| lanceur `.cmd`              | aucun : l'exécutable fait son travail                 |
+| `node_modules` livré        | aucun                                                 |
 
 Le poids est presque entièrement l'interpréteur. C'est le prix du critère : ne
 plus rien exiger de la machine d'en face.
+
+`Aevum.exe` est un exécutable autonome (`node --build-sea`). Il fait ce que
+faisait le lanceur : se placer dans son dossier — un double-clic ne fixe pas le
+répertoire courant —, envoyer les parties dans `%LOCALAPPDATA%\Aevum`, garder le
+port 5174 sauf si la machine en impose un autre, puis ouvrir le navigateur —
+une fois le serveur réellement en écoute, là où le lanceur l'ouvrait avant.
 
 ## Ce que l'empaqueteur vérifie lui-même
 
 Il ne se contente pas de produire, il contrôle ce qu'il vient de produire et
 refuse de rendre un paquet qui échoue. Relevé de `dist-app/manifest.json` :
 
-| contrôle                                      | résultat |
-| --------------------------------------------- | -------- |
-| disposition attendue complète                 | oui      |
-| **secrets trouvés dans les fichiers livrés**  | **0**    |
-| démarre réellement, sur un port libre         | oui      |
-| sert le site, pas seulement l'API             | oui      |
-| **redémarre après une fermeture brutale**     | **oui**  |
-| verrou repris au redémarrage                  | oui      |
-| **partie enregistrée hors de l'installation** | **oui**  |
-| **installation sans aucune donnée**           | **oui**  |
-| signé                                         | **non**  |
+| contrôle                                      | résultat                                        |
+| --------------------------------------------- | ----------------------------------------------- |
+| disposition attendue complète                 | oui                                             |
+| **secrets trouvés dans les fichiers livrés**  | **0**                                           |
+| **secrets trouvés dans le code embarqué**     | **0**                                           |
+| démarre réellement, sur un port libre         | oui                                             |
+| **démarre depuis un autre répertoire**        | **oui**                                         |
+| sert le site, pas seulement l'API             | oui                                             |
+| **redémarre après une fermeture brutale**     | **oui**                                         |
+| verrou repris au redémarrage                  | oui                                             |
+| **partie enregistrée hors de l'installation** | **oui**                                         |
+| **installation sans aucune donnée**           | **oui**                                         |
+| table de signature périmée retirée            | 15 688 octets                                   |
+| signé                                         | non par défaut ; oui avec un certificat désigné |
 
 Le contrôle des secrets réutilise les motifs de `scripts/secrets.ts`, nomme le
 fichier et le motif, jamais la valeur — et **détruit le paquet** plutôt que de
 rendre un dossier contaminé.
+
+Il lit désormais aussi le **code serveur avant qu'il soit scellé** dans
+l'exécutable : le contrôle ignore les binaires, et sans cette lecture, passer à
+un exécutable aurait retiré le serveur du contrôle en silence.
 
 ## Le défaut que l'empaquetage a trouvé
 
@@ -113,20 +128,58 @@ transformait le démarrage en un clic en échec sans recours. `AEVUM_PORT` le
 déplace, et la liste d'origines autorisées suit le port réel au lieu de le
 répéter.
 
+## La signature : trois obstacles, deux levés
+
+Il en fallait trois, pas un : notre propre exécutable, un moyen de signer sans
+`signtool`, et un certificat. Mesuré sur l'ancien paquet : `runtime/node.exe`
+est **déjà signé et valide, par l'OpenJS Foundation** — le resigner usurperait
+son éditeur — et `Lancer Aevum.cmd` renvoie `UnknownError`, parce qu'un fichier
+batch **ne peut pas porter** de signature Authenticode. Le paquet ne contenait
+rien de signable par nous.
+
+**1. Notre propre exécutable — levé.** `node --build-sea` embarque le serveur
+dans une copie de l'interpréteur et en retire la signature d'OpenJS : le
+résultat est `NotSigned`, et il est à nous.
+
+**Mais il n'était pas signable, et rien ne le disait.** Il s'exécutait, et
+`Get-AuthenticodeSignature` le déclarait simplement « non signé » ; seule une
+tentative de signature répondait « n'est pas une application Win32 valide ». En
+lisant ses en-têtes : la construction ajoute une section de ressources
+**exactement à l'endroit** où se trouvait la table de signature de `node.exe`,
+repousse cette table en fin de fichier, mais laisse l'en-tête la désigner à son
+ancien emplacement — en plein milieu de la nouvelle section. `pe-signature.ts`
+remet l'entrée à zéro et coupe les 15 688 octets périmés, **seulement** si la
+table annoncée est bien là, entière, en fin de fichier. Testé sur des en-têtes
+fabriqués — PE32 et PE32+, fichier propre, fin de fichier inattendue.
+
+Un second défaut est venu de là : la garde « lancé directement » du serveur
+compare `import.meta.url` à `process.argv[1]`, et dans l'exécutable
+`import.meta.url` est **indéfini** dans ce module chargé à la demande. Le paquet
+se terminait aussitôt, code 0, sans un mot. Un binaire d'essai avait pourtant
+montré les deux valeurs égales — mais il les lisait au premier niveau du module
+principal. Le démarrage est désormais explicite (`startServer()`).
+
+**2. Signer sans le SDK Windows — levé.** `Set-AuthenticodeSignature`, présent
+dans tout Windows, signe l'exécutable nettoyé. `AEVUM_SIGN_THUMBPRINT` désigne
+un certificat du magasin de l'utilisateur ; `AEVUM_SIGN_TIMESTAMP`, un serveur
+d'horodatage. Éprouvé de bout en bout avec un certificat jetable, supprimé
+aussitôt : `npm run package` signe, puis démarre l'exécutable **signé**, sert le
+site et redémarre après une fermeture brutale. Le manifeste relève
+`UnknownError` et le signataire — signé, mais par une racine que Windows ne
+reconnaît pas, ce qui est exactement ce qu'est un certificat auto-signé.
+
+**3. Un certificat reconnu — pas levé, et pas levable ici.** Un certificat de
+signature de code reconnu par Windows s'achète auprès d'une autorité, au nom
+d'une identité vérifiée — et depuis 2023, sa clé vit sur un support matériel ou
+un service de signature en ligne. C'est une décision et une dépense, pas du
+code. L'empaqueteur est prêt à s'en servir.
+
 ## Ce qui n'est pas livré
 
-- **La signature — et ce n'est pas qu'une affaire de certificat.** Je l'ai
-  d'abord écrit ainsi ; c'était faux. Vérifié sur le paquet produit :
-  `runtime/node.exe` est **déjà signé et valide, par l'OpenJS Foundation** — le
-  resigner reviendrait à usurper son éditeur ; `Lancer Aevum.cmd` renvoie
-  `UnknownError`, parce qu'un fichier batch **ne peut pas porter** de signature
-  Authenticode ; et `signtool.exe` n'est pas installé ici. Autrement dit, **le
-  paquet ne contient rien qui nous appartienne et qui soit signable.** Une
-  application signée demande d'abord de produire notre propre exécutable — un
-  binaire unique à la manière de Node SEA — puis un certificat, puis le SDK
-  Windows. Trois choses, pas une. Le manifeste porte `signed: false` plutôt que de
-  laisser croire le contraire.
+- **Une signature reconnue par Windows** : voir ci-dessus. Sans certificat
+  désigné, le manifeste porte `signed: false` plutôt que de laisser croire le
+  contraire.
 - **Un installateur, une désinstallation, une mise à jour automatique.** Le
   paquet est un dossier qu'on copie.
-- **Windows uniquement.** `runtime/node.exe` et un lanceur `.cmd`. Rien
-  n'empêche l'équivalent ailleurs ; ce n'est pas fait ni testé.
+- **Windows uniquement.** `Aevum.exe` est un exécutable Windows. Rien n'empêche
+  l'équivalent ailleurs ; ce n'est pas fait ni testé.

@@ -200,11 +200,31 @@ campagne soit rejouée — le bulletin semblait absent à huit largeurs sur dix-
 d'une même partie. Il attend désormais la fin de l'aperçu, et dit quand le
 bulletin manque : une largeur sans bulletin ne prouve rien sur lui.
 
+### Les trois vues d'archive, mesurées à leur tour
+
+Batailles, règles et « À propos » n'avaient été regardées qu'à l'œil.
+`qa:browser` les mesure désormais aux trois largeurs : blocs sans
+recouvrement, sans débordement horizontal. Au premier passage, **« À propos »
+débordait sur téléphone** : 864 px de document pour 375 px d'écran.
+
+Le débordement ne se voyait même pas comme tel. En émulation mobile, c'est la
+fenêtre qui s'élargissait à 864 px, comme sur un vrai téléphone qui dézoome une
+page trop large : aucun élément ne dépassait plus rien, et un premier script de
+recherche n'a rien trouvé. La page entière s'affichait réduite de plus de
+moitié.
+
+Cause : sous 1000 px, la liste des rapports et le rapport partagent une grille
+à **une colonne implicite**, donc de largeur `auto` — elle s'étire jusqu'à la
+largeur minimale du contenu le plus large, les tableaux du rapport, au lieu de
+les laisser défiler dans leur cadre, qui a pourtant `overflow-x: auto`. La
+règle au-delà de 1000 px utilisait déjà `minmax(0, 1fr)` pour cette raison ;
+elle manquait en dessous. Les 63 contrôles passent.
+
 ## Ce que ce contrôle ne prouve pas
 
-- Une campagne et un navigateur. Tous les écrans ont été regardés, et
-  l'observatoire mesuré à dix-huit largeurs ; mais les batailles, les règles et
-  « À propos » l'ont été à l'œil, sans mesure de recouvrement.
+- Une campagne et un navigateur. Toutes les vues sont mesurées — recouvrement
+  et débordement —, l'observatoire à dix-huit largeurs ; mais la mesure dit
+  qu'aucun bloc n'en couvre un autre, pas que la page est belle.
 - Le rendu n'a pas été comparé à une référence : « ça rend juste » est un
   jugement de l'œil sur une capture, pas une mesure.
 - Le runtime du navigateur est tombé trois fois pendant la session, la machine

@@ -493,6 +493,50 @@ async function auditViewport(
   return checks;
 }
 
+/** Les trois vues d'archive que seul l'œil avait regardées. */
+const ARCHIVE_VIEWS = ["archives", "regles", "a-propos"] as const;
+
+/**
+ * Chaque vue d'archive est un flux vertical : les blocs de `.app`, puis ceux de
+ * son `main`, ne doivent pas se recouvrir. Deux groupes mesurés séparément,
+ * sinon un parent qui contient son enfant passerait pour un chevauchement.
+ */
+async function auditArchiveViews(cdp: Cdp, base: string, viewport: { width: number; height: number }): Promise<Check[]> {
+  const checks: Check[] = [];
+  await cdp.send("Emulation.setDeviceMetricsOverride", {
+    width: viewport.width,
+    height: viewport.height,
+    deviceScaleFactor: 1,
+    mobile: viewport.width < 500,
+  });
+  for (const view of ARCHIVE_VIEWS) {
+    const label = `${viewport.width}px ${view}`;
+    const loaded = cdp.waitFor("Page.loadEventFired");
+    loaded.catch(() => {});
+    await cdp.send("Page.navigate", { url: new URL(`?archive&mode=${view}`, base).href });
+    await loaded;
+    const deadline = Date.now() + 10_000;
+    let ready = false;
+    while (!ready && Date.now() < deadline) {
+      ready = await evaluate<boolean>(cdp, "!!document.querySelector('.app') && !document.querySelector('.loading-state')");
+      if (!ready) await new Promise((resolvePromise) => setTimeout(resolvePromise, 250));
+    }
+    await new Promise((resolvePromise) => setTimeout(resolvePromise, 400));
+    const section = await evaluate<string | null>(cdp, "new URLSearchParams(location.search).get('mode')");
+    checks.push({ name: `${label}: view opened`, ok: ready && section === view, detail: `mode=${section ?? "absent"}` });
+    const outer = await evaluate<string | null>(cdp, overlapProbe([".app > *"]));
+    const inner = await evaluate<string | null>(cdp, overlapProbe([".app > main > *"]));
+    const overlap = outer ?? inner;
+    checks.push({ name: `${label}: blocks do not overlap`, ok: overlap === null, detail: overlap ?? "each block keeps its own band" });
+    const overflow = await evaluate<string | null>(
+      cdp,
+      "document.scrollingElement.scrollWidth > document.scrollingElement.clientWidth + 1 ? `scrollWidth ${document.scrollingElement.scrollWidth} > clientWidth ${document.scrollingElement.clientWidth}` : null",
+    );
+    checks.push({ name: `${label}: no horizontal overflow`, ok: overflow === null, detail: overflow ?? "document fits its viewport" });
+  }
+  return checks;
+}
+
 async function auditInteractions(cdp: Cdp, base: string, port: number): Promise<Check[]> {
   await cdp.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await cdp.send("Emulation.setEmulatedMedia", { features: [] });
@@ -661,6 +705,7 @@ async function main(): Promise<void> {
     await Promise.all(["Page.enable", "Runtime.enable", "Network.enable", "Log.enable"].map((method) => cdp!.send(method)));
 
     for (const viewport of VIEWPORTS) record(await auditViewport(cdp, base, viewport));
+    for (const viewport of VIEWPORTS) record(await auditArchiveViews(cdp, base, viewport));
     record(await auditViewport(cdp, base, VIEWPORTS[0]!, { reducedMotion: true }));
     record(await auditInteractions(cdp, base, port));
   } catch (error) {

@@ -1,0 +1,543 @@
+{
+  "checkedAt": "2026-09-23T11:01:21.899Z",
+  "rules": "spectator-10",
+  "seed": 42,
+  "paceSeconds": 15,
+  "turnsRequested": 40,
+  "turnsPlayed": 39,
+  "turnsResumed": 0,
+  "turnsAddedThisRun": 39,
+  "councilsRequested": 45,
+  "transportRetries": 5,
+  "recoveredByRetry": 4,
+  "servedByModelItself": 39,
+  "unavailable": 1,
+  "totalRejectedOrders": 19,
+  "turnsWithoutRejection": 22,
+  "latencyMs": {
+    "min": 8195,
+    "median": 14505,
+    "max": 24923
+  },
+  "replayVerified": true,
+  "replayError": null,
+  "archive": "worlds/spectator/remote-laguna.json",
+  "rows": [
+    {
+      "turn": 0,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 17945,
+      "rejected": 1,
+      "rejectDetails": [
+        "Le site de fondation est occupé ou trop proche d'une ville."
+      ],
+      "error": null
+    },
+    {
+      "turn": 1,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 17929,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 2,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 17994,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 3,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 13235,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": "Plan ignoré, ordres conservés : plan (custom)"
+    },
+    {
+      "turn": 4,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 18097,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-amber / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 5,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 12944,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": "Plan ignoré, ordres conservés : plan.targetTech (invalid_type)"
+    },
+    {
+      "turn": 6,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 12419,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 7,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 17545,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-verdant / granary"
+      ],
+      "error": "Plan ignoré, ordres conservés : plan.targetTech (invalid_type)"
+    },
+    {
+      "turn": 8,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 15935,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 9,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 11185,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-azure / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 10,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 17565,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-crimson / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 11,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 21669,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-verdant / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 12,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 20401,
+      "rejected": 2,
+      "rejectDetails": [
+        "Construction refusée : city-amber / granary",
+        "Construction refusée : city-amber-20 / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 13,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 14915,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-azure / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 14,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 24923,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 15,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 15995,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 16,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 12838,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-amber-20 / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 17,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 13719,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 18,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 14505,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-crimson / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 19,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 10994,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 20,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 8506,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 21,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 14079,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 22,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 12622,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-crimson / walls"
+      ],
+      "error": null
+    },
+    {
+      "turn": 23,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 13395,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 24,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 11255,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 25,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 10488,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-azure / walls"
+      ],
+      "error": null
+    },
+    {
+      "turn": 26,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 15190,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-crimson / walls"
+      ],
+      "error": null
+    },
+    {
+      "turn": 27,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 14806,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 28,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 18696,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 29,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 21831,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-azure / walls"
+      ],
+      "error": null
+    },
+    {
+      "turn": 30,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 18459,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-crimson / walls"
+      ],
+      "error": null
+    },
+    {
+      "turn": 31,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 18308,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 32,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 13970,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 33,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 10375,
+      "rejected": 1,
+      "rejectDetails": [
+        "Construction refusée : city-azure / walls"
+      ],
+      "error": null
+    },
+    {
+      "turn": 34,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 12182,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 35,
+      "civ": "verdant",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 19728,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 36,
+      "civ": "amber",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 8195,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 37,
+      "civ": "azure",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 9070,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": null
+    },
+    {
+      "turn": 38,
+      "civ": "crimson",
+      "source": "remote",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedItself": true,
+      "latencyMs": 13273,
+      "rejected": 2,
+      "rejectDetails": [
+        "Construction refusée : city-crimson / walls",
+        "Construction refusée : city-crimson-22 / granary"
+      ],
+      "error": null
+    },
+    {
+      "turn": 39,
+      "civ": "verdant",
+      "source": "unavailable",
+      "requestedModel": "nous:poolside/laguna-s-2.1:free",
+      "servedModel": null,
+      "servedItself": false,
+      "latencyMs": null,
+      "rejected": 0,
+      "rejectDetails": [],
+      "error": "Nous HTTP 429"
+    }
+  ]
+}

@@ -7,22 +7,31 @@
  * lire du TypeScript a chaud. Un double-clic qui installe des dependances
  * n'est pas un demarrage en un clic, c'est une installation deguisee.
  *
- * Ce script produit un dossier autonome : le site deja construit, le serveur
- * reduit a un seul fichier JavaScript, et une copie de l'interpreteur Node a
- * cote. Rien n'est telecharge au lancement, rien n'est compile.
+ * Ce script produit un dossier autonome : le site deja construit et un seul
+ * executable, `Aevum.exe`, qui porte le serveur. Rien n'est telecharge au
+ * lancement, rien n'est compile.
+ *
+ * L'executable est a nous, et c'est ce qui le rend signable. Le paquet
+ * livrait auparavant une copie de `node.exe` — deja signee par l'OpenJS
+ * Foundation, la resigner usurperait son editeur — et un lanceur `.cmd`, qui
+ * ne peut pas porter de signature Authenticode. Il ne contenait donc rien de
+ * signable par nous. `node --build-sea` produit notre propre binaire.
  *
  * Il verifie ensuite ce qu'il vient de produire au lieu de l'affirmer : aucune
- * cle dans aucun fichier livre, la disposition attendue presente, et surtout le
- * serveur demarre pour de bon sur un port libre, sert le site, puis survit a
- * une fermeture brutale — celle que produit la fermeture de la fenetre. C'est
- * le REDEMARRAGE qui fait foi : un paquet qui ne repart pas n'est pas un
- * paquet, et c'est ce controle qui a trouve le verrou orphelin.
+ * cle dans le code embarque ni dans aucun fichier livre, la disposition
+ * attendue presente, et surtout l'executable demarre pour de bon sur un port
+ * libre, sert le site, puis survit a une fermeture brutale — celle que produit
+ * la fermeture de la fenetre. C'est le REDEMARRAGE qui fait foi : un paquet
+ * qui ne repart pas n'est pas un paquet, et c'est ce controle qui a trouve le
+ * verrou orphelin.
  *
- * Ce qu'il ne fait pas, et qu'il ne faut pas lui preter : il ne signe rien. Une
- * distribution signee demande un certificat qui n'a rien a faire dans un depot.
+ * La signature : `AEVUM_SIGN_THUMBPRINT` designe un certificat de signature de
+ * code du magasin de l'utilisateur ; sans lui, rien n'est signe et le
+ * manifeste le dit. Un certificat reconnu par Windows s'achete et suppose une
+ * verification d'identite : il n'a rien a faire dans un depot.
  * `docs/reports/distribution-autonome.md` dit ou s'arrete la garantie.
  */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
   cpSync,
   existsSync,
@@ -38,18 +47,16 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { build } from "esbuild";
+import { withoutStaleSignature } from "./pe-signature.js";
 import { SECRET_PATTERNS } from "./secrets.js";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const OUT = resolve(ROOT, "dist-app");
-const SERVER = "aevum-server.mjs";
-const LAUNCHER = "Lancer Aevum.cmd";
+const EXE = "Aevum.exe";
 
-/** Ce que le serveur lit au demarrage, releve a la main dans son code. */
+/** Ce que l'executable lit au demarrage, releve a la main dans son code. */
 const REQUIRED = [
-  SERVER,
-  LAUNCHER,
-  "runtime/node.exe",
+  EXE,
   "apps/player/dist/index.html",
   "examples/nous-discovery.json",
   "TIERS.txt",
@@ -62,6 +69,15 @@ function walk(directory: string): string[] {
     const path = join(directory, entry);
     return statSync(path).isDirectory() ? walk(path) : [path];
   });
+}
+
+/** Nomme le fichier et le motif, jamais la valeur : afficher le secret ferait
+ * du controle la fuite. */
+function secretsIn(file: string, label: string): string[] {
+  const content = readFileSync(file, "utf8");
+  return SECRET_PATTERNS.filter(({ pattern }) => pattern.test(content)).map(
+    ({ name }) => `${label} (${name})`,
+  );
 }
 
 /** Un port que personne n'occupe, pour ne pas bousculer une instance ouverte. */
@@ -95,6 +111,31 @@ async function run(command: string, args: string[], cwd = ROOT): Promise<void> {
   if (code !== 0) throw new Error(`${command} a echoue (${code})`);
 }
 
+/** Voir `pe-signature.ts` : pourquoi, et pourquoi on ne coupe jamais a l'aveugle. */
+function stripStaleSignature(file: string): { removedBytes: number } {
+  const { bytes, removedBytes } = withoutStaleSignature(readFileSync(file));
+  if (removedBytes) writeFileSync(file, bytes);
+  return { removedBytes };
+}
+
+/** Ce que Windows dit de la signature, lu par PowerShell. */
+function readSignature(file: string): {
+  status: string;
+  signer: string | null;
+} {
+  const result = spawnSync(
+    "powershell",
+    [
+      "-NoProfile",
+      "-Command",
+      `$s = Get-AuthenticodeSignature -LiteralPath '${file}'; "$($s.Status)|$($s.SignerCertificate.Subject)"`,
+    ],
+    { encoding: "utf8", windowsHide: true },
+  );
+  const [status = "Inconnu", signer = ""] = result.stdout.trim().split("|");
+  return { status, signer: signer || null };
+}
+
 // 1) Le site, construit une fois ici plutot qu'a chaque lancement chez l'autre.
 if (!process.argv.includes("--skip-build")) {
   step("construction du site…");
@@ -106,21 +147,36 @@ if (!existsSync(resolve(ROOT, "apps/player/dist/index.html")))
 step("preparation du dossier…");
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
+const work = mkdtempSync(join(tmpdir(), "aevum-sea-"));
 
-// 2) Le serveur en un seul fichier : plus de tsx, plus de node_modules.
+// 2) Le serveur en un seul fichier : plus de tsx, plus de node_modules. Il
+//    reste hors du paquet — il sera embarque dans l'executable.
 step("assemblage du serveur…");
+const bundle = join(work, "aevum.mjs");
 await build({
-  entryPoints: [resolve(ROOT, "scripts/spectator-server.ts")],
-  outfile: resolve(OUT, SERVER),
+  entryPoints: [resolve(ROOT, "scripts/aevum-entry.ts")],
+  outfile: bundle,
   bundle: true,
   platform: "node",
   format: "esm",
   target: "node22",
   // Le serveur ne demarre le service que si `import.meta.url` correspond a
-  // process.argv[1]. esbuild conserve les deux en ESM, donc le paquet demarre
-  // en etant simplement nomme, sans drapeau ni enveloppe.
+  // process.argv[1]. Dans l'executable, les deux designent `Aevum.exe` :
+  // verifie sur un binaire d'essai avant d'en dependre.
   logLevel: "warning",
 });
+
+// Le code serveur disparait dans le binaire, que la recherche de secrets ne
+// lit pas : on le lit ici, avant qu'il ne devienne opaque. Sans cette ligne,
+// passer a l'executable aurait retire le serveur du controle en silence.
+step("recherche de secrets dans le code embarque…");
+const embeddedLeaks = secretsIn(bundle, "code embarque");
+if (embeddedLeaks.length) {
+  rmSync(work, { recursive: true, force: true });
+  throw new Error(
+    `Paquet refuse, secrets detectes : ${embeddedLeaks.join(", ")}`,
+  );
+}
 
 // 3) Ce que le serveur lit a l'execution, aux chemins ou il le cherche.
 step("copie du site et de la demonstration…");
@@ -136,16 +192,34 @@ cpSync(
 // Rien d'ecrivable ne vit dans l'installation : les parties sont ailleurs,
 // sinon remplacer ce dossier pour mettre a jour les effacerait.
 
-// 4) L'interpreteur, pour que la machine d'en face n'ait rien a installer.
-step("copie de l'interpreteur…");
-mkdirSync(resolve(OUT, "runtime"), { recursive: true });
-cpSync(process.execPath, resolve(OUT, "runtime/node.exe"));
+// 4) L'executable : l'interpreteur et le serveur, en un fichier qui est a nous.
+step("construction de l'executable…");
+const seaConfig = join(work, "sea-config.json");
+writeFileSync(
+  seaConfig,
+  JSON.stringify({
+    main: bundle,
+    mainFormat: "module",
+    output: resolve(OUT, EXE),
+    disableExperimentalSEAWarning: true,
+  }),
+);
+// Sans shell : le chemin de l'interpreteur contient souvent une espace
+// (« Program Files »), que `run` ne protegerait pas.
+const sea = spawnSync(process.execPath, ["--build-sea", seaConfig], {
+  stdio: "inherit",
+  windowsHide: true,
+});
+if (sea.status !== 0)
+  throw new Error(`La construction de l'executable a echoue (${sea.status})`);
+const stripped = stripStaleSignature(resolve(OUT, EXE));
+rmSync(work, { recursive: true, force: true });
 writeFileSync(
   resolve(OUT, "TIERS.txt"),
   [
-    `runtime/node.exe est une copie non modifiee de Node.js ${process.version},`,
-    "distribuee sous licence MIT. Le texte de la licence n'accompagne pas",
-    "l'executable sur cette installation ; il fait foi a l'adresse officielle",
+    `Aevum.exe embarque Node.js ${process.version}, distribue sous licence MIT.`,
+    "Le texte de la licence n'accompagne pas l'executable sur cette",
+    "installation ; il fait foi a l'adresse officielle",
     "https://github.com/nodejs/node/blob/main/LICENSE",
     "",
     "Aucune cle d'API n'est livree avec cette application. Les reglages Nous",
@@ -154,29 +228,33 @@ writeFileSync(
   ].join("\n"),
 );
 
-// 5) Le double-clic. Il fixe le repertoire courant, parce que le serveur y
-//    cherche le site et la demonstration — mais pas les parties, qui vivent
-//    hors de l'installation pour survivre a son remplacement.
-step("ecriture du lanceur…");
-writeFileSync(
-  resolve(OUT, LAUNCHER),
-  [
-    "@echo off",
-    'cd /d "%~dp0"',
-    "echo Demarrage d'Aevum...",
-    // Les parties vivent hors de l'installation, sinon la remplacer pour
-    // mettre a jour les effacerait.
-    'if "%AEVUM_DATA%"=="" set AEVUM_DATA=%LOCALAPPDATA%\\Aevum',
-    'if not exist "%AEVUM_DATA%" mkdir "%AEVUM_DATA%"',
-    // Le port reste 5174 sauf si la machine en impose un autre, et le
-    // navigateur doit ouvrir celui-la, pas une adresse sans port.
-    'if "%AEVUM_PORT%"=="" set AEVUM_PORT=5174',
-    'start "" "http://127.0.0.1:%AEVUM_PORT%"',
-    `"%~dp0runtime\\node.exe" "%~dp0${SERVER}"`,
-    "if errorlevel 1 pause",
-    "",
-  ].join("\r\n"),
-);
+// 5) La signature, si un certificat est designe. Sans lui on ne signe pas, et
+//    on ne pretend pas l'avoir fait.
+const thumbprint = process.env.AEVUM_SIGN_THUMBPRINT?.replace(/\s/g, "");
+if (thumbprint) {
+  step("signature de l'executable…");
+  const timestamp = process.env.AEVUM_SIGN_TIMESTAMP;
+  const signed = spawnSync(
+    "powershell",
+    [
+      "-NoProfile",
+      "-Command",
+      [
+        `$c = Get-Item -LiteralPath 'Cert:\\CurrentUser\\My\\${thumbprint}' -ErrorAction Stop`,
+        `$r = Set-AuthenticodeSignature -LiteralPath '${resolve(OUT, EXE)}' -Certificate $c -HashAlgorithm SHA256${timestamp ? ` -TimestampServer '${timestamp}'` : ""}`,
+        `"$($r.Status)|$($r.StatusMessage)"`,
+      ].join("; "),
+    ],
+    { encoding: "utf8", windowsHide: true },
+  );
+  if (signed.status !== 0)
+    throw new Error(`Signature impossible : ${signed.stderr.trim()}`);
+}
+const signature = readSignature(resolve(OUT, EXE));
+if (thumbprint && signature.status === "NotSigned")
+  throw new Error(
+    "Un certificat etait designe, mais l'executable n'est pas signe.",
+  );
 
 // 6) Verifier au lieu d'affirmer.
 step("verification de la disposition…");
@@ -188,25 +266,30 @@ const files = walk(OUT);
 const leaks: string[] = [];
 for (const file of files) {
   // L'executable et les polices sont binaires : les lire en texte ne prouve
-  // rien et produit du bruit. Le risque porte sur ce qu'on a genere.
+  // rien et produit du bruit. Le code embarque a ete lu avant d'etre scelle.
   if (/\.(exe|woff2?|ttf|png|jpg|glb|bin)$/i.test(file)) continue;
-  const content = readFileSync(file, "utf8");
-  for (const { name, pattern } of SECRET_PATTERNS)
-    // On nomme le fichier et le motif, jamais la valeur : afficher le secret
-    // ferait du controle la fuite.
-    if (pattern.test(content))
-      leaks.push(`${file.slice(OUT.length + 1)} (${name})`);
+  leaks.push(...secretsIn(file, file.slice(OUT.length + 1)));
 }
 if (leaks.length) {
   rmSync(OUT, { recursive: true, force: true });
   throw new Error(`Paquet detruit, secrets detectes : ${leaks.join(", ")}`);
 }
 
-/** Demarre le paquet comme un utilisateur le ferait, et attend sa reponse. */
+/**
+ * Demarre le paquet comme un utilisateur le ferait, et attend sa reponse.
+ *
+ * Depuis un AUTRE repertoire que l'installation : un double-clic ne fixe pas
+ * le repertoire courant, et c'est a l'executable de retrouver son site.
+ */
 async function boot(port: number, data: string) {
-  const child = spawn(resolve(OUT, "runtime/node.exe"), [SERVER], {
-    cwd: OUT,
-    env: { ...process.env, AEVUM_PORT: String(port), AEVUM_DATA: data },
+  const child = spawn(resolve(OUT, EXE), [], {
+    cwd: data,
+    env: {
+      ...process.env,
+      AEVUM_PORT: String(port),
+      AEVUM_DATA: data,
+      AEVUM_NO_BROWSER: "1",
+    },
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
   });
@@ -215,7 +298,7 @@ async function boot(port: number, data: string) {
   child.stderr.on("data", (chunk) => (output += chunk));
   const health = `http://127.0.0.1:${port}/api/health`;
   let ready = false;
-  for (let attempt = 0; attempt < 40 && !ready; attempt++) {
+  for (let attempt = 0; attempt < 60 && !ready; attempt++) {
     await new Promise((done) => setTimeout(done, 250));
     try {
       const response = await fetch(health, {
@@ -243,7 +326,7 @@ const abruptlyStop = async (child: ReturnType<typeof spawn>) => {
   );
 };
 
-step("demarrage reel du serveur empaquete…");
+step("demarrage reel de l'executable…");
 const port = await sparePort();
 // Des donnees hors de l'installation, comme chez l'utilisateur : c'est ce qui
 // permet de verifier qu'une mise a jour n'emporte pas les parties.
@@ -300,7 +383,9 @@ const manifest = {
   verified: {
     layout: true,
     secretsFound: 0,
+    embeddedCodeScanned: true,
     booted: true,
+    bootedFromAnotherDirectory: true,
     servesSite: true,
     // Fermer la fenetre ne libere pas le verrou sous Windows ; ce qui compte
     // est que le lancement suivant le reprenne au lieu de refuser de demarrer.
@@ -311,7 +396,14 @@ const manifest = {
     lockReclaimedOnRestart: reclaimed,
     exitCode,
   },
-  signed: false,
+  executable: {
+    name: EXE,
+    staleSignatureBytesRemoved: stripped.removedBytes,
+  },
+  // « Valid » seulement si Windows reconnait la chaine du certificat. Un
+  // certificat auto-signe donne « UnknownError » : signe, mais pas reconnu.
+  signed: signature.status !== "NotSigned",
+  signature,
 };
 writeFileSync(
   resolve(OUT, "manifest.json"),
