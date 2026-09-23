@@ -42,7 +42,7 @@ leur intérêt — voir `ling-3.0-flash-sante` plus bas.
 OpenCode Go demande surtout une décision qui n'est pas la mienne : son
 abonnement est celui d'Hermes, et la documentation prévient que le trafic qui
 ne ressemble pas à celui d'un agent de code peut faire couper le compte. Aucune
-requête de jeu n'y a été envoyée.
+requête de jeu n'y a été envoyée. **Décision prise ensuite : abandonné.**
 
 ## Six situations, seize modèles
 

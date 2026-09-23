@@ -21,8 +21,10 @@
  * Aucune cle n'est lue, journalisee ni imprimee ici.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { basename } from "node:path";
 import {
   activeCiv,
+  localCouncil,
   newSpectator,
   resolveCouncil,
   type SpectatorState,
@@ -49,6 +51,16 @@ const OUT = arg("out", "docs/reports/remote-campaign.json");
 const ARCHIVE = arg("archive", "worlds/spectator/remote-campaign.json");
 /** Secondes entre deux tours. Pour distinguer une limite de debit d une panne. */
 const PACE = Number(arg("pace", "0"));
+/** Essais par tour, espaces de plus en plus : une limite de debit se patiente. */
+const ATTEMPTS = Math.max(2, Number(arg("attempts", "2")));
+/**
+ * Un tour sans reponse apres tous les essais : arret (defaut), ou joue par le
+ * dirigeant local et COMPTE comme tel. Une partie longue a plusieurs modeles
+ * ne peut pas s'arreter parce qu'un seul bloque sur une requete — mais un
+ * tour joue par le moteur n'est jamais attribue au modele : le rapport donne,
+ * civilisation par civilisation, la part vraiment servie.
+ */
+const SUBSTITUTE = process.argv.includes("--substitute");
 
 interface TurnRow {
   turn: number;
@@ -61,6 +73,8 @@ interface TurnRow {
   rejected: number;
   rejectDetails: string[];
   error: string | null;
+  /** Tour joue par le dirigeant local faute de reponse, jamais compte au modele. */
+  substituted: boolean;
 }
 
 loadWindowsNousEnvironment();
@@ -68,7 +82,11 @@ loadWindowsNousEnvironment();
 let state: SpectatorState = newSpectator(SEED, RULES);
 const campaign: Campaign = {
   version: RULES,
-  id: "remote-campaign",
+  // L'identifiant est le nom du fichier : l'observatoire ouvre une campagne
+  // par son identifiant et la charge sous ce nom. Fige a « remote-campaign »,
+  // cinq archives differentes s'affichaient sous le meme nom, et l'observatoire
+  // en ouvrait une autre que celle choisie.
+  id: basename(ARCHIVE, ".json"),
   seed: SEED,
   mode: "remote",
   models: {},
@@ -125,11 +143,31 @@ for (let n = 0; n < TURNS && alive() > 1; n++) {
    * si. Les reprises sont comptees et affichees.
    */
   let answer = await requestValidatedCouncil(state, civ, "remote", model);
-  if (answer.source !== "remote") {
+  for (
+    let attempt = 2;
+    attempt <= ATTEMPTS && answer.source !== "remote";
+    attempt++
+  ) {
     retries++;
-    await new Promise((done) => setTimeout(done, 2000));
+    // 2 s, puis 30, 60, 120 s : une limite de debit se patiente, et relancer
+    // aussitot ne fait que la prolonger.
+    const wait =
+      attempt === 2 ? 2000 : Math.min(120_000, 15_000 * 2 ** (attempt - 2));
+    await new Promise((done) => setTimeout(done, wait));
     answer = await requestValidatedCouncil(state, civ, "remote", model);
     if (answer.source === "remote") recovered++;
+  }
+  let substituted = false;
+  if (!answer.decision && SUBSTITUTE) {
+    substituted = true;
+    answer = {
+      civ,
+      decision: localCouncil(state, civ),
+      source: "local",
+      model: "local/deterministic-council-v10",
+      service: null,
+      error: `${answer.error ?? "sans reponse"} — tour joue par le dirigeant local`,
+    };
   }
   const service = answer.service as {
     requestedModel?: string;
@@ -153,6 +191,7 @@ for (let n = 0; n < TURNS && alive() > 1; n++) {
       rejected: 0,
       rejectDetails: [],
       error: answer.error,
+      substituted: false,
     });
     console.error(`tour ${n + 1} (${civ}) : aucune decision — arret`);
     break;
@@ -186,11 +225,12 @@ for (let n = 0; n < TURNS && alive() > 1; n++) {
     rejected: result.rejected.length,
     rejectDetails: result.rejected.slice(0, 4).map((issue) => issue.detail),
     error: answer.error,
+    substituted,
   });
   // Ecrit a chaque tour : une interruption ne doit rien perdre.
   writeFileSync(ARCHIVE, JSON.stringify(campaign));
   console.error(
-    `tour ${n + 1}/${TURNS} (${civ}) : ${answer.source}, ` +
+    `tour ${n + 1}/${TURNS} (${civ}) : ${substituted ? "REMPLACE" : answer.source}, ` +
       `${result.rejected.length} rejet(s), ${service?.latencyMs ?? "?"} ms`,
   );
 }
@@ -235,6 +275,30 @@ const report = {
       : null,
     max: latencies[latencies.length - 1] ?? null,
   },
+  substituted: rows.filter((row) => row.substituted).length,
+  /**
+   * Civilisation par civilisation : le modele, et la part des tours qu'il a
+   * vraiment servie. Sous 70 %, un modele n'est pas classable (CLAUDE.md).
+   */
+  perCivilization: Object.fromEntries(
+    ["amber", "azure", "crimson", "verdant"].map((civ) => {
+      const mine = rows.filter((row) => row.civ === civ);
+      const served = mine.filter((row) => row.servedItself).length;
+      const share = mine.length ? served / mine.length : null;
+      return [
+        civ,
+        {
+          model: campaign.models[civ as keyof typeof campaign.models] ?? null,
+          turns: mine.length,
+          servedByModelItself: served,
+          servedShare: share === null ? null : Number(share.toFixed(3)),
+          rankable: share !== null && share >= 0.7,
+          substituted: mine.filter((row) => row.substituted).length,
+          rejectedOrders: mine.reduce((sum, row) => sum + row.rejected, 0),
+        },
+      ];
+    }),
+  ),
   replayVerified,
   replayError,
   archive: ARCHIVE,

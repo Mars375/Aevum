@@ -144,6 +144,26 @@ describe("le modèle des conseils se choisit sans toucher au code", () => {
     );
   });
 
+  it("donne un modèle à chaque civilisation, pour les apparier", () => {
+    const models = defaultCouncilModels({
+      AEVUM_COUNCIL_MODEL: DOTS,
+      AEVUM_COUNCIL_MODELS:
+        "azure=nous:meituan/longcat-2.0:free, verdant=kilo:nex-agi/nex-n2.5-mini:free",
+    });
+    expect(models).toEqual({
+      amber: DOTS,
+      azure: "nous:meituan/longcat-2.0:free",
+      crimson: DOTS,
+      verdant: "kilo:nex-agi/nex-n2.5-mini:free",
+    });
+  });
+
+  it("refuse une civilisation mal écrite plutôt que de l'ignorer", () => {
+    expect(() =>
+      defaultCouncilModels({ AEVUM_COUNCIL_MODELS: "ambre=kilo:x:free" }),
+    ).toThrow(/invalide/);
+  });
+
   it("garde NOUS_MODEL et le défaut tels quels", () => {
     expect(
       defaultCouncilModels({ NOUS_MODEL: "poolside/laguna-s-2.1:free" }).azure,
