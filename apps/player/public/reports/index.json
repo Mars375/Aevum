@@ -2,7 +2,7 @@
   {
     "slug": "aevum-season-1-verification",
     "title": "Vérification du candidat Aevum Saison 1",
-    "subtitle": ""
+    "subtitle": "Statut : candidat local vérifié le 24 août 2026, non publié et sans preuve nouvelle issue de modèles distants."
   },
   {
     "slug": "aevum-season-1",
@@ -15,19 +15,29 @@
     "subtitle": "Analyse du checkout local, sans modification du code applicatif. Les dépendances verrouillées ont été installées avec npm ci --ignore-scripts, puis les contrôles et des reproductions en mémoire ont été exécutés. Aucun fournisseur IA n'a été appelé."
   },
   {
+    "slug": "banc-modeles",
+    "title": "Banc des modèles gratuits — ce qui est stable et propre pour nos tests",
+    "subtitle": "La question : parmi tous les modèles gratuits qu'on peut trouver, lequel"
+  },
+  {
     "slug": "board-noise",
     "title": "Le bruit du plateau — ce qu'une rotation doit franchir",
-    "subtitle": ""
+    "subtitle": "Statut : mesuré hors ligne, sans dépenser un appel · 24 mondes muets · Carte : t_baa4de0e"
+  },
+  {
+    "slug": "campagne-distante",
+    "title": "La campagne distante longue — pourquoi elle n'a pas lieu",
+    "subtitle": "C'est la limite que ce dépôt traîne depuis le début, recopiée dans chaque"
   },
   {
     "slug": "chronique-demo",
     "title": "Chronique du monde « demo », ère 1",
-    "subtitle": ""
+    "subtitle": "Statut : généré, jamais rédigé · 400 années · 0 décisions · règles w7"
   },
   {
     "slug": "chronique-ere-1",
     "title": "Chronique de la première ère — RETIRÉE",
-    "subtitle": ""
+    "subtitle": "Statut : retirée le 20 août 2026, ses dates étaient fausses"
   },
   {
     "slug": "chronique-monde",
@@ -40,9 +50,29 @@
     "subtitle": "Les nouvelles parties utilisent spectator-2 ; les campagnes spectator-1 gardent leurs règles et leurs signatures de rejeu. Aucune migration implicite des parties IA déjà enregistrées."
   },
   {
+    "slug": "controle-navigateur",
+    "title": "Ce que le navigateur a trouvé, et que 688 tests ne voyaient pas",
+    "subtitle": "Le fichier de livraison affirmait des choses qu'aucun test local ne pouvait"
+  },
+  {
+    "slug": "diplomatie-v10",
+    "title": "Diplomatie suivie (spectator-10) — ce qui est livré, et ce qui reste mince",
+    "subtitle": "Lot 4 de docs/release-spectateur.md, P1 du backlog : des promesses avec des"
+  },
+  {
+    "slug": "distribution-autonome",
+    "title": "Distribution autonome — ce qui est livré, et ce qui ne l'est pas",
+    "subtitle": "Le backlog demande de « remplacer le prérequis Node.js par une application"
+  },
+  {
     "slug": "first-era",
     "title": "Première ère — ce que 400 ans ont produit",
-    "subtitle": ""
+    "subtitle": "Statut : mesuré · Monde premier, ère 1, graine 42 · Carte kanban : t_baa4de0e"
+  },
+  {
+    "slug": "fournisseurs",
+    "title": "Fournisseurs — la campagne longue a eu lieu, et ce qui la bloquait",
+    "subtitle": "La limite que ce dépôt traînait depuis le début — « aucune campagne distante"
   },
   {
     "slug": "nous-correction",
@@ -57,46 +87,51 @@
   {
     "slug": "prix-de-la-garde",
     "title": "Le prix de la garde — une règle, et ce qu'elle a changé",
-    "subtitle": ""
+    "subtitle": "Statut : mesuré en comparaison appariée · un monde, deux règles · Carte : t_baa4de0e"
   },
   {
     "slug": "qa-audit",
     "title": "Audit QA — expérience et méthodologie",
-    "subtitle": ""
+    "subtitle": "Statut : audité le 2026-08-17, révisé le 2026-08-18 après correction ·"
   },
   {
     "slug": "reference-battle",
     "title": "Rapport d'exécution — bataille de référence",
-    "subtitle": ""
+    "subtitle": "Statut : exécutée · Date : 2026-08-18 · Tâche kanban : t_f4c79504"
   },
   {
     "slug": "release-r1-verification",
     "title": "Vérification de la candidate R1 / 0.2.0",
-    "subtitle": ""
+    "subtitle": "Date : 22 août 2026"
   },
   {
     "slug": "release-r1-world",
     "title": "Release R1 — monde continu",
-    "subtitle": ""
+    "subtitle": "Audit hors ligne du 22 août 2026."
+  },
+  {
+    "slug": "revue-infrastructure-v9",
+    "title": "Revue du lot infrastructures v9 — `0d150a2` et `f79fcf3`",
+    "subtitle": "Revue en lecture seule, menée depuis un worktree isolé à f79fcf3, sans toucher"
   },
   {
     "slug": "rotation-w3",
     "title": "Rotation w3 — une mesure ratée, et pourquoi",
-    "subtitle": ""
+    "subtitle": "Statut : mesuré, non concluant · 4 rotations × 120 ans, graine 1789 · Carte : t_baa4de0e"
   },
   {
     "slug": "rotation-w4",
     "title": "Rotation w4 — un seul écart tient, et il faut le dire",
-    "subtitle": ""
+    "subtitle": "Statut : mesuré · 3 graines × 4 rotations × 60 ans, 12 courses · Carte : t_baa4de0e"
   },
   {
     "slug": "rotation",
     "title": "Rotation des modèles — le premier classement défendable",
-    "subtitle": ""
+    "subtitle": "Statut : mesuré · 4 rotations × 120 ans, graine 1789 · Carte kanban : t_baa4de0e"
   },
   {
     "slug": "tournament",
     "title": "Tournoi — quel modèle commande le mieux ?",
-    "subtitle": ""
+    "subtitle": "Statut : exécuté · Date : 2026-08-18 · Tâche kanban : t_32e3997f"
   }
 ]

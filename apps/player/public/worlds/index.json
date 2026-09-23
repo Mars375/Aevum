@@ -1,17 +1,5 @@
 [
   {
-    "path": "worlds/civilization-w10/era-0001.json",
-    "world": "civilization-w10",
-    "era": 1,
-    "livedTo": 300,
-    "rulings": 147,
-    "alive": 3,
-    "over": false,
-    "survivor": null,
-    "worldVersion": "w10",
-    "seed": 42
-  },
-  {
     "path": "worlds/aevum-season-1/era-0001.json",
     "world": "aevum-season-1",
     "era": 1,
@@ -24,5 +12,17 @@
     "seed": 99,
     "learningCurvePath": "worlds/aevum-season-1/era-0001.learning.json",
     "reportSlug": "aevum-season-1"
+  },
+  {
+    "path": "worlds/civilization-w10/era-0001.json",
+    "world": "civilization-w10",
+    "era": 1,
+    "livedTo": 300,
+    "rulings": 147,
+    "alive": 3,
+    "over": false,
+    "survivor": null,
+    "worldVersion": "w10",
+    "seed": 42
   }
 ]
