@@ -103,6 +103,12 @@ Deux lectures que les situations isolées ne permettaient pas :
 Le modèle local est le seul qui ne peut **pas** tomber : aucun quota, aucun
 fournisseur. Il reste loin derrière en propreté.
 
+**Décision : on reste sur des modèles cloud.** Une carte de 12 Go ne fait tourner
+que des modèles de 7 à 12 milliards de paramètres, et le meilleur a eu treize
+fois plus d'ordres rejetés que `dots-3-note`. Ollama et ses modèles ont été
+désinstallés. Le banc garde sa cible `ollama:` : si une machine plus puissante
+changeait la donne, la mesure se refait en une commande.
+
 ## De bout en bout, par le chemin du produit
 
 Le banc redirige un appel ; une campagne passe par `RemoteProvider`, qui ne
