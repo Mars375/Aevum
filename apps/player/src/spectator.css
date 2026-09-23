@@ -1026,14 +1026,32 @@
   .ruler-dock {
     bottom: 170px;
   }
+  /* Les contrôles repliés montent à 161 px : posés à 155 et 158, outils et
+     bulletin passaient 6 et 3 px dessous. Mesuré, pas estimé. */
   .observatory .map-tools {
-    bottom: 155px !important;
+    bottom: 169px !important;
   }
   .world-bulletin {
-    bottom: 158px;
+    bottom: 169px;
   }
   .route-caption {
-    bottom: 263px;
+    bottom: 280px;
+  }
+}
+/*
+ * Entre 721 et 1100 px, le bulletin est calé à gauche (left: 340px, 360 px de
+ * large) et la barre d'outils de la carte à droite, à la même hauteur : à 820 px
+ * la prévision de crise recouvrait « Carte 2D », « Ordres » et « + ». La largeur
+ * manque pour les mettre côte à côte — à 721 px il resterait 60 px —, donc on
+ * les empile : outils, puis bulletin, puis le trajet. Vu dans le navigateur, une
+ * fois le rapport climatique rendu à la v10 ; les v8 et v9 l'avaient déjà.
+ */
+@media (min-width: 721px) and (max-width: 1100px) {
+  .world-bulletin {
+    bottom: 229px;
+  }
+  .route-caption {
+    bottom: 345px;
   }
 }
 @media (max-width: 720px) {
@@ -1071,14 +1089,29 @@
   .result-table td {
     padding: 9px 5px;
   }
+  /* La barre d'outils occupe 159 à 213 px : posé à 200, le bulletin mordait
+     13 px dessus à toutes les largeurs de téléphone. */
   .observatory .map-tools {
     bottom: 159px !important;
   }
   .world-bulletin {
-    bottom: 200px;
+    bottom: 221px;
   }
   .route-caption {
     bottom: 310px;
+  }
+}
+/* Sous 411 px, les contrôles passent sur trois lignes et montent à 200 px :
+   la barre d'outils, posée à 159, disparaissait de 41 px dessous. */
+@media (max-width: 420px) {
+  .observatory .map-tools {
+    bottom: 208px !important;
+  }
+  .world-bulletin {
+    bottom: 270px;
+  }
+  .route-caption {
+    bottom: 360px;
   }
 }
 .sequence-status {

@@ -107,10 +107,104 @@ s'assurer qu'elle échoue bien :
 - `climate.test.ts` exige le même rapport climatique en v10 qu'en v8 ;
 - `campaign-summary.test.ts` exige des manches, et non des tours.
 
+## 4. Les autres écrans — et le contrôle qui ne contrôlait plus rien
+
+Le lendemain, les écrans restants : chronique d'archive, batailles en 2D et en
+3D, règles, « À propos », et l'observatoire à d'autres largeurs que 1289 px.
+Batailles, règles et « À propos » rendent proprement. Trois défauts de plus, et
+un quatrième, plus gênant : l'outil censé les voir était cassé.
+
+### La feuille de l'observatoire débordait sur les archives
+
+La chronique d'archive s'ouvrait avec son tableau comparé **écrasé sur 295 px
+par-dessus le titre**, colonnes imprimées les unes sur les autres. Cause :
+`Spectator.vue` charge `spectator.css` **sans `scoped`**, et `main.ts` importait
+les deux racines statiquement. Ses règles globales s'appliquaient donc aux
+archives, et `.civilizations { position: absolute }` visait une section de la
+chronique qui portait le même nom. Le défaut datait de l'arrivée de
+l'observatoire, le 12 septembre.
+
+Corrigé à la racine plutôt qu'à la règle : `main.ts` ne charge plus que
+l'application montée, et chacune n'apporte que sa propre feuille — mesuré,
+`Spectator.css` n'est plus demandé sur une page d'archive.
+`apps/player/test/entry-isolation.test.ts` interdit le retour en arrière, et
+exige que l'observatoire reste la seule racine à feuille non scopée.
+
+### Les panneaux flottants de l'observatoire se recouvraient
+
+Mesuré par Chrome piloté en CDP, rectangle par rectangle, sur une campagne
+chargée :
+
+| largeur        | défaut                                                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 721 à 1100 px  | la prévision de crise couvrait la barre d'outils — jusqu'à 303 × 51 px, « Carte 2D », « Ordres » et « + » cachés |
+| 1101 à 1250 px | bulletin et outils passaient 3 et 6 px sous les contrôles de tour                                                |
+| sous 720 px    | le bulletin mordait de 13 px sur les outils                                                                      |
+| sous 411 px    | les contrôles passent sur trois lignes ; les outils disparaissaient de 41 px dessous                             |
+
+Personne ne l'avait vu en v10 pour une raison simple : le bulletin n'y
+**existait pas**, le rapport climatique ayant disparu avec les seuils de version
+(section 3). Rétabli, il est venu se poser sur les boutons. Corrigé par
+empilement — outils, puis bulletin, puis trajet — et vérifié à dix-huit
+largeurs, chaque frontière de palier des deux côtés : aucun chevauchement,
+aucun débordement.
+
+### Un 404 à chaque ouverture du monde par défaut
+
+Le lecteur **devinait** le chemin de la courbe d'apprentissage quand l'index
+n'en donnait pas. Or `scripts/index-worlds.ts` ne l'écrit que si un fichier
+valide existe : pour un monde indexé, son absence veut dire « pas de courbe ».
+Deviner produisait un 404 et une erreur de console à chaque ouverture de
+`civilization-w10`, et aurait chargé un fichier que l'indexeur avait rejeté. On
+ne devine plus que pour un monde hors index.
+
+### `qa:browser` ne pouvait plus passer depuis trois semaines
+
+`scripts/browser-qa.ts` existait pour exactement ce travail : Chromium piloté par
+CDP contre le lecteur construit, et « une absence de navigateur n'est jamais un
+succès ». Il a donc échoué honnêtement — mais pour des raisons qu'aucune
+exécution ne montrait, parce qu'aucune n'avait lieu ici :
+
+1. **aucun chemin Windows** dans la découverte de Chromium, donc un échec à
+   chaque lancement sur la machine où le projet se développe ;
+2. **Chrome n'était jamais arrêté sous Windows** : `process.kill(-pid)` vise un
+   groupe de processus, notion POSIX ; le repli le prenait pour « déjà mort ».
+   Neuf processus trouvés vivants après un seul passage ;
+3. le profil ainsi verrouillé faisait lever `EPERM` au nettoyage, et **cette
+   erreur remplaçait le verdict** ;
+4. il ouvrait `/` et attendait `.chronicle` — mais `/` est l'observatoire
+   depuis le 12 septembre. Il ne pouvait plus que dépasser son délai ;
+5. il attendait le libellé « ARCHIVES », devenu « Archives » au renommage des
+   vues. Précisé plutôt qu'assoupli : le libellé, et l'adresse `mode=archives`.
+
+Réparé, il a tout de suite trouvé le 404 ci-dessus. Il passe aujourd'hui ses
+**36 contrôles**.
+
+Mais même réparé, il n'aurait vu **aucun** des défauts de mise en page : il
+mesure le débordement horizontal, pas le recouvrement. Deux contrôles ajoutés,
+chacun éprouvé en réintroduisant le défaut :
+
+- **les blocs de la chronique ne se recouvrent pas** — sur l'ancien `main.ts`,
+  il échoue aux trois largeurs : « stage × civilizations : 351 × 185 px » ;
+- **les panneaux flottants de l'observatoire ne se recouvrent pas.** Premier
+  essai dans `qa:browser` : il **passait sur l'ancienne feuille défectueuse**.
+  Sans API, l'observatoire n'y montre que son aperçu initial — sans bulletin,
+  contrôles moins hauts. Un contrôle qui ne peut pas échouer rassure à tort ; il
+  a été retiré. `npm run qa:observatory` le remplace, contre le vrai serveur et
+  une vraie campagne : sur l'ancienne feuille, **14 largeurs sur 18 en échec**,
+  chaque défaut du tableau retrouvé.
+
+Le second a lui-même eu son défaut de mesure : il attendait les contrôles, qui
+existent déjà dans l'aperçu, et mesurait donc parfois la page avant que la
+campagne soit rejouée — le bulletin semblait absent à huit largeurs sur dix-huit
+d'une même partie. Il attend désormais la fin de l'aperçu, et dit quand le
+bulletin manque : une largeur sans bulletin ne prouve rien sur lui.
+
 ## Ce que ce contrôle ne prouve pas
 
-- Une campagne, une résolution, un navigateur. Rien sur d'autres écrans que le
-  monde, la fiche du dirigeant et le bilan.
+- Une campagne et un navigateur. Tous les écrans ont été regardés, et
+  l'observatoire mesuré à dix-huit largeurs ; mais les batailles, les règles et
+  « À propos » l'ont été à l'œil, sans mesure de recouvrement.
 - Le rendu n'a pas été comparé à une référence : « ça rend juste » est un
   jugement de l'œil sur une capture, pas une mesure.
 - Le runtime du navigateur est tombé trois fois pendant la session, la machine

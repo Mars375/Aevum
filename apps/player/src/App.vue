@@ -172,9 +172,17 @@ async function openWorld(path: string) {
     journal.value = parsed.data;
     worldError.value = null;
 
-    const reportPath = worlds.value.find((world) => world.path === path)?.learningCurvePath
-      ?? (path.endsWith(".json") ? path.replace(/\.json$/, ".learning.json") : `${path}.learning.json`);
-    try {
+    // L'index nomme la courbe exactement quand un fichier valide existe
+    // (`scripts/index-worlds.ts`) : pour un monde indexé, son absence veut dire
+    // « pas de courbe ». Deviner le chemin quand même produisait un 404 et une
+    // erreur de console à chaque ouverture du monde par défaut, et pouvait
+    // charger un fichier que l'indexeur avait rejeté. On ne devine plus que pour
+    // un monde hors index, ouvert par son chemin.
+    const indexed = worlds.value.find((world) => world.path === path);
+    const reportPath = indexed
+      ? indexed.learningCurvePath
+      : path.endsWith(".json") ? path.replace(/\.json$/, ".learning.json") : `${path}.learning.json`;
+    if (reportPath) try {
       const reportResponse = await fetch(reportPath);
       if (!worldRequests.isCurrent(request)) return;
       if (reportResponse.ok) {

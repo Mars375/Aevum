@@ -14,7 +14,7 @@
  * Usage: npm run player:build && npm run qa:browser
  * Env:   AEVUM_CHROMIUM=/path/to/chromium overrides discovery.
  */
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -47,7 +47,7 @@ interface Check {
   detail?: string;
 }
 
-function findChromium(): string | null {
+export function findChromium(): string | null {
   const candidates = [
     process.env.AEVUM_CHROMIUM,
     "/usr/bin/chromium",
@@ -56,6 +56,15 @@ function findChromium(): string | null {
     "/usr/bin/google-chrome",
     "/snap/bin/chromium",
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    // Windows. Sans ces chemins, le contrôle échouait « bruyamment » à chaque
+    // exécution sur la machine où le projet se développe — donc personne ne
+    // l'exécutait, et il a cessé de fonctionner sans que personne le voie.
+    ...[process.env.PROGRAMFILES, process.env["PROGRAMFILES(X86)"], process.env.LOCALAPPDATA]
+      .filter((base): base is string => !!base)
+      .flatMap((base) => [
+        join(base, "Google/Chrome/Application/chrome.exe"),
+        join(base, "Microsoft/Edge/Application/msedge.exe"),
+      ]),
   ].filter((candidate): candidate is string => !!candidate && existsSync(candidate));
   if (candidates.length > 0) return candidates[0]!;
   const playwrightCache = resolve(process.env.HOME ?? tmpdir(), ".cache/ms-playwright");
@@ -67,6 +76,33 @@ function findChromium(): string | null {
     }
   }
   return null;
+}
+
+/** Headless Chromium plus the promise of its DevTools endpoint. The process is
+ * returned before the endpoint resolves so a caller can always stop it. */
+export function spawnChromium(executable: string, profileDir: string): { chrome: ChildProcess; wsUrl: Promise<string> } {
+  let exposeWsUrl: ((wsUrl: string) => void) | null = null;
+  const wsUrl = new Promise<string>((resolvePromise, rejectPromise) => {
+    setTimeout(() => rejectPromise(new Error(`Chromium never exposed a DevTools endpoint within ${CDP_TIMEOUT_MS}ms`)), CDP_TIMEOUT_MS).unref();
+    exposeWsUrl = resolvePromise;
+  });
+  const chrome = spawn(executable, [
+    "--headless=new",
+    "--remote-debugging-port=0",
+    `--user-data-dir=${profileDir}`,
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-gpu",
+    "--disable-dev-shm-usage",
+    "--no-sandbox",
+    "about:blank",
+  ], { stdio: ["ignore", "ignore", "pipe"], detached: true });
+  chrome.stderr!.setEncoding("utf8");
+  chrome.stderr!.on("data", (chunk: string) => {
+    const match = chunk.match(/DevTools listening on (ws:\/\/\S+)/);
+    if (match && exposeWsUrl) exposeWsUrl(match[1]!);
+  });
+  return { chrome, wsUrl };
 }
 
 const MIME: Record<string, string> = {
@@ -127,7 +163,7 @@ function serveDist(): Promise<{ port: number; close: () => void }> {
 }
 
 /** Minimal CDP session over Node's built-in WebSocket client. */
-class Cdp {
+export class Cdp {
   private nextId = 1;
   private pending = new Map<number, { resolve: (value: any) => void; reject: (error: Error) => void }>();
   private listeners = new Map<string, Array<(params: any) => void>>();
@@ -256,7 +292,7 @@ class Cdp {
   }
 }
 
-async function evaluate<T>(cdp: Cdp, expression: string): Promise<T> {
+export async function evaluate<T>(cdp: Cdp, expression: string): Promise<T> {
   const result = await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
   if (result.exceptionDetails) {
     throw new Error(`page evaluation failed: ${result.exceptionDetails.text} ${result.exceptionDetails.exception?.description ?? ""}`);
@@ -332,6 +368,35 @@ function requestChecks(audit: RequestAudit, label: string): Check[] {
   ];
 }
 
+/**
+ * Première paire d'éléments visibles qui se recouvrent, ou `null`.
+ *
+ * Le débordement horizontal ne voit pas un panneau posé sur un autre, et c'est
+ * pourtant ce qui cassait la page : la feuille globale de l'observatoire
+ * sortait le tableau comparé de la chronique de son flux, par-dessus le titre ;
+ * et aux largeurs moyennes, la prévision de crise cachait la barre d'outils de
+ * la carte. Tous les contrôles de ce fichier passaient.
+ */
+export function overlapProbe(selectors: readonly string[]): string {
+  return `(() => {
+    const found = [];
+    for (const selector of ${JSON.stringify(selectors)})
+      for (const element of document.querySelectorAll(selector)) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0 && getComputedStyle(element).visibility !== "hidden")
+          found.push([String(element.className || element.tagName), rect]);
+      }
+    for (let a = 0; a < found.length; a++)
+      for (let b = a + 1; b < found.length; b++) {
+        const [na, ra] = found[a], [nb, rb] = found[b];
+        const dx = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
+        const dy = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
+        if (dx > 1 && dy > 1) return na + " × " + nb + " : " + Math.round(dx) + "×" + Math.round(dy) + " px";
+      }
+    return null;
+  })()`;
+}
+
 async function openChronicle(cdp: Cdp, base: string): Promise<void> {
   const loaded = cdp.waitFor("Page.loadEventFired");
   // Marked handled immediately, not in a finally: if navigation stalls, `loaded`
@@ -339,7 +404,10 @@ async function openChronicle(cdp: Cdp, base: string): Promise<void> {
   // attachment loses the race against Node's unhandled-rejection check.
   loaded.catch(() => {});
   cdp.events.length = 0;
-  await cdp.send("Page.navigate", { url: base });
+  // La chronique vit derrière `?archive` depuis que l'observatoire occupe `/`.
+  // Ce contrôle ouvrait encore `/` et attendait `.chronicle` : il ne pouvait
+  // plus que dépasser son délai, et il l'a fait sans témoin pendant des semaines.
+  await cdp.send("Page.navigate", { url: new URL("?archive", base).href });
   await loaded;
   const deadline = Date.now() + 10_000;
   while (Date.now() < deadline) {
@@ -388,6 +456,9 @@ async function auditViewport(
     return doc.scrollWidth > doc.clientWidth + 1 ? \`scrollWidth \${doc.scrollWidth} > clientWidth \${doc.clientWidth}\` : null;
   })()`);
   checks.push({ name: `${label}: no horizontal overflow`, ok: overflow === null, detail: overflow ?? "document fits its viewport" });
+
+  const stacked = await evaluate<string | null>(cdp, overlapProbe([".chronicle > *"]));
+  checks.push({ name: `${label}: chronicle blocks do not overlap`, ok: stacked === null, detail: stacked ?? "each block keeps its own band" });
 
   const consoleErrors = cdp.events
     .filter((event) => {
@@ -439,7 +510,16 @@ async function auditInteractions(cdp: Cdp, base: string, port: number): Promise<
   await pressKey(cdp, "Enter", "Enter", 13);
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 300));
   const deck = (await evaluate<string>(cdp, "document.querySelector('.section-deck')?.textContent ?? ''")).trim();
-  checks.push({ name: "keyboard: Enter switches section", ok: deck.includes("ARCHIVES"), detail: deck });
+  // Le libellé est devenu « Archives » quand les vues ont été renommées : le
+  // contrôle cherchait encore « ARCHIVES » et échouait sur une section bien
+  // ouverte. On ne l'assouplit pas, on le précise : le libellé, et l'adresse,
+  // qui porte la vue depuis `view-address.ts`.
+  const mode = await evaluate<string | null>(cdp, "new URLSearchParams(location.search).get('mode')");
+  checks.push({
+    name: "keyboard: Enter switches section",
+    ok: /^archives/i.test(deck) && mode === "archives",
+    detail: `mode=${mode ?? "absent"} · ${deck.slice(0, 60)}`,
+  });
 
   await openChronicle(cdp, base);
 
@@ -493,8 +573,17 @@ async function auditInteractions(cdp: Cdp, base: string, port: number): Promise<
  * Learned on this host: /usr/bin/chromium is a wrapper whose grandchild browser
  * survives any signal sent to the direct child alone, so the whole process
  * group is signalled — SIGTERM first, then SIGKILL, which cannot be declined. */
-async function stopChrome(chrome: ChildProcess | null): Promise<void> {
+export async function stopChrome(chrome: ChildProcess | null): Promise<void> {
   if (!chrome || chrome.pid === undefined) return;
+  // Windows n'a pas de groupes de processus : `process.kill(-pid)` y lève, le
+  // repli le prenait pour « déjà mort », et Chrome survivait à chaque exécution
+  // — neuf processus trouvés vivants après un seul passage, profil verrouillé.
+  if (process.platform === "win32") {
+    spawnSync("taskkill", ["/PID", String(chrome.pid), "/T", "/F"], { stdio: "ignore" });
+    await exitsWithin(chrome, 2_000);
+    chrome.stderr?.destroy();
+    return;
+  }
   const signalGroup = (signal: NodeJS.Signals): boolean => {
     try {
       process.kill(-chrome.pid!, signal);
@@ -559,34 +648,14 @@ async function main(): Promise<void> {
   const { port, close } = await serveDist();
   const base = `http://127.0.0.1:${port}/`;
   const profileDir = join(tmpdir(), "aevum-chromium-profile");
-  rmSync(profileDir, { recursive: true, force: true });
+  rmSync(profileDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   let chrome: ChildProcess | null = null;
   let cdp: Cdp | null = null;
   let aborted: unknown = null;
   try {
-    let exposeWsUrl: ((wsUrl: string) => void) | null = null;
-    const wsUrl = new Promise<string>((resolvePromise, rejectPromise) => {
-      setTimeout(() => rejectPromise(new Error(`Chromium never exposed a DevTools endpoint within ${CDP_TIMEOUT_MS}ms`)), CDP_TIMEOUT_MS).unref();
-      exposeWsUrl = resolvePromise;
-    });
-    chrome = spawn(executable, [
-      "--headless=new",
-      "--remote-debugging-port=0",
-      `--user-data-dir=${profileDir}`,
-      "--no-first-run",
-      "--no-default-browser-check",
-      "--disable-gpu",
-      "--disable-dev-shm-usage",
-      "--no-sandbox",
-      "about:blank",
-    ], { stdio: ["ignore", "ignore", "pipe"], detached: true });
-    chrome.stderr!.setEncoding("utf8");
-    chrome.stderr!.on("data", (chunk: string) => {
-      const match = chunk.match(/DevTools listening on (ws:\/\/\S+)/);
-      if (match && exposeWsUrl) exposeWsUrl(match[1]!);
-    });
-
-    cdp = await Cdp.attach(await wsUrl);
+    const launched = spawnChromium(executable, profileDir);
+    chrome = launched.chrome;
+    cdp = await Cdp.attach(await launched.wsUrl);
     // Concurrent enables keep this phase inside one timeout window instead of
     // four; a silent transport then fails in ~8s rather than ~32s.
     await Promise.all(["Page.enable", "Runtime.enable", "Network.enable", "Log.enable"].map((method) => cdp!.send(method)));
@@ -600,7 +669,13 @@ async function main(): Promise<void> {
     cdp?.close();
     await stopChrome(chrome);
     close();
-    rmSync(profileDir, { recursive: true, force: true });
+    // Un profil encore tenu par le système ne doit pas masquer le verdict :
+    // c'est exactement ce qui se produisait, l'EPERM remplaçant les résultats.
+    try {
+      rmSync(profileDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+    } catch (error) {
+      console.warn(`profil Chromium non supprimé (${profileDir}) : ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   if (aborted !== null) {

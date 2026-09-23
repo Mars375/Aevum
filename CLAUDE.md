@@ -47,9 +47,22 @@ plus facilement :
 ## Le lecteur — la plus grosse zone du dépôt
 
 `apps/player` fait 6 400 lignes sur 55 fichiers, plus que n'importe quel paquet.
-Vue 3 et Vite, Three.js seulement pour la vue 3D, chargée à la demande. Quatre
-modes dans `App.vue`, choisis par `?view=` : `world`, `battle`, `reports`,
-`rules`. Le plus gros composant est `Chronicle.vue`, 887 lignes.
+Vue 3 et Vite, Three.js seulement pour la vue 3D, chargée à la demande.
+
+**Deux racines, pas une.** `/` monte l'**observatoire** (`Spectator.vue`), qui
+joue les campagnes par le serveur. Les **archives** (`App.vue`) n'existent que
+derrière `?archive`, `?world=` ou `?replay=`, et leurs quatre vues se choisissent
+par `mode=` : `chronique` (par défaut), `archives`, `regles`, `a-propos` —
+`view-address.ts` fait foi. Ce paragraphe a longtemps dit `?view=` et une seule
+racine ; `qa:browser` ouvrait `/` et attendait la chronique, et il a cessé de
+fonctionner sans témoin. `main.ts` ne charge **que** la racine montée :
+l'observatoire porte une feuille globale, `spectator.css`, qui a déjà écrasé la
+chronique quand les deux étaient importées ensemble.
+
+Deux contrôles navigateur, à lancer après une retouche d'interface — les tests
+ne voient ni un recouvrement ni un bouton caché : `npm run qa:browser` (lecteur
+construit, Chrome trouvé seul, Windows compris) et `npm run qa:observatory`
+(panneaux flottants mesurés à dix-huit largeurs, serveur lancé).
 
 La décision qui compte : `vite.config.ts` aliase `@abs/world` vers les sources.
 **Le lecteur recalcule le monde depuis son journal avec le code même qui l'a
