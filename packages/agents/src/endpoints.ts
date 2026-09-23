@@ -7,7 +7,7 @@
  * second provider implementation.
  */
 
-export type ProviderName = "openrouter" | "groq" | "nvidia" | "mistral";
+export type ProviderName = "openrouter" | "groq" | "nvidia" | "mistral" | "kilo";
 
 export interface Endpoint {
   url: string;
@@ -26,6 +26,12 @@ export interface Endpoint {
    * need the headroom mid-battle, so they keep 6000.
    */
   maxTokens: number;
+  /**
+   * Serves its `:free` models without a key. Only Kilo, whose gateway documents
+   * unauthenticated access for free models (200 requests per hour per IP); a
+   * paid model there still needs a key, and never goes out without one.
+   */
+  anonymousFree?: boolean;
 }
 
 export const ENDPOINTS: Record<ProviderName, Endpoint> = {
@@ -33,6 +39,12 @@ export const ENDPOINTS: Record<ProviderName, Endpoint> = {
   groq: { url: "https://api.groq.com/openai/v1/chat/completions", keyEnv: "GROQ_API_KEY", maxTokens: 2000 },
   nvidia: { url: "https://integrate.api.nvidia.com/v1/chat/completions", keyEnv: "NVIDIA_API_KEY", maxTokens: 6000 },
   mistral: { url: "https://api.mistral.ai/v1/chat/completions", keyEnv: "MISTRAL_API_KEY", maxTokens: 6000 },
+  /**
+   * Measured on the paired model bench (`docs/reports/banc-modeles.md`):
+   * `dots-3-note-preview:free` served 20 consecutive councils out of 20, 19 of
+   * them valid on the first attempt, without a key or an account.
+   */
+  kilo: { url: "https://api.kilo.ai/api/gateway/chat/completions", keyEnv: "KILO_API_KEY", maxTokens: 6000, anonymousFree: true },
 };
 
 /**
@@ -94,6 +106,7 @@ export function parseModelRef(ref: string): ModelRef {
   if (ref.startsWith("groq:")) return { provider: "groq", model: ref.slice(5) };
   if (ref.startsWith("nvidia:")) return { provider: "nvidia", model: ref.slice(7) };
   if (ref.startsWith("mistral:")) return { provider: "mistral", model: ref.slice(8) };
+  if (ref.startsWith("kilo:")) return { provider: "kilo", model: ref.slice(5) };
   return { provider: "openrouter", model: ref };
 }
 
@@ -110,5 +123,27 @@ export function parseModelRef(ref: string): ModelRef {
  */
 export function isFreeRef(ref: string): boolean {
   const { provider, model } = parseModelRef(ref);
-  return provider === "openrouter" ? model.endsWith(":free") : true;
+  // Kilo, like OpenRouter, marks its free routes with `:free`.
+  return provider === "openrouter" || provider === "kilo" ? model.endsWith(":free") : true;
+}
+
+/**
+ * Whether a call may go out: with a key, or — only where the provider serves
+ * free models anonymously — for a free model without one.
+ */
+export function canCall(
+  ref: string,
+  apiKeys: Partial<Record<ProviderName, string>>,
+): boolean {
+  const { provider } = parseModelRef(ref);
+  return !!apiKeys[provider] || (!!ENDPOINTS[provider].anonymousFree && isFreeRef(ref));
+}
+
+/** The authorization header, or none when the call is anonymous. */
+export function authorization(
+  provider: ProviderName,
+  apiKeys: Partial<Record<ProviderName, string>>,
+): Record<string, string> {
+  const key = apiKeys[provider];
+  return key ? { Authorization: `Bearer ${key}` } : {};
 }

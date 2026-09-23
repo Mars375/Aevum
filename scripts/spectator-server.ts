@@ -235,7 +235,9 @@ export function createSpectatorServer(
           providers: [
             ...Object.entries(ENDPOINTS).map(([id, e]) => ({
               id,
-              configured: !!env[e.keyEnv],
+              // Kilo sert ses modeles gratuits sans cle : il est disponible
+              // meme non configure.
+              configured: !!env[e.keyEnv] || !!e.anonymousFree,
             })),
             { id: "nous", configured: !!env.NOUS_API_KEY },
           ],

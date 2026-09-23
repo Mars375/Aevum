@@ -25,6 +25,7 @@
     "player:build": "npm run build --workspace @abs/player",
     "qa:browser": "tsx scripts/browser-qa.ts",
     "qa:observatory": "tsx scripts/observatory-layout.ts",
+    "bench:models": "tsx scripts/model-bench.ts",
     "healthcheck": "tsx scripts/healthcheck.ts",
     "tournament": "tsx scripts/tournament.ts",
     "index-replays": "tsx scripts/index-replays.ts",

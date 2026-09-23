@@ -128,3 +128,10 @@ par minute, avant même la sortie que Groq réserve d'avance.
   la légalité des ordres.
 - Les limites des autres fournisseurs sont celles qu'ils publient, pas des
   mesures faites ici.
+
+## Suite — le banc apparié
+
+Le même jour, tous les modèles gratuits trouvables ont été mesurés sur les mêmes
+situations, puis en durée : `docs/reports/banc-modeles.md`. Le plus stable et le
+plus propre est `kilo:dots-studio/dots-3-note-preview:free`, **sans clé** —
+40 tours consécutifs sur 40, un seul ordre rejeté.

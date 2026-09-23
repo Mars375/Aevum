@@ -188,7 +188,15 @@ que le dépôt publie, c'est ce qu'il versionne.
 npm run preflight        # 4 appels : chaque modele repond-il POUR LUI-MEME ?
 npm run world:probe      # combien d'appels un monde demanderait. Zero depense
 npm run board-fairness   # le bruit du plateau, donc ce qu'une mesure peut prouver
+npm run bench:models     # modeles apparies sur 6 situations, puis --consecutive=20
 ```
+
+**Pour une campagne de test, `AEVUM_COUNCIL_MODEL=kilo:dots-studio/dots-3-note-preview:free`** :
+sans clé ni compte, 40 tours consécutifs sur 40, un seul ordre rejeté
+(`docs/reports/banc-modeles.md`). Deux leçons du banc : un modèle **propre sur des
+situations isolées peut se dégrader en partie réelle** — mesurer aussi en durée ; et un
+modèle qui raisonne doit en être empêché (`REASONING_OFF_MODELS`), sinon il dépasse
+tout délai — 45 s sans le champ, 6 s avec, même requête.
 
 Le palier gratuit est un **budget d'appels**, pas une limite de débit — mesuré
 deux fois. Tout script long reprend là où il s'est arrêté ; s'arrêter est le

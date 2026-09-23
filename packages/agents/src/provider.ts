@@ -1,10 +1,10 @@
 import { DecisionSchema, MAX_REASONING_CHARS, type Decision, type GeneralConfig, type LocalView, type Telemetry } from "@abs/contracts";
-import { ENDPOINTS, isFreeRef, parseModelRef, readRateLimit, type ProviderName, type RateLimit } from "./endpoints.js";
+import { ENDPOINTS, authorization, canCall, isFreeRef, parseModelRef, readRateLimit, type ProviderName, type RateLimit } from "./endpoints.js";
 import { extractJson } from "./json.js";
 import { jsonModeInstruction, systemPrompt, userPrompt } from "./prompt.js";
 import { systemPromptV2, userPromptV2 } from "./prompt-v2.js";
 import { ORDER_JSON_SCHEMA_V2 } from "./schema-v2.js";
-import { supportsNativeSchema } from "./roster.js";
+import { reasoningOff, supportsNativeSchema } from "./roster.js";
 import { ORDER_JSON_SCHEMA } from "./schema.js";
 import type { ServiceEvidence } from "@abs/contracts";
 
@@ -166,7 +166,7 @@ export class RemoteProvider implements OrderProvider {
       const thisProvider = parseModelRef(model).provider;
       const hasAlternative = chain
         .slice(position + 1)
-        .some((m) => parseModelRef(m).provider !== thisProvider && this.opts.apiKeys[parseModelRef(m).provider]);
+        .some((m) => parseModelRef(m).provider !== thisProvider && canCall(m, this.opts.apiKeys));
       const isPrimary = position === 0;
       const waitBudget = isPrimary ? WAIT_FOR_OWN_MODEL_MS : hasAlternative ? HOP_INSTEAD_OF_WAITING_MS : MAX_BACKOFF_MS;
 
@@ -176,7 +176,7 @@ export class RemoteProvider implements OrderProvider {
         lastError = `refused ${model}: budget is 0 EUR, only free models are allowed`;
         continue;
       }
-      if (!this.opts.apiKeys[parseModelRef(model).provider]) {
+      if (!canCall(model, this.opts.apiKeys)) {
         lastError = `skipped ${model}: no key for ${parseModelRef(model).provider}`;
         continue;
       }
@@ -282,7 +282,7 @@ export class RemoteProvider implements OrderProvider {
         continue;
       }
       const ref = parseModelRef(model);
-      if (!this.opts.apiKeys[ref.provider]) {
+      if (!canCall(model, this.opts.apiKeys)) {
         reasons.push(`${model}: no key`);
         continue;
       }
@@ -297,7 +297,7 @@ export class RemoteProvider implements OrderProvider {
           const res = await this.opts.fetchImpl(ENDPOINTS[ref.provider].url, {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${this.opts.apiKeys[ref.provider]}`,
+              ...authorization(ref.provider, this.opts.apiKeys),
               "Content-Type": "application/json",
               "X-Title": "ai-battle-simulator",
             },
@@ -309,6 +309,7 @@ export class RemoteProvider implements OrderProvider {
               ],
               max_tokens: this.tokensFor(ref.provider),
               temperature: 0.6,
+              ...reasoningOff(model),
               ...(supportsNativeSchema(model)
                 ? { response_format: { type: "json_schema", json_schema: { name: "answer", strict: true, schema } } }
                 : {}),
@@ -386,7 +387,7 @@ export class RemoteProvider implements OrderProvider {
     const res = await this.opts.fetchImpl(endpoint.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${this.opts.apiKeys[ref.provider]}`,
+        ...authorization(ref.provider, this.opts.apiKeys),
         "Content-Type": "application/json",
         "X-Title": "ai-battle-simulator",
       },
@@ -399,6 +400,7 @@ export class RemoteProvider implements OrderProvider {
         // Per-provider, because Groq reserves whatever we ask for.
         max_tokens: this.tokensFor(ref.provider),
         temperature: 0.4,
+        ...reasoningOff(model),
         ...(native
           ? {
               response_format: {

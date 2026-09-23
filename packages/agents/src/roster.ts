@@ -12,9 +12,30 @@ import type { GeneralConfig } from "@abs/contracts";
 export const NATIVE_SCHEMA_MODELS = new Set([
   "google/gemma-4-26b-a4b-it:free",
   "nvidia/nemotron-3-super-120b-a12b:free",
+  // Banc apparié du 23 septembre, en mode natif : 20/20 tours consécutifs chacun.
+  "kilo:dots-studio/dots-3-note-preview:free",
+  "kilo:nex-agi/nex-n2.5-mini:free",
 ]);
 
 export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(model);
+
+/**
+ * Models that must be told not to reason, or they reason past any deadline.
+ *
+ * Measured on one council, same prompt, only this field changing:
+ * `dots-3-note-preview` timed out past 45 s without it, and answered in 6 s
+ * (398 tokens, valid) with `reasoning: { effort: "none" }`. The same lesson as
+ * `longcat-2.0`, which reasoned to its 6000-token ceiling and answered nothing —
+ * except that `longcat` ignores the field, so it cannot be listed here. Only
+ * measured models: a provider that does not know the field may refuse the call.
+ */
+export const REASONING_OFF_MODELS = new Set([
+  "kilo:dots-studio/dots-3-note-preview:free",
+  "kilo:nex-agi/nex-n2.5-mini:free",
+]);
+
+export const reasoningOff = (model: string) =>
+  REASONING_OFF_MODELS.has(model) ? { reasoning: { effort: "none" } } : {};
 
 /**
  * Four primaries, four vendors, and NVIDIA demoted to deep fallback.
