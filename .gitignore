@@ -36,3 +36,7 @@ dist-app/
 
 # Copie de travail de la branche de publication (npm run publish:campaigns -- --push)
 /.publication/
+
+# Outils de construction téléchargés (makeappx, depuis Microsoft.Windows.SDK.BuildTools)
+/.tools/
+/dist-msix/

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Manifeste MSIX d'Aevum, pour le Microsoft Store.
+
+  Le Store re-signe un paquet MSIX avec son propre certificat : plus
+  d'avertissement SmartScreen, et aucun certificat à acheter. Les trois
+  valeurs d'identité (__NAME__, __PUBLISHER__, __PUBLISHER_DISPLAY__) sont
+  attribuées par l'espace partenaires quand on réserve le nom de
+  l'application ; `npm run package:msix` les lit dans AEVUM_MSIX_NAME,
+  AEVUM_MSIX_PUBLISHER et AEVUM_MSIX_PUBLISHER_DISPLAY.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+  <Identity
+    Name="__NAME__"
+    Publisher="__PUBLISHER__"
+    Version="__VERSION__"
+    ProcessorArchitecture="x64" />
+  <Properties>
+    <DisplayName>Aevum</DisplayName>
+    <PublisherDisplayName>__PUBLISHER_DISPLAY__</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Quatre civilisations gouvernées par des modèles de langage, un moteur déterministe qui tranche : regardez-les grandir, négocier et se déchirer, tour après tour.</Description>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="fr-FR" />
+  </Resources>
+  <Applications>
+    <Application
+      Id="Aevum"
+      Executable="Aevum.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Aevum"
+        Description="L'observatoire des civilisations gouvernées par IA"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <!-- Un exécutable de bureau : le service local et le navigateur qu'il ouvre. -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

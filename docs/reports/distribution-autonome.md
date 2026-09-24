@@ -174,11 +174,44 @@ d'une identité vérifiée — et depuis 2023, sa clé vit sur un support matér
 un service de signature en ligne. C'est une décision et une dépense, pas du
 code. L'empaqueteur est prêt à s'en servir.
 
+## Sans rien acheter : le Microsoft Store
+
+Le certificat ne sera pas acheté. Deux voies gratuites existent, vérifiées le
+25 septembre 2026 :
+
+- **Le Microsoft Store.** L'inscription d'un développeur individuel est gratuite
+  depuis septembre 2025, et le Store **re-signe lui-même un paquet MSIX** : plus
+  d'avertissement SmartScreen. Attention, pas pour un `.exe` soumis tel quel,
+  qui doit arriver déjà signé par une autorité reconnue — c'est-à-dire acheté.
+- **SignPath Foundation**, qui signe gratuitement les projets libres. Elle exige
+  une licence open source reconnue ; le dépôt n'en a aucune. Choisir une licence
+  est une décision de propriétaire, pas d'outillage.
+
+`npm run package:msix` construit donc `dist-msix/Aevum.msix` à partir de
+`dist-app` : un manifeste (`packaging/msix/AppxManifest.xml`) et des images
+rendues depuis une seule icône par `scripts/render-icons.ts`. L'outil
+`makeappx` vient du paquet NuGet officiel `Microsoft.Windows.SDK.BuildTools`,
+téléchargé dans `.tools/` : rien n'est installé sur la machine. Le paquet se
+construit et `makeappx` valide le manifeste.
+
+**Ce qui n'est pas vérifié** : son installation. Un MSIX non signé ne s'installe
+localement qu'en mode développeur, désactivé ici, et l'activer demande des droits
+d'administrateur. La certification du Store, elle, l'installe et le lance.
+L'exécutable se place dans son propre dossier au démarrage, ce qui est ce qu'un
+paquet exige ; ses parties vont dans `%LOCALAPPDATA%Aevum`, ce que le Store
+permet.
+
+**Ce qui reste à faire, et qui ne peut être fait que par le titulaire du
+compte** : s'inscrire, réserver le nom, reporter l'identité attribuée dans
+`AEVUM_MSIX_NAME`, `AEVUM_MSIX_PUBLISHER` et `AEVUM_MSIX_PUBLISHER_DISPLAY`,
+reconstruire, soumettre. Le paquet demande la capacité `runFullTrust` : c'est un
+exécutable de bureau, et le Store demande de le justifier.
+
 ## Ce qui n'est pas livré
 
 - **Une signature reconnue par Windows** : voir ci-dessus. Sans certificat
   désigné, le manifeste porte `signed: false` plutôt que de laisser croire le
-  contraire.
+  contraire. La voie gratuite est le Store, qui attend le compte.
 - **Un installateur, une désinstallation, une mise à jour automatique.** Le
   paquet est un dossier qu'on copie.
 - **Windows uniquement.** `Aevum.exe` est un exécutable Windows. Rien n'empêche

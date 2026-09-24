@@ -47,6 +47,7 @@
     "verify-season-1": "tsx scripts/verify-season-1.ts",
     "launch": "node scripts/launch.mjs",
     "package": "tsx scripts/package-app.ts",
+    "package:msix": "tsx scripts/package-msix.ts",
     "agreements:probe": "tsx scripts/agreements-probe.ts",
     "agreements:remote": "tsx scripts/v10-remote-probe.ts",
     "remote:campaign": "tsx scripts/remote-campaign-probe.ts",
