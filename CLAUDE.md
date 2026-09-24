@@ -242,6 +242,11 @@ en w8.
 
 ## Comment travailler ici
 
+- **Un rapport de `docs/reports/` a une copie publiée, et la CI la vérifie.** Elle
+  relance `npm run build-reports` et `npm run index-worlds`, puis échoue si le
+  résultat diffère du dépôt. Après avoir touché un rapport : `npm run build-reports`,
+  et commiter `apps/player/public/reports/` avec. Oublié plusieurs jours de suite
+  en septembre ; la CI est restée rouge jusqu'à une réparation à la main.
 - **Mesurer avant d'affirmer.** Presque toute affirmation de ce dépôt porte le
   chiffre qui la soutient, et plusieurs mesures ont réfuté la thèse qu'elles
   devaient servir. Quand c'est le cas, on l'écrit.
