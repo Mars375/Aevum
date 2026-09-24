@@ -198,7 +198,18 @@ Y ajouter un modèle, c'est le remesurer (`bench:models`, critères dans
 `docs/reports/banc-modeles.md`). Deux leçons du banc : un modèle **propre sur des
 situations isolées peut se dégrader en partie réelle** — mesurer aussi en durée ; et un
 modèle qui raisonne doit en être empêché (`REASONING_OFF_MODELS`), sinon il dépasse
-tout délai — 45 s sans le champ, 6 s avec, même requête.
+tout délai — 45 s sans le champ, 6 s avec, même requête. Deux autres, du passage
+OpenRouter/Mistral : **le même modèle chez un autre hébergeur est un autre candidat**
+(`nex-n2.5-mini` : 15/20 par Kilo, 7/20 par OpenRouter) ; et **le banc ne suffit pas,
+il faut une campagne par le produit** — le banc retirait le préfixe `openrouter:` que
+le produit envoyait tel quel. `NOUS_MODEL` ne choisit plus le défaut : sur la machine
+de développement il désignait encore `longcat-2.0`, et l'observatoire le proposait.
+
+**Le direct** (`POST /api/campaigns/:id/live`) : le serveur joue une partie seul,
+page fermée ou non, et la reprend après un redémarrage (`worlds/spectator/.live.json`).
+Il redemande un dirigeant muet, ne le remplace jamais, et suspend en le disant. La
+page suit toute partie qui avance par `/head`, qu'elle soit jouée ici ou par un autre
+processus.
 
 Le palier gratuit est un **budget d'appels**, pas une limite de débit — mesuré
 deux fois. Tout script long reprend là où il s'est arrêté ; s'arrêter est le

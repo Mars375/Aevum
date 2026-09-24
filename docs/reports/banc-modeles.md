@@ -354,7 +354,7 @@ une seule partie ne permet pas d'en dire plus.
   modèles `:free` et eux seuls** : un modèle payant ne part jamais sans clé, et
   aucun autre fournisseur ne devient anonyme. Testé.
 - `AEVUM_COUNCIL_MODEL` choisit le modèle des conseils chez n'importe quel
-  fournisseur ; `NOUS_MODEL` reste lu, pour Nous seul.
+  fournisseur. `NOUS_MODEL` ne choisit plus rien : il désignait encore `longcat-2.0` sur la machine de développement, et l'observatoire le proposait par défaut malgré la liste.
 - `dots-3-note` et `nex-n2.5-mini` rejoignent les modèles à sortie structurée
   native et à raisonnement bridé — mesurés, pas supposés.
 - **`codestral` (Mistral) et `dots-3-note` par OpenRouter rejoignent la

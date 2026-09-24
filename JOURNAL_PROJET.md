@@ -608,3 +608,11 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 ### 2026-09-24 — La partie de 480 tours avec les seuls modèles retenus
 
 - Terminée : **479/480 tours servis par le modèle lui-même**, un tour remplacé et compté, 43 ordres rejetés dont 0 pour crimson, médiane 4,7 s, rejeu vérifié. Les quatre dirigeants sont classables (`docs/reports/partie-modeles-stables.json`). La précédente, avec `longcat-2.0`, s'était arrêtée à 66 tours.
+
+### 2026-09-24 — Les parties en direct, en spectator-10, avec les modèles retenus
+
+- **Le direct** : le serveur joue une partie seul, page ouverte ou non, et la reprend après un redémarrage. Un tour distant toutes les 18 s au plus (Kilo : 200 requêtes par heure pour l'adresse). Un dirigeant muet est redemandé après 2, 30, 60 puis 120 s, jamais remplacé ; au dixième échec le direct se suspend et la page dit pourquoi. La case « Tours automatiques », qui vivait dans la page, devient « En direct ».
+- **La page suit toute partie qui avance**, par un état léger interrogé toutes les 1,5 s : jusqu'ici elle ne rechargeait que pendant un tour qu'elle avait elle-même demandé, et une partie jouée par un autre processus restait figée à l'écran.
+- **Les parties neuves naissent en `spectator-10`**, lu dans la liste des règles et non plus écrit en clair : la diplomatie livrée n'était jamais active depuis l'observatoire.
+- **Défaut trouvé en créant la première partie** : l'observatoire proposait `longcat-2.0` aux quatre dirigeants. La variable Windows `NOUS_MODEL`, héritée du temps où Nous était le seul fournisseur, passait devant la liste des modèles retenus. Elle ne choisit plus rien. Le formulaire propose désormais les modèles retenus appelables ici.
+- Vérifié en vrai, dans le navigateur d'Orca : partie créée depuis la page, quatre modèles retenus sur quatre fournisseurs (dots par Kilo, nex-mini, codestral, dots par OpenRouter), direct coché ; chaque tour servi par le modèle demandé. 716 tests, `tsc`, `vue-tsc`, `qa:browser`, `qa:observatory` (18 largeurs) verts.

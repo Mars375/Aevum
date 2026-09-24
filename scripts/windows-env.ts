@@ -10,7 +10,6 @@ import { execFileSync } from "node:child_process";
  */
 const names = [
   "NOUS_API_KEY",
-  "NOUS_MODEL",
   "KILO_API_KEY",
   "MISTRAL_API_KEY",
   "OPENROUTER_API_KEY",

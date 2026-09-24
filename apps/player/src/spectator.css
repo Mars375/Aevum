@@ -115,6 +115,34 @@
   font-size: 11px;
   color: var(--soft);
 }
+/* Le direct : un point qui bat, pour qu on sache sans lire que la partie
+   continue sans nous. Le mouvement se coupe avec prefers-reduced-motion. */
+.session-title .live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.session-title .live-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e0674f;
+  animation: live-beat 1.6s ease-in-out infinite;
+}
+.session-title .live-badge small {
+  color: var(--soft);
+  letter-spacing: 0;
+  text-transform: none;
+}
+@keyframes live-beat {
+  50% {
+    opacity: 0.35;
+  }
+}
 .observatory-head nav {
   margin-left: auto;
   display: flex;

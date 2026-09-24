@@ -13,15 +13,17 @@ const FACTIONS: FactionId[] = ["amber", "azure", "crimson", "verdant"];
  *   comparaison équitable.
  * - `AEVUM_COUNCIL_MODEL` : une référence complète, chez n'importe quel
  *   fournisseur (`kilo:…`, `nous:…`), pour les quatre.
- * - `NOUS_MODEL` : reste lu, pour Nous seul.
+ *
+ * `NOUS_MODEL` ne choisit plus rien. Il date du temps où Nous était le seul
+ * fournisseur, et sur la machine de développement il désignait encore
+ * `longcat-2.0` : l'observatoire proposait donc aux quatre dirigeants le modèle
+ * écarté pour perdre un tour sur sept, pendant que la liste des modèles
+ * retenus disait l'inverse. Un choix délibéré passe par `AEVUM_COUNCIL_MODEL`.
  */
 export function defaultCouncilModels(
   env: NodeJS.ProcessEnv = process.env,
 ): Record<FactionId, string> {
-  const full = env.AEVUM_COUNCIL_MODEL?.trim();
-  const configured = env.NOUS_MODEL?.trim().replace(/^nous:/, "");
-  const model =
-    full || (configured ? `nous:${configured}` : DEFAULT_COUNCIL_MODEL);
+  const model = env.AEVUM_COUNCIL_MODEL?.trim() || DEFAULT_COUNCIL_MODEL;
   const models = Object.fromEntries(
     FACTIONS.map((civ) => [civ, model]),
   ) as Record<FactionId, string>;

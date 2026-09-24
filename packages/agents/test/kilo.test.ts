@@ -164,10 +164,10 @@ describe("le modèle des conseils se choisit sans toucher au code", () => {
     ).toThrow(/invalide/);
   });
 
-  it("garde NOUS_MODEL et le défaut tels quels", () => {
+  it("garde le défaut tel quel, quel que soit NOUS_MODEL", () => {
     expect(
       defaultCouncilModels({ NOUS_MODEL: "poolside/laguna-s-2.1:free" }).azure,
-    ).toBe("nous:poolside/laguna-s-2.1:free");
+    ).toBe(DOTS);
     // Le défaut n'est plus longcat : il perd un tour sur sept en durée.
     expect(defaultCouncilModels({}).crimson).toBe(DOTS);
   });

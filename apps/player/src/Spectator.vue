@@ -34,6 +34,21 @@ interface Loaded {
   outcomes: ReturnType<typeof resolveCouncil>[];
   busy: boolean;
   error: string | null;
+  live?: LiveStatus;
+}
+/** Le direct, tel que le serveur le tient : il joue la partie seul. */
+interface LiveStatus {
+  on: boolean;
+  failures: number;
+  nextAt: number | null;
+  stopped: string | null;
+}
+interface Head {
+  turns: number;
+  pending: number | null;
+  busy: boolean;
+  error: string | null;
+  live: LiveStatus;
 }
 interface Summary {
   id: string;
@@ -43,7 +58,8 @@ interface Summary {
 }
 const loaded = ref<Loaded | null>(null),
   catalogue = ref<Summary[]>([]),
-  providers = ref<{ id: string; configured: boolean }[]>([]);
+  providers = ref<{ id: string; configured: boolean }[]>([]),
+  stableModels = ref<{ ref: string; role: string }[]>([]);
 const hud = ref(true);
 const maxTurns = ref(40),
   momentsOnly = ref(false),
@@ -143,8 +159,19 @@ const selected = ref<FactionId | null>("amber"),
   panel = ref("orders"),
   index = ref(0),
   playing = ref(false),
-  autoAdvance = ref(false),
   speed = ref(1);
+/**
+ * Le dernier état léger reçu du serveur, et l'heure : de quoi afficher le
+ * compte à rebours du prochain tour sans rejouer la partie.
+ */
+const head = ref<Head | null>(null),
+  now = ref(Date.now());
+const live = computed(() => head.value?.live ?? loaded.value?.live ?? null);
+const liveWait = computed(() =>
+  live.value?.on && live.value.nextAt
+    ? Math.max(0, Math.ceil((live.value.nextAt - now.value) / 1000))
+    : null,
+);
 const ids = ["amber", "azure", "crimson", "verdant"] as const;
 const names = {
   amber: "Ambre",
@@ -483,7 +510,6 @@ const nextMoment = computed(() =>
   importantTurns.value.find((turn) => turn > index.value),
 );
 function playHistory() {
-  autoAdvance.value = false;
   if (!playing.value && latest.value)
     index.value = momentsOnly.value ? (importantTurns.value[0] ?? 0) : 0;
   playing.value = !playing.value;
@@ -491,7 +517,7 @@ function playHistory() {
 async function discover() {
   requesting.value = true;
   failure.value = "";
-  playing.value = autoAdvance.value = false;
+  playing.value = false;
   try {
     const { id } = await api<{ id: string }>("/demo", {});
     await load(id);
@@ -532,7 +558,9 @@ async function list() {
     campaigns: Summary[];
     providers: { id: string; configured: boolean }[];
     defaultModels?: Record<string, string>;
+    stableModels?: { ref: string; role: string }[];
   }>("/campaigns");
+  stableModels.value = data.stableModels ?? [];
   const firstConfiguration = providers.value.length === 0;
   catalogue.value = data.campaigns;
   providers.value = data.providers;
@@ -550,33 +578,46 @@ async function list() {
 }
 async function load(id: string, follow = true) {
   const value = await api<Loaded>(`/campaigns/${id}`);
+  if (loaded.value?.campaign.id !== id) head.value = null;
   loaded.value = value;
   try {
     localStorage.setItem(lastCampaignKey, id);
   } catch {
     /* Private browsing may disable storage. */
   }
-  if (campaignSummary(value.campaign, value.state, value.outcomes).finished)
-    autoAdvance.value = false;
   if (follow) index.value = value.history.length - 1;
   else index.value = Math.min(index.value, value.history.length - 1);
   const url = new URL(location.href);
   url.search = "";
   url.searchParams.set("campaign", id);
   history.replaceState(null, "", url);
-  if (value.error) {
-    failure.value = value.error;
-    autoAdvance.value = false;
+  // En direct, un dirigeant sans réponse est redemandé par le serveur : le
+  // bandeau du direct le dit, avec le délai. Une alerte à chaque essai
+  // couvrirait la carte pour une attente normale.
+  if (value.error && !value.live?.on) failure.value = value.error;
+  // Un direct suspendu le dit une fois, avec sa raison ; une partie terminée
+  // a son bilan, qui le dit mieux.
+  if (value.live?.stopped && value.live.stopped !== "Partie terminée")
+    failure.value = value.live.stopped;
+}
+async function toggleLive(on: boolean) {
+  if (!loaded.value) return;
+  failure.value = "";
+  try {
+    const answer = await api<{ live: LiveStatus }>(
+      `/campaigns/${loaded.value.campaign.id}/live`,
+      { live: on },
+    );
+    head.value = head.value ? { ...head.value, live: answer.live } : null;
+    if (loaded.value) loaded.value.live = answer.live;
+  } catch (e) {
+    failure.value = e instanceof Error ? e.message : String(e);
   }
-  if (
-    value.campaign.turns.at(-1)?.answers.some((a) => a.source === "unavailable")
-  )
-    autoAdvance.value = false;
 }
 async function create() {
   requesting.value = true;
   failure.value = "";
-  playing.value = autoAdvance.value = false;
+  playing.value = false;
   try {
     const { id } = await api<{ id: string }>("/campaigns", {
       seed: seed.value,
@@ -605,7 +646,6 @@ async function next() {
     await load(loaded.value.campaign.id);
   } catch (e) {
     failure.value = e instanceof Error ? e.message : String(e);
-    autoAdvance.value = false;
   } finally {
     requesting.value = false;
   }
@@ -616,7 +656,6 @@ function select(id: FactionId | null) {
 }
 function seek(value: number) {
   playing.value = false;
-  autoAdvance.value = false;
   index.value = value;
 }
 onMounted(async () => {
@@ -631,18 +670,39 @@ onMounted(async () => {
     failure.value = e instanceof Error ? e.message : String(e);
     setup.value = true;
   }
+  /**
+   * Suivre la partie, qui que ce soit qui la joue.
+   *
+   * La page ne rechargeait que pendant un tour qu'elle avait elle-même
+   * demandé : une partie jouée par le direct ou par un autre processus
+   * n'avançait pas à l'écran. On interroge l'état léger, et on ne rejoue la
+   * partie que s'il a changé. Quand on regarde le présent, on le suit.
+   */
   polling = setInterval(async () => {
+    now.value = Date.now();
     if (!loaded.value || requesting.value) return;
     try {
-      if (loaded.value.busy) await load(loaded.value.campaign.id, latest.value);
-      else if (autoAdvance.value && latest.value && !over.value) await next();
+      const id = loaded.value.campaign.id;
+      const fresh = await api<Head>(`/campaigns/${id}/head`);
+      if (loaded.value?.campaign.id !== id) return;
+      const previous = head.value;
+      head.value = fresh;
+      if (
+        fresh.turns !== loaded.value.campaign.turns.length ||
+        fresh.busy !== loaded.value.busy ||
+        fresh.error !== loaded.value.error ||
+        fresh.pending !==
+          (loaded.value.campaign.pending?.answers.length ?? null) ||
+        fresh.live.stopped !== (previous?.live.stopped ?? null)
+      )
+        await load(id, latest.value);
     } catch {
       failure.value = "Connexion au service perdue";
-      autoAdvance.value = false;
     }
   }, 1500);
   let elapsed = 0;
   playTimer = setInterval(() => {
+    if (live.value?.on) now.value = Date.now();
     if (!playing.value) return;
     elapsed += 0.1 * speed.value;
     if (elapsed >= 1) {
@@ -682,7 +742,7 @@ onUnmounted(() => {
         ></a
       >
       <div class="session-title">
-        <span class="signal" :class="{ thinking: busy }"></span>
+        <span class="signal" :class="{ thinking: busy, live: live?.on }"></span>
         {{
           loaded
             ? `Monde ${loaded.campaign.seed}`
@@ -694,6 +754,16 @@ onUnmounted(() => {
               ? "Dirigeants IA distants"
               : "Gouvernance locale · sans appel IA"
         }}</small>
+        <span v-if="live?.on" class="live-badge" role="status"
+          >En direct<small v-if="busy"> · {{ activeRulerName }} décide</small
+          ><small v-else-if="live.failures && liveWait !== null">
+            · sans réponse, nouvel essai dans {{ liveWait }} s ({{
+              live.failures
+            }})</small
+          ><small v-else-if="liveWait">
+            · prochain tour dans {{ liveWait }} s</small
+          ></span
+        >
       </div>
       <nav aria-label="Interface du monde">
         <button
@@ -810,13 +880,24 @@ onUnmounted(() => {
           >{{ names[id]
           }}<input
             v-model="models[id]"
+            list="stable-models"
             placeholder="fournisseur:identifiant du modèle"
             autocomplete="off" /></label
         ><small
-          >Plusieurs dirigeants peuvent partager le même modèle. Les clés se
-          configurent dans .env : OPENROUTER_API_KEY, GROQ_API_KEY ou
-          NOUS_API_KEY. Aucune clé dans cette page.</small
-        >
+          >Les propositions sont les modèles gratuits retenus pour leur
+          stabilité, mesurés tour après tour. Plusieurs dirigeants peuvent
+          partager le même modèle ; quatre modèles différents dans le même monde
+          se comparent à armes égales. Kilo sert sans clé ; les autres clés
+          (MISTRAL_API_KEY, OPENROUTER_API_KEY…) se posent dans .env ou les
+          variables Windows. Aucune clé dans cette page.</small
+        ><datalist id="stable-models">
+          <option
+            v-for="model in stableModels"
+            :key="model.ref"
+            :value="model.ref"
+            :label="model.role"
+          />
+        </datalist>
       </div>
       <button
         class="primary"
@@ -1690,15 +1771,17 @@ onUnmounted(() => {
           Revenir au présent</button
         ><template v-else
           ><label
+            title="Le serveur joue la partie seul, page fermée ou non, et la reprend après un redémarrage"
             ><input
-              v-model="autoAdvance"
+              :checked="live?.on ?? false"
               type="checkbox"
               :disabled="!loaded || over"
+              @change="toggleLive(($event.target as HTMLInputElement).checked)"
             />
-            Tours automatiques</label
+            En direct</label
           ><button
             class="primary"
-            :disabled="!loaded || busy || over"
+            :disabled="!loaded || busy || over || live?.on"
             @click="next"
           >
             {{

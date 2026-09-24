@@ -16,7 +16,6 @@ describe("Windows Nous environment", () => {
     loadWindowsNousEnvironment(
       {
         NOUS_API_KEY: "existing",
-        NOUS_MODEL: "existing",
         KILO_API_KEY: "existing",
         MISTRAL_API_KEY: "existing",
         OPENROUTER_API_KEY: "existing",
@@ -31,15 +30,15 @@ describe("Windows Nous environment", () => {
       .mockReturnValueOnce(
         JSON.stringify({
           NOUS_API_KEY: "fixture",
-          NOUS_MODEL: "fixture-model",
+          MISTRAL_API_KEY: "fixture-mistral",
           OTHER_SECRET: "ignored",
         }),
       );
-    const env = { NOUS_API_KEY: "existing", NOUS_MODEL: "" };
+    const env = { NOUS_API_KEY: "existing", MISTRAL_API_KEY: "" };
     loadWindowsNousEnvironment(env, "win32");
     expect(env).toEqual({
       NOUS_API_KEY: "existing",
-      NOUS_MODEL: "fixture-model",
+      MISTRAL_API_KEY: "fixture-mistral",
     });
     expect(run).toHaveBeenCalledWith(
       "powershell.exe",

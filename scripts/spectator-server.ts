@@ -15,12 +15,14 @@ import {
   incidentFor,
   activeCiv,
   atLeast,
+  SPECTATOR_RULES,
 } from "../packages/world/src/spectator.js";
 import { campaignSummary } from "../packages/world/src/campaign-summary.js";
 import { defaultCouncilModels } from "../packages/agents/src/default-models.js";
 import { requestValidatedCouncil } from "../packages/agents/src/council-review.js";
 import { atomicWrite, lockWorld, reclaimStaleLock } from "./world-storage.js";
 import { ENDPOINTS } from "../packages/agents/src/endpoints.js";
+import { STABLE_FREE_MODELS } from "../packages/agents/src/stable-models.js";
 import { loadWindowsNousEnvironment } from "./windows-env.js";
 
 /**
@@ -45,6 +47,42 @@ const CreateSchema = z
   })
   .strict();
 const StepSchema = z.object({ turn: z.number().int().nonnegative() }).strict();
+const LiveSchema = z.object({ live: z.boolean() }).strict();
+
+/**
+ * Les règles d'une partie neuve : les dernières, lues dans la liste.
+ *
+ * Écrites en clair, elles étaient restées à `spectator-9` pendant qu'on livrait
+ * la diplomatie en `spectator-10` : aucune partie lancée depuis l'observatoire
+ * ne l'activait, et rien ne le signalait.
+ */
+export const CURRENT_RULES = SPECTATOR_RULES[SPECTATOR_RULES.length - 1]!;
+
+/**
+ * Le rythme d'une partie en direct.
+ *
+ * Distant : un tour toutes les 18 s au plus. Kilo, qui sert le modèle par
+ * défaut sans clé, accepte 200 requêtes par heure pour toute l'adresse IP ;
+ * un tour en coûte une, parfois deux avec la correction. La partie de 480
+ * tours jouée d'une traite en a consommé environ 170 par heure.
+ * Local : une seconde et demie, le temps de voir un tour avant le suivant.
+ *
+ * Un dirigeant qui ne répond pas est redemandé — jamais remplacé : 2 s, puis
+ * 30, 60, 120 s, comme la sonde de campagne. Au dixième échec d'affilée,
+ * une quinzaine de minutes, le direct se suspend et dit pourquoi.
+ */
+export interface LiveTiming {
+  remotePaceMs: number;
+  localPaceMs: number;
+  backoffMs: readonly number[];
+  maxFailures: number;
+}
+export const LIVE_TIMING: LiveTiming = {
+  remotePaceMs: 18_000,
+  localPaceMs: 1_500,
+  backoffMs: [2_000, 30_000, 60_000, 120_000],
+  maxFailures: 10,
+};
 async function body(req: IncomingMessage) {
   let text = "";
   for await (const chunk of req) {
@@ -68,6 +106,7 @@ export const dataRoot = () => process.env.AEVUM_DATA?.trim() || process.cwd();
 export function createSpectatorServer(
   directory = resolve(dataRoot(), "worlds/spectator"),
   env: NodeJS.ProcessEnv = process.env,
+  timing: LiveTiming = LIVE_TIMING,
 ) {
   const busy = new Set<string>(),
     errors = new Map<string, string>();
@@ -165,7 +204,129 @@ export function createSpectatorServer(
       busy.delete(id);
     }
   }
-  return createServer(async (req, res) => {
+
+  /**
+   * Les parties en direct : le serveur les joue seul, page ouverte ou non.
+   *
+   * Les « tours automatiques » vivaient dans la page : fermer l'onglet arrêtait
+   * la partie, et le premier dirigeant sans réponse aussi. La liste est écrite
+   * sur disque, pour qu'un redémarrage reprenne le direct là où il était.
+   */
+  interface Live {
+    failures: number;
+    nextAt: number;
+    timer: ReturnType<typeof setTimeout> | null;
+    stopped: string | null;
+  }
+  const live = new Map<string, Live>();
+  const liveFile = resolve(directory, ".live.json");
+  let closed = false;
+  const persistLive = () => {
+    if (closed) return;
+    atomicWrite(
+      liveFile,
+      JSON.stringify(
+        [...live].filter(([, entry]) => !entry.stopped).map(([id]) => id),
+      ),
+    );
+  };
+  const liveStatus = (id: string) => {
+    const entry = live.get(id);
+    return entry
+      ? {
+          on: !entry.stopped,
+          failures: entry.failures,
+          nextAt: entry.stopped ? null : entry.nextAt,
+          stopped: entry.stopped,
+        }
+      : { on: false, failures: 0, nextAt: null, stopped: null };
+  };
+  const schedule = (id: string, delay: number) => {
+    const entry = live.get(id);
+    if (!entry || entry.stopped || closed) return;
+    if (entry.timer) clearTimeout(entry.timer);
+    entry.nextAt = Date.now() + delay;
+    entry.timer = setTimeout(() => void playLive(id), delay);
+    entry.timer.unref?.();
+  };
+  const stopLive = (id: string, reason: string | null) => {
+    const entry = live.get(id);
+    if (!entry) return;
+    if (entry.timer) clearTimeout(entry.timer);
+    entry.timer = null;
+    if (reason) entry.stopped = reason;
+    else live.delete(id);
+    persistLive();
+  };
+  async function playLive(id: string) {
+    const entry = live.get(id);
+    if (!entry || entry.stopped || closed) return;
+    entry.timer = null;
+    if (!existsSync(path(id))) return stopLive(id, "Partie introuvable");
+    if (busy.has(id)) return schedule(id, 1_000);
+    let campaign: Campaign;
+    try {
+      campaign = load(id);
+    } catch {
+      return stopLive(id, "Sauvegarde illisible");
+    }
+    const { state } = replay(campaign);
+    const cap = atLeast(campaign.version, "spectator-4") ? 1200 : 1000;
+    if (
+      campaignSummary(campaign, state).finished ||
+      campaign.turns.length >= cap
+    )
+      return stopLive(id, "Partie terminée");
+    const started = Date.now();
+    const before = campaign.turns.length;
+    busy.add(id);
+    await advance(campaign);
+    if (live.get(id) !== entry || entry.stopped || closed) return;
+    if (campaign.turns.length > before) {
+      entry.failures = 0;
+      const pace =
+        campaign.mode === "remote" ? timing.remotePaceMs : timing.localPaceMs;
+      return schedule(id, Math.max(0, pace - (Date.now() - started)));
+    }
+    entry.failures++;
+    if (entry.failures >= timing.maxFailures)
+      return stopLive(
+        id,
+        `Direct suspendu après ${entry.failures} essais sans réponse : ${errors.get(id) ?? "le dirigeant n'a pas répondu"}`,
+      );
+    schedule(
+      id,
+      timing.backoffMs[Math.min(entry.failures, timing.backoffMs.length) - 1] ??
+        0,
+    );
+  }
+  const startLive = (id: string) => {
+    const previous = live.get(id);
+    if (previous && !previous.stopped) return;
+    if (previous?.timer) clearTimeout(previous.timer);
+    live.set(id, {
+      failures: 0,
+      nextAt: Date.now(),
+      timer: null,
+      stopped: null,
+    });
+    errors.delete(id);
+    persistLive();
+    schedule(id, 0);
+  };
+  // Reprendre le direct après un redémarrage : fermer le lanceur ne doit pas
+  // interrompre une partie qu'on regardait.
+  try {
+    if (existsSync(liveFile))
+      for (const id of z
+        .array(z.string().regex(/^[a-z0-9-]{1,80}$/))
+        .parse(JSON.parse(readFileSync(liveFile, "utf8"))))
+        if (existsSync(path(id))) startLive(id);
+  } catch {
+    // Une liste illisible ne vaut pas un serveur qui refuse de démarrer.
+  }
+
+  const server = createServer(async (req, res) => {
     const send = (status: number, value: unknown) => {
       res.writeHead(status, {
         "Content-Type": "application/json; charset=utf-8",
@@ -232,6 +393,11 @@ export function createSpectatorServer(
         send(200, {
           campaigns,
           defaultModels: defaultCouncilModels(env),
+          // Les modèles retenus, proposés dans le formulaire : seuls ceux
+          // qu'on peut appeler ici, clé posée ou sans clé.
+          stableModels: STABLE_FREE_MODELS.filter(
+            (model) => !model.key || !!env[model.key],
+          ).map(({ ref, role }) => ({ ref, role })),
           providers: [
             ...Object.entries(ENDPOINTS).map(([id, e]) => ({
               id,
@@ -263,7 +429,7 @@ export function createSpectatorServer(
           return;
         }
         const campaign: Campaign = {
-          version: "spectator-9",
+          version: CURRENT_RULES,
           id: randomUUID(),
           ...options,
           turns: [],
@@ -274,7 +440,7 @@ export function createSpectatorServer(
         return;
       }
       const match =
-        /^\/api\/campaigns\/([a-z0-9-]{1,80})(?:\/(step|export))?$/.exec(
+        /^\/api\/campaigns\/([a-z0-9-]{1,80})(?:\/(step|export|live|head))?$/.exec(
           url.pathname,
         );
       if (match) {
@@ -289,6 +455,19 @@ export function createSpectatorServer(
             send(200, campaign);
             return;
           }
+          // Ce que la page interroge toutes les secondes et demie : de quoi
+          // savoir si la partie a bougé, sans la rejouer. Elle suit ainsi une
+          // partie jouée en direct ici comme par un autre processus.
+          if (match[2] === "head") {
+            send(200, {
+              turns: campaign.turns.length,
+              pending: campaign.pending?.answers.length ?? null,
+              busy: busy.has(id),
+              error: errors.get(id) ?? null,
+              live: liveStatus(id),
+            });
+            return;
+          }
           if (match[2]) {
             send(405, { error: "Méthode non autorisée" });
             return;
@@ -299,6 +478,7 @@ export function createSpectatorServer(
             ...restored,
             busy: busy.has(id),
             error: errors.get(id) ?? null,
+            live: liveStatus(id),
             nextIncident: incidentFor(
               campaign.seed,
               atLeast(restored.state.rules, "spectator-4")
@@ -306,6 +486,18 @@ export function createSpectatorServer(
                 : restored.state.world.tick,
             ),
           });
+          return;
+        }
+        if (req.method === "POST" && match[2] === "live") {
+          const { live: on } = LiveSchema.parse(await body(req));
+          if (on) {
+            if (campaignSummary(campaign, replay(campaign).state).finished) {
+              send(409, { error: "Cette campagne est terminée." });
+              return;
+            }
+            startLive(id);
+          } else stopLive(id, null);
+          send(200, { live: liveStatus(id) });
           return;
         }
         if (req.method === "POST" && match[2] === "step") {
@@ -380,6 +572,12 @@ export function createSpectatorServer(
       else res.end();
     }
   });
+  server.on("close", () => {
+    closed = true;
+    for (const entry of live.values())
+      if (entry.timer) clearTimeout(entry.timer);
+  });
+  return server;
 }
 let started = false;
 
@@ -414,8 +612,5 @@ export function startServer(): void {
     ),
   );
 }
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
   startServer();
