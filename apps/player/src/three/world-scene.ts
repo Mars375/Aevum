@@ -6,6 +6,8 @@ import {
 } from "./infrastructure-models";
 import { civilianModel } from "./civilian-models";
 import { buildingModel } from "./building-models";
+import { RelationsLayer } from "./relations-layer";
+import type { RelationsProjection } from "./relations-projection";
 import {
   BUILDING_ASSETS,
   type BuildingAsset,
@@ -58,6 +60,8 @@ export class WorldScene {
     ModelPart[]
   >();
   private tiles: THREE.InstancedMesh | null = null;
+  /** Pactes, commerces, guerres et conquêtes, au-dessus du paysage. */
+  private relations = new RelationsLayer(CIV_COLORS);
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
   private down = { x: 0, y: 0 };
@@ -140,7 +144,7 @@ export class WorldScene {
     );
     this.renderer.domElement.setAttribute("role", "img");
     host.appendChild(this.renderer.domElement);
-    this.scene.add(this.landscape, this.foundation);
+    this.scene.add(this.landscape, this.foundation, this.relations.group);
     if (this.immersive) {
       this.scene.background = new THREE.Color("#354b46");
       this.scene.fog = new THREE.FogExp2("#354b46", 0.025);
@@ -752,6 +756,7 @@ export class WorldScene {
         }
         if (progress === 1) this.marches = [];
         if (!this.motionPreference.matches) this.waterTime.value = time / 1000;
+        this.relations.tick(time / 1000, this.motionPreference.matches);
         this.renderer.render(this.scene, this.camera);
         if (this.immersive && !this.motionPreference.matches) this.invalidate();
       }
@@ -840,6 +845,11 @@ export class WorldScene {
     };
   }
 
+  setRelations(projection: RelationsProjection) {
+    this.relations.update(projection);
+    this.invalidate();
+  }
+
   showRoute(route: readonly number[]) {
     for (const marker of this.routeMarkers.children) {
       if (marker instanceof THREE.Mesh) {
@@ -916,6 +926,7 @@ export class WorldScene {
   }
 
   dispose() {
+    this.relations.dispose();
     if (this.disposed) return;
     this.disposed = true;
     this.showRoute([]);

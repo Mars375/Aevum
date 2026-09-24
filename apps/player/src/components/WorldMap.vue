@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import type { RelationsProjection } from "../three/relations-projection";
 import type { Year } from "@abs/world";
 
 /**
@@ -14,7 +15,11 @@ import type { Year } from "@abs/world";
  * des lieux d'un empire (c'est ce tracé, et non des cases bordées une à une,
  * qui fait lire un pays), et les villes marquent où vivent les gens.
  */
-const props = defineProps<{ year: Year }>();
+const props = defineProps<{
+  year: Year;
+  /** Les mêmes relations que la vue 3D : la 2D reste complète. */
+  relations?: RelationsProjection;
+}>();
 
 const TERRAIN: Record<string, string> = {
   plain: "#46612c",
@@ -36,6 +41,46 @@ const S = 20; // côté d'un lieu, en unités de dessin
 const size = computed(() => props.year.world.size);
 const board = computed(() => props.year.world.board);
 const xy = (i: number) => ({ x: (i % size.value) * S, y: Math.floor(i / size.value) * S });
+
+/** Des coordonnées de la projection (centrées) vers celles du dessin. */
+const toMap = (x: number, z: number) => ({
+  x: (x + (size.value - 1) / 2) * S + S / 2,
+  y: (z + (size.value - 1) / 2) * S + S / 2,
+});
+const RELATION_NAMES = { pact: "Pacte", trade: "Commerce", war: "Guerre" } as const;
+const links = computed(() =>
+  (props.relations?.links ?? []).map((link) => {
+    const a = toMap(link.from[0], link.from[1]);
+    const b = toMap(link.to[0], link.to[1]);
+    // Une courbe, comme en 3D : deux relations entre les mêmes capitales ne
+    // se confondent pas avec une frontière droite.
+    // Courbée perpendiculairement au segment : vers le haut seulement, deux
+    // capitales d'une même colonne restaient reliées par un trait droit.
+    const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    let nx = -(b.y - a.y) / length,
+      ny = (b.x - a.x) / length;
+    if (ny > 0 || (ny === 0 && nx > 0)) (nx = -nx), (ny = -ny);
+    const bend = length * 0.22;
+    const mx = (a.x + b.x) / 2 + nx * bend,
+      my = (a.y + b.y) / 2 + ny * bend;
+    return {
+      key: `${link.kind}-${link.a}-${link.b}`,
+      kind: link.kind,
+      d: `M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`,
+      title: `${RELATION_NAMES[link.kind]} : ${link.a} et ${link.b}`,
+    };
+  }),
+);
+const fronts = computed(() =>
+  (props.relations?.fronts ?? []).map((f, i) => {
+    const a = toMap(f.x1, f.z1),
+      b = toMap(f.x2, f.z2);
+    return { key: i, x1: a.x - S / 2, y1: a.y - S / 2, x2: b.x - S / 2, y2: b.y - S / 2 };
+  }),
+);
+const conquests = computed(() =>
+  (props.relations?.conquests ?? []).map((c) => ({ ...c, ...toMap(c.x, c.z) })),
+);
 
 /**
  * Un nom de siège centré sur son lieu déborde de la viewBox quand le siège
@@ -169,11 +214,24 @@ const held = computed(() => props.year.world.civs.map((c) => ({ id: c.id, n: c.t
       <!-- Chaque empire d'un seul trait : c'est ce contour qui fait un pays. -->
       <path v-for="f in frontiers" :key="f.id" :d="f.d" :stroke="OWNER[f.id]" class="frontier" />
 
+      <!-- Fronts, pactes, commerces : dessinés sous les villes, qu'ils relient. -->
+      <g class="fronts">
+        <line v-for="f in fronts" :key="f.key" :x1="f.x1" :y1="f.y1" :x2="f.x2" :y2="f.y2" />
+      </g>
+      <path v-for="l in links" :key="l.key" :d="l.d" :class="['relation', l.kind]">
+        <title>{{ l.title }}</title>
+      </path>
+
       <g v-for="t in towns" :key="`${t.owner}-${t.i}`">
         <circle :cx="t.x" :cy="t.y" :r="t.r + 1.1" fill="#05070f" opacity="0.55" />
         <circle :cx="t.x" :cy="t.y" :r="t.r" :fill="OWNER[t.owner]" />
         <circle v-if="t.seat" :cx="t.x" :cy="t.y" :r="t.r + 2.6" fill="none" :stroke="OWNER[t.owner]" stroke-width="0.9" />
         <text v-if="t.seat" :x="t.x" :y="t.y - t.r - 4" class="seat-name" :text-anchor="anchorFor(t.x)">{{ t.name }}</text>
+      </g>
+      <g v-for="c in conquests" :key="`${c.x}-${c.y}`" class="conquest">
+        <title>Conquête : {{ c.by }} prend une case à {{ c.from }}</title>
+        <line :x1="c.x - 5" :y1="c.y + 6" :x2="c.x - 5" :y2="c.y - 7" />
+        <path :d="`M${c.x - 5},${c.y - 7} l7,2.5 l-7,2.5 Z`" :fill="OWNER[c.by]" />
       </g>
     </svg>
 
@@ -190,6 +248,13 @@ const held = computed(() => props.year.world.civs.map((c) => ({ id: c.id, n: c.t
 </template>
 
 <style scoped>
+/* Les couleurs des relations sont celles du calque 3D. */
+.relation { fill: none; stroke-linecap: round; }
+.relation.pact { stroke: #ffd978; stroke-width: 1.8; }
+.relation.trade { stroke: #7fe0d2; stroke-width: 1.1; stroke-dasharray: 3 2; }
+.relation.war { stroke: #ff5f45; stroke-width: 1.4; stroke-dasharray: 4 3; }
+.fronts line { stroke: #ff5f45; stroke-width: 2.2; stroke-linecap: round; }
+.conquest line { stroke: #2b241f; stroke-width: 1; }
 .map {
   margin: 0;
   display: flex;

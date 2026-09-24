@@ -10,6 +10,7 @@ import {
 } from "../three/world-projection";
 import type { Mission } from "../../../../packages/world/src/commands";
 import type { WorldScene } from "../three/world-scene";
+import type { RelationsProjection } from "../three/relations-projection";
 import WorldMap from "./WorldMap.vue";
 const props = defineProps<{
   year: Year;
@@ -22,6 +23,8 @@ const props = defineProps<{
   ordersVisible?: boolean;
   focusTile?: number | null;
   focusEventKey?: string | number;
+  /** Pactes, commerces, guerres et conquêtes à dessiner sur le monde. */
+  relations?: RelationsProjection;
 }>();
 const emit = defineEmits<{
   select: [FactionId | null];
@@ -36,6 +39,23 @@ const pointed = computed(() =>
   hover.value === null ? null : props.parcels[hover.value],
 );
 let scene: WorldScene | null = null;
+/**
+ * La légende des relations : seulement ce qui est sur la carte. Un arc d'or ne
+ * dit rien à qui ne sait pas qu'il est un pacte.
+ */
+const legend = computed(() => {
+  const r = props.relations;
+  if (!r) return [];
+  const kinds = new Set(r.links.map((l) => l.kind));
+  return [
+    ...(kinds.has("pact") ? [{ kind: "pact", label: "Pacte" }] : []),
+    ...(kinds.has("trade") ? [{ kind: "trade", label: "Commerce" }] : []),
+    ...(kinds.has("war") || r.fronts.length
+      ? [{ kind: "war", label: "Guerre" }]
+      : []),
+    ...(r.conquests.length ? [{ kind: "conquest", label: "Conquête" }] : []),
+  ];
+});
 let lastFocusKey: string | number | undefined;
 function followEvent() {
   if (props.focusTile == null) {
@@ -233,6 +253,7 @@ async function start() {
       props.year.tick,
     );
     current.showRoute(props.route ?? []);
+    if (props.relations) current.setRelations(props.relations);
     ready.value = true;
     followEvent();
   } catch {
@@ -253,6 +274,12 @@ watch(
       );
       scene?.showRoute(props.route ?? []);
     }
+  },
+);
+watch(
+  () => props.relations,
+  (relations) => {
+    if (ready.value && relations) scene?.setRelations(relations);
   },
 );
 watch(flat, () => (flat.value ? stop() : void start()));
@@ -308,7 +335,9 @@ onUnmounted(() => {
         <i></i>{{ label.text }}
       </button>
     </div>
-    <div v-if="flat || failed" class="flat-map"><WorldMap :year="year" /></div>
+    <div v-if="flat || failed" class="flat-map">
+      <WorldMap :year="year" :relations="relations" />
+    </div>
     <div v-if="!ready && !flat && !failed" class="map-loading" role="status">
       <span></span>Le paysage prend forme…
     </div>
@@ -379,6 +408,13 @@ onUnmounted(() => {
       <template v-if="immersive && route && route.length > 1"
         >Flèches : itinéraire prévu <span>·</span> Anneau :
         destination</template
+      >
+      <template v-else-if="legend.length"
+        >Glissez pour explorer<template v-for="item in legend" :key="item.kind"
+          ><span>·</span
+          ><i :class="['relations-key', item.kind]" aria-hidden="true"></i
+          >{{ item.label }}</template
+        ></template
       >
       <template v-else
         >Glissez pour explorer <span>·</span> Sélectionnez un
@@ -491,6 +527,37 @@ onUnmounted(() => {
 .map-tools button:hover {
   background: #304954;
 }
+/*
+ * La légende des relations, dans la ligne d'instructions : placée dans la
+ * barre d'outils, elle l'élargissait jusqu'à chevaucher le bulletin de crise
+ * de 1 101 à 1 440 px (qa:observatory). Couleurs du calque 3D.
+ */
+.relations-key {
+  display: inline-block;
+  width: 16px;
+  height: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 2px;
+  background: #ffd978;
+}
+.relations-key.trade {
+  height: 2px;
+  background: #7fe0d2;
+}
+.relations-key.war {
+  background: repeating-linear-gradient(
+    90deg,
+    #ff5f45 0 4px,
+    transparent 4px 7px
+  );
+}
+.relations-key.conquest {
+  width: 8px;
+  height: 8px;
+  background: #b9b3a8;
+  border-radius: 50%;
+}
 .tool-divider {
   height: 20px;
   width: 1px;
@@ -508,6 +575,9 @@ onUnmounted(() => {
 }
 .map-compass svg {
   display: block;
+}
+.map-instructions {
+  white-space: nowrap;
 }
 .place-hint,
 .map-instructions {

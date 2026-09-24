@@ -9,6 +9,8 @@
  *
  * `?scene=city` (défaut) : une ville par âge, tous bâtiments, un chantier,
  * deux infrastructures. `?scene=buildings` : chaque bâtiment seul, par époque.
+ * `?scene=relations` : pacte, commerce, deux guerres et deux conquêtes sur un
+ * plateau de 5 × 5, projetés par le code du jeu.
  */
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -25,6 +27,12 @@ import {
 import { infrastructureModel } from "../three/infrastructure-models";
 import type { InfrastructureKind } from "../three/infrastructure-assets";
 import { CIV_COLORS, projectWorld } from "../three/world-projection";
+import { RelationsLayer } from "../three/relations-layer";
+import {
+  projectRelations,
+  type RelationsWorld,
+} from "../three/relations-projection";
+import type { FactionId } from "@abs/contracts";
 
 type Part = {
   geometry: THREE.BufferGeometry;
@@ -145,7 +153,59 @@ scene.add(rim);
 const group = new THREE.Group();
 scene.add(group);
 const legend: string[] = [];
-if (params.get("scene") === "buildings") {
+let relations: RelationsLayer | null = null;
+if (params.get("scene") === "relations") {
+  // Ambre au nord-ouest, Azur au nord-est, Pourpre au sud-ouest, Sylve au
+  // sud-est ; Pourpre et Sylve se touchent au sud.
+  const o = (c: string): FactionId | null =>
+    (({ a: "amber", z: "azure", c: "crimson", v: "verdant" })[
+      c
+    ] as FactionId) ?? null;
+  const rows = ["aa.zz", "aa.zz", ".....", "cccvv", "cccvv"];
+  const before = rows.join("").split("").map(o);
+  const after = [...before];
+  after[13] = "amber"; // une case neutre prise : pas une conquête
+  after[18] = "verdant"; // une case de Pourpre prise par Sylve
+  after[24] = "crimson"; // la capitale de Sylve tombe
+  const civs = [
+    { id: "amber" as FactionId, capital: 0, fellOnTick: null },
+    { id: "azure" as FactionId, capital: 4, fellOnTick: null },
+    { id: "crimson" as FactionId, capital: 20, fellOnTick: null },
+    { id: "verdant" as FactionId, capital: 24, fellOnTick: null },
+  ];
+  const world = (board: (FactionId | null)[]): RelationsWorld => ({
+    size: 5,
+    board: board.map((owner) => ({ owner })),
+    civs,
+    simulation: {
+      relations: [
+        { a: "amber", b: "verdant", status: "trade" },
+        { a: "crimson", b: "verdant", status: "war" },
+        { a: "azure", b: "crimson", status: "war" },
+      ],
+    },
+  });
+  after.forEach((owner, index) => {
+    const x = (index % 5) - 2,
+      z = Math.floor(index / 5) - 2;
+    const land = new THREE.Color("#819469");
+    if (owner) land.lerp(new THREE.Color(CIV_COLORS[owner]), 0.19);
+    tile(group, x, z, `#${land.getHexString()}`);
+  });
+  for (const civ of civs) {
+    const x = (civ.capital % 5) - 2,
+      z = Math.floor(civ.capital / 5) - 2;
+    place(group, "medieval_city", x, z, 0.92, civ.id);
+  }
+  relations = new RelationsLayer(CIV_COLORS);
+  relations.update(
+    projectRelations(world(after), [{ a: "amber", b: "azure" }], world(before)),
+  );
+  scene.add(relations.group);
+  legend.push(
+    "Pacte Ambre–Azur (or), commerce Ambre–Sylve (vert d'eau), guerre Pourpre–Sylve (front), guerre Azur–Pourpre (arc rompu), deux conquêtes dont une capitale",
+  );
+} else if (params.get("scene") === "buildings") {
   BUILDING_ASSETS.forEach((asset, i) => {
     const x = (i % 6) * 1.1 - 2.75,
       z = Math.floor(i / 6) * 1.3 - 0.65;
@@ -186,4 +246,14 @@ function resize() {
 }
 addEventListener("resize", resize);
 resize();
+// Les relations s'animent ; `?t=` fige l'instant, pour une capture stable.
+const frozen = params.get("t");
+if (relations) {
+  const loop = (time: number) => {
+    relations!.tick(frozen ? Number(frozen) : time / 1000, false);
+    renderer.render(scene, camera);
+    if (!frozen) requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
 (window as unknown as { labReady: boolean }).labReady = true;

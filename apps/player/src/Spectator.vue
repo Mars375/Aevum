@@ -15,6 +15,7 @@ import InfrastructurePanel from "./components/InfrastructurePanel.vue";
 import AgreementsPanel from "./components/AgreementsPanel.vue";
 import PlanHistory from "./components/PlanHistory.vue";
 import { projectWorld, CIV_COLORS } from "./three/world-projection";
+import { projectRelations } from "./three/relations-projection";
 import {
   incidentFor,
   forecastFor,
@@ -316,6 +317,17 @@ const year = computed<Year>(() => ({
   events: [],
   rulings: [],
 }));
+/**
+ * Les relations du tour regardé : pactes en vigueur, commerces, guerres, et
+ * les cases qui ont changé de maître depuis le tour précédent.
+ */
+const relations = computed(() =>
+  projectRelations(
+    world.value,
+    state.value.agreement?.pacts ?? [],
+    index.value > 0 ? loaded.value?.history[index.value - 1]?.world : null,
+  ),
+);
 const parcels = computed(() => {
   const result = projectWorld(
     year.value,
@@ -1454,6 +1466,7 @@ onUnmounted(() => {
           :missions="state.missions"
           :selected-unit="unitId"
           :orders-visible="hud"
+          :relations="relations"
           @select-unit="selectUnit"
           @select="select"
         />
