@@ -1,7 +1,15 @@
 # Aevum Observatory — spécification de refonte
 
 **Date :** 2026-08-25  
-**Statut :** design validé par Loïc, implémentation non commencée  
+**Statut :** suspendue le 24 septembre 2026. Validée pour le lecteur des mondes
+continus w8, elle a été dépassée : le produit est devenu l'**observatoire**
+(`Spectator.vue`), une partie par tours que l'on regarde en direct et que l'on
+publie comme site en lecture seule. Ses exigences transverses y sont appliquées —
+un JSON absent n'est jamais masqué par la page HTML (`campaign-source.ts`), les
+états « en direct », « suspendu » et « lecture seule » sont visibles, mesure à
+dix-huit largeurs dont 375 px (`qa:observatory`), `prefers-reduced-motion`
+respecté. Les archives w8 restent consultables telles quelles. Reprendre cette
+refonte serait une décision nouvelle, pas une suite.  
 **Projet :** Aevum
 
 ## 1. Intent

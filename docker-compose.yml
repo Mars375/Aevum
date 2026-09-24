@@ -13,6 +13,10 @@ services:
       - ./replays:/usr/share/nginx/html/replays:ro
       # Worlds are data too, and they change while a world is being lived.
       - ./worlds:/usr/share/nginx/html/worlds:ro
+      # Les parties publiées, que `npm run publish:campaigns -- --watch=30`
+      # réécrit pendant qu'une partie se joue en direct : elle avance à l'écran
+      # sans reconstruire l'image.
+      - ./apps/player/public/campaigns:/usr/share/nginx/html/campaigns:ro
     logging:
       driver: json-file
       options:

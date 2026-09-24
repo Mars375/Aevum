@@ -11,6 +11,18 @@ Ouvrir http://127.0.0.1:5174/. `npm start` compile le site et démarre son servi
 
 Les liens contenant `world=` restent des archives historiques. Le nouvel observatoire est à la racine, sans ce paramètre, ou avec `campaign=` pour une partie sauvegardée.
 
+## Site public
+
+Le même site, construit (`npm run player:build`), peut être servi par n'importe quel hébergeur statique. Sans service local, l'observatoire montre les **parties publiées** et les rejoue dans le navigateur, avec le moteur même qui les a vécues. Rien n'y déclenche un appel de modèle : aucune clé, aucun quota exposé.
+
+```sh
+npm run publish:campaigns -- <id>[=Titre] …   # ajouter une partie de worlds/spectator
+npm run publish:campaigns -- --remove=<id>    # la retirer
+npm run publish:campaigns -- --watch=30       # republier les parties jouées en direct
+```
+
+Les parties vont dans `apps/player/public/campaigns/`, avec `index.json`. Une partie publiée doit se rejouer : le script le vérifie, et `published-catalogue.test.ts` aussi. `--watch` sert un hébergeur qui lit le disque — le conteneur de `docker-compose.yml` monte ce répertoire, si bien qu'une partie jouée en direct avance à l'écran sans reconstruire. Un hébergeur qui ne sert qu'un build figé montre l'état publié à son dernier déploiement.
+
 ## Parcours spectateur
 
 Créer un monde en choisissant une graine et la gouvernance. Le mode local est une politique déterministe explicitement signalée, utilisable sans clé ni réseau. Le mode distant consulte les quatre dirigeants avec les modèles configurés.
@@ -65,7 +77,7 @@ La campagne hors ligne de 12 graines sur 300 tours vérifie les invariants du mo
 
 ## Périmètre actuel
 
-Application locale mono-utilisateur ; limite de 1 000 tours par campagne. Le plateau est public pour les dirigeants, tandis que les missions et objectifs adverses restent privés. Les travailleurs représentent des équipes et la production est encore agrégée par civilisation. Les escortes suivent la position connue de l'unité protégée ; elles ne forment pas un convoi atomique. Les armées amies peuvent partager une case. Le commerce est un accord économique, pas un système de contrats détaillés. Les alliances militaires, un brouillard de guerre complet, les villes avec économie entièrement individuelle et le mode « dieu » restent hors de cette version.
+Service local mono-utilisateur, site public en lecture seule ; limite de 1 000 tours par campagne. Le plateau est public pour les dirigeants, tandis que les missions et objectifs adverses restent privés. Les travailleurs représentent des équipes et la production est encore agrégée par civilisation. Les escortes suivent la position connue de l'unité protégée ; elles ne forment pas un convoi atomique. Les armées amies peuvent partager une case. Le commerce est un accord économique, pas un système de contrats détaillés. Les alliances militaires, un brouillard de guerre complet, les villes avec économie entièrement individuelle et le mode « dieu » restent hors de cette version.
 
 Les performances stratégiques de vrais modèles et leur équilibrage restent à mesurer avec des clés configurées. La validation locale ne doit pas être présentée comme une compétition réelle entre LLM.
 

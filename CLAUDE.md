@@ -49,8 +49,14 @@ plus facilement :
 `apps/player` fait 6 400 lignes sur 55 fichiers, plus que n'importe quel paquet.
 Vue 3 et Vite, Three.js seulement pour la vue 3D, chargée à la demande.
 
-**Deux racines, pas une.** `/` monte l'**observatoire** (`Spectator.vue`), qui
-joue les campagnes par le serveur. Les **archives** (`App.vue`) n'existent que
+**Deux racines, pas une.** `/` monte l'**observatoire** (`Spectator.vue`). Il a
+deux sources (`campaign-source.ts`) : le **service local**, qui crée, joue et tient
+les clés ; à défaut, les **parties publiées** dans `public/campaigns/`
+(`npm run publish:campaigns`), ce qui fait d'un build statique un site public en
+lecture seule. Dans les deux cas la page reçoit la partie brute et la **rejoue
+elle-même**, incrémentalement (`extendReplay`) : le serveur envoyait ses états
+rejoués, 31,5 Mo pour une partie de 480 tours dont le fichier fait 0,8 Mo.
+Les **archives** (`App.vue`) n'existent que
 derrière `?archive`, `?world=` ou `?replay=`, et leurs quatre vues se choisissent
 par `mode=` : `chronique` (par défaut), `archives`, `regles`, `a-propos` —
 `view-address.ts` fait foi. Ce paragraphe a longtemps dit `?view=` et une seule
@@ -226,13 +232,13 @@ Nous, lui, refuse franchement quand il limite : un **HTTP 429**, observé à la
 
 ## Où regarder
 
-|                                                     |                                                                          |
-| --------------------------------------------------- | ------------------------------------------------------------------------ |
-| les règles et les six invariants                    | `docs/spec/world-w8.md`, puis `world-w9.md`                              |
-| tout ce qui a été mesuré                            | `docs/reports/`                                                          |
-| l'identité visuelle et la vue 3D                    | `docs/spec/visual-identity.md`                                           |
-| la refonte du lecteur, validée, non commencée       | `docs/superpowers/specs/2026-08-25-aevum-observatory-redesign-design.md` |
-| les conventions et le défaut qui a enseigné chacune | skill `project-conventions`                                              |
+|                                                       |                                                                          |
+| ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| les règles et les six invariants                      | `docs/spec/world-w8.md`, puis `world-w9.md`                              |
+| tout ce qui a été mesuré                              | `docs/reports/`                                                          |
+| l'identité visuelle et la vue 3D                      | `docs/spec/visual-identity.md`                                           |
+| la refonte du lecteur w8, suspendue (voir son statut) | `docs/superpowers/specs/2026-08-25-aevum-observatory-redesign-design.md` |
+| les conventions et le défaut qui a enseigné chacune   | skill `project-conventions`                                              |
 
 ## Le principe, qui prime sur le reste
 

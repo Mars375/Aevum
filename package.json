@@ -48,7 +48,8 @@
     "agreements:probe": "tsx scripts/agreements-probe.ts",
     "agreements:remote": "tsx scripts/v10-remote-probe.ts",
     "remote:campaign": "tsx scripts/remote-campaign-probe.ts",
-    "civilization:seeds": "tsx scripts/infrastructure-seeds-probe.ts"
+    "civilization:seeds": "tsx scripts/infrastructure-seeds-probe.ts",
+    "publish:campaigns": "tsx scripts/publish-campaigns.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

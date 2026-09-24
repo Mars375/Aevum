@@ -353,6 +353,10 @@ export async function requestCouncil(
   try {
     let text: string | null = null;
     let service: CouncilAnswer["service"] = null;
+    // Pourquoi un fournisseur n'a rien rendu. « Réponse vide » masquait un
+    // HTTP 400 de l'hébergeur de dots, qui refuse par intermittence les
+    // conseils de 12 000 jetons : on ne cherchait pas au bon endroit.
+    let reason: string | null = null;
     if (model.startsWith("nous:")) {
       if (!env.NOUS_API_KEY) throw new Error("Clé Nous absente");
       // Verify zero pricing from the provider itself on every call; fail closed.
@@ -504,8 +508,14 @@ export async function requestCouncil(
       );
       text = response.text;
       service = response.service;
+      if (!text) reason = provider.lastError();
     }
-    if (!text) throw new Error("Modèle indisponible ou réponse vide");
+    if (!text)
+      throw new Error(
+        reason
+          ? `Modèle indisponible : ${reason}`
+          : "Modèle indisponible ou réponse vide",
+      );
     const { decision, repaired } = parseDecision(
       JSON.parse(text.replace(/^```(?:json)?\s*/, " ").replace(/\s*```$/, "")),
     );

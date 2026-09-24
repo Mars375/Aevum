@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { replayCampaign } from "../../../packages/world/src/campaign";
 
 /**
  * Ce que les catalogues annoncent doit être réellement livré.
@@ -53,6 +54,19 @@ describe("tout ce qu'un build statique annonce, il le sert", () => {
       .map((entry) => `replays/${String(entry.path)}`)
       .filter((path) => !existsSync(resolve(PUBLIC, path)));
     expect(missing).toEqual([]);
+  });
+
+  it("chaque partie publiée est livrée et se rejoue", () => {
+    const entries = read("campaigns/index.json");
+    expect(entries.length).toBeGreaterThan(0);
+    for (const entry of entries) {
+      const path = resolve(PUBLIC, "campaigns", String(entry.path));
+      expect(existsSync(path), String(entry.path)).toBe(true);
+      const campaign = JSON.parse(readFileSync(path, "utf8"));
+      // Le site rejoue la partie dans le navigateur : si elle ne se rejoue pas
+      // ici, la page publique est cassée.
+      expect(replayCampaign(campaign).history.length - 1).toBe(entry.turns);
+    }
   });
 
   it("chaque rapport du catalogue est publié", () => {

@@ -24,7 +24,19 @@ import {
   type SpectatorState,
   type resolveCouncil,
 } from "../../../packages/world/src/spectator";
-import type { Campaign } from "../../../packages/world/src/campaign";
+import {
+  extendReplay,
+  type Campaign,
+  type CampaignReplay,
+} from "../../../packages/world/src/campaign";
+import {
+  detectSource,
+  type CampaignHead as Head,
+  type CampaignSource,
+  type LiveStatus,
+  type PublishedCampaign,
+  modelLabel,
+} from "./campaign-source";
 import { campaignSummary } from "../../../packages/world/src/campaign-summary";
 
 interface Loaded {
@@ -36,26 +48,24 @@ interface Loaded {
   error: string | null;
   live?: LiveStatus;
 }
-/** Le direct, tel que le serveur le tient : il joue la partie seul. */
-interface LiveStatus {
-  on: boolean;
-  failures: number;
-  nextAt: number | null;
-  stopped: string | null;
-}
-interface Head {
-  turns: number;
-  pending: number | null;
-  busy: boolean;
-  error: string | null;
-  live: LiveStatus;
-}
 interface Summary {
   id: string;
   seed: number;
   mode: string;
   turn: number;
 }
+/** Le service local, ou les parties publiées à côté du site. */
+const source = ref<CampaignSource | null>(null),
+  published = ref<PublishedCampaign[]>([]);
+const isPublic = computed(() => source.value?.kind === "public");
+const publishedEntry = computed(() =>
+  published.value.find((entry) => entry.id === loaded.value?.campaign.id),
+);
+/**
+ * Le dernier rejeu, gardé hors de Vue : le prolonger réutilise ses états tels
+ * quels, et des proxys réactifs ne sont pas les états du moteur.
+ */
+let replayCache: { campaign: Campaign; replay: CampaignReplay } | null = null;
 const loaded = ref<Loaded | null>(null),
   catalogue = ref<Summary[]>([]),
   providers = ref<{ id: string; configured: boolean }[]>([]),
@@ -554,6 +564,16 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
   return data;
 }
 async function list() {
+  if (isPublic.value) {
+    published.value = await source.value!.published();
+    catalogue.value = published.value.map((entry) => ({
+      id: entry.id,
+      seed: entry.seed,
+      mode: entry.mode,
+      turn: entry.turns,
+    }));
+    return;
+  }
   const data = await api<{
     campaigns: Summary[];
     providers: { id: string; configured: boolean }[];
@@ -577,8 +597,26 @@ async function list() {
     mode.value = "remote";
 }
 async function load(id: string, follow = true) {
-  const value = await api<Loaded>(`/campaigns/${id}`);
-  if (loaded.value?.campaign.id !== id) head.value = null;
+  const from = source.value!;
+  const [campaign, fresh] = await Promise.all([
+    from.campaign(id),
+    from.head(id),
+  ]);
+  // Seul ce qui est nouveau est rejoué : un tour en direct ne coûte plus une
+  // seconde de calcul, ni 31,5 Mo de transfert.
+  const replay = extendReplay(
+    replayCache?.campaign.id === id ? replayCache : null,
+    campaign,
+  );
+  replayCache = { campaign, replay };
+  head.value = fresh;
+  const value: Loaded = {
+    campaign,
+    ...replay,
+    busy: fresh.busy,
+    error: fresh.error,
+    live: fresh.live,
+  };
   loaded.value = value;
   try {
     localStorage.setItem(lastCampaignKey, id);
@@ -660,14 +698,21 @@ function seek(value: number) {
 }
 onMounted(async () => {
   try {
+    source.value = await detectSource();
     await list();
     const id =
       new URLSearchParams(location.search).get("campaign") ??
       catalogue.value.find((c) => c.id === rememberedCampaign())?.id;
     if (id) await load(id);
+    else if (isPublic.value && catalogue.value[0])
+      await load(catalogue.value[0].id);
     else setup.value = true;
   } catch (e) {
-    failure.value = e instanceof Error ? e.message : String(e);
+    failure.value = source.value
+      ? e instanceof Error
+        ? e.message
+        : String(e)
+      : "Aucune partie à montrer : ni service local (npm run spectator:server), ni partie publiée.";
     setup.value = true;
   }
   /**
@@ -678,12 +723,17 @@ onMounted(async () => {
    * n'avançait pas à l'écran. On interroge l'état léger, et on ne rejoue la
    * partie que s'il a changé. Quand on regarde le présent, on le suit.
    */
+  // Un site public relit sa liste toutes les 15 s : un fichier publié change
+  // au rythme de sa publication, pas à celui d'une page qui le guette.
+  let ticks = 0;
   polling = setInterval(async () => {
     now.value = Date.now();
-    if (!loaded.value || requesting.value) return;
+    if (!loaded.value || requesting.value || !source.value) return;
+    if (isPublic.value && ++ticks % 10 !== 0) return;
     try {
       const id = loaded.value.campaign.id;
-      const fresh = await api<Head>(`/campaigns/${id}/head`);
+      const fresh = await source.value.head(id);
+      if (isPublic.value) published.value = await source.value.published();
       if (loaded.value?.campaign.id !== id) return;
       const previous = head.value;
       head.value = fresh;
@@ -748,13 +798,26 @@ onUnmounted(() => {
             ? `Monde ${loaded.campaign.seed}`
             : "Observatoire des civilisations"
         }}<small>{{
-          loaded?.campaign.id === "nous-discovery"
-            ? "Replay Nous · aucun appel en direct"
-            : loaded?.campaign.mode === "remote"
-              ? "Dirigeants IA distants"
-              : "Gouvernance locale · sans appel IA"
+          isPublic
+            ? (publishedEntry?.title ?? "Partie publiée")
+            : loaded?.campaign.id === "nous-discovery"
+              ? "Replay Nous · aucun appel en direct"
+              : loaded?.campaign.mode === "remote"
+                ? "Dirigeants IA distants"
+                : "Gouvernance locale · sans appel IA"
         }}</small>
-        <span v-if="live?.on" class="live-badge" role="status"
+        <span v-if="isPublic && publishedEntry?.live" class="live-badge"
+          >En direct<small>
+            · publié
+            {{
+              new Date(publishedEntry.updatedAt).toLocaleTimeString("fr-FR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            }}</small
+          ></span
+        >
+        <span v-else-if="live?.on" class="live-badge" role="status"
           >En direct<small v-if="busy"> · {{ activeRulerName }} décide</small
           ><small v-else-if="live.failures && liveWait !== null">
             · sans réponse, nouvel essai dans {{ liveWait }} s ({{
@@ -800,7 +863,7 @@ onUnmounted(() => {
         <a href="/?archive=1&world=worlds%2Fcivilization-w10%2Fera-0001.json"
           >Les archives ↗</a
         ><button :aria-expanded="setup" @click="setup = !setup">
-          {{ setup ? "Fermer" : "Nouveau monde"
+          {{ setup ? "Fermer" : isPublic ? "Les parties" : "Nouveau monde"
           }}<span aria-hidden="true">{{ setup ? "−" : "+" }}</span>
         </button>
       </nav>
@@ -813,115 +876,159 @@ onUnmounted(() => {
       class="setup-panel"
       aria-label="Configuration de la simulation"
     >
-      <div class="setup-intro">
-        <button
-          class="discover-button primary"
-          :disabled="busy"
-          @click="discover"
-        >
-          {{ requesting ? "Préparation…" : "Découvrir Aevum" }}
-        </button>
-        <p class="discover-help">
-          Une chronique de 50 tours déjà jouée par les modèles Nous. Regardez
-          les décisions enregistrées sans configurer de clé, sélectionnez une
-          civilisation, puis suivez ses projets.
-        </p>
+      <div v-if="isPublic" class="setup-intro">
         <span>Une expérience de civilisation autonome</span>
         <h1>Le pouvoir change.<br />L’histoire reste.</h1>
         <p>
-          Quatre dirigeants. Des ambitions divergentes. Aucune intervention
-          humaine. Lancez le monde, puis observez ce qu’ils en font.
+          Quatre dirigeants gouvernés par des modèles de langage, un moteur
+          déterministe qui tranche. Chaque partie ci-dessous est rejouée dans
+          votre navigateur, tour par tour, par le moteur même qui l’a vécue.
         </p>
       </div>
-      <div class="scenario-choices" aria-label="Choisir une durée de partie">
+      <div
+        v-if="isPublic"
+        class="scenario-choices published-list"
+        aria-label="Parties publiées"
+      >
         <button
-          v-for="scenario in scenarios"
-          :key="scenario.turns"
-          :aria-pressed="seed === scenario.seed && maxTurns === scenario.turns"
-          @click="chooseScenario(scenario)"
-        >
-          <strong>{{ scenario.title }}</strong
-          ><span>{{ scenario.detail }}</span>
-        </button>
-      </div>
-      <label
-        >Durée de la chronique<select v-model.number="maxTurns">
-          <option :value="40">40 manches</option>
-          <option :value="80">80 manches</option>
-          <option :value="120">120 manches</option>
-          <option :value="300">300 manches · À travers les âges</option>
-        </select></label
-      >
-      <label
-        >Graine du monde<input
-          v-model.number="seed"
-          type="number"
-          min="0"
-          max="2147483647"
-      /></label>
-      <label
-        >Gouvernance<select v-model="mode">
-          <option value="local">Locale — déterministe, gratuite</option>
-          <option value="remote">Modèles IA — clés côté serveur</option>
-        </select></label
-      >
-      <div v-if="mode === 'remote'" class="models">
-        <p>
-          Fournisseurs configurés :
-          {{
-            providers
-              .filter((p) => p.configured)
-              .map((p) => p.id)
-              .join(", ") || "aucun"
-          }}. Renseignez un identifiant par dirigeant. Les modèles Nous sont
-          acceptés seulement si le catalogue confirme un tarif nul.
-        </p>
-        <label v-for="id in ids" :key="id"
-          >{{ names[id]
-          }}<input
-            v-model="models[id]"
-            list="stable-models"
-            placeholder="fournisseur:identifiant du modèle"
-            autocomplete="off" /></label
-        ><small
-          >Les propositions sont les modèles gratuits retenus pour leur
-          stabilité, mesurés tour après tour. Plusieurs dirigeants peuvent
-          partager le même modèle ; quatre modèles différents dans le même monde
-          se comparent à armes égales. Kilo sert sans clé ; les autres clés
-          (MISTRAL_API_KEY, OPENROUTER_API_KEY…) se posent dans .env ou les
-          variables Windows. Aucune clé dans cette page.</small
-        ><datalist id="stable-models">
-          <option
-            v-for="model in stableModels"
-            :key="model.ref"
-            :value="model.ref"
-            :label="model.role"
-          />
-        </datalist>
-      </div>
-      <button
-        class="primary"
-        :disabled="
-          busy || !Number.isInteger(seed) || seed < 0 || seed > 2147483647
-        "
-        @click="create"
-      >
-        Créer le monde
-      </button>
-      <label v-if="catalogue.length"
-        >Reprendre une partie<select
-          @change="
-            load(($event.target as HTMLSelectElement).value)
+          v-for="entry in published"
+          :key="entry.id"
+          :aria-pressed="loaded?.campaign.id === entry.id"
+          @click="
+            load(entry.id)
               .then(() => (setup = false))
               .catch((e) => (failure = e.message))
           "
         >
-          <option value="" disabled selected>Choisir une sauvegarde</option>
-          <option v-for="c in catalogue" :key="c.id" :value="c.id">
-            Monde {{ c.seed }} · tour {{ c.turn }} · {{ c.mode }}
-          </option>
-        </select></label
-      >
+          <strong
+            >{{ entry.title
+            }}<em v-if="entry.live" class="published-live"
+              >En direct</em
+            ></strong
+          ><span
+            >{{ entry.turns }} tours · monde {{ entry.seed }} ·
+            {{
+              [...new Set(Object.values(entry.models).map(modelLabel))].join(
+                ", ",
+              ) || "gouvernance locale"
+            }}</span
+          >
+        </button>
+        <p v-if="!published.length">Aucune partie publiée pour l’instant.</p>
+      </div>
+      <template v-if="!isPublic">
+        <div class="setup-intro">
+          <button
+            class="discover-button primary"
+            :disabled="busy"
+            @click="discover"
+          >
+            {{ requesting ? "Préparation…" : "Découvrir Aevum" }}
+          </button>
+          <p class="discover-help">
+            Une chronique de 50 tours déjà jouée par les modèles Nous. Regardez
+            les décisions enregistrées sans configurer de clé, sélectionnez une
+            civilisation, puis suivez ses projets.
+          </p>
+          <span>Une expérience de civilisation autonome</span>
+          <h1>Le pouvoir change.<br />L’histoire reste.</h1>
+          <p>
+            Quatre dirigeants. Des ambitions divergentes. Aucune intervention
+            humaine. Lancez le monde, puis observez ce qu’ils en font.
+          </p>
+        </div>
+        <div class="scenario-choices" aria-label="Choisir une durée de partie">
+          <button
+            v-for="scenario in scenarios"
+            :key="scenario.turns"
+            :aria-pressed="
+              seed === scenario.seed && maxTurns === scenario.turns
+            "
+            @click="chooseScenario(scenario)"
+          >
+            <strong>{{ scenario.title }}</strong
+            ><span>{{ scenario.detail }}</span>
+          </button>
+        </div>
+        <label
+          >Durée de la chronique<select v-model.number="maxTurns">
+            <option :value="40">40 manches</option>
+            <option :value="80">80 manches</option>
+            <option :value="120">120 manches</option>
+            <option :value="300">300 manches · À travers les âges</option>
+          </select></label
+        >
+        <label
+          >Graine du monde<input
+            v-model.number="seed"
+            type="number"
+            min="0"
+            max="2147483647"
+        /></label>
+        <label
+          >Gouvernance<select v-model="mode">
+            <option value="local">Locale — déterministe, gratuite</option>
+            <option value="remote">Modèles IA — clés côté serveur</option>
+          </select></label
+        >
+        <div v-if="mode === 'remote'" class="models">
+          <p>
+            Fournisseurs configurés :
+            {{
+              providers
+                .filter((p) => p.configured)
+                .map((p) => p.id)
+                .join(", ") || "aucun"
+            }}. Renseignez un identifiant par dirigeant. Les modèles Nous sont
+            acceptés seulement si le catalogue confirme un tarif nul.
+          </p>
+          <label v-for="id in ids" :key="id"
+            >{{ names[id]
+            }}<input
+              v-model="models[id]"
+              list="stable-models"
+              placeholder="fournisseur:identifiant du modèle"
+              autocomplete="off" /></label
+          ><small
+            >Les propositions sont les modèles gratuits retenus pour leur
+            stabilité, mesurés tour après tour. Plusieurs dirigeants peuvent
+            partager le même modèle ; quatre modèles différents dans le même
+            monde se comparent à armes égales. Kilo sert sans clé ; les autres
+            clés (MISTRAL_API_KEY, OPENROUTER_API_KEY…) se posent dans .env ou
+            les variables Windows. Aucune clé dans cette page.</small
+          ><datalist id="stable-models">
+            <option
+              v-for="model in stableModels"
+              :key="model.ref"
+              :value="model.ref"
+              :label="model.role"
+            />
+          </datalist>
+        </div>
+        <button
+          class="primary"
+          :disabled="
+            busy || !Number.isInteger(seed) || seed < 0 || seed > 2147483647
+          "
+          @click="create"
+        >
+          Créer le monde
+        </button>
+        <label v-if="catalogue.length"
+          >Reprendre une partie<select
+            @change="
+              load(($event.target as HTMLSelectElement).value)
+                .then(() => (setup = false))
+                .catch((e) => (failure = e.message))
+            "
+          >
+            <option value="" disabled selected>Choisir une sauvegarde</option>
+            <option v-for="c in catalogue" :key="c.id" :value="c.id">
+              Monde {{ c.seed }} · tour {{ c.turn }} · {{ c.mode }}
+            </option>
+          </select></label
+        >
+      </template>
     </section>
     <div
       class="ruler-dock"
@@ -1769,6 +1876,11 @@ onUnmounted(() => {
           @click="seek((loaded?.history.length ?? 1) - 1)"
         >
           Revenir au présent</button
+        ><small v-else-if="isPublic" class="remaining-turns">{{
+          publishedEntry?.live
+            ? "Partie en cours, publiée au fil des tours"
+            : "Lecture seule"
+        }}</small
         ><template v-else
           ><label
             title="Le serveur joue la partie seul, page fermée ou non, et la reprend après un redémarrage"
@@ -1796,7 +1908,11 @@ onUnmounted(() => {
           </button></template
         ><a
           v-if="loaded"
-          :href="`/api/campaigns/${loaded.campaign.id}/export`"
+          :href="
+            isPublic
+              ? `campaigns/${publishedEntry?.path ?? ''}`
+              : `/api/campaigns/${loaded.campaign.id}/export`
+          "
           download="aevum-campaign.json"
           >Exporter</a
         >

@@ -56,7 +56,7 @@ export const STABLE_FREE_MODELS: readonly StableModel[] = [
     key: "OPENROUTER_API_KEY",
     measuredAs: { nativeSchema: true, reasoningOff: true },
     evidence:
-      "Le principal par une autre route, si Kilo tombe. Durée : 20/20, 17 valides du premier coup, 1 rejet, médiane 1,3 s. Campagne par le produit : 12/12 servis par lui-même, 1 rejet. Clé OpenRouter, 1 000 requêtes gratuites par jour.",
+      "Le principal par une autre route, si la passerelle Kilo tombe — mais pas si l'hébergeur du modèle tombe : les deux routes aboutissent chez AtlasCloud, qui a refusé par intermittence (HTTP 400) un conseil de 12 000 jetons, identique par les deux. Durée : 20/20, 17 valides du premier coup, 1 rejet, médiane 1,3 s. Campagne par le produit : 12/12 servis par lui-même, 1 rejet. Clé OpenRouter, 1 000 requêtes gratuites par jour.",
   },
   {
     ref: "kilo:nex-agi/nex-n2.5-mini:free",

@@ -348,6 +348,26 @@ Même modèle, même partie : `dots-3-note` fait 20 rejets pour amber et zéro p
 crimson. L'écart vient de la situation de chaque civilisation, pas du modèle —
 une seule partie ne permet pas d'en dire plus.
 
+## Ce que la première partie en direct a appris
+
+Tour 112 d'une partie à quatre modèles, `dots-3-note` par Kilo pour Ambre : dix
+essais sans réponse en un quart d'heure, et le direct s'est suspendu comme prévu.
+La cause n'était pas « réponse vide », comme le disait le message, mais un **HTTP
+400 de l'hébergeur du modèle, AtlasCloud**, sur un conseil de 12 141 jetons
+d'entrée.
+
+- **Intermittent, pas déterministe.** Le même corps, renvoyé tel quel, échoue et
+  passe selon les essais ; la valeur de `max_tokens` n'y fait rien de monotone
+  (100 passe, 60 échoue). Ni le schéma imposé, ni le raisonnement bridé ne sont
+  en cause ; un texte neutre de même longueur passe toujours. Relancé, le direct
+  a franchi ce tour et continué.
+- **La route de secours n'est pas indépendante.** `dots-3-note` par OpenRouter
+  aboutit au même hébergeur, et échoue sur le même conseil. Elle protège d'une
+  panne de la passerelle Kilo, pas de celle d'AtlasCloud — c'est écrit dans
+  `stable-models.ts`.
+- Le message d'erreur dit désormais ce que le fournisseur a répondu (`HTTP 400`)
+  au lieu de « réponse vide ».
+
 ## Ce qui change dans le dépôt
 
 - **Kilo est un fournisseur** (`kilo:` en préfixe). Il sert **sans clé ses

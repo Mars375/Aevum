@@ -114,3 +114,48 @@ export function replayCampaign(campaign: Campaign) {
   }
   return { state, history, outcomes };
 }
+
+export type CampaignReplay = ReturnType<typeof replayCampaign>;
+
+/**
+ * Rejouer seulement ce qui est nouveau.
+ *
+ * Une partie suivie en direct gagne un tour toutes les 18 s. La rejouer depuis
+ * le début à chaque fois coûtait une seconde de calcul à 480 tours — et le
+ * serveur, qui rejouait pour la page, lui envoyait 31,5 Mo d'états pour un
+ * fichier de 0,8 Mo. On repart donc du rejeu précédent quand la partie en est
+ * la suite exacte : même graine, mêmes règles, et chaque tour déjà connu porte
+ * la même signature. Sinon — partie remplacée, histoire réécrite —, rejeu
+ * complet. Les tours ajoutés sont vérifiés comme les autres : W4 tient.
+ */
+export function extendReplay(
+  previous: { campaign: Campaign; replay: CampaignReplay } | null,
+  campaign: Campaign,
+): CampaignReplay {
+  const parsed = CampaignSchema.parse(campaign);
+  const known = previous?.campaign.turns ?? [];
+  const continues =
+    previous !== null &&
+    previous.campaign.id === parsed.id &&
+    previous.campaign.seed === parsed.seed &&
+    previous.campaign.version === parsed.version &&
+    previous.replay.history.length === known.length + 1 &&
+    known.length <= parsed.turns.length &&
+    known.every((turn, i) => turn.signature === parsed.turns[i]!.signature);
+  if (!continues) return replayCampaign(parsed);
+  let state = previous.replay.state;
+  const history = [...previous.replay.history];
+  const outcomes = [...previous.replay.outcomes];
+  for (const turn of parsed.turns.slice(known.length)) {
+    const result = resolveCouncil(
+      state,
+      turn.answers.flatMap((a) => (a.decision ? [a.decision] : [])),
+    );
+    state = result.state;
+    if (stateSignature(state) !== turn.signature)
+      throw new Error(`Rejeu incohérent au tour ${turn.turn + 1}`);
+    history.push(state);
+    outcomes.push(result);
+  }
+  return { state, history, outcomes };
+}

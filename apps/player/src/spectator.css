@@ -941,6 +941,22 @@
   font-size: 11px;
   color: var(--soft);
 }
+/* Les parties publiées : une par ligne, le direct signalé comme dans l'en-tête. */
+.published-list {
+  grid-template-columns: 1fr;
+}
+.published-list strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.published-live {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f0b3a6;
+}
 .discover-button {
   padding: 12px 20px !important;
   font-size: 15px !important;
