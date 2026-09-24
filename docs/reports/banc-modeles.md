@@ -368,6 +368,50 @@ d'entrée.
 - Le message d'erreur dit désormais ce que le fournisseur a répondu (`HTTP 400`)
   au lieu de « réponse vide ».
 
+## Le conseil allégé : de 0 sur 10 à 10 sur 10
+
+Le direct s'est suspendu une seconde fois, au tour 132, toujours sur Ambre. Le
+conseil qui échouait a été renvoyé tel quel et allégé, en alternance, dix fois
+chacun, espacés de 19 s, sur l'état exact de l'échec :
+
+| conseil                                   | caractères | réponses |
+| ----------------------------------------- | ---------: | -------: |
+| tel quel                                  |     34 658 |     0/10 |
+| allégé de quatre redondances              |     23 386 |    10/10 |
+| allégé de trois, contrat de réponse gardé |     27 012 |    10/10 |
+
+Le contrat de réponse est gardé : c'est la consigne finale qui décide de ce que
+les modèles renvoient (CLAUDE.md, point 4), et son retrait n'apportait rien.
+Les trois redondances retirées :
+
+- la liste des infrastructures partait **deux fois**, au sommet et dans
+  `options` — seule reste celle que la consigne cite ;
+- elle détaillait chaque infrastructure verrouillée de chaque ville, douze
+  « Déblocage manquant » sur douze — restent les constructibles, et une ligne par
+  type verrouillé avec son déblocage ;
+- l'histoire diplomatique grandissait sans fin, surtout d'offres répétées —
+  restent les six derniers faits.
+
+Ce qu'on ne sait pas : pourquoi l'hébergeur refusait. Un texte neutre de même
+longueur passait toujours ; ce n'est donc pas la taille seule. Mais l'effet est
+net, et la cause probable — un conseil qui grossit avec la partie — est retirée.
+
+**Remesuré, puisque l'invite a changé** (banc apparié, 6 situations) :
+
+| modèle                     | répond | 1er coup | rejets | médiane |
+| -------------------------- | -----: | -------: | -----: | ------: |
+| `dots-3-note` (Kilo)       |    6/6 |        5 |      0 |   4,9 s |
+| `nex-n2.5-mini` (Kilo)     |    6/6 |        5 |      1 |   3,9 s |
+| `codestral` (Mistral)      |    6/6 |        4 |      0 |   4,6 s |
+| `dots-3-note` (OpenRouter) |    6/6 |        5 |      1 |   1,3 s |
+
+En durée, le principal (`dots-3-note` par Kilo) fait 20/20, 16 valides du premier coup, 2 rejets, médiane 5,3 s : il passe.
+
+Les quatre restent retenus ; `nex-n2.5-mini`, retenu de justesse jusqu'ici, fait
+mieux. **Par le produit**, le conseil d'Ambre qui avait échoué dix fois de suite
+passe 3 fois sur 3 ; relancé, le direct est passé du tour 132 au tour 201 sans un
+échec.
+
 ## Ce qui change dans le dépôt
 
 - **Kilo est un fournisseur** (`kilo:` en préfixe). Il sert **sans clé ses

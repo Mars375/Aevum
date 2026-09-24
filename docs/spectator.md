@@ -21,6 +21,8 @@ npm run publish:campaigns -- --remove=<id>    # la retirer
 npm run publish:campaigns -- --watch=30       # republier les parties jouées en direct
 ```
 
+**En ligne : https://aevum-eosin.vercel.app**, projet Vercel `aevum` relié au dépôt : chaque poussée sur `main` reconstruit et publie le site (`vercel.json` : installation à la racine, build du lecteur, `apps/player/dist`). Pas de repli vers `index.html` : un fichier absent répond 404, jamais la page. Mettre à jour une partie publiée, c'est donc la republier, valider et pousser.
+
 Les parties vont dans `apps/player/public/campaigns/`, avec `index.json`. Une partie publiée doit se rejouer : le script le vérifie, et `published-catalogue.test.ts` aussi. `--watch` sert un hébergeur qui lit le disque — le conteneur de `docker-compose.yml` monte ce répertoire, si bien qu'une partie jouée en direct avance à l'écran sans reconstruire. Un hébergeur qui ne sert qu'un build figé montre l'état publié à son dernier déploiement.
 
 ## Parcours spectateur

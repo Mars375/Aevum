@@ -632,3 +632,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Les cinq bâtiments de ville (grenier, atelier, marché, remparts, académie) et le chantier en cours n’apparaissaient pas : la ville suivait l’âge de sa civilisation et ignorait ses bâtiments. Ils ont chacun une silhouette procédurale, en deux époques (jusqu’au Moyen Âge, puis industrielle et au-delà) ; auvents et bannières prennent la couleur de la civilisation ; les remparts entourent la case.
 - Une vue archivée, sans âges, ne change pas.
 - **Atelier 3D** (`apps/player/lab.html`, `npm run player:dev` puis `/lab.html`) : une ville par âge projetée par le code du jeu, avec l’éclairage de la scène. Il a montré ce qu’aucun test ne voyait : des bâtiments trop petits, à moitié cachés derrière des remparts trop hauts, et des bastions qui débordaient sur la case voisine. Vite ne construit que `index.html` : l’atelier ne part pas sur le site.
+
+### 2026-09-24 — Le site en ligne, et le conseil qui ne passait plus
+
+- **Site public sur Vercel : https://aevum-eosin.vercel.app**, projet relié au dépôt, republié à chaque poussée sur `main` (`vercel.json`). Vérifié : la page, la 3D, les parties publiées ; un fichier absent répond 404, jamais la page HTML.
+- **Le direct se suspendait sur `dots-3-note`** (tours 112 puis 132) : l'hébergeur du modèle refusait le conseil. Renvoyé tel quel et allégé, en alternance sur l'état exact : **0/10 contre 10/10**. Trois redondances retirées de l'invite : liste des infrastructures envoyée deux fois, infrastructures verrouillées détaillées ville par ville, histoire diplomatique sans limite (six derniers faits). Contrat de réponse gardé, mesuré inutile à retirer.
+- **Remesuré** : les quatre modèles retenus passent le banc (5, 5, 4 et 5 valides du premier coup sur 6), le principal passe la durée (20/20, 16 valides, 2 rejets). Par le produit, le conseil qui avait échoué dix fois passe 3 fois sur 3 ; le direct est passé du tour 132 au tour 201 sans un échec.
+- Ce qu'on ne sait pas : pourquoi l'hébergeur refusait — un texte neutre de même longueur passait toujours.

@@ -120,7 +120,10 @@ describe("spectator-9 infrastructure engine integration", () => {
       state.infrastructure!.pollution[azureCityId] ?? 0;
 
     const result = resolveCouncil(state, [
-      { ...baseDecision(state, "amber"), infrastructure: { city, kind: "foundry" } },
+      {
+        ...baseDecision(state, "amber"),
+        infrastructure: { city, kind: "foundry" },
+      },
     ]);
 
     expect(result.rejected).toEqual([]);
@@ -140,13 +143,15 @@ describe("spectator-9 infrastructure engine integration", () => {
     expect(
       result.events.some(
         (e) =>
-          e.kind === "BUILT" && e.detail.includes("Chantier infrastructure lancé"),
+          e.kind === "BUILT" &&
+          e.detail.includes("Chantier infrastructure lancé"),
       ),
     ).toBe(true);
     // No site exists yet, so no fabricated energy deficit either.
     expect(
       result.events.some(
-        (e) => e.kind === "SHORTAGE" && e.detail.includes("Déficit énergétique"),
+        (e) =>
+          e.kind === "SHORTAGE" && e.detail.includes("Déficit énergétique"),
       ),
     ).toBe(false);
   });
@@ -289,7 +294,9 @@ describe("spectator-9 infrastructure engine integration", () => {
       const actor = s.sequence!.activeCiv;
       const decision = localCouncil(s, actor);
       const outcome = resolveCouncil(s, [decision]);
-      turns.push(recordAnswer(i, actor, decision, stateSignature(outcome.state)));
+      turns.push(
+        recordAnswer(i, actor, decision, stateSignature(outcome.state)),
+      );
       s = outcome.state;
     }
     const campaign = {
@@ -318,7 +325,9 @@ describe("spectator-9 infrastructure engine integration", () => {
       const decision = localCouncil(s, actor);
       expect(decision.infrastructure).not.toBeUndefined();
       const outcome = resolveCouncil(s, [decision]);
-      turns.push(recordAnswer(i, actor, decision, stateSignature(outcome.state)));
+      turns.push(
+        recordAnswer(i, actor, decision, stateSignature(outcome.state)),
+      );
       s = outcome.state;
     }
     const campaign = {
@@ -363,7 +372,15 @@ describe("spectator-9 infrastructure engine integration", () => {
     expect(observation.energy).toBeDefined();
     expect(observation.energy!.components.length).toBeGreaterThanOrEqual(1);
     expect(
-      observation.infrastructure!.available.some((o) => o.kind === "foundry"),
+      observation.options.infrastructure!.available.some(
+        (o) => o.kind === "foundry",
+      ),
+    ).toBe(true);
+    // Une seule liste, et sans les verrouillées détaillées ville par ville :
+    // doublée, elle faisait refuser le conseil par l'hébergeur (tour 112).
+    expect("infrastructure" in observation).toBe(false);
+    expect(
+      observation.options.infrastructure!.available.every((o) => o.available),
     ).toBe(true);
 
     expect(INFRASTRUCTURE_COUNCIL_JSON_SCHEMA.required).toContain(
@@ -373,9 +390,7 @@ describe("spectator-9 infrastructure engine integration", () => {
       INFRASTRUCTURE_COUNCIL_JSON_SCHEMA.properties.infrastructure,
     ).toBeDefined();
 
-    let sent:
-      | { messages: { role: string; content: string }[] }
-      | undefined;
+    let sent: { messages: { role: string; content: string }[] } | undefined;
     const answer = await requestCouncil(
       state,
       "amber",
@@ -397,7 +412,11 @@ describe("spectator-9 infrastructure engine integration", () => {
         return Response.json({
           model: "test",
           choices: [
-            { message: { content: JSON.stringify(localCouncil(state, "amber")) } },
+            {
+              message: {
+                content: JSON.stringify(localCouncil(state, "amber")),
+              },
+            },
           ],
         });
       },
@@ -408,17 +427,20 @@ describe("spectator-9 infrastructure engine integration", () => {
     ) as {
       responseContract: unknown;
       energy: unknown;
-      infrastructure: { available: { kind: string }[] };
+      options: { infrastructure: { available: { kind: string }[] } };
     };
     expect(userContent.responseContract).toEqual(
       INFRASTRUCTURE_COUNCIL_JSON_SCHEMA,
     );
     expect(
-      userContent.infrastructure.available.some((o) => o.kind === "foundry"),
+      userContent.options.infrastructure.available.some(
+        (o) => o.kind === "foundry",
+      ),
     ).toBe(true);
     expect(userContent.energy).toBeDefined();
-    const systemContent =
-      sent!.messages.find((m) => m.role === "system")!.content;
+    const systemContent = sent!.messages.find(
+      (m) => m.role === "system",
+    )!.content;
     expect(systemContent).toContain(
       "Only soldier units may defend, attack or escort",
     );

@@ -1,5 +1,23 @@
 [
   {
+    "id": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d",
+    "title": "Quatre modèles face à face",
+    "seed": 42,
+    "version": "spectator-10",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:nex-agi/nex-n2.5-mini:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 178,
+    "maxTurns": 300,
+    "live": true,
+    "updatedAt": "2026-09-24T16:54:55.534Z",
+    "path": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d.json"
+  },
+  {
     "id": "partie-modeles-stables",
     "title": "Deux modèles retenus, quatre dirigeants · 480 tours",
     "seed": 42,
@@ -16,24 +34,6 @@
     "live": false,
     "updatedAt": "2026-09-24T13:22:08.162Z",
     "path": "partie-modeles-stables.json"
-  },
-  {
-    "id": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d",
-    "title": "Quatre modèles face à face",
-    "seed": 42,
-    "version": "spectator-10",
-    "mode": "remote",
-    "models": {
-      "amber": "kilo:dots-studio/dots-3-note-preview:free",
-      "azure": "kilo:nex-agi/nex-n2.5-mini:free",
-      "crimson": "mistral:codestral-latest",
-      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
-    },
-    "turns": 112,
-    "maxTurns": 300,
-    "live": false,
-    "updatedAt": "2026-09-24T13:22:08.162Z",
-    "path": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d.json"
   },
   {
     "id": "nous-discovery",

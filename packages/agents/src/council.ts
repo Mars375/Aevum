@@ -1,12 +1,7 @@
 import { ageProgress } from "../../world/src/ages.js";
 import { planIssue } from "../../world/src/strategic-plans.js";
-import { councilOptions, INFRASTRUCTURE_REASONS } from "./council-options.js";
-import {
-  INFRASTRUCTURE,
-  INFRASTRUCTURE_KINDS,
-  energyReport,
-  infrastructureIssue,
-} from "../../world/src/infrastructure.js";
+import { councilOptions } from "./council-options.js";
+import { energyReport } from "../../world/src/infrastructure.js";
 import { ZodError } from "zod";
 import type { GeneralConfig } from "@abs/contracts";
 import { agreementOptions, agreementView } from "../../world/src/agreements.js";
@@ -30,6 +25,65 @@ import {
   INFRASTRUCTURE_COUNCIL_JSON_SCHEMA,
   AGREEMENT_COUNCIL_JSON_SCHEMA,
 } from "./council-schema.js";
+
+/**
+ * Ce que le conseil reçoit, allégé de ce qui n'aide pas à décider.
+ *
+ * Au tour 112 d'une partie en direct, le conseil d'Ambre faisait 12 141
+ * jetons et l'hébergeur de `dots-3-note` le refusait (HTTP 400) : 0 envoi
+ * sur 10 est passé. Le même conseil allégé de trois redondances est passé 10
+ * fois sur 10 — le contrat de réponse gardé, parce que la consigne finale
+ * décide de ce que les modèles renvoient (CLAUDE.md, point 4) :
+ *
+ *  - la liste des infrastructures partait deux fois, au sommet et dans
+ *    `options` ; seule reste celle d'`options`, que la consigne cite ;
+ *  - elle détaillait chaque infrastructure verrouillée de chaque ville —
+ *    douze entrées « Déblocage manquant » sur douze ; restent les
+ *    constructibles, et une ligne par type verrouillé avec son déblocage ;
+ *  - l'histoire diplomatique grandissait sans fin, surtout d'offres répétées :
+ *    restent les six derniers faits.
+ */
+const RECENT_AGREEMENT_FACTS = 6;
+
+function recentAgreements<T extends { recent: unknown[] }>(view: T): T {
+  return { ...view, recent: view.recent.slice(-RECENT_AGREEMENT_FACTS) };
+}
+
+function promptOptions<
+  T extends {
+    infrastructure?: {
+      queue: unknown[];
+      available: {
+        kind: string;
+        unlock: string;
+        available: boolean;
+        unavailableReason: string | null;
+      }[];
+    };
+  },
+>(options: T) {
+  if (!options.infrastructure) return options;
+  const { queue, available } = options.infrastructure;
+  const locked = new Map<
+    string,
+    { kind: string; unlock: string; reason: string | null }
+  >();
+  for (const entry of available)
+    if (!entry.available && !locked.has(entry.kind))
+      locked.set(entry.kind, {
+        kind: entry.kind,
+        unlock: entry.unlock,
+        reason: entry.unavailableReason,
+      });
+  return {
+    ...options,
+    infrastructure: {
+      queue,
+      available: available.filter((entry) => entry.available),
+      locked: [...locked.values()],
+    },
+  };
+}
 
 export function councilObservation(state: SpectatorState, civ: string) {
   const w = state.world;
@@ -96,49 +150,17 @@ export function councilObservation(state: SpectatorState, civ: string) {
             },
             civ,
           ),
-          infrastructure: {
-            queue: (state.infrastructure?.queues ?? []).filter(
-              (queue) => queue.owner === civ,
-            ),
-            available: w
-              .simulation!.cities.filter((city) => city.owner === civ)
-              .flatMap((city) =>
-                INFRASTRUCTURE_KINDS.map((kind) => {
-                  const issue = infrastructureIssue(
-                    {
-                      world: w,
-                      modernization: state.modernization,
-                      infrastructure: state.infrastructure,
-                    },
-                    civ,
-                    kind,
-                    city.id,
-                  );
-                  const rule = INFRASTRUCTURE[kind];
-                  return {
-                    city: city.id,
-                    kind,
-                    cost: { ...rule.cost },
-                    turns: rule.turns,
-                    unlock: rule.unlock,
-                    supply: rule.supply,
-                    demand: rule.demand,
-                    reason: INFRASTRUCTURE_REASONS[kind],
-                    available: issue === null,
-                    unavailableReason: issue,
-                  };
-                }),
-              ),
-          },
         }
       : {}),
     ...(atLeast(state.rules, "spectator-10")
       ? {
           agreements: {
-            ...agreementView(
-              { world: w, agreement: state.agreement },
-              civ,
-              state.sequence?.round ?? 1,
+            ...recentAgreements(
+              agreementView(
+                { world: w, agreement: state.agreement },
+                civ,
+                state.sequence?.round ?? 1,
+              ),
             ),
             options: agreementOptions(
               { world: w, agreement: state.agreement },
@@ -148,7 +170,7 @@ export function councilObservation(state: SpectatorState, civ: string) {
           },
         }
       : {}),
-    options: councilOptions(state, civ),
+    options: promptOptions(councilOptions(state, civ)),
     economy: state.economy?.filter((l) =>
       w.simulation!.cities.some((c) => c.id === l.city && c.owner === civ),
     ),
