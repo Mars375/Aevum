@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve, extname, sep } from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
+import { networkInterfaces } from "node:os";
 import { z } from "zod";
 import {
   CampaignSchema,
@@ -102,6 +103,35 @@ async function body(req: IncomingMessage) {
  * lui, rien ne change pour le depot ni pour les tests.
  */
 export const dataRoot = () => process.env.AEVUM_DATA?.trim() || process.cwd();
+
+/**
+ * Regarder depuis le réseau local, sans pouvoir y jouer.
+ *
+ * Le service tient les clés et dépense le quota des modèles. L'ouvrir au wifi
+ * tel quel laisserait n'importe quel appareil du réseau lancer des parties à
+ * ses frais. `AEVUM_LAN=1` l'ouvre donc **en lecture** : tout appareil d'un
+ * réseau privé regarde, direct compris ; créer, avancer ou mettre en direct
+ * une partie reste réservé à la machine elle-même. Les adresses admises sont
+ * celles des réseaux privés, et celles de Tailscale (100.64/10) : un réseau
+ * privé lui aussi, qui permet de regarder hors de chez soi.
+ */
+const PRIVATE_HOST =
+  /^(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d{1,3}\.\d{1,3}):\d{1,5}$/;
+const LOCAL_HOST = /^(127\.0\.0\.1|localhost):\d{1,5}$/;
+
+/** L'appel vient-il de la machine elle-même ? */
+export function fromThisMachine(address: string | undefined): boolean {
+  return (
+    address === "127.0.0.1" ||
+    address === "::1" ||
+    address === "::ffff:127.0.0.1"
+  );
+}
+
+/** L'hôte demandé est-il acceptable, selon que le réseau est ouvert ou non ? */
+export function acceptedHost(host: string | undefined, lan: boolean): boolean {
+  return LOCAL_HOST.test(host ?? "") || (lan && PRIVATE_HOST.test(host ?? ""));
+}
 
 export function createSpectatorServer(
   directory = resolve(dataRoot(), "worlds/spectator"),
@@ -336,24 +366,36 @@ export function createSpectatorServer(
     };
     // Local service only. Reject foreign browser origins, including null origins.
     const origin = req.headers.origin;
+    const lan = env.AEVUM_LAN === "1";
     // 5173 est le serveur de developpement Vite ; SERVICE_PORT est celui
     // d'ici, et il n'est pas toujours 5174 : une copie empaquetee doit
     // pouvoir se decaler.
     const allowed = new RegExp(
       `^http://(127\\.0\\.0\\.1|localhost):(5173|${SERVICE_PORT})$`,
     );
-    if (origin && !allowed.test(origin)) {
+    // Sur le réseau, la page est servie par ce service même : son origine est
+    // l'hôte demandé, et rien d'autre.
+    const sameOrigin = lan && origin === `http://${req.headers.host}`;
+    if (origin && !allowed.test(origin) && !sameOrigin) {
       send(403, { error: "Origine non autorisée" });
       return;
     }
-    if (!/^(127\.0\.0\.1|localhost):\d{1,5}$/.test(req.headers.host ?? "")) {
+    if (!acceptedHost(req.headers.host, lan)) {
       send(403, { error: "Hôte non autorisé" });
+      return;
+    }
+    const local = fromThisMachine(req.socket.remoteAddress);
+    if (req.method !== "GET" && !local) {
+      send(403, {
+        error:
+          "Lecture seule depuis le réseau : les parties se lancent sur la machine qui les joue.",
+      });
       return;
     }
     try {
       const url = new URL(req.url ?? "/", "http://127.0.0.1:5174");
       if (req.method === "GET" && url.pathname === "/api/health") {
-        send(200, { application: "aevum", ready: true });
+        send(200, { application: "aevum", ready: true, readOnly: !local });
         return;
       }
       if (req.method === "POST" && url.pathname === "/api/demo") {
@@ -383,6 +425,8 @@ export function createSpectatorServer(
                       seed: c.seed,
                       mode: c.mode,
                       turn: c.turns.length,
+                      models: c.models,
+                      live: liveStatus(c.id).on,
                     },
                   ];
                 } catch {
@@ -594,6 +638,9 @@ export function startServer(): void {
   started = true;
   if (existsSync(".env")) process.loadEnvFile(".env");
   loadWindowsNousEnvironment();
+  // `--lan` plutôt qu'une variable seule : sous Windows, `AEVUM_LAN=1 npm …`
+  // n'est pas une syntaxe que l'invite de commandes comprend.
+  if (process.argv.includes("--lan")) process.env.AEVUM_LAN = "1";
   const lockPath = resolve(dataRoot(), "worlds/spectator/server.lock");
   // Fermer la fenetre du lanceur tue ce processus sans lui laisser liberer
   // son verrou. On le reprend quand son proprietaire est mort, et on le dit.
@@ -606,11 +653,19 @@ export function startServer(): void {
   process.once("exit", release);
   for (const signal of ["SIGINT", "SIGTERM"] as const)
     process.once(signal, () => server.close(() => process.exit(0)));
-  server.listen(SERVICE_PORT, "127.0.0.1", () =>
+  const lan = process.env.AEVUM_LAN === "1";
+  server.listen(SERVICE_PORT, lan ? "0.0.0.0" : "127.0.0.1", () => {
     console.log(
       `Observatoire : http://127.0.0.1:${SERVICE_PORT} (API locale ; npm run player:build pour le site)`,
-    ),
-  );
+    );
+    if (lan)
+      for (const address of Object.values(networkInterfaces())
+        .flat()
+        .filter((entry) => entry && entry.family === "IPv4" && !entry.internal))
+        console.log(
+          `Sur le réseau, en lecture seule : http://${address!.address}:${SERVICE_PORT}`,
+        );
+  });
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
   startServer();

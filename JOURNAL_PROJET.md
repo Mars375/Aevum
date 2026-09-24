@@ -639,3 +639,9 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **Le direct se suspendait sur `dots-3-note`** (tours 112 puis 132) : l'hébergeur du modèle refusait le conseil. Renvoyé tel quel et allégé, en alternance sur l'état exact : **0/10 contre 10/10**. Trois redondances retirées de l'invite : liste des infrastructures envoyée deux fois, infrastructures verrouillées détaillées ville par ville, histoire diplomatique sans limite (six derniers faits). Contrat de réponse gardé, mesuré inutile à retirer.
 - **Remesuré** : les quatre modèles retenus passent le banc (5, 5, 4 et 5 valides du premier coup sur 6), le principal passe la durée (20/20, 16 valides, 2 rejets). Par le produit, le conseil qui avait échoué dix fois passe 3 fois sur 3 ; le direct est passé du tour 132 au tour 201 sans un échec.
 - Ce qu'on ne sait pas : pourquoi l'hébergeur refusait — un texte neutre de même longueur passait toujours.
+
+### 2026-09-24 — Regarder depuis le wifi, en lecture seule
+
+- `npm run start:lan` ouvre le service au réseau local **en lecture** : tout appareil d'un réseau privé ou de Tailscale regarde, direct compris ; créer, avancer ou mettre en direct reste réservé à la machine, qui tient les clés (403 sinon). La page le sait par `/api/health` et remplace le formulaire par la liste des parties.
+- Vérifié : appel réel depuis l'adresse wifi de la machine — lecture 200, trois modifications 403 (test, sauté si la machine n'a pas de réseau) ; page ouverte par `http://192.168.1.102:5180` à 390 px, partie en direct affichée, « En direct · lecture seule », aucune erreur.
+- Défaut évité en route : un correctif appliqué par `String.replace` contenait « $` », que JavaScript lit comme « le texte avant la correspondance » — le fichier du serveur avait doublé (1 028 lignes au lieu de 664). Restauré depuis le dépôt et réappliqué avec une fonction de remplacement ; les correctifs antérieurs ne contenaient pas la séquence.

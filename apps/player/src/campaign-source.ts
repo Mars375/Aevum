@@ -44,6 +44,11 @@ export interface PublishedCampaign {
 }
 export interface CampaignSource {
   kind: "local" | "public";
+  /**
+   * Regarder sans pouvoir jouer : le site public, ou le service local vu
+   * depuis un autre appareil du réseau (`AEVUM_LAN=1`).
+   */
+  readOnly: boolean;
   campaign(id: string): Promise<Campaign>;
   head(id: string): Promise<CampaignHead>;
   /** Parties publiées ; vide pour le service local, qui a sa propre liste. */
@@ -99,9 +104,13 @@ async function json<T>(fetcher: typeof fetch, url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-export function localSource(fetcher: typeof fetch = fetch): CampaignSource {
+export function localSource(
+  fetcher: typeof fetch = fetch,
+  readOnly = false,
+): CampaignSource {
   return {
     kind: "local",
+    readOnly,
     campaign: (id) => json<Campaign>(fetcher, `/api/campaigns/${id}/export`),
     head: (id) => json<CampaignHead>(fetcher, `/api/campaigns/${id}/head`),
     published: async () => [],
@@ -125,6 +134,7 @@ export function publicSource(
   };
   return {
     kind: "public",
+    readOnly: true,
     campaign: async (id) =>
       json<Campaign>(fetcher, `${base}${(await entry(id)).path}`),
     head: async (id) => {
@@ -151,8 +161,12 @@ export async function detectSource(
   fetcher: typeof fetch = fetch,
 ): Promise<CampaignSource> {
   try {
-    const health = await json<{ application?: string }>(fetcher, "/api/health");
-    if (health.application === "aevum") return localSource(fetcher);
+    const health = await json<{ application?: string; readOnly?: boolean }>(
+      fetcher,
+      "/api/health",
+    );
+    if (health.application === "aevum")
+      return localSource(fetcher, health.readOnly === true);
   } catch {
     // Pas de service local : on essaie la publication.
   }

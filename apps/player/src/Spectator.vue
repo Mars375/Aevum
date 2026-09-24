@@ -53,11 +53,18 @@ interface Summary {
   seed: number;
   mode: string;
   turn: number;
+  models?: Record<string, string>;
+  live?: boolean;
 }
 /** Le service local, ou les parties publiées à côté du site. */
 const source = ref<CampaignSource | null>(null),
   published = ref<PublishedCampaign[]>([]);
 const isPublic = computed(() => source.value?.kind === "public");
+/**
+ * Regarder sans pouvoir jouer : le site public, ou le service local vu d'un
+ * autre appareil du réseau. Aucun contrôle qui lancerait un appel de modèle.
+ */
+const readOnly = computed(() => !!source.value?.readOnly);
 const publishedEntry = computed(() =>
   published.value.find((entry) => entry.id === loaded.value?.campaign.id),
 );
@@ -581,6 +588,20 @@ async function list() {
     stableModels?: { ref: string; role: string }[];
   }>("/campaigns");
   stableModels.value = data.stableModels ?? [];
+  // Vu du réseau, la liste des parties remplace le formulaire de création.
+  published.value = data.campaigns.map((c) => ({
+    id: c.id,
+    title: `Monde ${c.seed}`,
+    seed: c.seed,
+    version: "",
+    mode: c.mode,
+    models: c.models ?? {},
+    turns: c.turn,
+    maxTurns: null,
+    live: c.live ?? false,
+    updatedAt: "",
+    path: "",
+  }));
   const firstConfiguration = providers.value.length === 0;
   catalogue.value = data.campaigns;
   providers.value = data.providers;
@@ -863,7 +884,7 @@ onUnmounted(() => {
         <a href="/?archive=1&world=worlds%2Fcivilization-w10%2Fera-0001.json"
           >Les archives ↗</a
         ><button :aria-expanded="setup" @click="setup = !setup">
-          {{ setup ? "Fermer" : isPublic ? "Les parties" : "Nouveau monde"
+          {{ setup ? "Fermer" : readOnly ? "Les parties" : "Nouveau monde"
           }}<span aria-hidden="true">{{ setup ? "−" : "+" }}</span>
         </button>
       </nav>
@@ -876,7 +897,7 @@ onUnmounted(() => {
       class="setup-panel"
       aria-label="Configuration de la simulation"
     >
-      <div v-if="isPublic" class="setup-intro">
+      <div v-if="readOnly" class="setup-intro">
         <span>Une expérience de civilisation autonome</span>
         <h1>Le pouvoir change.<br />L’histoire reste.</h1>
         <p>
@@ -886,7 +907,7 @@ onUnmounted(() => {
         </p>
       </div>
       <div
-        v-if="isPublic"
+        v-if="readOnly"
         class="scenario-choices published-list"
         aria-label="Parties publiées"
       >
@@ -916,7 +937,7 @@ onUnmounted(() => {
         </button>
         <p v-if="!published.length">Aucune partie publiée pour l’instant.</p>
       </div>
-      <template v-if="!isPublic">
+      <template v-if="!readOnly">
         <div class="setup-intro">
           <button
             class="discover-button primary"
@@ -1876,10 +1897,14 @@ onUnmounted(() => {
           @click="seek((loaded?.history.length ?? 1) - 1)"
         >
           Revenir au présent</button
-        ><small v-else-if="isPublic" class="remaining-turns">{{
-          publishedEntry?.live
-            ? "Partie en cours, publiée au fil des tours"
-            : "Lecture seule"
+        ><small v-else-if="readOnly" class="remaining-turns">{{
+          isPublic
+            ? publishedEntry?.live
+              ? "Partie en cours, publiée au fil des tours"
+              : "Lecture seule"
+            : live?.on
+              ? "En direct · lecture seule"
+              : "Lecture seule"
         }}</small
         ><template v-else
           ><label

@@ -11,6 +11,14 @@ Ouvrir http://127.0.0.1:5174/. `npm start` compile le site et démarre son servi
 
 Les liens contenant `world=` restent des archives historiques. Le nouvel observatoire est à la racine, sans ce paramètre, ou avec `campaign=` pour une partie sauvegardée.
 
+## Sur le réseau local
+
+```sh
+npm run start:lan        # ou npm run spectator:lan si le site est déjà construit
+```
+
+Le service écoute alors sur le réseau et affiche ses adresses (« Sur le réseau, en lecture seule : http://192.168.1.x:5174 »). Un téléphone ou une tablette du même wifi — ou du même réseau Tailscale — y **regarde** toutes les parties, direct compris, sans rien installer. **Rien d'autre** : créer, avancer ou mettre en direct une partie n'est accepté que depuis la machine elle-même (403 sinon), parce que c'est elle qui tient les clés et dépense le quota. Seules les adresses de réseaux privés (10/8, 172.16/12, 192.168/16) et de Tailscale (100.64/10) sont admises. Sous Windows, le pare-feu doit autoriser Node en réseau privé ; il le demande au premier lancement.
+
 ## Site public
 
 Le même site, construit (`npm run player:build`), peut être servi par n'importe quel hébergeur statique. Sans service local, l'observatoire montre les **parties publiées** et les rejoue dans le navigateur, avec le moteur même qui les a vécues. Rien n'y déclenche un appel de modèle : aucune clé, aucun quota exposé.
