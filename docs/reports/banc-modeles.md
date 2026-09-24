@@ -325,6 +325,29 @@ compte, pas du modèle : rien dans l'API ne dit qu'une clé est au palier gratui
 Les limites à zéro sur les modèles `medium` et `magistral` y ressemblent ; la
 facturation, elle, n'a pas été vérifiée ici.
 
+## La partie longue avec les seuls retenus
+
+480 tours consécutifs, graine 42, `spectator-10`, par le chemin du produit :
+`dots-3-note` pour amber et crimson, `nex-n2.5-mini` pour azure et verdant,
+tous deux par Kilo, sans clé (`partie-modeles-stables.json`).
+
+| civilisation | modèle          | servis par lui-même | remplacés | ordres rejetés |
+| ------------ | --------------- | ------------------: | --------: | -------------: |
+| amber        | `dots-3-note`   |             119/120 |         1 |             20 |
+| crimson      | `dots-3-note`   |             120/120 |         0 |              0 |
+| azure        | `nex-n2.5-mini` |             120/120 |         0 |              9 |
+| verdant      | `nex-n2.5-mini` |             120/120 |         0 |             14 |
+
+**479 tours sur 480 servis par le modèle lui-même**, un seul joué par le
+dirigeant local — compté comme tel —, quatre relances de transport, 440 tours
+sans aucun rejet, médiane 4,7 s, **rejeu vérifié**. Les quatre dirigeants sont
+classables. La campagne précédente, avec `longcat-2.0` parmi les quatre, s'était
+arrêtée à 66 tours.
+
+Même modèle, même partie : `dots-3-note` fait 20 rejets pour amber et zéro pour
+crimson. L'écart vient de la situation de chaque civilisation, pas du modèle —
+une seule partie ne permet pas d'en dire plus.
+
 ## Ce qui change dans le dépôt
 
 - **Kilo est un fournisseur** (`kilo:` en préfixe). Il sert **sans clé ses

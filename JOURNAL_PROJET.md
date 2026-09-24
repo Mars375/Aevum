@@ -604,3 +604,7 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **Le contrôle par le produit a trouvé un défaut** : `openrouter:…` partait tel quel et OpenRouter refusait l'identifiant, pendant que le banc, qui retire le préfixe, mesurait 20/20. `parseModelRef` accepte le préfixe ; ensuite 12/12 pour chacun, rejeu vérifié.
 - `stable-models.ts` : quatre entrées, chacune avec sa clé et ses conditions de mesure (schéma natif, raisonnement bridé), que le test confronte à ce que le produit envoie. Le principal reste sans clé.
 - Limite : la gratuité de Mistral tient au compte, non vérifiée côté facturation ; `codestral` n'a qu'un jour de mesure.
+
+### 2026-09-24 — La partie de 480 tours avec les seuls modèles retenus
+
+- Terminée : **479/480 tours servis par le modèle lui-même**, un tour remplacé et compté, 43 ordres rejetés dont 0 pour crimson, médiane 4,7 s, rejeu vérifié. Les quatre dirigeants sont classables (`docs/reports/partie-modeles-stables.json`). La précédente, avec `longcat-2.0`, s'était arrêtée à 66 tours.
