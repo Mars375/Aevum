@@ -77,6 +77,10 @@ interface TurnRow {
   substituted: boolean;
 }
 
+// Comme le serveur : un .env local d'abord, puis les variables Windows.
+// Sans cette ligne, une clé posée dans .env était vue par l'observatoire
+// mais pas par les sondes, qui déclaraient le fournisseur sans clé.
+if (existsSync(".env")) process.loadEnvFile(".env");
 loadWindowsNousEnvironment();
 
 let state: SpectatorState = newSpectator(SEED, RULES);

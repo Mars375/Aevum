@@ -201,6 +201,50 @@ arrêtée : elle mettait délibérément deux modèles instables en jeu. Une par
 avec les seuls modèles retenus la remplace — `dots-3-note` pour Ambre et
 Pourpre, `nex-n2.5-mini` pour Azur et Sylve.
 
+## Les autres plateformes
+
+**Sans clé, il ne reste presque rien.** OVH répond 429 en 0,1 s à tout appel
+anonyme, deux jours de suite : fermé pour notre adresse. OpenCode Zen réserve
+ses modèles gratuits à son application. Pollinations n'offre qu'un modèle opaque.
+
+**LLM7** sert encore quatre modèles sans clé — le seul palier qui n'exige pas de
+compte payant : `mistral-Nemo`, `codestral`, `minimax-m2.7`, `GLM-5.3-Flash`.
+Au banc, **zéro conseil réussi sur six pour chacun** : sa limite de 60 requêtes
+par heure dépassée malgré une minute d'écart, des réponses hors format, des
+délais. Un détail inquiétant s'est révélé anodin : `GLM-5.3-Flash` renvoyait,
+après son JSON, du JavaScript obfusqué (`eval(function(p,a,c,k,e,d)…`). Déplié
+sans être exécuté, il se réduit à `const alphabet="the quick brown fox…"` — le
+modèle recrache ses données d'entraînement, l'intermédiaire n'injecte rien.
+Mais une réponse suivie de texte parasite reste illisible pour le conseil.
+
+**Une mesure indépendante confirme la sélection.** KiloStats sonde chaque heure
+les modèles gratuits de Kilo (79 passages en deux semaines) : sur sept jours,
+`dots-3-note` est disponible **95 %** du temps, `nex-n2.5-mini` **90 %** — parmi
+les plus disponibles. Les `laguna` (60 et 50 %), `qwen3.8`, `glm-5.2` et
+`inkling` (5 à 12 %) confirment nos échecs. Une nuance : 95 %, c'est une requête
+sur vingt qui échoue — une partie de 480 tours en rencontrera, et les essais
+répétés de la sonde sont là pour ça. KiloStats ne mesure que la disponibilité
+sur une question triviale : `step-3.7-flash` y est à 95 % et échoue sur nos
+conseils. Le banc reste indispensable.
+
+**Avec un compte gratuit** — à créer par l'utilisateur, les clés ne passent
+jamais par la session :
+
+| plateforme       | gratuit (annoncé)                            | pour Aevum                                                    |
+| ---------------- | -------------------------------------------- | ------------------------------------------------------------- |
+| Mistral          | ~1 milliard de jetons par mois               | le plus intéressant ; déjà dans le code                       |
+| OpenRouter       | 50 requêtes/jour ; 1 000 après 10 $ une fois | héberge aussi `dots-3-note` : une seconde route si Kilo tombe |
+| Cerebras         | 1 million de jetons par jour                 | ~65 conseils par jour : tests, pas une partie entière         |
+| NVIDIA NIM       | 1 000 à 5 000 crédits                        | une réserve qui s'épuise                                      |
+| Groq             | 8 000 jetons par minute                      | inutilisable : un conseil en fait 9 200                       |
+| Google AI Studio | 20 requêtes par jour                         | trop peu                                                      |
+
+Aucune clé Mistral ni OpenRouter n'existe sur cette machine : chez Hermes,
+`OPENROUTER_API_KEY` n'est qu'une ligne commentée et vide. Le banc sait les
+mesurer dès qu'elles sont posées (`.env` ou variables Windows) ; il s'arrête
+avec un message clair si elles manquent, plutôt que de déclarer les modèles
+morts, et refuse tout modèle OpenRouter qui n'est pas `:free`.
+
 ## Ce qui change dans le dépôt
 
 - **Kilo est un fournisseur** (`kilo:` en préfixe). Il sert **sans clé ses

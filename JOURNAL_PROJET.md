@@ -588,3 +588,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Nouvelle partie de 480 tours avec les seuls modèles retenus, en processus indépendant.
 - **Relevé au passage, non corrigé** : l'observatoire crée ses nouvelles parties en `spectator-9`. La diplomatie livrée en `spectator-10` n'y est donc jamais activée.
 - Vérifié : `tsc`, `vue-tsc`, **711 tests**.
+
+### 2026-09-24 — Les autres plateformes gratuites
+
+- **KiloStats**, mesure indépendante et horaire des modèles gratuits de Kilo (79 passages en deux semaines) : `dots-3-note` disponible 95 % du temps sur sept jours, `nex-n2.5-mini` 90 %. Nos deux retenus sont parmi les plus disponibles ; les modèles que nous avons écartés y sont aussi les plus fragiles.
+- **Sans clé** : OVH fermé pour notre adresse (429 en 0,1 s, deux jours de suite) ; LLM7 sert quatre modèles sans compte payant, **0/6 chacun** au banc (sa limite de 60 requêtes par heure, réponses hors format, délais). Le JavaScript obfusqué renvoyé par `GLM-5.3-Flash`, déplié sans exécution, se réduit à une phrase d'exemple : le modèle recrache ses données, rien d'injecté.
+- **Avec un compte** : Mistral et OpenRouter sont les deux qui valent l'effort. Aucune de ces clés n'existe ici — chez Hermes, `OPENROUTER_API_KEY` est une ligne commentée et vide.
+- Le banc mesure désormais OpenRouter et Mistral, envoie à chaque fournisseur sa propre clé, et s'arrête avec un message clair si elle manque. La sonde et le banc lisent aussi un `.env` local, comme le serveur : une clé qui y était posée restait jusqu'ici invisible pour eux.

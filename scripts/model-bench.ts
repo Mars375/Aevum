@@ -70,6 +70,29 @@ const PROVIDERS: Record<string, Provider> = {
     catalogue: null,
     pace: 31,
   },
+  // LLM7 : quatre modèles « turbo » servis sans clé, 60 requêtes par heure.
+  // Son catalogue ne déclare pas de paramètres au format OpenRouter : ses
+  // modèles passent donc en mode prompt, sans sortie structurée imposée.
+  // OpenRouter : modèles `:free` seulement ; 50 requêtes par jour sans achat,
+  // 1 000 après 10 $ payés une fois. Le banc s'arrête si la clé manque.
+  openrouter: {
+    base: "https://openrouter.ai/api/v1",
+    catalogue: "https://openrouter.ai/api/v1/models",
+    pace: 4,
+    keyEnv: "OPENROUTER_API_KEY",
+  },
+  // Mistral : palier gratuit de compte, environ une requête par seconde.
+  mistral: {
+    base: "https://api.mistral.ai/v1",
+    catalogue: null,
+    pace: 2,
+    keyEnv: "MISTRAL_API_KEY",
+  },
+  llm7: {
+    base: "https://api.llm7.io/v1",
+    catalogue: null,
+    pace: 61,
+  },
   ollama: {
     base: "http://127.0.0.1:11434/v1",
     catalogue: null,
@@ -177,6 +200,14 @@ async function bench(
   const model = rest.join(":");
   const source = PROVIDERS[provider!];
   if (!source) throw new Error(`Fournisseur inconnu : ${provider}`);
+  if (source.keyEnv && provider !== "nous" && !process.env[source.keyEnv])
+    throw new Error(
+      `${source.keyEnv} absente : posez-la dans .env ou dans les variables Windows`,
+    );
+  if (provider === "openrouter" && !model.endsWith(":free"))
+    throw new Error(
+      `${model} n'est pas gratuit : le banc ne mesure que des modèles gratuits`,
+    );
   const civ = activeCiv(state)!;
   // --raisonnement-impose=a,b : certains modèles refusent qu'on leur interdise
   // de raisonner (« Reasoning is mandatory ») — le produit, lui, ne le leur
@@ -213,7 +244,13 @@ async function bench(
       );
     }
     const headers = new Headers(init?.headers);
-    if (provider !== "nous") headers.delete("Authorization");
+    // La clé du fournisseur visé, jamais celle de Nous : le chemin Nous pose la
+    // sienne, qu'on retire avant tout appel ailleurs.
+    if (provider !== "nous") {
+      headers.delete("Authorization");
+      const key = source.keyEnv ? process.env[source.keyEnv] : undefined;
+      if (key) headers.set("Authorization", `Bearer ${key}`);
+    }
     const started = Date.now();
     calls++;
     const response = await fetch(`${source.base}/chat/completions`, {
@@ -367,6 +404,10 @@ const median = (values: number[]) => {
 };
 
 async function main() {
+  // Comme le serveur : un .env local d'abord, puis les variables Windows.
+  // Sans cette ligne, une clé posée dans .env était vue par l'observatoire
+  // mais pas par les sondes, qui déclaraient le fournisseur sans clé.
+  if (existsSync(".env")) process.loadEnvFile(".env");
   loadWindowsNousEnvironment();
   const targets = arg("targets", "")
     ? arg("targets", "").split(",")
