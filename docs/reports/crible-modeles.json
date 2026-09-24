@@ -1,0 +1,252 @@
+[
+ {
+  "provider": "nous",
+  "model": "stealth/space-bunny-alpha",
+  "structured": false,
+  "retried": false,
+  "status": "400",
+  "ms": 294,
+  "ok": false,
+  "error": "This request is not valid. Check the model name and other parameters. Additional"
+ },
+ {
+  "provider": "nous",
+  "model": "inclusionai/ling-3.0-flash-sante:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 1370,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "nous",
+  "model": "inclusionai/ling-3.0-flash-fin:free",
+  "structured": true,
+  "retried": false,
+  "status": "200",
+  "ms": 809,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "nous",
+  "model": "poolside/laguna-s-2.1:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 2794,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "nous",
+  "model": "poolside/laguna-xs-2.1:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 900,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "nous",
+  "model": "stepfun/step-3.7-flash:free",
+  "structured": true,
+  "retried": false,
+  "status": "400",
+  "ms": 300,
+  "ok": false,
+  "error": "This request is not valid. Check the model name and other parameters. Additional"
+ },
+ {
+  "provider": "nous",
+  "model": "upstage/solar-pro4:free",
+  "structured": true,
+  "retried": false,
+  "status": "400",
+  "ms": 1098,
+  "ok": false,
+  "error": "This request is not valid. Check the model name and other parameters. Additional"
+ },
+ {
+  "provider": "nous",
+  "model": "meituan/longcat-2.0:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 2886,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "poolside/laguna-s-2.1:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 1210,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 641,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "dots-studio/dots-3-note-preview:free",
+  "structured": true,
+  "retried": false,
+  "status": "200",
+  "ms": 1149,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "nex-agi/nex-n2.5-pro:free",
+  "structured": true,
+  "retried": false,
+  "status": "200",
+  "ms": 770,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "nex-agi/nex-n2.5-mini:free",
+  "structured": true,
+  "retried": false,
+  "status": "200",
+  "ms": 1000,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "inclusionai/ling-3.0-flash-sante:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 895,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "inclusionai/ling-3.0-flash-fin:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 1111,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "qwen/qwen3.8-27b:free",
+  "structured": true,
+  "retried": true,
+  "status": "429",
+  "ms": 490,
+  "ok": false,
+  "error": "Provider returned error"
+ },
+ {
+  "provider": "kilo",
+  "model": "liquid/lfm-2.5-2.6b:free",
+  "structured": true,
+  "retried": false,
+  "status": "400",
+  "ms": 254,
+  "ok": false,
+  "error": "Reasoning is mandatory for this endpoint and cannot be disabled."
+ },
+ {
+  "provider": "kilo",
+  "model": "nvidia/nemotron-3.5-lightning:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 25508,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "thinkingmachines/inkling-small:free",
+  "structured": false,
+  "retried": true,
+  "status": "429",
+  "ms": 301,
+  "ok": false,
+  "error": "Rate limit exceeded: limit_rpd/thinkingmachines/inkling-small-20260730/e27a9a6d-"
+ },
+ {
+  "provider": "kilo",
+  "model": "poolside/laguna-xs-2.1:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 600,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "cohere/north-mini-code:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 462,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "z-ai/glm-5.2:free",
+  "structured": false,
+  "retried": true,
+  "status": "429",
+  "ms": 477,
+  "ok": false,
+  "error": "Provider returned error"
+ },
+ {
+  "provider": "kilo",
+  "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 359,
+  "ok": false,
+  "error": "contenu vide"
+ },
+ {
+  "provider": "kilo",
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "structured": true,
+  "retried": false,
+  "status": "200",
+  "ms": 679,
+  "ok": true,
+  "error": ""
+ },
+ {
+  "provider": "kilo",
+  "model": "stepfun/step-3.7-flash:free",
+  "structured": false,
+  "retried": false,
+  "status": "200",
+  "ms": 2895,
+  "ok": true,
+  "error": ""
+ }
+]

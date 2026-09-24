@@ -8,6 +8,7 @@ export { runBattleV2, makeArmyBuyer, type RunBattleV2Options } from "./battle-v2
 export { ORDER_JSON_SCHEMA_V2, COMPOSITION_JSON_SCHEMA } from "./schema-v2.js";
 export { systemPromptV2, userPromptV2, compositionSystemPrompt, compositionUserPrompt } from "./prompt-v2.js";
 export { DEFAULT_GENERALS, NATIVE_SCHEMA_MODELS, supportsNativeSchema } from "./roster.js";
+export { DEFAULT_COUNCIL_MODEL, STABLE_FREE_MODELS, type StableModel } from "./stable-models.js";
 export { extractJson } from "./json.js";
 export { collectReports, reportSystemPrompt, reportUserPrompt, REPORT_JSON_SCHEMA } from "./report.js";
 export * from "./prompt-world.js";

@@ -8,8 +8,8 @@ gouverne une campagne **sans tomber** (stable) et **sans ordres rejetés**
 > consécutifs sur 40, en 40 requêtes sans une relance, **un seul ordre
 > rejeté**, 5,2 s de médiane, rejeu vérifié. **Sans clé ni compte.**
 
-`AEVUM_COUNCIL_MODEL=kilo:dots-studio/dots-3-note-preview:free` suffit à s'en
-servir pour une campagne. Le modèle par défaut du produit n'a pas été changé.
+C'est désormais **le modèle par défaut**, choisi parmi les seuls modèles retenus
+(`packages/agents/src/stable-models.ts`) — voir « Le 24 septembre » plus bas.
 
 ## La méthode : apparier, puis durer
 
@@ -136,6 +136,70 @@ Relancée :
 | rejeu                         | vérifié                         |
 
 (`docs/reports/remote-campaign-kilo.json`)
+
+## Le 24 septembre : tout le catalogue, puis la sélection
+
+La consigne était claire : ne retenir, pour nos tests, que des modèles stables —
+et tous les chercher. Les critères ont été **écrits avant la mesure** :
+
+| étape                          | retenu si…                                                                        |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| 1. crible                      | répond à une petite requête (second essai à 90 s en cas de 429 ou de délai)       |
+| 2. banc apparié, 6 situations  | au moins 5 réponses, 3 valides du premier coup, médiane de 20 s au plus           |
+| 3. durée, 20 tours consécutifs | 20/20 sans tour perdu, 14 valides du premier coup, 4 rejets au plus, 15 s au plus |
+
+**Crible : 25 modèles gratuits** au catalogue du jour, 8 chez Nous, 17 chez Kilo,
+tous essayés — seuls les routeurs automatiques, la musique et la modération
+écartés. 17 répondent. Tombent : `step-3.7-flash`, `solar-pro4` et le nouveau
+`space-bunny-alpha` chez Nous (400) ; `qwen3.8-27b`, `inkling-small` et `glm-5.2`
+chez Kilo, saturés même au second essai ; `lfm-2.5` et `nemotron-nano-omni`, qui
+**imposent** le raisonnement.
+
+**Banc** — les modèles déjà mesurés la veille gardent leur résultat ; six
+nouveaux passent l'épreuve (`model-bench-2.json`), plus les deux qui imposent le
+raisonnement, cette fois autorisés à raisonner (`--raisonnement-impose`) :
+
+| modèle                          | répond | 1er coup | pourquoi il ne passe pas                                |
+| ------------------------------- | -----: | -------: | ------------------------------------------------------- |
+| kilo · `laguna-s-2.1`           |    4/6 |        1 | 429 du fournisseur en amont, à deux reprises            |
+| kilo · `laguna-xs-2.1`          |    3/6 |        3 | 429 du fournisseur en amont, à trois reprises           |
+| kilo · `ling-3.0-flash-sante`   |    6/6 |        2 | un conseil valide du premier coup de moins que le seuil |
+| kilo · `north-mini-code`        |    6/6 |        2 | idem, et 4 ordres rejetés                               |
+| kilo · `nemotron-3.5-lightning` |    0/6 |        0 | délai dépassé six fois                                  |
+| kilo · `step-3.7-flash`         |    0/6 |        0 | vide ou délai dépassé                                   |
+| kilo · `lfm-2.5-2.6b`           |    1/6 |        0 | laissé raisonner : 53 s, puis délais                    |
+| kilo · `nemotron-3-nano-omni`   |    0/6 |        0 | idem                                                    |
+
+Les 429 de `laguna` ne sont pas la limite de notre adresse : les autres modèles
+passaient au même moment. C'est son fournisseur qui sature — pour nos tests,
+une vraie instabilité.
+
+**Durée**, seconde mesure, un jour après la première :
+
+| modèle            | jour 1                      | jour 2                                | sur 40 tours                          |
+| ----------------- | --------------------------- | ------------------------------------- | ------------------------------------- |
+| **`dots-3-note`** | 20/20, 19 valides, 1 rejet  | **20/20, 18 valides, 0 rejet**, 5,2 s | 40/40, **37 valides (93 %)**, 1 rejet |
+| `nex-n2.5-mini`   | 20/20, 13 valides, 3 rejets | 20/20, 15 valides, 2 rejets, 5,0 s    | 40/40, 28 valides (70 %), 5 rejets    |
+
+`nex-n2.5-mini` échouait de justesse le premier jour et passe le second ; sur
+les quarante tours il est pile au seuil. **Retenu, comme second choix et de
+justesse** — écrit tel quel dans le code.
+
+**La sélection vit à un seul endroit** : `packages/agents/src/stable-models.ts`,
+chaque modèle avec la mesure qui le justifie. Le modèle par défaut des quatre
+dirigeants en découle : **`dots-3-note-preview` remplace `longcat-2.0`**, qui
+perd un tour sur sept en durée. `stable-models.test.ts` rend bruyant tout retour
+à un modèle non retenu, et vérifie que chaque modèle retenu est servi comme il a
+été mesuré — gratuit, sans clé, sortie structurée native, raisonnement bridé.
+
+Un test du serveur supposait qu'une partie distante sans clé tombe forcément en
+panne. Avec un défaut sans clé, il envoyait une vraie requête sur le réseau ; il
+vérifie désormais ce chemin sur un modèle qui exige une clé absente.
+
+La partie à quatre modèles de la veille (`partie-quatre-modeles`, 66 tours) a été
+arrêtée : elle mettait délibérément deux modèles instables en jeu. Une partie
+avec les seuls modèles retenus la remplace — `dots-3-note` pour Ambre et
+Pourpre, `nex-n2.5-mini` pour Azur et Sylve.
 
 ## Ce qui change dans le dépôt
 

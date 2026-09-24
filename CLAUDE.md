@@ -191,9 +191,11 @@ npm run board-fairness   # le bruit du plateau, donc ce qu'une mesure peut prouv
 npm run bench:models     # modeles apparies sur 6 situations, puis --consecutive=20
 ```
 
-**Pour une campagne de test, `AEVUM_COUNCIL_MODEL=kilo:dots-studio/dots-3-note-preview:free`** :
-sans clé ni compte, 40 tours consécutifs sur 40, un seul ordre rejeté
-(`docs/reports/banc-modeles.md`). Deux leçons du banc : un modèle **propre sur des
+**Seuls les modèles retenus gouvernent nos tests** : `packages/agents/src/stable-models.ts`,
+chacun avec la mesure qui le justifie. Le défaut des quatre dirigeants en découle —
+`dots-3-note-preview`, sans clé — et non plus `longcat-2.0`, qui perd un tour sur sept.
+Y ajouter un modèle, c'est le remesurer (`bench:models`, critères dans
+`docs/reports/banc-modeles.md`). Deux leçons du banc : un modèle **propre sur des
 situations isolées peut se dégrader en partie réelle** — mesurer aussi en durée ; et un
 modèle qui raisonne doit en être empêché (`REASONING_OFF_MODELS`), sinon il dépasse
 tout délai — 45 s sans le champ, 6 s avec, même requête.

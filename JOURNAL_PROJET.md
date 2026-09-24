@@ -575,3 +575,16 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **La première campagne par le produit s'est arrêtée au premier tour**, là où le banc réussissait vingt fois. `RemoteProvider` n'envoyait jamais `reasoning: { effort: "none" }` ; même conseil, seul ce champ changeant : plus de 45 s sans, 6 s avec. `REASONING_OFF_MODELS`, pour les seuls modèles mesurés.
 - **Relancée : 40 tours sur 40, 40 requêtes sans une relance, un seul ordre rejeté, 5,2 s de médiane, rejeu vérifié.** Le modèle par défaut reste `longcat` : en changer est un choix de produit.
 - Vérifié : `tsc`, `vue-tsc`, **707 tests**. Rapport : `docs/reports/banc-modeles.md`.
+
+### 2026-09-24 — Tout le catalogue gratuit, et seuls les stables retenus
+
+- La partie à quatre modèles s'était arrêtée avec la session (54 tours) ; reprise en processus Windows indépendant, puis **arrêtée à 66 tours sur décision** : elle mettait délibérément deux modèles instables en jeu, et partageait avec le banc la limite de Kilo par adresse IP. Archive conservée.
+- **Critères écrits avant toute mesure** — crible, banc apparié de six situations (5 réponses, 3 valides du premier coup, 20 s), durée de vingt tours (20/20, 14 valides, 4 rejets au plus, 15 s).
+- **Crible : 25 modèles gratuits au catalogue du jour**, 17 répondent. Six nouveaux au banc, plus les deux qui imposent le raisonnement — une option `--raisonnement-impose` les laisse raisonner, sans quoi le banc les déclarait morts à tort : **aucun ne passe**. Les 429 de `laguna` sur Kilo viennent de son fournisseur en amont, pas de notre limite.
+- **Durée, seconde mesure un jour après** : `dots-3-note` 20/20, 18 valides, 0 rejet — 37/40 sur deux jours ; `nex-n2.5-mini` 20/20, 15 valides — 28/40, pile au seuil de 70 %, retenu de justesse et écrit comme tel.
+- **La sélection vit dans `stable-models.ts`**, chaque modèle avec sa mesure ; le défaut des quatre dirigeants en découle : **`dots-3-note-preview` remplace `longcat-2.0`**. `stable-models.test.ts` rend bruyant tout retour à un modèle non retenu, et vérifie que chacun est servi comme il a été mesuré.
+- Un test du serveur supposait qu'une partie distante sans clé tombe en panne ; avec un défaut sans clé, **il envoyait une vraie requête sur le réseau**. Il vérifie désormais ce chemin sur un modèle qui exige une clé.
+- L'espacement du banc vers Kilo passe de 4 à 18 s : la limite de 200 requêtes par heure vaut pour l'adresse, pas par modèle.
+- Nouvelle partie de 480 tours avec les seuls modèles retenus, en processus indépendant.
+- **Relevé au passage, non corrigé** : l'observatoire crée ses nouvelles parties en `spectator-9`. La diplomatie livrée en `spectator-10` n'y est donc jamais activée.
+- Vérifié : `tsc`, `vue-tsc`, **711 tests**.

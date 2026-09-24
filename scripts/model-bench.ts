@@ -60,7 +60,10 @@ const PROVIDERS: Record<string, Provider> = {
   kilo: {
     base: "https://api.kilo.ai/api/gateway",
     catalogue: "https://api.kilo.ai/api/gateway/models",
-    pace: 4,
+    // L'accès anonyme est limité à 200 requêtes par heure pour toute l'adresse
+    // IP, pas par modèle : un banc long à 4 s entre les appels la dépasse, et
+    // mesure alors la limite au lieu du modèle.
+    pace: 18,
   },
   ovh: {
     base: "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
@@ -175,7 +178,13 @@ async function bench(
   const source = PROVIDERS[provider!];
   if (!source) throw new Error(`Fournisseur inconnu : ${provider}`);
   const civ = activeCiv(state)!;
-  const parameters = await declaredParameters(provider!, model);
+  // --raisonnement-impose=a,b : certains modèles refusent qu'on leur interdise
+  // de raisonner (« Reasoning is mandatory ») — le produit, lui, ne le leur
+  // demande pas. Sans cette option, le banc les déclarait morts à tort.
+  const mandatory = arg("raisonnement-impose", "").split(",").includes(target);
+  const parameters = (await declaredParameters(provider!, model)).filter(
+    (name) => !mandatory || name !== "reasoning",
+  );
   let calls = 0;
   let latencyMs = 0;
   let finish: string | null = null;

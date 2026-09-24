@@ -1,10 +1,11 @@
 import type { FactionId } from "@abs/contracts";
+import { DEFAULT_COUNCIL_MODEL } from "./stable-models.js";
 
 const FACTIONS: FactionId[] = ["amber", "azure", "crimson", "verdant"];
 
 /**
- * Le modèle de chaque dirigeant. Par défaut le même pour les quatre, sans
- * repli silencieux.
+ * Le modèle de chaque dirigeant. Par défaut le même pour les quatre — le
+ * principal des modèles retenus (`stable-models.ts`) —, sans repli silencieux.
  *
  * - `AEVUM_COUNCIL_MODELS` : un modèle par civilisation,
  *   `amber=kilo:…,azure=nous:…`. Quatre modèles dans le même monde partagent la
@@ -19,7 +20,8 @@ export function defaultCouncilModels(
 ): Record<FactionId, string> {
   const full = env.AEVUM_COUNCIL_MODEL?.trim();
   const configured = env.NOUS_MODEL?.trim().replace(/^nous:/, "");
-  const model = full || `nous:${configured || "meituan/longcat-2.0:free"}`;
+  const model =
+    full || (configured ? `nous:${configured}` : DEFAULT_COUNCIL_MODEL);
   const models = Object.fromEntries(
     FACTIONS.map((civ) => [civ, model]),
   ) as Record<FactionId, string>;

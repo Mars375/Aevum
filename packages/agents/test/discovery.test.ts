@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { AddressInfo } from "node:net";
 import { createSpectatorServer } from "../../../scripts/spectator-server.js";
+import { DEFAULT_COUNCIL_MODEL } from "../src/stable-models.js";
 
 it("offers a verified recorded demo without credentials and stops bounded campaigns", async () => {
   const directory = mkdtempSync(join(tmpdir(), "aevum-discovery-"));
@@ -21,7 +22,7 @@ it("offers a verified recorded demo without credentials and stops bounded campai
       "aevum",
     );
     const settings = await (await request("/api/campaigns")).json();
-    expect(settings.defaultModels.amber).toBe("nous:meituan/longcat-2.0:free");
+    expect(settings.defaultModels.amber).toBe(DEFAULT_COUNCIL_MODEL);
     const remote = await (
       await request("/api/campaigns", {
         seed: 42,
@@ -33,13 +34,29 @@ it("offers a verified recorded demo without credentials and stops bounded campai
       await request(`/api/campaigns/${remote.id}`)
     ).json();
     expect(remoteBefore.campaign.models).toEqual(settings.defaultModels);
-    await request(`/api/campaigns/${remote.id}/step`, { turn: 0 });
+    // Le défaut sert sans clé : faire jouer cette partie-là enverrait une vraie
+    // requête sur le réseau. Le chemin « dirigeant injoignable » se vérifie donc
+    // sur un modèle qui, lui, exige une clé absente ici.
+    const keyed = await (
+      await request("/api/campaigns", {
+        seed: 42,
+        mode: "remote",
+        maxTurns: 12,
+        models: Object.fromEntries(
+          ["amber", "azure", "crimson", "verdant"].map((civ) => [
+            civ,
+            "nous:meituan/longcat-2.0:free",
+          ]),
+        ),
+      })
+    ).json();
+    await request(`/api/campaigns/${keyed.id}/step`, { turn: 0 });
     let unavailable = await (
-      await request(`/api/campaigns/${remote.id}`)
+      await request(`/api/campaigns/${keyed.id}`)
     ).json();
     for (let wait = 0; unavailable.busy && wait < 100; wait++) {
       await new Promise((resolve) => setTimeout(resolve, 10));
-      unavailable = await (await request(`/api/campaigns/${remote.id}`)).json();
+      unavailable = await (await request(`/api/campaigns/${keyed.id}`)).json();
     }
     expect(unavailable.busy).toBe(false);
     expect(unavailable.state.world.tick).toBe(0);

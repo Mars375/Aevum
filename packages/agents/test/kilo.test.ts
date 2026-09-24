@@ -168,8 +168,7 @@ describe("le modèle des conseils se choisit sans toucher au code", () => {
     expect(
       defaultCouncilModels({ NOUS_MODEL: "poolside/laguna-s-2.1:free" }).azure,
     ).toBe("nous:poolside/laguna-s-2.1:free");
-    expect(defaultCouncilModels({}).crimson).toBe(
-      "nous:meituan/longcat-2.0:free",
-    );
+    // Le défaut n'est plus longcat : il perd un tour sur sept en durée.
+    expect(defaultCouncilModels({}).crimson).toBe(DOTS);
   });
 });
