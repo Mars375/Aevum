@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1bd81384-facb-4ed0-8059-53f25f5750b7",
+    "title": "Économie de logement, objectifs réexaminés · en direct",
+    "seed": 42,
+    "version": "spectator-11",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 889,
+    "maxTurns": 300,
+    "live": true,
+    "updatedAt": "2026-09-26T21:29:42.818Z",
+    "path": "1bd81384-facb-4ed0-8059-53f25f5750b7.json"
+  },
+  {
+    "id": "696781ac-c047-4e90-a84a-4bf84960bbe4",
+    "title": "Économie de logement · 300 manches",
+    "seed": 42,
+    "version": "spectator-11",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-26T16:56:04.404Z",
+    "path": "696781ac-c047-4e90-a84a-4bf84960bbe4.json"
+  },
+  {
+    "id": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d",
+    "title": "Quatre modèles face à face",
+    "seed": 42,
+    "version": "spectator-10",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:nex-agi/nex-n2.5-mini:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-24T22:40:29.245Z",
+    "path": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d.json"
+  },
+  {
+    "id": "partie-modeles-stables",
+    "title": "Deux modèles retenus, quatre dirigeants · 480 tours",
+    "seed": 42,
+    "version": "spectator-10",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:nex-agi/nex-n2.5-mini:free",
+      "crimson": "kilo:dots-studio/dots-3-note-preview:free",
+      "verdant": "kilo:nex-agi/nex-n2.5-mini:free"
+    },
+    "turns": 480,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-24T17:24:52.287Z",
+    "path": "partie-modeles-stables.json"
+  },
+  {
+    "id": "nous-discovery",
+    "title": "Première chronique · modèles Nous",
+    "seed": 42,
+    "version": "spectator-1",
+    "mode": "remote",
+    "models": {
+      "amber": "nous:meituan/longcat-2.0:free",
+      "azure": "nous:poolside/laguna-xs-2.1:free",
+      "crimson": "nous:inclusionai/ling-3.0-flash-sante:free",
+      "verdant": "nous:poolside/laguna-s-2.1:free"
+    },
+    "turns": 50,
+    "maxTurns": 50,
+    "live": false,
+    "updatedAt": "2026-09-24T17:24:52.287Z",
+    "path": "nous-discovery.json"
+  }
+]
