@@ -1,0 +1,245 @@
+{
+  "checkedAt": "2026-09-24T22:16:30.960Z",
+  "situations": [
+    0,
+    100,
+    154,
+    208,
+    262,
+    316,
+    370,
+    424
+  ],
+  "summary": {
+    "kilo:dots-studio/dots-3-note-preview:free A": "0/8",
+    "kilo:dots-studio/dots-3-note-preview:free B": "0/8",
+    "mistral:codestral-latest A": "1/8",
+    "mistral:codestral-latest B": "1/8"
+  },
+  "rows": [
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 0,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 0,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 100,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 100,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 154,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 154,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 208,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 208,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 262,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 262,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 316,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 316,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 370,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 370,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 424,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 424,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 0,
+      "variant": "A",
+      "source": "remote",
+      "recruit": true
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 0,
+      "variant": "B",
+      "source": "remote",
+      "recruit": true
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 100,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 100,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 154,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 154,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 208,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 208,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 262,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 262,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 316,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 316,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 370,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 370,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 424,
+      "variant": "A",
+      "source": "remote",
+      "recruit": false
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 424,
+      "variant": "B",
+      "source": "remote",
+      "recruit": false
+    }
+  ]
+}

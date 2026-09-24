@@ -1,7 +1,7 @@
 /**
  * render-icons — les images de l'application, rendues depuis une seule source.
  *
- * \`packaging/msix/icon.svg\` est la seule icône : le Store demande des PNG à
+ * `packaging/msix/icon.svg` est la seule icône : le Store demande des PNG à
  * plusieurs tailles, le site une icône d'onglet. Les rendre à la main, c'est
  * les laisser diverger. Chrome (celui des contrôles navigateur) les rend ici,
  * fond transparent.

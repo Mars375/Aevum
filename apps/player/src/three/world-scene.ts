@@ -7,6 +7,8 @@ import {
 import { civilianModel } from "./civilian-models";
 import { buildingModel } from "./building-models";
 import { RelationsLayer } from "./relations-layer";
+import { ClimateLayer } from "./climate-layer";
+import { climateTint, type ClimateKind } from "./climate";
 import type { RelationsProjection } from "./relations-projection";
 import {
   BUILDING_ASSETS,
@@ -62,6 +64,8 @@ export class WorldScene {
   private tiles: THREE.InstancedMesh | null = null;
   /** Pactes, commerces, guerres et conquêtes, au-dessus du paysage. */
   private relations = new RelationsLayer(CIV_COLORS);
+  /** Neige, poussière ou poussières d'or : l'épisode climatique du tour. */
+  private climate = new ClimateLayer();
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
   private down = { x: 0, y: 0 };
@@ -144,7 +148,12 @@ export class WorldScene {
     );
     this.renderer.domElement.setAttribute("role", "img");
     host.appendChild(this.renderer.domElement);
-    this.scene.add(this.landscape, this.foundation, this.relations.group);
+    this.scene.add(
+      this.landscape,
+      this.foundation,
+      this.relations.group,
+      this.climate.group,
+    );
     if (this.immersive) {
       this.scene.background = new THREE.Color("#354b46");
       this.scene.fog = new THREE.FogExp2("#354b46", 0.025);
@@ -302,6 +311,7 @@ export class WorldScene {
     size: number,
     selected: FactionId | null,
     tick?: number,
+    climate: ClimateKind | null = null,
   ) {
     const consecutive =
       tick !== undefined &&
@@ -312,6 +322,7 @@ export class WorldScene {
     const changedSize = this.size !== size || !this.foundation.children.length;
     this.size = size;
     this.parcels = parcels;
+    this.climate.set(climate, size);
     this.clearLandscape();
     if (changedSize) {
       this.buildFoundation();
@@ -350,6 +361,8 @@ export class WorldScene {
           new THREE.Color(CIV_COLORS[place.owner]),
           selected === place.owner ? 0.52 : 0.19,
         );
+      const tint = climateTint(climate, place.kind);
+      if (tint) color.lerp(new THREE.Color(tint.color), tint.amount);
       if (selected && place.owner !== selected) color.multiplyScalar(0.75);
       this.tiles.setColorAt(index, color);
       for (const p of parcel.assets) {
@@ -757,6 +770,7 @@ export class WorldScene {
         if (progress === 1) this.marches = [];
         if (!this.motionPreference.matches) this.waterTime.value = time / 1000;
         this.relations.tick(time / 1000, this.motionPreference.matches);
+        this.climate.tick(time / 1000, this.motionPreference.matches);
         this.renderer.render(this.scene, this.camera);
         if (this.immersive && !this.motionPreference.matches) this.invalidate();
       }
@@ -927,6 +941,7 @@ export class WorldScene {
 
   dispose() {
     this.relations.dispose();
+    this.climate.dispose();
     if (this.disposed) return;
     this.disposed = true;
     this.showRoute([]);

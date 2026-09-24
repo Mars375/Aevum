@@ -16,6 +16,7 @@ import AgreementsPanel from "./components/AgreementsPanel.vue";
 import PlanHistory from "./components/PlanHistory.vue";
 import { projectWorld, CIV_COLORS } from "./three/world-projection";
 import { projectRelations } from "./three/relations-projection";
+import { climateKind } from "./three/climate";
 import {
   incidentFor,
   forecastFor,
@@ -1467,6 +1468,7 @@ onUnmounted(() => {
           :selected-unit="unitId"
           :orders-visible="hud"
           :relations="relations"
+          :climate="climateKind(incident)"
           @select-unit="selectUnit"
           @select="select"
         />

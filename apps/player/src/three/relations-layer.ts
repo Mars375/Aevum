@@ -15,7 +15,7 @@ import type { RelationsProjection } from "./relations-projection";
  *
  * Les matériaux sont non éclairés : une relation est une information, pas un
  * objet du monde, et elle doit se lire sous n'importe quel angle. Sans
- * mouvement demandé (\`prefers-reduced-motion\`), tout reste immobile.
+ * mouvement demandé (`prefers-reduced-motion`), tout reste immobile.
  */
 
 const ARC_BASE = 0.95;

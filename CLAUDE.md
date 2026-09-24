@@ -187,6 +187,15 @@ que le dépôt publie, c'est ce qu'il versionne.
     modèle ne l’innocente pas ; en essayer un autre, si.** Et un conseil fait
     9 197 jetons d’entrée : Groq gratuit (8 000 par minute) ne peut pas en
     servir un seul. Voir `docs/reports/fournisseurs.md`.
+11. **Les dirigeants ne font pas la guerre parce que rien ne manque, pas parce
+    que la consigne les en empêche.** Aucune conquête en trois parties longues,
+    contre 84 pour le dirigeant local : le moteur tranche bien la guerre. Le
+    modèle de réponse écrivait `"recruitSettler":false` ; la mesure A/B sur 8
+    situations réelles donne le même résultat avec `true or false` (0/8 et 1/8
+    des deux côtés) — **réfuté, la consigne n'a pas bougé.** La vraie cause : la
+    population croît à 1,5 % par tour pour tous, quoi qu'ils décident, le
+    logement ne limite jamais et les vivres s'accumulent. Fonder une ville ne
+    rapporte rien. Voir `docs/reports/pourquoi-pas-de-guerre.md`.
 
 ## Avant de dépenser du quota
 

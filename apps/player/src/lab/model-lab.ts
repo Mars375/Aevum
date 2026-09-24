@@ -28,6 +28,8 @@ import { infrastructureModel } from "../three/infrastructure-models";
 import type { InfrastructureKind } from "../three/infrastructure-assets";
 import { CIV_COLORS, projectWorld } from "../three/world-projection";
 import { RelationsLayer } from "../three/relations-layer";
+import { ClimateLayer } from "../three/climate-layer";
+import { climateTint, type ClimateKind } from "../three/climate";
 import {
   projectRelations,
   type RelationsWorld,
@@ -154,6 +156,10 @@ const group = new THREE.Group();
 scene.add(group);
 const legend: string[] = [];
 let relations: RelationsLayer | null = null;
+const climateParam = params.get("climate") as ClimateKind | null;
+const climate = new ClimateLayer();
+climate.set(climateParam, 5);
+scene.add(climate.group);
 if (params.get("scene") === "relations") {
   // Ambre au nord-ouest, Azur au nord-est, Pourpre au sud-ouest, Sylve au
   // sud-est ; Pourpre et Sylve se touchent au sud.
@@ -190,6 +196,9 @@ if (params.get("scene") === "relations") {
       z = Math.floor(index / 5) - 2;
     const land = new THREE.Color("#819469");
     if (owner) land.lerp(new THREE.Color(CIV_COLORS[owner]), 0.19);
+    // ?climate=winter|drought|harvest : la teinte du jeu, sur le plateau.
+    const tint = climateTint(climateParam, "plain");
+    if (tint) land.lerp(new THREE.Color(tint.color), tint.amount);
     tile(group, x, z, `#${land.getHexString()}`);
   });
   for (const civ of civs) {
@@ -251,6 +260,7 @@ const frozen = params.get("t");
 if (relations) {
   const loop = (time: number) => {
     relations!.tick(frozen ? Number(frozen) : time / 1000, false);
+    climate.tick(frozen ? Number(frozen) : time / 1000, false);
     renderer.render(scene, camera);
     if (!frozen) requestAnimationFrame(loop);
   };

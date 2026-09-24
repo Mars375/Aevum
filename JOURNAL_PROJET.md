@@ -659,3 +659,12 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Une légende ne montre que ce qui est sur la carte. **Mesuré avant de livrer** : posée dans la barre d’outils, elle chevauchait le bulletin de crise de 1 101 à 1 440 px et le panneau des dirigeants à 721 px (`qa:observatory`) ; déplacée dans la ligne d’instructions, aucun chevauchement sur trois parties à dix-huit largeurs. Un passage a signalé une largeur en échec sur la partie en direct, non reproduit ensuite : la partie avait changé entre deux passages, sans que la cause soit établie.
 - Réglé sur de vraies cartes, pas seulement dans l’atelier : sur son plateau de 5 × 5, des arcs deux fois plus fins semblaient suffire ; sur une carte de 13 × 13 vue de loin, ils ne se voyaient pas.
 - Constat en passant : les dirigeants distants ne conquièrent rien — aucune conquête dans les trois parties longues ; trois déclarations de guerre dans la plus ancienne.
+
+### 2026-09-25 — Pourquoi aucune guerre, le climat sur la carte, le paquet du Store
+
+- **Aucune conquête** en trois parties longues gouvernées par des modèles, contre 84 pour le dirigeant local : le moteur n’y est pour rien. Les modèles ne recrutent presque jamais de colon (1 en 480 tours, 0 en 1 075), donc ne fondent presque pas de villes, donc leurs frontières ne se touchent jamais.
+- **Hypothèse réfutée** : le modèle de réponse écrivait `"recruitSettler":false`. Mesuré A/B sur 8 situations réelles, deux modèles : aucun écart (0/8 et 1/8 des deux côtés). La consigne n’est pas modifiée.
+- **La vraie cause, mesurée** : la population croît identiquement pour les quatre civilisations quoi qu’elles décident ; le logement ne limite jamais ; les vivres s’accumulent. Proposition de rééquilibrage en `spectator-11`, **non appliquée** : c’est une décision de conception (`docs/reports/pourquoi-pas-de-guerre.md`).
+- **Le climat sur la carte** : l’hiver givre les cases et fait tomber la neige, la sécheresse les jaunit sous la poussière, la récolte dore les plaines. Défaut trouvé en regardant : en caméra orthographique, three.js lit la taille des particules en pixels — la neige faisait un cinquième de pixel.
+- **Paquet MSIX** pour le Microsoft Store, qui le signe gratuitement ; une icône, rendue à toutes les tailles et servant d’icône d’onglet au site. Installation non vérifiée localement : il faudrait le mode développeur, qui demande des droits d’administrateur.
+- `scripts/campaign-report.ts` : le bilan d’une partie, civilisation par civilisation, part servie par le modèle lui-même en tête.

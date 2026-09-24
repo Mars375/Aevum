@@ -9,7 +9,7 @@
  * Tout vient de l'état rejoué, rien d'une interprétation :
  *
  *  - un **pacte** en vigueur relie les deux capitales ;
- *  - un **commerce** (relation \`trade\`) les relie aussi, plus discrètement ;
+ *  - un **commerce** (relation `trade`) les relie aussi, plus discrètement ;
  *  - une **guerre** allume les frontières communes, ou relie les capitales
  *    quand les deux civilisations ne se touchent pas ;
  *  - une **conquête** se lit dans la différence entre deux tours : une case

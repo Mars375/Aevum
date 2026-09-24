@@ -6,8 +6,8 @@
  * exécutable soumis tel quel, lui, doit arriver déjà signé par un certificat
  * reconnu, c'est-à-dire acheté.
  *
- * Part de \`dist-app\` (\`npm run package\`), y ajoute le manifeste et les
- * images, et emballe avec \`makeappx\`, pris dans le paquet NuGet officiel
+ * Part de `dist-app` (`npm run package`), y ajoute le manifeste et les
+ * images, et emballe avec `makeappx`, pris dans le paquet NuGet officiel
  * Microsoft.Windows.SDK.BuildTools : rien à installer sur la machine.
  *
  * Le paquet produit n'est pas signé : c'est le Store qui le signe. Pour

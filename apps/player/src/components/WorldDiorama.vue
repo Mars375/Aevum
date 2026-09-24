@@ -11,6 +11,7 @@ import {
 import type { Mission } from "../../../../packages/world/src/commands";
 import type { WorldScene } from "../three/world-scene";
 import type { RelationsProjection } from "../three/relations-projection";
+import type { ClimateKind } from "../three/climate";
 import WorldMap from "./WorldMap.vue";
 const props = defineProps<{
   year: Year;
@@ -25,6 +26,8 @@ const props = defineProps<{
   focusEventKey?: string | number;
   /** Pactes, commerces, guerres et conquêtes à dessiner sur le monde. */
   relations?: RelationsProjection;
+  /** L'épisode climatique en cours, qui teinte le monde et anime le ciel. */
+  climate?: ClimateKind | null;
 }>();
 const emit = defineEmits<{
   select: [FactionId | null];
@@ -251,6 +254,7 @@ async function start() {
       props.year.world.size,
       props.selected,
       props.year.tick,
+      props.climate ?? null,
     );
     current.showRoute(props.route ?? []);
     if (props.relations) current.setRelations(props.relations);
@@ -263,7 +267,7 @@ async function start() {
   }
 }
 watch(
-  () => [props.parcels, props.selected, props.route] as const,
+  () => [props.parcels, props.selected, props.route, props.climate] as const,
   () => {
     if (ready.value) {
       scene?.update(
@@ -271,6 +275,7 @@ watch(
         props.year.world.size,
         props.selected,
         props.year.tick,
+        props.climate ?? null,
       );
       scene?.showRoute(props.route ?? []);
     }
