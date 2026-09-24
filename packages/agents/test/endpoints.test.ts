@@ -29,6 +29,13 @@ describe("model references carry their provider", () => {
       model: "meta/llama-3.3-70b-instruct",
     });
     expect(parseModelRef("mistral:mistral-large-latest")).toEqual({ provider: "mistral", model: "mistral-large-latest" });
+    // The explicit prefix went out verbatim, and OpenRouter refused the id.
+    expect(parseModelRef("openrouter:dots-studio/dots-3-note-preview:free")).toEqual({
+      provider: "openrouter",
+      model: "dots-studio/dots-3-note-preview:free",
+    });
+    expect(isFreeRef("openrouter:dots-studio/dots-3-note-preview:free")).toBe(true);
+    expect(isFreeRef("openrouter:anthropic/claude-opus")).toBe(false);
   });
 
   it("checks free-ness the way each provider actually expresses it", () => {

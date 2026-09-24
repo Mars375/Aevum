@@ -3,8 +3,10 @@ import {
   DEFAULT_COUNCIL_MODEL,
   STABLE_FREE_MODELS,
   NATIVE_SCHEMA_MODELS,
+  ENDPOINTS,
   canCall,
   isFreeRef,
+  parseModelRef,
 } from "@abs/agents";
 import { REASONING_OFF_MODELS } from "../src/roster.js";
 import { defaultCouncilModels } from "../src/default-models.js";
@@ -25,20 +27,32 @@ describe("la sélection des modèles gratuits stables", () => {
   });
 
   /**
-   * Un modèle retenu l'a été dans des conditions précises : gratuit, sans
-   * clé, sortie structurée native, raisonnement bridé. Le servir autrement,
-   * c'est servir un modèle qui n'a pas été mesuré.
+   * Un modèle retenu l'a été dans des conditions précises : gratuit, schéma
+   * natif ou non, raisonnement bridé ou non. Le servir autrement, c'est servir
+   * un modèle qui n'a pas été mesuré — le préfixe `openrouter:` partait tel
+   * quel et OpenRouter refusait l'identifiant, pendant que le banc, qui le
+   * retirait, mesurait 20/20.
    */
   it("est servi comme il a été mesuré", () => {
-    for (const { ref, evidence } of STABLE_FREE_MODELS) {
+    for (const { ref, key, measuredAs, evidence } of STABLE_FREE_MODELS) {
       expect(isFreeRef(ref), ref).toBe(true);
-      expect(canCall(ref, {}), `${ref} sans clé`).toBe(true);
-      expect(NATIVE_SCHEMA_MODELS.has(ref), ref).toBe(true);
-      expect(REASONING_OFF_MODELS.has(ref), ref).toBe(true);
+      expect(canCall(ref, {}), `${ref} sans clé`).toBe(key === null);
+      const { provider } = parseModelRef(ref);
+      if (key) {
+        expect(ENDPOINTS[provider].keyEnv, ref).toBe(key);
+        expect(canCall(ref, { [provider]: "fixture" }), ref).toBe(true);
+      }
+      expect(NATIVE_SCHEMA_MODELS.has(ref), ref).toBe(measuredAs.nativeSchema);
+      expect(REASONING_OFF_MODELS.has(ref), ref).toBe(measuredAs.reasoningOff);
       expect(
         evidence.length,
         `${ref} : la mesure qui le justifie`,
       ).toBeGreaterThan(20);
     }
+  });
+
+  it("tourne sans rien configurer", () => {
+    expect(STABLE_FREE_MODELS[0]!.role).toBe("principal");
+    expect(STABLE_FREE_MODELS[0]!.key).toBeNull();
   });
 });

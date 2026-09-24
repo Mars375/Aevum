@@ -595,3 +595,12 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **Sans clé** : OVH fermé pour notre adresse (429 en 0,1 s, deux jours de suite) ; LLM7 sert quatre modèles sans compte payant, **0/6 chacun** au banc (sa limite de 60 requêtes par heure, réponses hors format, délais). Le JavaScript obfusqué renvoyé par `GLM-5.3-Flash`, déplié sans exécution, se réduit à une phrase d'exemple : le modèle recrache ses données, rien d'injecté.
 - **Avec un compte** : Mistral et OpenRouter sont les deux qui valent l'effort. Aucune de ces clés n'existe ici — chez Hermes, `OPENROUTER_API_KEY` est une ligne commentée et vide.
 - Le banc mesure désormais OpenRouter et Mistral, envoie à chaque fournisseur sa propre clé, et s'arrête avec un message clair si elle manque. La sonde et le banc lisent aussi un `.env` local, comme le serveur : une clé qui y était posée restait jusqu'ici invisible pour eux.
+
+### 2026-09-24 — OpenRouter et Mistral mesurés : deux entrées de plus
+
+- Les clés posées par `setx` n'étaient pas vues : le chargeur des variables Windows ne lisait que celles de Nous. Il lit désormais aussi Kilo, Mistral et OpenRouter, sans jamais les imprimer.
+- **Crible de 26 modèles**, second essai à 90 s pour les délais et les 429. Quatre modèles Mistral (`small`, `medium`, `magistral` ×2) sont **fermés à cette clé** — `x-ratelimit-limit-req-minute: 0` — et non saturés.
+- **Banc** : quatre passent sur treize. **Durée** : `codestral` 20/20, 19 valides, 0 rejet ; `dots-3-note` par OpenRouter 20/20, 17 valides, 1 rejet. `nex-n2.5-mini` par OpenRouter 7/20 contre 13 et 15 par Kilo : même modèle, autre hébergeur, autre candidat. `nemotron-3-super` 5/20.
+- **Le contrôle par le produit a trouvé un défaut** : `openrouter:…` partait tel quel et OpenRouter refusait l'identifiant, pendant que le banc, qui retire le préfixe, mesurait 20/20. `parseModelRef` accepte le préfixe ; ensuite 12/12 pour chacun, rejeu vérifié.
+- `stable-models.ts` : quatre entrées, chacune avec sa clé et ses conditions de mesure (schéma natif, raisonnement bridé), que le test confronte à ce que le produit envoie. Le principal reste sans clé.
+- Limite : la gratuité de Mistral tient au compte, non vérifiée côté facturation ; `codestral` n'a qu'un jour de mesure.

@@ -15,6 +15,8 @@ export const NATIVE_SCHEMA_MODELS = new Set([
   // Banc apparié du 23 septembre, en mode natif : 20/20 tours consécutifs chacun.
   "kilo:dots-studio/dots-3-note-preview:free",
   "kilo:nex-agi/nex-n2.5-mini:free",
+  // Le même dots par OpenRouter, mesuré le 24 septembre dans les mêmes conditions.
+  "openrouter:dots-studio/dots-3-note-preview:free",
 ]);
 
 export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(model);
@@ -32,6 +34,9 @@ export const supportsNativeSchema = (model: string) => NATIVE_SCHEMA_MODELS.has(
 export const REASONING_OFF_MODELS = new Set([
   "kilo:dots-studio/dots-3-note-preview:free",
   "kilo:nex-agi/nex-n2.5-mini:free",
+  // Le banc l'a mesuré par OpenRouter raisonnement bridé : le servir sans,
+  // c'est servir un modèle qui n'a pas été mesuré.
+  "openrouter:dots-studio/dots-3-note-preview:free",
 ]);
 
 export const reasoningOff = (model: string) =>

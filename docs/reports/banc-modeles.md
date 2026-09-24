@@ -239,11 +239,91 @@ jamais par la session :
 | Groq             | 8 000 jetons par minute                      | inutilisable : un conseil en fait 9 200                       |
 | Google AI Studio | 20 requêtes par jour                         | trop peu                                                      |
 
-Aucune clé Mistral ni OpenRouter n'existe sur cette machine : chez Hermes,
-`OPENROUTER_API_KEY` n'est qu'une ligne commentée et vide. Le banc sait les
-mesurer dès qu'elles sont posées (`.env` ou variables Windows) ; il s'arrête
-avec un message clair si elles manquent, plutôt que de déclarer les modèles
-morts, et refuse tout modèle OpenRouter qui n'est pas `:free`.
+Les clés posées, les deux plateformes ont été mesurées — section suivante.
+
+## OpenRouter et Mistral, mesurés le même jour
+
+Les deux clés posées, les deux catalogues gratuits sont passés par les mêmes
+trois étapes, avec les mêmes critères. La clé OpenRouter a déjà servi un achat :
+elle a droit à 1 000 requêtes gratuites par jour, et le banc refuse tout modèle
+qui n'est pas `:free`.
+
+**Crible, 26 modèles** (19 OpenRouter `:free` — le classifieur
+`nemotron-3.5-content-safety` écarté —, 7 Mistral). Onze répondent du premier
+coup ; les délais et les 429 ont eu leur second essai, 90 s plus tard.
+
+- `laguna-s-2.1` et `laguna-xs-2.1`, saturés chez Nous et Kilo, répondent par
+  OpenRouter au second essai.
+- `mistral-small`, `mistral-medium`, `magistral-small` et `magistral-medium`
+  répondent 429 à chaque fois. Ce n'est pas une saturation : l'en-tête dit
+  `x-ratelimit-limit-req-minute: 0`, ces modèles sont fermés à cette clé.
+- `inkling` et `inkling-small` : 403. `lfm-2.5` : 400. `qwen3.8`, `glm-5.2`,
+  `gemma-4` (deux tailles) : 429 aux deux essais. `nex-n2.5-pro`,
+  `nemotron-3.5-lightning` : délai dépassé aux deux essais.
+
+**Banc apparié, 6 situations** (au moins 5 réponses, 3 valides du premier coup) :
+
+| modèle                                  | répond | 1er coup | rejets | médiane | verdict |
+| --------------------------------------- | -----: | -------: | -----: | ------: | ------- |
+| `openrouter:dots-3-note-preview:free`   |    6/6 |        5 |      1 |   1,3 s | passe   |
+| `openrouter:nemotron-3-super-120b:free` |    5/6 |        4 |      1 |   0,6 s | passe   |
+| `mistral:codestral-latest`              |    6/6 |        4 |      0 |   4,6 s | passe   |
+| `openrouter:nex-n2.5-mini:free`         |    6/6 |        3 |      1 |   2,1 s | passe   |
+| `openrouter:ling-3.0-flash-sante:free`  |    6/6 |        2 |      3 |   1,9 s | non     |
+| `openrouter:nemotron-3-ultra:free`      |    4/6 |        2 |      1 |   0,9 s | non     |
+| `mistral:ministral-8b-latest`           |    4/6 |        2 |      2 |    10 s | non     |
+| `openrouter:laguna-s-2.1:free`          |    4/6 |        1 |      5 |   1,2 s | non     |
+| `mistral:ministral-14b-latest`          |    3/6 |        2 |      1 |     8 s | non     |
+| `openrouter:nemotron-3-nano-omni:free`  |    3/6 |        3 |      0 |   0,4 s | non     |
+| `openrouter:ling-3.0-flash-fin:free`    |    6/6 |        0 |      2 |   2,2 s | non     |
+| `openrouter:north-mini-code:free`       |    6/6 |        0 |      8 |   1,1 s | non     |
+| `openrouter:laguna-xs-2.1:free`         |    0/6 |        0 |      — |       — | non     |
+
+Les deux `ministral` renvoient un JSON illisible sur deux situations de milieu
+de partie : en mode prompt, sans schéma imposé, ils ne tiennent pas le format.
+
+**Durée, 20 tours d'affilée** (20/20, 14 valides du premier coup, 4 rejets au
+plus, médiane de 15 s au plus) :
+
+| modèle                                  | tours | 1er coup | rejets | relances | médiane | verdict |
+| --------------------------------------- | ----: | -------: | -----: | -------: | ------: | ------- |
+| `mistral:codestral-latest`              | 20/20 |       19 |      0 |        0 |   5,1 s | passe   |
+| `openrouter:dots-3-note-preview:free`   | 20/20 |       17 |      1 |        0 |   1,3 s | passe   |
+| `openrouter:nex-n2.5-mini:free`         | 20/20 |        7 |      3 |        0 |   2,1 s | non     |
+| `openrouter:nemotron-3-super-120b:free` | 20/20 |        5 |      5 |        5 |   1,2 s | non     |
+
+`nex-n2.5-mini` fait 7/20 par OpenRouter contre 13 et 15 par Kilo : le même
+modèle, servi par un autre hébergeur, n'est pas le même candidat. Seule la route
+Kilo reste retenue.
+
+**Par le chemin du produit, 12 tours chacun** (`remote-campaign-probe`) :
+`codestral` 12/12 servis par lui-même, 1 rejet, médiane 4,8 s ; `dots-3-note`
+par OpenRouter 12/12, 1 rejet, médiane 5,1 s. Rejeu vérifié pour les deux.
+
+Ce dernier contrôle a trouvé un défaut que le banc ne pouvait pas voir : le
+produit envoyait `openrouter:dots-studio/…` **tel quel**, préfixe compris, et
+OpenRouter refusait l'identifiant — trois essais, trois échecs au premier tour.
+Le banc, qui retire le préfixe lui-même, mesurait 20/20. `parseModelRef`
+accepte désormais le préfixe explicite, testé, et `stable-models.test.ts`
+confronte chaque modèle retenu à ce que le produit envoie réellement.
+
+**La liste retenue** (`packages/agents/src/stable-models.ts`) :
+
+| rôle         | modèle                                            | clé                  |
+| ------------ | ------------------------------------------------- | -------------------- |
+| principal    | `kilo:dots-studio/dots-3-note-preview:free`       | aucune               |
+| second choix | `mistral:codestral-latest`                        | `MISTRAL_API_KEY`    |
+| secours      | `openrouter:dots-studio/dots-3-note-preview:free` | `OPENROUTER_API_KEY` |
+| second choix | `kilo:nex-agi/nex-n2.5-mini:free`                 | aucune               |
+
+`codestral` est le meilleur mesuré du jour — 19/20 du premier coup, zéro rejet —
+mais sur **un seul jour**, là où `dots` et `nex-mini` en ont deux. Il n'est pas
+promu principal pour autant : le principal doit tourner sans clé.
+
+**Ce que ce passage ne prouve pas.** La gratuité de Mistral est une propriété du
+compte, pas du modèle : rien dans l'API ne dit qu'une clé est au palier gratuit.
+Les limites à zéro sur les modèles `medium` et `magistral` y ressemblent ; la
+facturation, elle, n'a pas été vérifiée ici.
 
 ## Ce qui change dans le dépôt
 
@@ -254,6 +334,9 @@ morts, et refuse tout modèle OpenRouter qui n'est pas `:free`.
   fournisseur ; `NOUS_MODEL` reste lu, pour Nous seul.
 - `dots-3-note` et `nex-n2.5-mini` rejoignent les modèles à sortie structurée
   native et à raisonnement bridé — mesurés, pas supposés.
+- **`codestral` (Mistral) et `dots-3-note` par OpenRouter rejoignent la
+  liste**, chacun avec sa clé ; `parseModelRef` accepte le préfixe
+  `openrouter:`, qui partait tel quel et faisait refuser l'identifiant.
 - `npm run bench:models` reste : le prochain modèle se mesure en une commande,
   apparié, puis en durée.
 

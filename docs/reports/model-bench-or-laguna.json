@@ -1,0 +1,232 @@
+{
+ "checkedAt": "2026-09-24T09:05:59.237Z",
+ "rules": "spectator-10",
+ "situations": [
+  {
+   "seed": 42,
+   "turn": 0
+  },
+  {
+   "seed": 42,
+   "turn": 2
+  },
+  {
+   "seed": 42,
+   "turn": 13
+  },
+  {
+   "seed": 42,
+   "turn": 30
+  },
+  {
+   "seed": 7,
+   "turn": 4
+  },
+  {
+   "seed": 7,
+   "turn": 20
+  }
+ ],
+ "rows": [
+  {
+   "target": "openrouter:poolside/laguna-s-2.1:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": true,
+   "firstTry": true,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 842,
+   "rejected": 0,
+   "rejectDetails": [],
+   "outsideOptions": 0,
+   "finish": "stop",
+   "completionTokens": 511,
+   "error": null
+  },
+  {
+   "target": "openrouter:poolside/laguna-xs-2.1:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 902,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:poolside/laguna-s-2.1:free",
+   "situation": "graine 42, tour 2",
+   "civ": "crimson",
+   "answered": true,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 2,
+   "latencyMs": 2254,
+   "rejected": 1,
+   "rejectDetails": [
+    "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+   ],
+   "outsideOptions": 0,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": null
+  },
+  {
+   "target": "openrouter:poolside/laguna-xs-2.1:free",
+   "situation": "graine 42, tour 2",
+   "civ": "crimson",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 255,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:poolside/laguna-s-2.1:free",
+   "situation": "graine 42, tour 13",
+   "civ": "azure",
+   "answered": true,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 2,
+   "latencyMs": 1757,
+   "rejected": 2,
+   "rejectDetails": [
+    "Accord refusé : propose (Un échange doit porter sur au moins une ressource)",
+    "Construction refusée : city-azure-21 / walls"
+   ],
+   "outsideOptions": 0,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": null
+  },
+  {
+   "target": "openrouter:poolside/laguna-xs-2.1:free",
+   "situation": "graine 42, tour 13",
+   "civ": "azure",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 225,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:poolside/laguna-s-2.1:free",
+   "situation": "graine 42, tour 30",
+   "civ": "crimson",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 394,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:poolside/laguna-xs-2.1:free",
+   "situation": "graine 42, tour 30",
+   "civ": "crimson",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 678,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:poolside/laguna-s-2.1:free",
+   "situation": "graine 7, tour 4",
+   "civ": "amber",
+   "answered": true,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 2,
+   "latencyMs": 1232,
+   "rejected": 2,
+   "rejectDetails": [
+    "Construction refusée : city-amber / granary",
+    "Movement cannot replace an attack order"
+   ],
+   "outsideOptions": 1,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": null
+  },
+  {
+   "target": "openrouter:poolside/laguna-xs-2.1:free",
+   "situation": "graine 7, tour 4",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 232,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:poolside/laguna-s-2.1:free",
+   "situation": "graine 7, tour 20",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 300,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:poolside/laguna-xs-2.1:free",
+   "situation": "graine 7, tour 20",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 278,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  }
+ ]
+}

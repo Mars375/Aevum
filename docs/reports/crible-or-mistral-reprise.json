@@ -1,0 +1,226 @@
+{
+ "checkedAt": "2026-09-24T08:58:18.196Z",
+ "rules": "spectator-10",
+ "situations": [
+  {
+   "seed": 42,
+   "turn": 0
+  },
+  {
+   "seed": 42,
+   "turn": 2
+  },
+  {
+   "seed": 42,
+   "turn": 13
+  },
+  {
+   "seed": 42,
+   "turn": 30
+  },
+  {
+   "seed": 7,
+   "turn": 4
+  },
+  {
+   "seed": 7,
+   "turn": 20
+  }
+ ],
+ "rows": [
+  {
+   "target": "openrouter:nex-agi/nex-n2.5-pro:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 44471,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 200",
+   "completionTokens": null,
+   "error": "Délai de réponse IA dépassé"
+  },
+  {
+   "target": "openrouter:qwen/qwen3.8-27b:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 253,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:nvidia/nemotron-3.5-lightning:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 0,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": null,
+   "completionTokens": null,
+   "error": "Délai dépassé sur la complétion Nous"
+  },
+  {
+   "target": "openrouter:poolside/laguna-s-2.1:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": true,
+   "firstTry": true,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 882,
+   "rejected": 0,
+   "rejectDetails": [],
+   "outsideOptions": 0,
+   "finish": "stop",
+   "completionTokens": 515,
+   "error": null
+  },
+  {
+   "target": "openrouter:poolside/laguna-xs-2.1:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": true,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 2,
+   "latencyMs": 1277,
+   "rejected": 1,
+   "rejectDetails": [
+    "Recrutement du colon refusé : réserves insuffisantes ou limite atteinte"
+   ],
+   "outsideOptions": 0,
+   "finish": "stop",
+   "completionTokens": 835,
+   "error": null
+  },
+  {
+   "target": "openrouter:z-ai/glm-5.2:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 456,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:google/gemma-4-26b-a4b-it:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 224,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "openrouter:google/gemma-4-31b-it:free",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 173,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "mistral:mistral-small-latest",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 225,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "mistral:mistral-medium-latest",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 267,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "mistral:magistral-small-latest",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 233,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  },
+  {
+   "target": "mistral:magistral-medium-latest",
+   "situation": "graine 42, tour 0",
+   "civ": "amber",
+   "answered": false,
+   "firstTry": false,
+   "corrected": false,
+   "calls": 1,
+   "latencyMs": 226,
+   "rejected": null,
+   "rejectDetails": [],
+   "outsideOptions": null,
+   "finish": "HTTP 429",
+   "completionTokens": null,
+   "error": "Nous HTTP 429"
+  }
+ ]
+}

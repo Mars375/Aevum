@@ -107,6 +107,10 @@ export function parseModelRef(ref: string): ModelRef {
   if (ref.startsWith("nvidia:")) return { provider: "nvidia", model: ref.slice(7) };
   if (ref.startsWith("mistral:")) return { provider: "mistral", model: ref.slice(8) };
   if (ref.startsWith("kilo:")) return { provider: "kilo", model: ref.slice(5) };
+  // OpenRouter is the unprefixed default, but the explicit form is what every
+  // other provider uses. It went out verbatim — "not a valid model ID", three
+  // tries, three failures — while the bench, which strips it, measured 20/20.
+  if (ref.startsWith("openrouter:")) return { provider: "openrouter", model: ref.slice(11) };
   return { provider: "openrouter", model: ref };
 }
 

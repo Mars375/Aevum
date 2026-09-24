@@ -1,8 +1,22 @@
 import { execFileSync } from "node:child_process";
 
-const names = ["NOUS_API_KEY", "NOUS_MODEL"] as const;
+/**
+ * Les réglages lus dans les variables Windows, et eux seuls.
+ *
+ * Une clé posée par `setx` n'atteint pas les processus déjà lancés : le
+ * terminal qui lance la sonde ne la voit pas. Les clés Mistral et OpenRouter
+ * étaient pourtant posées — le banc les déclarait absentes parce que seule
+ * celle de Nous était lue ici.
+ */
+const names = [
+  "NOUS_API_KEY",
+  "NOUS_MODEL",
+  "KILO_API_KEY",
+  "MISTRAL_API_KEY",
+  "OPENROUTER_API_KEY",
+] as const;
 
-/** Read only the two supported Windows settings, without persisting secrets. */
+/** Read only the supported Windows settings, without persisting secrets. */
 export function loadWindowsNousEnvironment(
   env: NodeJS.ProcessEnv = process.env,
   platform: NodeJS.Platform = process.platform,
@@ -15,7 +29,7 @@ export function loadWindowsNousEnvironment(
         "-NoProfile",
         "-NonInteractive",
         "-Command",
-        `$ErrorActionPreference = 'Stop'; $values = @{}; foreach ($name in @('NOUS_API_KEY', 'NOUS_MODEL')) { $value = [Environment]::GetEnvironmentVariable($name, 'User'); if ([string]::IsNullOrWhiteSpace($value)) { $value = [Environment]::GetEnvironmentVariable($name, 'Machine') }; if (-not [string]::IsNullOrWhiteSpace($value)) { $values[$name] = $value } }; ConvertTo-Json -InputObject $values -Compress`,
+        `$ErrorActionPreference = 'Stop'; $values = @{}; foreach ($name in @(${names.map((name) => `'${name}'`).join(", ")})) { $value = [Environment]::GetEnvironmentVariable($name, 'User'); if ([string]::IsNullOrWhiteSpace($value)) { $value = [Environment]::GetEnvironmentVariable($name, 'Machine') }; if (-not [string]::IsNullOrWhiteSpace($value)) { $values[$name] = $value } }; ConvertTo-Json -InputObject $values -Compress`,
       ],
       {
         encoding: "utf8",

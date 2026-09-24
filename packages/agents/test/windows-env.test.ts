@@ -14,7 +14,13 @@ describe("Windows Nous environment", () => {
     const run = vi.mocked(childProcess.execFileSync);
     loadWindowsNousEnvironment({}, "linux");
     loadWindowsNousEnvironment(
-      { NOUS_API_KEY: "existing", NOUS_MODEL: "existing" },
+      {
+        NOUS_API_KEY: "existing",
+        NOUS_MODEL: "existing",
+        KILO_API_KEY: "existing",
+        MISTRAL_API_KEY: "existing",
+        OPENROUTER_API_KEY: "existing",
+      },
       "win32",
     );
     expect(run).not.toHaveBeenCalled();
