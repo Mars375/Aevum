@@ -674,3 +674,9 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Un **nouvel âge** fait monter une colonne de lumière de la capitale, avec un anneau qui s’étend ; une **fondation** marque la ville nouvelle d’un anneau aux couleurs de sa civilisation. Lus, comme les conquêtes, dans la différence entre deux tours et dans `ageTransitions` ; légende complétée. Mesuré à dix-huit largeurs sur deux parties : aucun chevauchement.
 - **`?at=N`** ouvre une partie à l’action N : un lien peut désigner un moment plutôt que la partie entière. Le paramètre est lu avant le chargement, qui réécrit l’adresse.
 - **Le site n’avait pas besoin d’être allégé** : mesuré, la partie de 480 tours pèse 49 Ko transférés (0,8 Mo avant compression), celle de 1 144 tours 90 Ko ; la bibliothèque 3D 141 Ko. L’inquiétude d’« un méga-octet par partie » oubliait la compression.
+
+### 2026-09-25 — La partie à quatre modèles, terminée
+
+- **1 200 actions, 300 manches, chacune jouée par le modèle demandé** (300/300 pour les quatre), rejeu vérifié. Deux suspensions du direct sur Ambre avant l’allègement du conseil, aucune après.
+- Des styles très différents, des résultats voisins : Azur (`nex-n2.5-mini`) mène 46 plans et se trompe le plus (61 ordres rejetés) ; Pourpre (`codestral`) reste 300 tours « équilibré », un plan, un rejet ; Sylve (`dots` par OpenRouter) mise sur la croissance et reste au Moyen Âge quand Ambre (`dots` par Kilo) atteint le futur. Aucune guerre, aucune conquête, aucune famine.
+- Écrit comme ce qu’il est : une partie, pas un classement (`docs/reports/quatre-modeles-bilan.md`). Les résultats se ressemblent aussi parce que le monde ne sépare pas les décisions (`pourquoi-pas-de-guerre.md`).

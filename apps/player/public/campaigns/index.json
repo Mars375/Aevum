@@ -1,7 +1,7 @@
 [
   {
     "id": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d",
-    "title": "Quatre modèles face à face",
+    "title": "Quatre modèles face à face · 300 manches",
     "seed": 42,
     "version": "spectator-10",
     "mode": "remote",
@@ -11,10 +11,10 @@
       "crimson": "mistral:codestral-latest",
       "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
     },
-    "turns": 178,
+    "turns": 1200,
     "maxTurns": 300,
-    "live": true,
-    "updatedAt": "2026-09-24T16:54:55.534Z",
+    "live": false,
+    "updatedAt": "2026-09-24T22:41:39.091Z",
     "path": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d.json"
   },
   {

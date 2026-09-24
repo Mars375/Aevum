@@ -1,0 +1,160 @@
+{
+  "checkedAt": "2026-09-24T22:41:02.779Z",
+  "campaign": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d",
+  "rules": "spectator-10",
+  "seed": 42,
+  "actions": 1200,
+  "rounds": 300,
+  "finished": true,
+  "reason": "turn-limit",
+  "replayVerified": true,
+  "freeLand": 125,
+  "board": 169,
+  "events": {
+    "FOUNDED": 4,
+    "BUILT": 153,
+    "ADVANCE": 42,
+    "WAR": 0,
+    "PEACE": 10,
+    "PACT": 2,
+    "PACT_FULFILLED": 2,
+    "PACT_BROKEN": 0,
+    "TRANSFER": 0,
+    "SEIZED": 0,
+    "ROUTED": 0,
+    "STARVED": 0
+  },
+  "civilizations": [
+    {
+      "civ": "amber",
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turns": 300,
+      "servedByModelItself": 300,
+      "servedShare": 1,
+      "rankable": true,
+      "rejectedOrders": 14,
+      "turnsWithoutRejection": 286,
+      "medianLatencyMs": 4710,
+      "age": "future",
+      "alive": true,
+      "population": 568,
+      "cities": 2,
+      "territory": 5,
+      "advances": 6,
+      "completedPlans": 21,
+      "ranks": {
+        "population": 4,
+        "cities": 1,
+        "advances": 1,
+        "completedPlans": 2
+      },
+      "settlersRecruited": 0,
+      "focus": {
+        "balanced": 192,
+        "growth": 12,
+        "industry": 39,
+        "science": 57
+      },
+      "diplomacyProposals": {}
+    },
+    {
+      "civ": "azure",
+      "model": "kilo:nex-agi/nex-n2.5-mini:free",
+      "turns": 300,
+      "servedByModelItself": 300,
+      "servedShare": 1,
+      "rankable": true,
+      "rejectedOrders": 61,
+      "turnsWithoutRejection": 251,
+      "medianLatencyMs": 3313,
+      "age": "future",
+      "alive": true,
+      "population": 612,
+      "cities": 2,
+      "territory": 6,
+      "advances": 6,
+      "completedPlans": 46,
+      "ranks": {
+        "population": 1,
+        "cities": 1,
+        "advances": 1,
+        "completedPlans": 1
+      },
+      "settlersRecruited": 0,
+      "focus": {
+        "growth": 96,
+        "science": 117,
+        "balanced": 38,
+        "industry": 49
+      },
+      "diplomacyProposals": {
+        "peace": 22,
+        "trade": 15
+      }
+    },
+    {
+      "civ": "crimson",
+      "model": "mistral:codestral-latest",
+      "turns": 300,
+      "servedByModelItself": 300,
+      "servedShare": 1,
+      "rankable": true,
+      "rejectedOrders": 1,
+      "turnsWithoutRejection": 299,
+      "medianLatencyMs": 3833,
+      "age": "future",
+      "alive": true,
+      "population": 612,
+      "cities": 2,
+      "territory": 6,
+      "advances": 6,
+      "completedPlans": 1,
+      "ranks": {
+        "population": 1,
+        "cities": 1,
+        "advances": 1,
+        "completedPlans": 4
+      },
+      "settlersRecruited": 0,
+      "focus": {
+        "balanced": 300
+      },
+      "diplomacyProposals": {
+        "peace": 17
+      }
+    },
+    {
+      "civ": "verdant",
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "turns": 300,
+      "servedByModelItself": 300,
+      "servedShare": 1,
+      "rankable": true,
+      "rejectedOrders": 2,
+      "turnsWithoutRejection": 298,
+      "medianLatencyMs": 5489,
+      "age": "medieval",
+      "alive": true,
+      "population": 612,
+      "cities": 2,
+      "territory": 6,
+      "advances": 6,
+      "completedPlans": 11,
+      "ranks": {
+        "population": 1,
+        "cities": 1,
+        "advances": 1,
+        "completedPlans": 3
+      },
+      "settlersRecruited": 0,
+      "focus": {
+        "balanced": 44,
+        "growth": 248,
+        "industry": 7,
+        "science": 1
+      },
+      "diplomacyProposals": {}
+    }
+  ],
+  "method": "Classements indépendants, par valeur décroissante, avec rang partagé en cas d'égalité. Aucun score composite ni vainqueur désigné. Les plans terminés sont dédupliqués dans l'historique fourni ; sans historique, seul le plan courant est compté."
+}
