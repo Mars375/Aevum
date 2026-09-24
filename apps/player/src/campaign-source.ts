@@ -94,14 +94,21 @@ const idle: LiveStatus = {
  *
  * Un hébergeur statique configuré en application (`try_files … /index.html`)
  * répond **200 avec la page HTML** pour un fichier absent : `res.ok` est vrai,
- * et c'est `res.json()` qui lève, loin de la cause. On regarde donc le type.
+ * et c'est `res.json()` qui lève, loin de la cause. Une réponse HTML est donc
+ * refusée comme un fichier absent. On n'exige pas `application/json` : GitHub
+ * sert la publication en direct en `text/plain`.
  */
 async function json<T>(fetcher: typeof fetch, url: string): Promise<T> {
   const response = await fetcher(url, { cache: "no-store" });
   if (!response.ok) throw new Error(`${url} : HTTP ${response.status}`);
-  if (!response.headers.get("content-type")?.includes("json"))
-    throw new Error(`${url} : pas un fichier JSON (fichier absent ?)`);
-  return (await response.json()) as T;
+  const absent = `${url} : pas un fichier JSON (fichier absent ?)`;
+  if (response.headers.get("content-type")?.includes("html"))
+    throw new Error(absent);
+  try {
+    return JSON.parse(await response.text()) as T;
+  } catch {
+    throw new Error(absent);
+  }
 }
 
 export function localSource(
@@ -117,26 +124,65 @@ export function localSource(
   };
 }
 
+/**
+ * Où lire la publication en direct : la branche `campagnes` du dépôt, que
+ * `npm run publish:campaigns -- --push` remplace à chaque publication. Le
+ * site n'a pas à être reconstruit pour qu'une partie avance à l'écran.
+ */
+export const LIVE_PUBLICATION =
+  "https://raw.githubusercontent.com/Mars375/Aevum/campagnes/";
+
+type Located = PublishedCampaign & { base: string };
+
+/**
+ * Les parties publiées, lues sur plusieurs bases : la publication en direct
+ * d'abord, puis celles livrées avec le site. Une base injoignable est passée ;
+ * une partie présente sur les deux est prise où elle a le plus de tours.
+ */
 export function publicSource(
-  base = "campaigns/",
+  bases: string | readonly string[] = "campaigns/",
   fetcher: typeof fetch = fetch,
 ): CampaignSource {
-  const index = () =>
-    json<PublishedCampaign[]>(fetcher, `${base}index.json`).then((entries) => {
-      if (!Array.isArray(entries))
-        throw new Error("campaigns/index.json : une liste était attendue");
-      return entries;
-    });
+  const list = typeof bases === "string" ? [bases] : bases;
+  const located = async (): Promise<Located[]> => {
+    const found = new Map<string, Located>();
+    let reached = 0;
+    let lastError: unknown = null;
+    for (const base of list) {
+      try {
+        const entries = await json<PublishedCampaign[]>(
+          fetcher,
+          `${base}index.json`,
+        );
+        if (!Array.isArray(entries))
+          throw new Error(`${base}index.json : une liste était attendue`);
+        reached++;
+        for (const entry of entries) {
+          const known = found.get(entry.id);
+          if (!known || entry.turns > known.turns)
+            found.set(entry.id, { ...entry, base });
+        }
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    if (!reached) throw lastError ?? new Error("Aucune partie publiée");
+    return [...found.values()];
+  };
+  const index = async (): Promise<PublishedCampaign[]> =>
+    (await located()).map(({ base: _base, ...entry }) => entry);
   const entry = async (id: string) => {
-    const found = (await index()).find((candidate) => candidate.id === id);
+    const found = (await located()).find((candidate) => candidate.id === id);
     if (!found) throw new Error(`Partie non publiée : ${id}`);
     return found;
   };
   return {
     kind: "public",
     readOnly: true,
-    campaign: async (id) =>
-      json<Campaign>(fetcher, `${base}${(await entry(id)).path}`),
+    campaign: async (id) => {
+      const found = await entry(id);
+      return json<Campaign>(fetcher, `${found.base}${found.path}`);
+    },
     head: async (id) => {
       const found = await entry(id);
       return {
@@ -170,7 +216,7 @@ export async function detectSource(
   } catch {
     // Pas de service local : on essaie la publication.
   }
-  const published = publicSource(undefined, fetcher);
+  const published = publicSource([LIVE_PUBLICATION, "campaigns/"], fetcher);
   await published.published();
   return published;
 }

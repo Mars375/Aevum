@@ -61,6 +61,41 @@ describe("d'où viennent les parties", () => {
     await expect(source.campaign("inconnue")).rejects.toThrow(/non publiée/);
   });
 
+  /**
+   * La publication en direct est lue sur GitHub, qui sert du `text/plain` ;
+   * injoignable, elle ne doit pas priver le site des parties livrées avec lui.
+   */
+  it("lit la publication en direct, et se replie sur les parties livrées", async () => {
+    const live = "https://live.example/";
+    const calls: string[] = [];
+    const fetcher = (async (url: string) => {
+      calls.push(url);
+      if (url === `${live}index.json`)
+        return respond(
+          [{ ...INDEX[0], turns: 9 }],
+          "text/plain; charset=utf-8",
+        );
+      if (url === `${live}partie.json`)
+        return respond({ id: "partie" }, "text/plain");
+      if (url === "campaigns/index.json") return respond(INDEX);
+      return respond("", "text/plain", 404);
+    }) as typeof fetch;
+    const both = publicSource([live, "campaigns/"], fetcher);
+    // Présente des deux côtés : prise là où elle a le plus de tours.
+    expect((await both.head("partie")).turns).toBe(9);
+    await both.campaign("partie");
+    expect(calls).toContain(`${live}partie.json`);
+
+    const down = (async (url: string) =>
+      url.startsWith(live)
+        ? Promise.reject(new TypeError("réseau"))
+        : url === "campaigns/index.json"
+          ? respond(INDEX)
+          : respond("", "text/plain", 404)) as typeof fetch;
+    const fallback = publicSource([live, "campaigns/"], down);
+    expect((await fallback.head("partie")).turns).toBe(3);
+  });
+
   it("nomme les modèles pour un lecteur, hébergeur compris", () => {
     expect(modelLabel("kilo:dots-studio/dots-3-note-preview:free")).toBe(
       "dots-3-note-preview (Kilo)",

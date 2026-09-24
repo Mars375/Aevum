@@ -29,7 +29,13 @@ npm run publish:campaigns -- --remove=<id>    # la retirer
 npm run publish:campaigns -- --watch=30       # republier les parties jouées en direct
 ```
 
-**En ligne : https://aevum-eosin.vercel.app**, projet Vercel `aevum` relié au dépôt : chaque poussée sur `main` reconstruit et publie le site (`vercel.json` : installation à la racine, build du lecteur, `apps/player/dist`). Pas de repli vers `index.html` : un fichier absent répond 404, jamais la page. Mettre à jour une partie publiée, c'est donc la republier, valider et pousser.
+**En ligne : https://aevum-eosin.vercel.app**, projet Vercel `aevum` relié au dépôt : chaque poussée sur `main` reconstruit et publie le site (`vercel.json` : installation à la racine, build du lecteur, `apps/player/dist`). Pas de repli vers `index.html` : un fichier absent répond 404, jamais la page. Pour qu'une partie avance en ligne sans reconstruire le site :
+
+```sh
+npm run publish:campaigns -- --push --watch=60 --every=10
+```
+
+Le site lit d'abord la branche `campagnes` du dépôt (servie par GitHub, en direct), puis, si elle est injoignable, les parties livrées avec lui. `--push` publie dans cette branche, qui ne garde qu'un commit remplacé à chaque fois : l'historique de `main` n'en reçoit rien. GitHub garde la publication cinq minutes en cache : le site a donc jusqu'à un quart d'heure de retard sur la partie. Vercel ignore cette branche (réglage du projet), qui ne contient pas de code.
 
 Les parties vont dans `apps/player/public/campaigns/`, avec `index.json`. Une partie publiée doit se rejouer : le script le vérifie, et `published-catalogue.test.ts` aussi. `--watch` sert un hébergeur qui lit le disque — le conteneur de `docker-compose.yml` monte ce répertoire, si bien qu'une partie jouée en direct avance à l'écran sans reconstruire. Un hébergeur qui ne sert qu'un build figé montre l'état publié à son dernier déploiement.
 

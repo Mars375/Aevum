@@ -12,6 +12,14 @@
  *   npm run publish:campaigns -- --remove=<id>    retirer
  *   npm run publish:campaigns -- --watch=30       republier toutes les 30 s
  *                                                 les parties jouées en direct
+ *   npm run publish:campaigns -- --push …         publier en ligne, sans
+ *                                                 reconstruire le site
+ *
+ * `--push` publie dans la branche `campagnes` du dépôt, que le site lit en
+ * direct (`LIVE_PUBLICATION`). La branche ne garde qu'un commit, remplacé à
+ * chaque publication : suivre une partie en direct ne remplit ni l'historique
+ * de `main` ni le dépôt de copies successives d'un fichier de 1 Mo. Avec
+ * `--watch`, une poussée au plus toutes les `--every` minutes (10 par défaut).
  *
  * `--watch` sert un hébergeur qui lit le disque (le conteneur nginx de
  * `docker-compose.yml` monte ce répertoire) : la partie avance à l'écran sans
@@ -22,6 +30,7 @@
  * décisions, des modèles nommés, des latences et des erreurs de transport.
  */
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import {
   CampaignSchema,
@@ -115,12 +124,50 @@ export function publish(options: {
   return index;
 }
 
+const BRANCH = "campagnes";
+
+function git(cwd: string, ...args: string[]): string {
+  return execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+}
+
+/** Une copie de travail de la branche de publication, créée au besoin. */
+function publicationWorktree(directory: string): void {
+  if (existsSync(resolve(directory, ".git"))) return;
+  const remote = git(".", "ls-remote", "--heads", "origin", BRANCH);
+  if (remote) {
+    git(".", "fetch", "origin", `${BRANCH}:${BRANCH}`);
+    git(".", "worktree", "add", directory, BRANCH);
+  } else git(".", "worktree", "add", "--orphan", "-b", BRANCH, directory);
+}
+
+/** Remplacer l'unique commit de la branche par l'état publié, et pousser. */
+function pushPublication(directory: string, count: number): void {
+  git(directory, "add", "-A");
+  let hasCommit = true;
+  try {
+    git(directory, "rev-parse", "--verify", "HEAD");
+  } catch {
+    hasCommit = false;
+  }
+  if (hasCommit && !git(directory, "status", "--porcelain")) return;
+  const message = `publication : ${count} partie(s), ${new Date().toISOString()}\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`;
+  git(directory, "commit", ...(hasCommit ? ["--amend"] : []), "-m", message);
+  git(directory, "push", "--force", "origin", BRANCH);
+  console.log(`poussé sur ${BRANCH} : le site le montre d'ici cinq minutes`);
+}
+
 async function main() {
   const source = resolve(
     flag("source") ??
       resolve(process.env.AEVUM_DATA?.trim() || ".", "worlds/spectator"),
   );
-  const out = resolve(flag("out") ?? "apps/player/public/campaigns");
+  const push = process.argv.includes("--push");
+  const out = resolve(
+    flag("out") ?? (push ? ".publication" : "apps/player/public/campaigns"),
+  );
+  if (push) publicationWorktree(out);
+  let lastPush = 0;
+  const minutes = Number(flag("every") ?? 10);
   const add: { id: string; title?: string }[] = process.argv
     .slice(2)
     .filter((entry) => !entry.startsWith("--"))
@@ -140,6 +187,10 @@ async function main() {
           )
           .join(""),
     );
+    if (push && Date.now() - lastPush >= minutes * 60_000) {
+      pushPublication(out, index.length);
+      lastPush = Date.now();
+    }
     return index;
   };
   const index = run();

@@ -645,3 +645,9 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - `npm run start:lan` ouvre le service au réseau local **en lecture** : tout appareil d'un réseau privé ou de Tailscale regarde, direct compris ; créer, avancer ou mettre en direct reste réservé à la machine, qui tient les clés (403 sinon). La page le sait par `/api/health` et remplace le formulaire par la liste des parties.
 - Vérifié : appel réel depuis l'adresse wifi de la machine — lecture 200, trois modifications 403 (test, sauté si la machine n'a pas de réseau) ; page ouverte par `http://192.168.1.102:5180` à 390 px, partie en direct affichée, « En direct · lecture seule », aucune erreur.
 - Défaut évité en route : un correctif appliqué par `String.replace` contenait « $` », que JavaScript lit comme « le texte avant la correspondance » — le fichier du serveur avait doublé (1 028 lignes au lieu de 664). Restauré depuis le dépôt et réappliqué avec une fonction de remplacement ; les correctifs antérieurs ne contenaient pas la séquence.
+
+### 2026-09-24 — Aevum.exe reconstruit, et le site qui suit les parties en direct
+
+- `Aevum.exe` reconstruit et vérifié réellement : page servie, partie créée et jouée en direct, données hors de l'installation, `--lan` qui laisse le réseau regarder et lui refuse la création (403). Toujours non signé.
+- **Le site public suit les parties en cours sans être reconstruit** : `npm run publish:campaigns -- --push` publie dans la branche `campagnes` (un seul commit, remplacé à chaque fois), que le site lit sur GitHub avant ses parties livrées. Retard maximal : dix minutes d'intervalle, plus cinq de cache. Vercel ignore la branche ; la CI n'y tourne pas, la branche ne contenant pas le workflow.
+- Le garde-fou « JSON seulement » n'exige plus `application/json` — GitHub sert du `text/plain` — mais refuse toujours une page HTML, ce qui était son objet.
