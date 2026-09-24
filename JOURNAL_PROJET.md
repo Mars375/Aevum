@@ -668,3 +668,9 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **Le climat sur la carte** : l’hiver givre les cases et fait tomber la neige, la sécheresse les jaunit sous la poussière, la récolte dore les plaines. Défaut trouvé en regardant : en caméra orthographique, three.js lit la taille des particules en pixels — la neige faisait un cinquième de pixel.
 - **Paquet MSIX** pour le Microsoft Store, qui le signe gratuitement ; une icône, rendue à toutes les tailles et servant d’icône d’onglet au site. Installation non vérifiée localement : il faudrait le mode développeur, qui demande des droits d’administrateur.
 - `scripts/campaign-report.ts` : le bilan d’une partie, civilisation par civilisation, part servie par le modèle lui-même en tête.
+
+### 2026-09-25 — Les grands moments sur la carte, et un lien vers un moment
+
+- Un **nouvel âge** fait monter une colonne de lumière de la capitale, avec un anneau qui s’étend ; une **fondation** marque la ville nouvelle d’un anneau aux couleurs de sa civilisation. Lus, comme les conquêtes, dans la différence entre deux tours et dans `ageTransitions` ; légende complétée. Mesuré à dix-huit largeurs sur deux parties : aucun chevauchement.
+- **`?at=N`** ouvre une partie à l’action N : un lien peut désigner un moment plutôt que la partie entière. Le paramètre est lu avant le chargement, qui réécrit l’adresse.
+- **Le site n’avait pas besoin d’être allégé** : mesuré, la partie de 480 tours pèse 49 Ko transférés (0,8 Mo avant compression), celle de 1 144 tours 90 Ko ; la bibliothèque 3D 141 Ko. L’inquiétude d’« un méga-octet par partie » oubliait la compression.

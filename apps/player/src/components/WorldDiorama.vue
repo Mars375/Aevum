@@ -57,6 +57,12 @@ const legend = computed(() => {
       ? [{ kind: "war", label: "Guerre" }]
       : []),
     ...(r.conquests.length ? [{ kind: "conquest", label: "Conquête" }] : []),
+    ...(r.moments?.some((m) => m.kind === "age")
+      ? [{ kind: "age", label: "Nouvel âge" }]
+      : []),
+    ...(r.moments?.some((m) => m.kind === "founded")
+      ? [{ kind: "founded", label: "Fondation" }]
+      : []),
   ];
 });
 let lastFocusKey: string | number | undefined;
@@ -556,6 +562,17 @@ onUnmounted(() => {
     #ff5f45 0 4px,
     transparent 4px 7px
   );
+}
+.relations-key.age,
+.relations-key.founded {
+  width: 9px;
+  height: 9px;
+  border: 2px solid #ffd978;
+  background: transparent;
+  border-radius: 50%;
+}
+.relations-key.founded {
+  border-color: #dce5e4;
 }
 .relations-key.conquest {
   width: 8px;

@@ -327,6 +327,7 @@ const relations = computed(() =>
     world.value,
     state.value.agreement?.pacts ?? [],
     index.value > 0 ? loaded.value?.history[index.value - 1]?.world : null,
+    (state.value.ageTransitions ?? []).map((t) => t.civ),
   ),
 );
 const parcels = computed(() => {
@@ -737,8 +738,16 @@ onMounted(async () => {
     const id =
       new URLSearchParams(location.search).get("campaign") ??
       catalogue.value.find((c) => c.id === rememberedCampaign())?.id;
-    if (id) await load(id);
-    else if (isPublic.value && catalogue.value[0])
+    if (id) {
+      // ?at=N ouvre la partie à l'action N : un lien peut désigner un moment
+      // — une fondation, une guerre — plutôt que la partie entière. Lu avant
+      // le chargement, qui réécrit l'adresse.
+      const raw = new URLSearchParams(location.search).get("at");
+      await load(id);
+      const at = raw === null ? NaN : Number(raw);
+      if (loaded.value && Number.isInteger(at) && at >= 0)
+        index.value = Math.min(at, loaded.value.history.length - 1);
+    } else if (isPublic.value && catalogue.value[0])
       await load(catalogue.value[0].id);
     else setup.value = true;
   } catch (e) {

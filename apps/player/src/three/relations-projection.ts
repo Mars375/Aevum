@@ -44,10 +44,21 @@ export interface Conquest {
   /** La case était une capitale : un siège, pas un champ. */
   capital: boolean;
 }
+/**
+ * Un grand moment du tour : une civilisation change d'âge, ou fonde une ville.
+ * Le tour passait sans que la carte le marque ; seul le journal le disait.
+ */
+export interface Moment {
+  kind: "age" | "founded";
+  x: number;
+  z: number;
+  civ: FactionId;
+}
 export interface RelationsProjection {
   links: RelationLink[];
   fronts: FrontSegment[];
   conquests: Conquest[];
+  moments: Moment[];
 }
 
 /** Ce que la projection lit du monde : de quoi l'éprouver sans un monde entier. */
@@ -61,6 +72,7 @@ export interface RelationsWorld {
   }[];
   simulation?: {
     relations: readonly { a: FactionId; b: FactionId; status: string }[];
+    cities?: readonly { id: string; owner: FactionId; position: number }[];
   };
 }
 
@@ -75,6 +87,8 @@ export function projectRelations(
   world: RelationsWorld,
   pacts: readonly { a: FactionId; b: FactionId }[],
   previous?: RelationsWorld | null,
+  /** Les civilisations qui ont changé d'âge pendant ce tour (`ageTransitions`). */
+  advanced: readonly string[] = [],
 ): RelationsProjection {
   const { size } = world;
   const alive = new Map(
@@ -160,6 +174,26 @@ export function projectRelations(
       });
     });
   }
+  const moments: Moment[] = [];
+  for (const civ of world.civs)
+    if (
+      advanced.includes(civ.id) &&
+      civ.capital !== null &&
+      civ.fellOnTick === null
+    ) {
+      const [x, z] = at(size, civ.capital);
+      moments.push({ kind: "age", x, z, civ: civ.id });
+    }
+  // Une ville nouvelle se lit, comme une conquête, dans la différence entre
+  // deux tours : l'identifiant qui n'existait pas.
+  if (previous?.simulation?.cities && world.simulation?.cities) {
+    const known = new Set(previous.simulation.cities.map((city) => city.id));
+    for (const city of world.simulation.cities)
+      if (!known.has(city.id)) {
+        const [x, z] = at(size, city.position);
+        moments.push({ kind: "founded", x, z, civ: city.owner });
+      }
+  }
   links.sort((l, r) => pair(l.a, l.b).localeCompare(pair(r.a, r.b)));
-  return { links, fronts, conquests };
+  return { links, fronts, conquests, moments };
 }

@@ -32,7 +32,7 @@ interface Moving {
   curve?: THREE.Curve<THREE.Vector3>;
   speed: number;
   phase: number;
-  kind: "bead" | "spin" | "pulse" | "smoke" | "flame";
+  kind: "bead" | "spin" | "pulse" | "smoke" | "flame" | "wave" | "glow";
   base?: THREE.Vector3;
   material?: THREE.Material & { opacity: number };
 }
@@ -78,6 +78,54 @@ export class RelationsLayer {
       this.arc(link.kind, link.a, link.b, link.from, link.to);
     for (const front of projection.fronts) this.front(front);
     for (const conquest of projection.conquests) this.conquest(conquest);
+    for (const moment of projection.moments ?? []) this.moment(moment);
+  }
+
+  /**
+   * Un nouvel âge : une colonne de lumière monte de la capitale et un anneau
+   * s'étend au sol. Une fondation : un anneau aux couleurs de la civilisation.
+   */
+  private moment(moment: {
+    kind: "age" | "founded";
+    x: number;
+    z: number;
+    civ: FactionId;
+  }) {
+    const color = this.civColors[moment.civ];
+    if (moment.kind === "age") {
+      const material = this.basic("#ffe7a3", 0.45);
+      const pillar = new THREE.Mesh(
+        this.geometry(new THREE.CylinderGeometry(0.16, 0.3, 3.2, 20, 1, true)),
+        material,
+      );
+      pillar.position.set(moment.x, 0.16 + 1.6, moment.z);
+      this.group.add(pillar);
+      this.moving.push({
+        mesh: pillar,
+        speed: 0.9,
+        phase: 0,
+        kind: "glow",
+        material,
+      });
+    }
+    const ringMaterial = this.basic(
+      moment.kind === "age" ? "#ffd978" : color,
+      0.8,
+    );
+    const ring = new THREE.Mesh(
+      this.geometry(new THREE.RingGeometry(0.42, 0.5, 40)),
+      ringMaterial,
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(moment.x, 0.2, moment.z);
+    this.group.add(ring);
+    this.moving.push({
+      mesh: ring,
+      speed: 0.45,
+      phase: 0,
+      kind: "wave",
+      material: ringMaterial,
+    });
   }
 
   private arc(
@@ -313,6 +361,20 @@ export class RelationsLayer {
           );
           item.mesh.scale.setScalar(0.7 + rise * 1.4);
           item.material!.opacity = reducedMotion ? 0.3 : 0.45 * (1 - rise);
+          break;
+        }
+        case "glow":
+          // Une lumière, pas un mur : jamais plus de 0,6 d'opacité.
+          item.material!.opacity = reducedMotion
+            ? 0.45
+            : 0.32 +
+              0.28 * (0.5 + 0.5 * Math.sin(t * item.speed * Math.PI * 2));
+          break;
+        case "wave": {
+          // S'étend de la case à trois cases, et s'efface.
+          const grow = reducedMotion ? 0.4 : u;
+          item.mesh.scale.setScalar(1 + grow * 2.4);
+          item.material!.opacity = reducedMotion ? 0.6 : 0.85 * (1 - grow);
           break;
         }
         case "flame":

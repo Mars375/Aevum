@@ -120,4 +120,23 @@ describe("les relations sur la carte", () => {
     (fallen.civs[1] as { fellOnTick: number | null }).fellOnTick = 12;
     expect(projectRelations(fallen, []).links).toEqual([]);
   });
+
+  it("marque un nouvel âge à la capitale, et une ville nouvelle là où elle naît", () => {
+    const before = world([]);
+    before.simulation!.cities = [
+      { id: "city-amber", owner: "amber", position: 0 },
+    ];
+    const after = world([]);
+    after.simulation!.cities = [
+      { id: "city-amber", owner: "amber", position: 0 },
+      { id: "city-amber-4", owner: "amber", position: 4 },
+    ];
+    const { moments } = projectRelations(after, [], before, ["azure"]);
+    expect(moments).toEqual([
+      { kind: "age", x: 1, z: -1, civ: "azure" },
+      { kind: "founded", x: 0, z: 0, civ: "amber" },
+    ]);
+    // Sans tour précédent, aucune fondation inventée.
+    expect(projectRelations(after, [], null).moments).toEqual([]);
+  });
 });
