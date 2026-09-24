@@ -1,0 +1,182 @@
+[
+  {
+    "id": "47cd4906-e4b2-4ef0-be11-1041eea0c717",
+    "title": "Frontières vivantes · en direct",
+    "seed": 42,
+    "version": "spectator-13",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "kilo:dots-studio/dots-3-note-preview:free",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 269,
+    "maxTurns": 300,
+    "live": true,
+    "updatedAt": "2026-09-28T07:04:35.913Z",
+    "path": "47cd4906-e4b2-4ef0-be11-1041eea0c717.json"
+  },
+  {
+    "id": "b3a3bdf7-692e-4702-9bd9-51a2be1eb8f1",
+    "title": "Frontières vivantes, partie B · arrêtée à 266 actions",
+    "seed": 42,
+    "version": "spectator-13",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 266,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-28T07:04:35.913Z",
+    "path": "b3a3bdf7-692e-4702-9bd9-51a2be1eb8f1.json"
+  },
+  {
+    "id": "04b108aa-28a4-4163-886a-84a21047269f",
+    "title": "Chocs régionaux, partie A · 300 manches",
+    "seed": 42,
+    "version": "spectator-12",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-27T15:08:17.069Z",
+    "path": "04b108aa-28a4-4163-886a-84a21047269f.json"
+  },
+  {
+    "id": "f71e59f6-0813-4ffe-9759-7f59e72adb1b",
+    "title": "Chocs régionaux, partie B · 300 manches",
+    "seed": 42,
+    "version": "spectator-12",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-27T15:08:17.069Z",
+    "path": "f71e59f6-0813-4ffe-9759-7f59e72adb1b.json"
+  },
+  {
+    "id": "9a1443c8-c511-4c5c-9909-b2f942e3bb05",
+    "title": "Objectifs réexaminés, seconde partie · en direct",
+    "seed": 42,
+    "version": "spectator-11",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-27T06:07:58.880Z",
+    "path": "9a1443c8-c511-4c5c-9909-b2f942e3bb05.json"
+  },
+  {
+    "id": "1bd81384-facb-4ed0-8059-53f25f5750b7",
+    "title": "Objectifs réexaminés · Azur s'étend · 300 manches",
+    "seed": 42,
+    "version": "spectator-11",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-26T23:08:56.196Z",
+    "path": "1bd81384-facb-4ed0-8059-53f25f5750b7.json"
+  },
+  {
+    "id": "696781ac-c047-4e90-a84a-4bf84960bbe4",
+    "title": "Économie de logement · 300 manches",
+    "seed": 42,
+    "version": "spectator-11",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:dots-studio/dots-3-note-preview:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-26T16:56:04.404Z",
+    "path": "696781ac-c047-4e90-a84a-4bf84960bbe4.json"
+  },
+  {
+    "id": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d",
+    "title": "Quatre modèles face à face",
+    "seed": 42,
+    "version": "spectator-10",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:nex-agi/nex-n2.5-mini:free",
+      "crimson": "mistral:codestral-latest",
+      "verdant": "openrouter:dots-studio/dots-3-note-preview:free"
+    },
+    "turns": 1200,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-24T22:40:29.245Z",
+    "path": "5336c8d2-3ec4-43a7-8199-8cd0ec406e1d.json"
+  },
+  {
+    "id": "partie-modeles-stables",
+    "title": "Deux modèles retenus, quatre dirigeants · 480 tours",
+    "seed": 42,
+    "version": "spectator-10",
+    "mode": "remote",
+    "models": {
+      "amber": "kilo:dots-studio/dots-3-note-preview:free",
+      "azure": "kilo:nex-agi/nex-n2.5-mini:free",
+      "crimson": "kilo:dots-studio/dots-3-note-preview:free",
+      "verdant": "kilo:nex-agi/nex-n2.5-mini:free"
+    },
+    "turns": 480,
+    "maxTurns": 300,
+    "live": false,
+    "updatedAt": "2026-09-24T17:24:52.287Z",
+    "path": "partie-modeles-stables.json"
+  },
+  {
+    "id": "nous-discovery",
+    "title": "Première chronique · modèles Nous",
+    "seed": 42,
+    "version": "spectator-1",
+    "mode": "remote",
+    "models": {
+      "amber": "nous:meituan/longcat-2.0:free",
+      "azure": "nous:poolside/laguna-xs-2.1:free",
+      "crimson": "nous:inclusionai/ling-3.0-flash-sante:free",
+      "verdant": "nous:poolside/laguna-s-2.1:free"
+    },
+    "turns": 50,
+    "maxTurns": 50,
+    "live": false,
+    "updatedAt": "2026-09-24T17:24:52.287Z",
+    "path": "nous-discovery.json"
+  }
+]
