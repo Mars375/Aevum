@@ -37,6 +37,12 @@ const OPTIONAL_PATHS = new Set(["/replays/index.json", "/replays/reference.json"
  * failure is the required behaviour; a timeout is never converted into a pass. */
 const CDP_TIMEOUT_MS = 8_000;
 
+/** Bound on Chromium exposing its DevTools endpoint — a launch, not a command.
+ * The 8 s command bound made the CI gate fail at random: on a loaded runner the
+ * browser sometimes took longer to start (run 35964918293, green on a plain
+ * rerun). A hung command must still fail fast; a slow launch is not a hang. */
+const LAUNCH_TIMEOUT_MS = 30_000;
+
 function cdpTimeout(method: string): Error {
   return new Error(`${method} timed out after ${CDP_TIMEOUT_MS}ms`);
 }
@@ -83,7 +89,7 @@ export function findChromium(): string | null {
 export function spawnChromium(executable: string, profileDir: string): { chrome: ChildProcess; wsUrl: Promise<string> } {
   let exposeWsUrl: ((wsUrl: string) => void) | null = null;
   const wsUrl = new Promise<string>((resolvePromise, rejectPromise) => {
-    setTimeout(() => rejectPromise(new Error(`Chromium never exposed a DevTools endpoint within ${CDP_TIMEOUT_MS}ms`)), CDP_TIMEOUT_MS).unref();
+    setTimeout(() => rejectPromise(new Error(`Chromium never exposed a DevTools endpoint within ${LAUNCH_TIMEOUT_MS}ms`)), LAUNCH_TIMEOUT_MS).unref();
     exposeWsUrl = resolvePromise;
   });
   const chrome = spawn(executable, [
