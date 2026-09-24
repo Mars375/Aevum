@@ -113,9 +113,9 @@ export function projectRelations(
     const col = index % size;
     const [x, z] = at(size, index);
     // Chaque arête une seule fois : vers l'est et vers le sud.
-    for (const [next, dx, dz] of [
-      [col + 1 < size ? index + 1 : -1, 1, 0],
-      [index + size < world.board.length ? index + size : -1, 0, 1],
+    for (const [next, east] of [
+      [col + 1 < size ? index + 1 : -1, true],
+      [index + size < world.board.length ? index + size : -1, false],
     ] as const) {
       if (next < 0) continue;
       const other = world.board[next]!.owner;
@@ -123,7 +123,7 @@ export function projectRelations(
         continue;
       touching.add(pair(owner, other));
       fronts.push(
-        dx
+        east
           ? { x1: x + 0.5, z1: z - 0.5, x2: x + 0.5, z2: z + 0.5 }
           : { x1: x - 0.5, z1: z + 0.5, x2: x + 0.5, z2: z + 0.5 },
       );
