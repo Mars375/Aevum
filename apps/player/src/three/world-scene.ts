@@ -5,6 +5,13 @@ import {
   type InfrastructureKind,
 } from "./infrastructure-models";
 import { civilianModel } from "./civilian-models";
+import { buildingModel } from "./building-models";
+import {
+  BUILDING_ASSETS,
+  type BuildingAsset,
+  type BuildingEra,
+  type BuildingShape,
+} from "./building-assets";
 import {
   CIVILIAN_ASSETS,
   type CivilianAsset,
@@ -47,7 +54,7 @@ export class WorldScene {
   private routeMarkers = new THREE.Group();
   private foundation = new THREE.Group();
   private models = new Map<
-    WorldAsset | InfrastructureAsset | CivilianAsset,
+    WorldAsset | InfrastructureAsset | CivilianAsset | BuildingAsset,
     ModelPart[]
   >();
   private tiles: THREE.InstancedMesh | null = null;
@@ -199,54 +206,69 @@ export class WorldScene {
   async load() {
     const loader = new GLTFLoader();
     await Promise.all(
-      [...WORLD_ASSETS, ...INFRASTRUCTURE_ASSETS, ...CIVILIAN_ASSETS].map(
-        async (asset) => {
-          if (asset.startsWith("infra_")) {
-            const parts = infrastructureModel(
-              asset.slice("infra_".length) as InfrastructureKind,
-            );
-            if (this.disposed) this.disposeParts(parts);
-            else this.models.set(asset, parts);
-            return;
-          }
-          // Avant la branche des âges, et pour la même raison que `infra_` :
-          // `civilian_bronze_farmer` commence par un segment qui n'est pas un âge,
-          // il tomberait donc dans le chargeur GLTF et ferait échouer tout le
-          // chargement sur un fichier qui n'existe pas.
-          if (asset.startsWith("civilian_")) {
-            const [, civilianAge, role] = asset.split("_");
-            const parsed = AgeSchema.safeParse(civilianAge);
-            if (parsed.success) {
-              const parts = civilianModel(parsed.data, role as CivilianRole);
-              if (this.disposed) this.disposeParts(parts);
-              else this.models.set(asset, parts);
-              return;
-            }
-          }
-          const age = AgeSchema.safeParse(asset.split("_")[0]);
-          if (age.success) {
-            const parts = ageModel(age.data, asset.endsWith("_soldier"));
-            if (this.disposed) this.disposeParts(parts);
-            else this.models.set(asset, parts);
-            return;
-          }
-          const gltf = await loader.loadAsync(
-            `${import.meta.env.BASE_URL}models/world/${asset}.glb`,
+      [
+        ...WORLD_ASSETS,
+        ...INFRASTRUCTURE_ASSETS,
+        ...CIVILIAN_ASSETS,
+        ...BUILDING_ASSETS,
+      ].map(async (asset) => {
+        if (asset.startsWith("infra_")) {
+          const parts = infrastructureModel(
+            asset.slice("infra_".length) as InfrastructureKind,
           );
-          gltf.scene.updateMatrixWorld(true);
-          const parts: ModelPart[] = [];
-          gltf.scene.traverse((object) => {
-            if (!(object instanceof THREE.Mesh)) return;
-            const geometry = object.geometry
-              .clone()
-              .applyMatrix4(object.matrixWorld);
-            object.geometry.dispose();
-            parts.push({ geometry, material: object.material });
-          });
           if (this.disposed) this.disposeParts(parts);
           else this.models.set(asset, parts);
-        },
-      ),
+          return;
+        }
+        // Les bâtiments de ville sont procéduraux, comme les infrastructures :
+        // aucun fichier à charger.
+        if (asset.startsWith("building_")) {
+          const [, era, shape] = asset.split("_");
+          const parts = buildingModel(
+            era as BuildingEra,
+            shape as BuildingShape,
+          );
+          if (this.disposed) this.disposeParts(parts);
+          else this.models.set(asset, parts);
+          return;
+        }
+        // Avant la branche des âges, et pour la même raison que `infra_` :
+        // `civilian_bronze_farmer` commence par un segment qui n'est pas un âge,
+        // il tomberait donc dans le chargeur GLTF et ferait échouer tout le
+        // chargement sur un fichier qui n'existe pas.
+        if (asset.startsWith("civilian_")) {
+          const [, civilianAge, role] = asset.split("_");
+          const parsed = AgeSchema.safeParse(civilianAge);
+          if (parsed.success) {
+            const parts = civilianModel(parsed.data, role as CivilianRole);
+            if (this.disposed) this.disposeParts(parts);
+            else this.models.set(asset, parts);
+            return;
+          }
+        }
+        const age = AgeSchema.safeParse(asset.split("_")[0]);
+        if (age.success) {
+          const parts = ageModel(age.data, asset.endsWith("_soldier"));
+          if (this.disposed) this.disposeParts(parts);
+          else this.models.set(asset, parts);
+          return;
+        }
+        const gltf = await loader.loadAsync(
+          `${import.meta.env.BASE_URL}models/world/${asset}.glb`,
+        );
+        gltf.scene.updateMatrixWorld(true);
+        const parts: ModelPart[] = [];
+        gltf.scene.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) return;
+          const geometry = object.geometry
+            .clone()
+            .applyMatrix4(object.matrixWorld);
+          object.geometry.dispose();
+          parts.push({ geometry, material: object.material });
+        });
+        if (this.disposed) this.disposeParts(parts);
+        else this.models.set(asset, parts);
+      }),
     );
   }
 
@@ -304,7 +326,7 @@ export class WorldScene {
     const placements = new Map<
       string,
       {
-        asset: WorldAsset | InfrastructureAsset | CivilianAsset;
+        asset: WorldAsset | InfrastructureAsset | CivilianAsset | BuildingAsset;
         faction?: FactionId;
         transforms: THREE.Matrix4[];
         offsets: MotionOffset[];

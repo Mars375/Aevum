@@ -626,3 +626,9 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **Vérifié dans un navigateur** : build servi statiquement sans API — partie de 480 tours rejouée, « Lecture seule », liste des parties à 390 px, aucune erreur console ; mode local sur la partie en direct inchangé.
 - **Appris du direct** : au tour 112, dix échecs d’Ambre (`dots` par Kilo). Ce n’était pas « réponse vide » mais un HTTP 400 intermittent d’AtlasCloud, l’hébergeur du modèle, sur un conseil de 12 141 jetons ; relancé, le direct a passé ce tour. La route OpenRouter de `dots` aboutit au même hébergeur : elle n’est pas un secours contre lui. Le message d’erreur dit désormais ce que le fournisseur a répondu.
 - **La refonte w8 du 25 août est suspendue** : l’observatoire est devenu le produit ; ses exigences transverses y sont appliquées.
+
+### 2026-09-24 — La 3D montre ce que les dirigeants construisent
+
+- Les cinq bâtiments de ville (grenier, atelier, marché, remparts, académie) et le chantier en cours n’apparaissaient pas : la ville suivait l’âge de sa civilisation et ignorait ses bâtiments. Ils ont chacun une silhouette procédurale, en deux époques (jusqu’au Moyen Âge, puis industrielle et au-delà) ; auvents et bannières prennent la couleur de la civilisation ; les remparts entourent la case.
+- Une vue archivée, sans âges, ne change pas.
+- **Atelier 3D** (`apps/player/lab.html`, `npm run player:dev` puis `/lab.html`) : une ville par âge projetée par le code du jeu, avec l’éclairage de la scène. Il a montré ce qu’aucun test ne voyait : des bâtiments trop petits, à moitié cachés derrière des remparts trop hauts, et des bastions qui débordaient sur la case voisine. Vite ne construit que `index.html` : l’atelier ne part pas sur le site.

@@ -10,7 +10,13 @@ import {
 // immédiat de l'interface, et en tirer Three ferait entrer le moteur 3D dans
 // le bundle initial.
 import type { CivilianAsset } from "./civilian-assets";
+import {
+  BUILDING_KINDS,
+  buildingAsset,
+  type BuildingAsset,
+} from "./building-assets";
 export type { InfrastructureAsset } from "./infrastructure-assets";
+export type { BuildingAsset } from "./building-assets";
 export type { CivilianAsset } from "./civilian-assets";
 
 export const WORLD_ASSETS = [
@@ -55,7 +61,7 @@ export const LAND_NAMES = {
   river: "Rivière",
 } as const;
 export interface Placement {
-  asset: WorldAsset | InfrastructureAsset | CivilianAsset;
+  asset: WorldAsset | InfrastructureAsset | CivilianAsset | BuildingAsset;
   x: number;
   z: number;
   scale: number;
@@ -107,15 +113,33 @@ const SITE_KINDS = INFRASTRUCTURE_ASSETS.map(
   (asset) => asset.slice("infra_".length) as InfrastructureKind,
 );
 const SITE_SCALE = 0.24;
-/** Six fixed rim offsets that keep the city hub clear; assigned in canonical order. */
+/**
+ * Rim offsets around the city hub, assigned in canonical order:
+ * infrastructure, then the city buildings, then the construction site.
+ *
+ * The rim sits inside the walls (0.44 from the centre). At 0.38 and scale
+ * 0.26, as first drawn, a granary was a yellow dot half hidden by the
+ * rampart — seen in the 3D lab, not in any test. The last four slots sit
+ * between the others, for the rare city with every building and several
+ * sites at once.
+ */
 const SITE_POSITIONS: readonly (readonly [number, number])[] = [
-  [-0.38, -0.38],
-  [0.38, -0.38],
-  [0.38, 0.38],
-  [-0.38, 0.38],
-  [-0.38, 0],
-  [0.38, 0],
+  [-0.34, -0.34],
+  [0.34, -0.34],
+  [0.34, 0.34],
+  [-0.34, 0.34],
+  [-0.35, 0],
+  [0.35, 0],
+  [0, -0.35],
+  [0, 0.35],
+  [-0.18, -0.36],
+  [0.18, 0.36],
+  [0.18, -0.36],
+  [-0.18, 0.36],
 ];
+const BUILDING_SCALE = 0.3;
+/** The hub shrinks when the rim is occupied, so the two do not overlap. */
+const HUB_SCALE = { alone: 0.92, surrounded: 0.68 };
 
 export function projectWorld(
   year: Year,
@@ -137,12 +161,21 @@ export function projectWorld(
     const noise = (salt: number) => detailNoise(world.seed, index, salt);
     const assets: Placement[] = [];
     const add = (
-      asset: WorldAsset | InfrastructureAsset,
+      asset: WorldAsset | InfrastructureAsset | BuildingAsset,
       x = 0,
       z = 0,
       scale = 1,
       angle = 0,
-    ) => assets.push({ asset, x, z, scale, angle });
+      faction?: FactionId,
+    ) =>
+      assets.push({
+        asset,
+        x,
+        z,
+        scale,
+        angle,
+        ...(faction ? { faction } : {}),
+      });
     const city = world.simulation?.cities.find((c) => c.position === index);
     if (city) {
       // Extant city only: unknown or future-only ids are ignored by the match below.
@@ -151,9 +184,20 @@ export function projectWorld(
             sites.some((site) => site.city === city.id && site.kind === kind),
           )
         : [];
+      const age = ages?.[city.owner];
+      // Les bâtiments ne se montrent qu'avec l'âge de la civilisation : sans
+      // lui, la silhouette de la ville les résume déjà (hameau, bourg,
+      // citadelle), et une vue archivée ne doit pas changer.
+      const built = age
+        ? BUILDING_KINDS.filter(
+            (kind) => kind !== "walls" && city.buildings.includes(kind),
+          )
+        : [];
+      const building = age ? (city.queue?.building ?? null) : null;
+      const rim = hosted.length + built.length + (building ? 1 : 0);
       add(
-        ages?.[city.owner]
-          ? (`${ages[city.owner]}_city` as WorldAsset)
+        age
+          ? (`${age}_city` as WorldAsset)
           : city.buildings.includes("walls") && city.buildings.length >= 4
             ? "citadel"
             : city.buildings.length >= 2
@@ -161,12 +205,24 @@ export function projectWorld(
               : "hamlet",
         0,
         0,
-        hosted.length ? 0.82 : 0.92,
+        rim ? HUB_SCALE.surrounded : HUB_SCALE.alone,
       );
       hosted.forEach((kind, slot) => {
         const [x, z] = SITE_POSITIONS[slot]!;
         add(`infra_${kind}` as InfrastructureAsset, x, z, SITE_SCALE);
       });
+      if (age) {
+        built.forEach((kind, n) => {
+          const [x, z] = SITE_POSITIONS[hosted.length + n]!;
+          add(buildingAsset(age, kind), x, z, BUILDING_SCALE, 0, city.owner);
+        });
+        if (building) {
+          const [x, z] = SITE_POSITIONS[hosted.length + built.length]!;
+          add(buildingAsset(age, "site"), x, z, BUILDING_SCALE);
+        }
+        if (city.buildings.includes("walls"))
+          add(buildingAsset(age, "walls"), 0, 0, 1);
+      }
     } else if (capital) {
       add(
         civ.population >= 450 && civ.advances.length >= 3

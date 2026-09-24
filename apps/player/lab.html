@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Aevum — atelier 3D</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #354b46;
+        color: #f0f1e6;
+        font:
+          13px system-ui,
+          sans-serif;
+      }
+      #lab {
+        position: fixed;
+        inset: 0;
+      }
+      #legend {
+        position: fixed;
+        left: 12px;
+        top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="lab"></div>
+    <div id="legend"></div>
+    <!-- Atelier de développement : `npm run player:dev`, puis /lab.html. Vite
+         ne construit que index.html, cette page ne part jamais sur le site. -->
+    <script type="module" src="/src/lab/model-lab.ts"></script>
+  </body>
+</html>
