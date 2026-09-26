@@ -1,0 +1,391 @@
+{
+  "checkedAt": "2026-09-26T14:13:29.083Z",
+  "campaign": "696781ac-c047-4e90-a84a-4bf84960bbe4",
+  "eligible": 323,
+  "situations": [
+    317,
+    397,
+    477,
+    599,
+    683,
+    763,
+    843,
+    923
+  ],
+  "summary": {
+    "kilo:dots-studio/dots-3-note-preview:free A": {
+      "answered": 8,
+      "recruit": 0,
+      "settle": 0
+    },
+    "kilo:dots-studio/dots-3-note-preview:free B": {
+      "answered": 8,
+      "recruit": 0,
+      "settle": 0
+    },
+    "mistral:codestral-latest A": {
+      "answered": 8,
+      "recruit": 0,
+      "settle": 0
+    },
+    "mistral:codestral-latest B": {
+      "answered": 8,
+      "recruit": 0,
+      "settle": 0
+    }
+  },
+  "rows": [
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 317,
+      "civ": "azure",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de métallurgie pour débloquer l'avancement vers l'ère médiévale tout en maintenant l'économie et la sécurité."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 317,
+      "civ": "azure",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de métallurgie pour débloquer l'avancement vers l'ère médiévale tout en maintenant l'économie et la sécurité."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 397,
+      "civ": "azure",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Poursuivre la recherche d'ingénierie (81 %) tout en protégeant les réserves de nourriture avant la sécheresse (tours 97-99)."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 397,
+      "civ": "azure",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Poursuivre la recherche d'ingénierie tout en consolidant les réserves de nourriture avant la sécheresse (tours 97-99)."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 477,
+      "civ": "azure",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de scholarship pour débloquer l'académie et l'âge industriel."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 477,
+      "civ": "azure",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de scholarship pour débloquer l'académie et l'âge industriel."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 599,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 599,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 683,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 683,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 763,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 763,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 843,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 843,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 923,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "kilo:dots-studio/dots-3-note-preview:free",
+      "turn": 923,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 317,
+      "civ": "azure",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de métallurgie pour débloquer l'avancement vers l'ère médiévale tout en maintenant l'économie et la sécurité."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 317,
+      "civ": "azure",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de métallurgie pour débloquer l'avancement vers l'ère médiévale tout en maintenant l'économie et la sécurité."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 397,
+      "civ": "azure",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Poursuivre la recherche d'ingénierie tout en consolidant les réserves de nourriture avant la sécheresse (tours 97-99)."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 397,
+      "civ": "azure",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Poursuivre la recherche d'ingénierie tout en consolidant les réserves de nourriture avant la sécheresse (tours 97-99)."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 477,
+      "civ": "azure",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de scholarship pour débloquer l'académie et l'âge industriel."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 477,
+      "civ": "azure",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de scholarship pour débloquer l'académie et l'âge industriel."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 599,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 599,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 683,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 683,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 763,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 763,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 843,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 843,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 923,
+      "civ": "verdant",
+      "variant": "A",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    },
+    {
+      "model": "mistral:codestral-latest",
+      "turn": 923,
+      "civ": "verdant",
+      "variant": "B",
+      "source": "remote",
+      "servedByModel": true,
+      "recruit": false,
+      "settle": false,
+      "objective": "Finaliser la recherche de Coinage pour débloquer l'âge médiéval et préparer la sécheresse en optimisant la production alimentaire."
+    }
+  ]
+}

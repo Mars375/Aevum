@@ -148,7 +148,59 @@ non appliquée : que l'observation dise, quand la population touche le
 logement, combien une ville nouvelle en ajouterait et ce que coûte un colon —
 une information, pas un ordre. À mesurer de la même façon.
 
+## Deux essais sur la consigne, mesurés sur ces situations
+
+`scripts/expansion-probe.ts` reprend huit situations réelles de la partie
+`spectator-11` — population au logement, colon abordable et permis —, posées
+à dots (Kilo) et à codestral dans deux variantes qui ne diffèrent que d'un
+point. Chaque conseil a été servi par le modèle demandé.
+
+**Dire ce qu'une ville rapporte.** Au plafond, l'observation porte
+`housing.expansion` : jusqu'à combien de places une ville ajouterait, le prix
+d'un colon, s'il est abordable ; et la consigne dit que seule une ville ou de
+la terre relève le plafond, et que rester au plafond est un choix légitime.
+
+| modèle    | colons, sans | colons, avec | fondations, sans | fondations, avec |
+| --------- | -----------: | -----------: | ---------------: | ---------------: |
+| dots      |          0/8 |          0/8 |              0/8 |              0/8 |
+| codestral |          0/8 |          0/8 |              0/8 |              0/8 |
+
+**Réfuté** : l'information ne manquait pas, ou pas seule. Elle reste dans
+l'observation — vraie, courte, et ce que la mesure suivante corrige pouvait la
+masquer — mais rien n'autorise à dire qu'elle sert (`expansion-probe.json`).
+
+**Ce que l'essai a montré à la place : les modèles recopient leur objectif.**
+L'observation leur montrait leur objectif précédent sous la clé `objective`,
+celle-là même qu'ils doivent remplir. Ils le renvoyaient mot pour mot :
+
+| partie         | Ambre (dots) |              Azur | Pourpre (codestral) | Sylve (dots, OR) |
+| -------------- | -----------: | ----------------: | ------------------: | ---------------: |
+| `spectator-11` |      205/260 |    190/260 (dots) |             256/260 |          228/259 |
+| `spectator-10` |      224/300 | 41/300 (nex-mini) |             280/300 |          266/300 |
+
+Pourpre garde le même objectif 211 tours d'affilée ; Sylve « finalise la
+recherche de Coinage » pendant 300 actions, Coinage acquis, et redemande sa
+recherche. Seul `nex-n2.5-mini` n'y tombait pas.
+
+Même protocole, l'objectif présenté comme `previousObjective` avec une phrase
+qui demande de le réexaminer (`objective-probe.json`) :
+
+| modèle    | recopié, avant | recopié, après | colons | fondations |
+| --------- | -------------: | -------------: | -----: | ---------: |
+| dots      |            7/8 |        **0/8** |    0/8 |        0/8 |
+| codestral |            8/8 |            7/8 |    0/8 |        0/8 |
+
+dots, qui gouverne trois civilisations sur quatre, cesse de recopier et
+recherche l'ingénierie au lieu d'une technologie acquise ; codestral n'est pas
+touché. **Appliqué en `spectator-11`.** Aucun colon pour autant : un conseil
+isolé ne dit pas ce que ferait une partie où l'objectif bouge à chaque tour.
+C'est la mesure suivante — une partie `spectator-11` sur la même graine, avec
+la consigne nouvelle.
+
 ## Données
+
+- `expansion-probe.json`, `objective-probe.json` : les deux essais sur huit
+  situations (`npx tsx scripts/expansion-probe.ts [--compare=objective]`) ;
 
 - `regles-10-11.json` : la comparaison appariée ci-dessus
   (`npm run rules-compare -- <id-a> <id-b>`) ;

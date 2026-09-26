@@ -196,6 +196,14 @@ que le dépôt publie, c'est ce qu'il versionne.
     population croît à 1,5 % par tour pour tous, quoi qu'ils décident, le
     logement ne limite jamais et les vivres s'accumulent. Fonder une ville ne
     rapporte rien. Voir `docs/reports/pourquoi-pas-de-guerre.md`.
+12. **Leur dire ce qu'une ville rapporte ne les fait pas s'étendre.** Sous
+    `spectator-11` le logement borne, et l'observation dit au plafond combien
+    une ville ajouterait et ce que coûte un colon : 0 colon sur 32 conseils,
+    avec ou sans. Ce que la mesure a montré à la place : **un champ d'entrée
+    portant le nom d'un champ de sortie est recopié.** L'objectif précédent,
+    montré sous la clé `objective`, revenait mot pour mot (codestral 256
+    fois sur 260, dots jusqu'à 88 %). Renommé `previousObjective`, dots cesse
+    (7/8 → 0/8) ; codestral non. Voir `objective-probe.json`.
 
 ## Avant de dépenser du quota
 

@@ -2,7 +2,11 @@ import { ageProgress } from "../../world/src/ages.js";
 import { planIssue } from "../../world/src/strategic-plans.js";
 import { councilOptions } from "./council-options.js";
 import { energyReport } from "../../world/src/infrastructure.js";
-import { ECONOMY_V11, housingCapacity } from "../../world/src/development.js";
+import {
+  affordable,
+  ECONOMY_V11,
+  housingCapacity,
+} from "../../world/src/development.js";
 import { ZodError } from "zod";
 import type { GeneralConfig } from "@abs/contracts";
 import { agreementOptions, agreementView } from "../../world/src/agreements.js";
@@ -12,6 +16,7 @@ import {
   incidentFor,
   forecastFor,
   localCouncil,
+  SETTLER_COST,
   type SpectatorState,
 } from "../../world/src/spectator.js";
 import type { CouncilAnswer } from "../../world/src/campaign.js";
@@ -85,6 +90,34 @@ function promptOptions<
     },
   };
 }
+
+/** Ce qu'une ville nouvelle rapporterait, dit au dirigeant qui bute sur son logement. */
+export function expansionFacts(state: SpectatorState, civ: string) {
+  const w = state.world;
+  const ruler = w.civs.find((c) => c.id === civ)!;
+  const masonry = ruler.advances.includes("masonry") ? 1.25 : 1;
+  const settlers = w.simulation!.units.filter(
+    (u) => u.owner === civ && u.role === "settler",
+  ).length;
+  return {
+    atCapacity: true,
+    // Une fondation prend sa case et ses quatre voisines, si elles sont libres.
+    newCityAddsUpTo: Math.round(
+      (ECONOMY_V11.housingPerCity + 5 * ECONOMY_V11.housingPerTile) * masonry,
+    ),
+    settlerCost: SETTLER_COST,
+    settlerAffordable: affordable(ruler.stock, SETTLER_COST),
+    settlersOwned: settlers,
+    settlersMax: 2,
+  };
+}
+
+export const OBJECTIVE_INSTRUCTION =
+  " previousObjective is the objective you gave on an earlier turn. Re-examine it against the current situation: keep it only if it still describes what you are doing; otherwise write a new one.";
+
+/** Séparée pour que la mesure puisse la retirer à l'identique (expansion-probe). */
+export const EXPANSION_INSTRUCTION =
+  " When housing.expansion is present your population is at its cap: it grows again only through a new city (up to housing.expansion.newCityAddsUpTo more places, founded by a settler bought with recruitSettler:true and sent to a listed foundation site) or more land. Beyond masonry, research does not raise the cap. Staying at the cap is also a legitimate choice.";
 
 export function councilObservation(state: SpectatorState, civ: string) {
   const w = state.world;
@@ -185,16 +218,31 @@ export function councilObservation(state: SpectatorState, civ: string) {
             const cities = w.simulation!.cities.filter(
               (c) => c.owner === civ,
             ).length;
+            const capacity = housingCapacity(ruler, cities, "v11");
             return {
               population: ruler.population,
-              capacity: housingCapacity(ruler, cities, "v11"),
+              capacity,
               perCity: ECONOMY_V11.housingPerCity,
               perOwnedTile: ECONOMY_V11.housingPerTile,
+              // Au plafond, les modèles répondaient par la recherche : 60
+              // décisions parlaient de logement, un seul colon en 975
+              // actions (pourquoi-pas-de-guerre.md). Le chiffre de ce qu'une
+              // ville ajoute, et de ce que coûte un colon, manquait au lien.
+              ...(ruler.population >= capacity - 1
+                ? { expansion: expansionFacts(state, civ) }
+                : {}),
             };
           })(),
         }
       : {}),
-    objective: state.objectives[civ] ?? null,
+    // Montré sous la clé même qu'ils remplissent, l'objectif précédent était
+    // recopié mot pour mot : 256 décisions sur 260 pour codestral, jusqu'à 211
+    // tours d'affilée, et dots poursuivait une technologie déjà acquise.
+    // Renommé, dots cesse de le recopier (7 sur 8 à 0 sur 8,
+    // objective-probe.json).
+    ...(atLeast(state.rules, "spectator-11")
+      ? { previousObjective: state.objectives[civ] ?? null }
+      : { objective: state.objectives[civ] ?? null }),
     memory: state.memory[civ] ?? [],
     personality: (
       {
@@ -367,7 +415,9 @@ export async function requestCouncil(
       ? " In spectator-10 you may also issue agreement: a single TOP-LEVEL object or null, never a plan field. One agreement per personal turn. action is propose, accept, decline or renounce. Propose needs target and kind: nonaggression needs duration 4, 8 or 12; transfer needs at least one positive integer across give and receive. give is what YOU hand over, receive is what you ask for — an exchange has two sides, and a gift is simply receive at zero. Accept and decline need offerId, taken verbatim from agreements.incoming: a replaced offer is gone, and its id will be refused. Only offers addressed to you can be accepted. An exchange settles before anything you spend this turn, and it is refused outright if either side cannot pay — nothing moves on a partial. A pact you carry to its end raises trust on both sides; renouncing it, or declaring a war the engine accepts, lowers the trust your partner holds in you. options.agreements lists who you may propose what to, with the trust you hold in them. A malformed agreement sinks the whole answer: leave it null when in doubt."
       : "") +
     (atLeast(state.rules, "spectator-11")
-      ? " In spectator-11 population cannot exceed housing.capacity: each city houses 110 people, each owned tile 15, masonry adds 25%. Growth is faster with larger food reserves; reserves beyond 10 turns of need (plus 5 per granary) spoil. A civilization grows beyond its housing only by founding cities or gaining land."
+      ? " In spectator-11 population cannot exceed housing.capacity: each city houses 110 people, each owned tile 15, masonry adds 25%. Growth is faster with larger food reserves; reserves beyond 10 turns of need (plus 5 per granary) spoil. A civilization grows beyond its housing only by founding cities or gaining land." +
+        EXPANSION_INSTRUCTION +
+        OBJECTIVE_INSTRUCTION
       : "") +
     (strategic
       ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."

@@ -288,6 +288,9 @@ export function forecastFor(seed: number, turn: number): WorldIncident | null {
   }
   return null;
 }
+/** Le prix d'un colon, lu aussi par l'observation : un chiffre dit au dirigeant ne doit pas pouvoir diverger du moteur. */
+export const SETTLER_COST = { food: 50, timber: 60, wealth: 20 } as const;
+
 export function newSpectator(
   seed = 42,
   rules: SpectatorState["rules"] = "spectator-1",
@@ -594,7 +597,7 @@ export function resolveCouncil(
       say(civ.id, "BUILT", `Chantier lancé : ${build.building}`);
     }
     if (d.recruitSettler) {
-      const cost = { food: 50, timber: 60, wealth: 20 };
+      const cost = SETTLER_COST;
       if (
         civ.capital !== null &&
         affordable(civ.stock, cost) &&

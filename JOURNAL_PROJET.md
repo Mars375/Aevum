@@ -706,3 +706,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - `scripts/rules-compare.ts` (`npm run rules-compare`) : deux parties d’une même graine, au même nombre d’actions, part servie en tête.
 - Store : soumission complétée dans l’espace partenaire (tarif, propriétés, classification PEGI 3 / ESRB E10+, paquet validé, fiche française, justification de `runFullTrust`). Envoyée en certification le 26/09 (produit 9PJSQW8DS42D), publication automatique si elle passe.
 - Mistral : l’offre gratuite confirmée par l’utilisateur dans la console.
+
+### 2026-09-26 — Les modèles recopiaient leur objectif
+
+- Dire au dirigeant, au plafond, ce qu’une ville ajoute et ce que coûte un colon : **0 colon sur 32 conseils**, avec ou sans (`expansion-probe.json`). Réfuté, et écrit dans CLAUDE.md (n° 12).
+- La mesure a trouvé autre chose : l’objectif précédent, montré sous la clé `objective` qu’ils remplissent, revenait mot pour mot — 256 décisions sur 260 pour codestral, 73 à 88 % pour dots ; Sylve poursuivait 300 actions durant une technologie déjà acquise.
+- Renommé `previousObjective` avec une phrase qui demande de le réexaminer : dots passe de 7 recopies sur 8 à 0, codestral reste à 7. Appliqué en `spectator-11` ; les parties déjà jouées ne changent pas (le rejeu ne relit pas la consigne).
+- Le prix du colon n’est plus écrit deux fois : l’observation lit celui du moteur (`SETTLER_COST`).
