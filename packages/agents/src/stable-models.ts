@@ -11,8 +11,12 @@
  *  3. durée, 20 tours consécutifs — 20/20 sans tour perdu, 14 valides du premier
  *     coup, 4 ordres rejetés au plus, médiane de 15 s au plus.
  *
- * Quatre entrées passent, pour trois modèles distincts. `longcat-2.0`, longtemps
+ * Quatre entrées passaient, pour trois modèles distincts. `longcat-2.0`, longtemps
  * le défaut, n'en fait pas partie : il perd un tour sur sept en durée.
+ *
+ * `nex-n2.5-mini` en a été retiré le 26 septembre : il a quitté les catalogues
+ * gratuits de Kilo et d'OpenRouter (HTTP 404 au deuxième tour d'une partie).
+ * Un modèle gratuit peut disparaître sans prévenir ; la liste le suit.
  *
  * Changer cette liste, c'est la remesurer : `npm run bench:models`.
  */
@@ -57,14 +61,6 @@ export const STABLE_FREE_MODELS: readonly StableModel[] = [
     measuredAs: { nativeSchema: true, reasoningOff: true },
     evidence:
       "Le principal par une autre route, si la passerelle Kilo tombe — mais pas si l'hébergeur du modèle tombe : les deux routes aboutissent chez AtlasCloud, qui a refusé par intermittence (HTTP 400) un conseil de 12 000 jetons, identique par les deux. Durée : 20/20, 17 valides du premier coup, 1 rejet, médiane 1,3 s. Campagne par le produit : 12/12 servis par lui-même, 1 rejet. Clé OpenRouter, 1 000 requêtes gratuites par jour.",
-  },
-  {
-    ref: "kilo:nex-agi/nex-n2.5-mini:free",
-    role: "second choix",
-    key: null,
-    measuredAs: { nativeSchema: true, reasoningOff: true },
-    evidence:
-      "Durée, deux jours : 40/40 tours, 28 valides du premier coup — pile au seuil de 70 %, retenu de justesse (13/20 puis 15/20). Par OpenRouter, le même modèle ne fait que 7/20 : seule la route Kilo est retenue. Sans clé.",
   },
 ];
 

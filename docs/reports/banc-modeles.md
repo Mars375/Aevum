@@ -412,6 +412,15 @@ mieux. **Par le produit**, le conseil d'Ambre qui avait échoué dix fois de sui
 passe 3 fois sur 3 ; relancé, le direct est passé du tour 132 au tour 201 sans un
 échec.
 
+## 26 septembre : `nex-n2.5-mini` disparaît
+
+Au deuxième tour d'une partie, `nex-n2.5-mini` répond HTTP 404 chez Kilo. Il a
+quitté les catalogues gratuits de Kilo **et** d'OpenRouter, comme `nex-n2.5-pro`.
+Retiré de `stable-models.ts`. Restent trois entrées pour deux modèles :
+`dots-3-note` (Kilo, principal ; OpenRouter, secours) et `codestral` (Mistral).
+Un modèle gratuit peut disparaître sans prévenir : le direct s'arrête alors
+proprement, en le disant, et c'est la liste qui doit suivre.
+
 ## Ce qui change dans le dépôt
 
 - **Kilo est un fournisseur** (`kilo:` en préfixe). Il sert **sans clé ses

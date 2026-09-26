@@ -687,3 +687,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Mesuré sans modèle (`scripts/economy-probe.ts`) : l’écart de population entre civilisations passe de 116–262 à 245–700, aucune famine en six parties.
 - Défauts attrapés par la garde de frontière en écrivant la mesure : une comparaison de version en clair, puis une liste de versions recopiée — l’une et l’autre interdites parce qu’elles ont déjà retiré des fonctions en silence.
 - Partie appariée lancée : mêmes modèles, même monde que la partie de référence, sous `spectator-11`.
+
+### 2026-09-26 — nex-n2.5-mini disparaît, guide du Store, points vérifiés
+
+- `nex-n2.5-mini` a quitté les catalogues gratuits de Kilo et d’OpenRouter (HTTP 404) : retiré des modèles retenus. La partie appariée `spectator-11` est relancée avec `dots-3-note` à sa place.
+- `docs/microsoft-store.md` : le guide de création du compte (vérifié sur la documentation de Microsoft), la fiche, la justification de `runFullTrust`, trois captures 1920 × 1080.
+- Mistral : les en-têtes de quota ne nomment pas l’offre ; quatre modèles fermés à la clé (0 requête par minute) indiquent l’offre gratuite, ce qui reste un indice et non une preuve.
+- Branche d’Astra : entièrement contenue dans `main`, 42 commits de retard ; ses trois fichiers non enregistrés sont des notes du 21 septembre, dépassées par leurs versions de `main`. Non modifiée.
