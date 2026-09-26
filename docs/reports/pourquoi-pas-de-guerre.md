@@ -123,7 +123,8 @@ parties a été servi par le modèle demandé (100 % partout).
 |                | Sylve        | dots (OR)     |               0 |      2 |     6 |             387 / 387 |
 
 Dans les deux parties : 146 cases libres sur 169, aucune frontière commune,
-aucune guerre, aucun ordre d'attaque.
+aucune guerre, aucun ordre d'attaque. La partie `spectator-11` finie (1 200 actions) ne
+change aucun de ces chiffres : de l'action 975 à la fin, le monde est figé.
 
 - **La contrainte mord** : les quatre populations sont à leur logement exact.
   Et elle sépare enfin les décisions : de 156 à 600 habitants, là où
