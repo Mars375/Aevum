@@ -704,4 +704,5 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Partie appariée (même graine que la partie de référence) coupée à 975 actions, servie à 100 % par les modèles demandés. Les quatre populations sont à leur logement exact, et s’étalent désormais de 156 à 600 au lieu de 568 à 612 : les décisions se paient.
 - Mais **un seul colon recruté**, contre zéro : les modèles voient le plafond et répondent par la recherche, pas par une ville. Toujours aucune frontière commune, aucune guerre. Écrit dans `pourquoi-pas-de-guerre.md`, avec ses limites (une paire, Azur a changé de modèle).
 - `scripts/rules-compare.ts` (`npm run rules-compare`) : deux parties d’une même graine, au même nombre d’actions, part servie en tête.
-- Store : soumission complétée dans l’espace partenaire (tarif, propriétés, classification PEGI 3 / ESRB E10+, paquet validé, fiche française, justification de `runFullTrust`). En attente du clic d’envoi en certification.
+- Store : soumission complétée dans l’espace partenaire (tarif, propriétés, classification PEGI 3 / ESRB E10+, paquet validé, fiche française, justification de `runFullTrust`). Envoyée en certification le 26/09 (produit 9PJSQW8DS42D), publication automatique si elle passe.
+- Mistral : l’offre gratuite confirmée par l’utilisateur dans la console.
