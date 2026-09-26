@@ -713,3 +713,9 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - La mesure a trouvé autre chose : l’objectif précédent, montré sous la clé `objective` qu’ils remplissent, revenait mot pour mot — 256 décisions sur 260 pour codestral, 73 à 88 % pour dots ; Sylve poursuivait 300 actions durant une technologie déjà acquise.
 - Renommé `previousObjective` avec une phrase qui demande de le réexaminer : dots passe de 7 recopies sur 8 à 0, codestral reste à 7. Appliqué en `spectator-11` ; les parties déjà jouées ne changent pas (le rejeu ne relit pas la consigne).
 - Le prix du colon n’est plus écrit deux fois : l’observation lit celui du moteur (`SETTLER_COST`).
+
+### 2026-09-27 — Une civilisation s’étend enfin
+
+- Partie `1bd81384`, même monde et mêmes modèles, consigne nouvelle : **Azur fonde quatre villes** (6 au lieu de 3, 24 cases au lieu de 10, 1 270 habitants au lieu de 600) et touche Ambre — la première frontière commune de toutes les parties mesurées. Sa raison au premier colon : « soulager la surpopulation ». Toujours aucune guerre.
+- Sylve cesse de recopier son objectif (269 → 99 sur 300) sans rien fonder ; Ambre recopie encore, bloquée sans forêt sur un atelier qui demande du bois ; codestral n’est pas touché.
+- Une paire, pas une preuve : une partie identique est à rejouer pour savoir si l’écart d’Azur se reproduit.

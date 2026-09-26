@@ -198,7 +198,43 @@ isolé ne dit pas ce que ferait une partie où l'objectif bouge à chaque tour.
 C'est la mesure suivante — une partie `spectator-11` sur la même graine, avec
 la consigne nouvelle.
 
+## La partie avec la consigne nouvelle : une civilisation s'étend
+
+Partie `1bd81384` : même graine, mêmes modèles que `696781ac`, la consigne
+nouvelle (objectif à réexaminer, expansion dite au plafond). 1 200 actions,
+chaque conseil servi par le modèle demandé (`objectifs-reexamines.json`).
+
+| civilisation | modèle      | objectif recopié, avant → après |    colons |    villes |       cases |      population |
+| ------------ | ----------- | ------------------------------: | --------: | --------: | ----------: | --------------: |
+| Ambre        | dots (Kilo) |                   232 → 237/300 |     0 → 0 |     2 → 2 |       6 → 6 |       387 → 387 |
+| Azur         | dots (Kilo) |                    229 → **87** | 1 → **4** | 3 → **6** | 10 → **24** | 600 → **1 270** |
+| Pourpre      | codestral   |                   296 → 292/300 |     0 → 0 |     1 → 1 |       1 → 1 |       156 → 156 |
+| Sylve        | dots (OR)   |                    269 → **99** |     0 → 0 |     2 → 2 |       6 → 6 |       387 → 387 |
+
+- **Azur s'étend** : un premier colon à l'action 749, avec pour raison
+  « soulager la surpopulation », puis trois autres ; six villes à la fin, et
+  la **première frontière commune** de toutes les parties mesurées, avec Ambre.
+  Toujours aucune guerre.
+- **Sylve cesse de recopier** (269 → 99) mais ne fonde rien : réexaminer son
+  objectif ne suffit pas à choisir une ville.
+- **Ambre recopie encore**, et pour une raison lisible : elle veut un atelier
+  pour passer au Moyen Âge (171 décisions), l'atelier coûte 45 de bois, et
+  elle en a 10 depuis l'action 100. Elle ne possède aucune forêt ; son bûcheron
+  attend sur une forêt neutre, sans rien produire. La sortie serait
+  précisément une ville près d'une forêt. Ce n'est pas un défaut du moteur :
+  c'est la décision d'un dirigeant, que le moteur n'a pas à corriger.
+- **Pourpre** (codestral) n'a jamais posé son colon de départ ; la consigne ne
+  le touche pas.
+
+**Ce que cela prouve, et pas plus** : une paire de parties, sans plancher de
+bruit. Azur est gouvernée par le même modèle dans les deux ; son écart est le
+seul qui compare la consigne, et il est net (3 → 6 villes). Qu'il se reproduise
+reste à mesurer — une seconde partie identique le dira.
+
 ## Données
+
+- `objectifs-reexamines.json` : la partie avec la consigne nouvelle, face à
+  la précédente (`npm run rules-compare`) ;
 
 - `expansion-probe.json`, `objective-probe.json` : les deux essais sur huit
   situations (`npx tsx scripts/expansion-probe.ts [--compare=objective]`) ;
