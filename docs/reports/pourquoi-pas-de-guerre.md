@@ -71,6 +71,38 @@ types de décision (`npm run world:probe` pour le monde continu, l'équivalent �
 écrire pour les parties par tours), puis une partie de modèles retenus, en
 vérifiant qu'aucune question — la famine en particulier — ne devient la seule.
 
+## Appliqué : l'économie de `spectator-11`
+
+Décidé le 26 septembre 2026, appliqué en `spectator-11` seulement : le monde
+continu (w8) et toutes les parties déjà jouées gardent l'ancienne économie —
+quinze parties rejouées à l'identique après le changement.
+
+- **Logement** : 110 places par ville, 15 par case (au lieu de 140 et 35),
+  +25 % avec la maçonnerie. Une capitale seule plafonne vers 125 habitants.
+- **Croissance** : de 0,4 % à 2 % par tour selon les réserves (jusqu'à six tours
+  de besoin), au lieu de 1,5 % dès que trois tours sont en réserve.
+- **Réserves** : au-delà de dix tours de besoin, plus cinq par grenier, un
+  cinquième de l'excédent se gâte chaque tour.
+- **Les dirigeants le savent** : leur observation porte `housing` (population,
+  capacité, places par ville et par case), et la consigne dit la règle. Un
+  plafond invisible serait un piège, pas un choix.
+
+**Mesuré sans modèle** (`economy-probe.json`, dirigeant local, graines 42, 7 et
+123, 120 manches) :
+
+|                | écart de population entre civilisations | plus grande population | famines |
+| -------------- | --------------------------------------: | ---------------------: | ------: |
+| `spectator-10` |                               116 à 262 |                    386 |       0 |
+| `spectator-11` |                               245 à 700 |                    721 |       0 |
+
+S'étendre rapporte désormais, et la famine ne devient pas la question unique :
+aucune en six parties. Une civilisation qui ne fonde rien (deux villes, six
+cases) plafonne vers 390 habitants au lieu de 612.
+
+Ce que cela ne dit pas encore : si les **modèles** s'étendent. Le dirigeant
+local s'étendait déjà. La mesure qui compte est une partie des modèles retenus
+sous `spectator-11`, sur le même monde que la partie de référence.
+
 ## Données
 
 - `settler-probe.json` : les 32 conseils de la mesure du modèle de réponse ;

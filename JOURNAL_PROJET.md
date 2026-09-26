@@ -680,3 +680,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - **1 200 actions, 300 manches, chacune jouée par le modèle demandé** (300/300 pour les quatre), rejeu vérifié. Deux suspensions du direct sur Ambre avant l’allègement du conseil, aucune après.
 - Des styles très différents, des résultats voisins : Azur (`nex-n2.5-mini`) mène 46 plans et se trompe le plus (61 ordres rejetés) ; Pourpre (`codestral`) reste 300 tours « équilibré », un plan, un rejet ; Sylve (`dots` par OpenRouter) mise sur la croissance et reste au Moyen Âge quand Ambre (`dots` par Kilo) atteint le futur. Aucune guerre, aucune conquête, aucune famine.
 - Écrit comme ce qu’il est : une partie, pas un classement (`docs/reports/quatre-modeles-bilan.md`). Les résultats se ressemblent aussi parce que le monde ne sépare pas les décisions (`pourquoi-pas-de-guerre.md`).
+
+### 2026-09-26 — spectator-11 : une économie où quelque chose manque
+
+- Logement qui borne (110 par ville, 15 par case), croissance selon les réserves (0,4 à 2 %), réserves qui se gâtent au-delà de dix tours de besoin. Seulement en `spectator-11` : le monde continu et les quinze parties existantes rejouées à l’identique. Les dirigeants reçoivent leur logement dans l’observation, et la règle dans la consigne.
+- Mesuré sans modèle (`scripts/economy-probe.ts`) : l’écart de population entre civilisations passe de 116–262 à 245–700, aucune famine en six parties.
+- Défauts attrapés par la garde de frontière en écrivant la mesure : une comparaison de version en clair, puis une liste de versions recopiée — l’une et l’autre interdites parce qu’elles ont déjà retiré des fonctions en silence.
+- Partie appariée lancée : mêmes modèles, même monde que la partie de référence, sous `spectator-11`.

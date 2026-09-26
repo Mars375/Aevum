@@ -2,6 +2,7 @@ import { ageProgress } from "../../world/src/ages.js";
 import { planIssue } from "../../world/src/strategic-plans.js";
 import { councilOptions } from "./council-options.js";
 import { energyReport } from "../../world/src/infrastructure.js";
+import { ECONOMY_V11, housingCapacity } from "../../world/src/development.js";
 import { ZodError } from "zod";
 import type { GeneralConfig } from "@abs/contracts";
 import { agreementOptions, agreementView } from "../../world/src/agreements.js";
@@ -175,6 +176,24 @@ export function councilObservation(state: SpectatorState, civ: string) {
       w.simulation!.cities.some((c) => c.id === l.city && c.owner === civ),
     ),
     ruler: w.civs.find((c) => c.id === civ),
+    // En spectator-11, le logement borne la population : un plafond qu'un
+    // dirigeant ne verrait pas serait un piège, pas un choix.
+    ...(atLeast(state.rules, "spectator-11")
+      ? {
+          housing: (() => {
+            const ruler = w.civs.find((c) => c.id === civ)!;
+            const cities = w.simulation!.cities.filter(
+              (c) => c.owner === civ,
+            ).length;
+            return {
+              population: ruler.population,
+              capacity: housingCapacity(ruler, cities, "v11"),
+              perCity: ECONOMY_V11.housingPerCity,
+              perOwnedTile: ECONOMY_V11.housingPerTile,
+            };
+          })(),
+        }
+      : {}),
     objective: state.objectives[civ] ?? null,
     memory: state.memory[civ] ?? [],
     personality: (
@@ -346,6 +365,9 @@ export async function requestCouncil(
       : "") +
     (atLeast(state.rules, "spectator-10")
       ? " In spectator-10 you may also issue agreement: a single TOP-LEVEL object or null, never a plan field. One agreement per personal turn. action is propose, accept, decline or renounce. Propose needs target and kind: nonaggression needs duration 4, 8 or 12; transfer needs at least one positive integer across give and receive. give is what YOU hand over, receive is what you ask for — an exchange has two sides, and a gift is simply receive at zero. Accept and decline need offerId, taken verbatim from agreements.incoming: a replaced offer is gone, and its id will be refused. Only offers addressed to you can be accepted. An exchange settles before anything you spend this turn, and it is refused outright if either side cannot pay — nothing moves on a partial. A pact you carry to its end raises trust on both sides; renouncing it, or declaring a war the engine accepts, lowers the trust your partner holds in you. options.agreements lists who you may propose what to, with the trust you hold in them. A malformed agreement sinks the whole answer: leave it null when in doubt."
+      : "") +
+    (atLeast(state.rules, "spectator-11")
+      ? " In spectator-11 population cannot exceed housing.capacity: each city houses 110 people, each owned tile 15, masonry adds 25%. Growth is faster with larger food reserves; reserves beyond 10 turns of need (plus 5 per granary) spoil. A civilization grows beyond its housing only by founding cities or gaining land."
       : "") +
     (strategic
       ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."

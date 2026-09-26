@@ -154,6 +154,7 @@ export const SPECTATOR_RULES = [
   "spectator-8",
   "spectator-9",
   "spectator-10",
+  "spectator-11",
 ] as const;
 export type SpectatorRules = (typeof SPECTATOR_RULES)[number];
 export const atLeast = (rules: string, floor: SpectatorRules): boolean =>
@@ -1057,6 +1058,7 @@ export function resolveCouncil(
       develop(world, civ, events, {
         manual: true,
         foodMultiplier: multiplier,
+        economy: atLeast(state.rules, "spectator-11") ? "v11" : "classic",
         research: state.research[civ.id] ?? null,
         ...(sequential ? { seasonTick: roundNumber } : {}),
         ...(state.rules !== "spectator-1"

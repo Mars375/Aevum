@@ -61,6 +61,55 @@ export function pay(stock: Stock, cost: Partial<Stock>): void {
     stock[k as keyof Stock] = round(stock[k as keyof Stock] - n);
 }
 
+/**
+ * L'économie de `spectator-11` : un monde où quelque chose manque.
+ *
+ * Mesuré sur trois parties longues (`docs/reports/pourquoi-pas-de-guerre.md`) :
+ * la population croissait exactement pareil pour les quatre civilisations, quoi
+ * qu'elles décident — le logement ne la bornait jamais, les vivres
+ * s'accumulaient sans fin (8 358 en réserve pour un besoin de 976). Fonder une
+ * ville ne rapportait rien ; aucun dirigeant ne le faisait, aucune frontière ne
+ * se touchait, aucune guerre n'avait de raison.
+ *
+ * Trois règles, et seulement pour `spectator-11` : le monde continu (w8) et
+ * les parties déjà jouées gardent l'ancienne économie, rejouable à l'identique.
+ *
+ *  - un logement qui borne : 110 places par ville, 15 par case, +25 % avec la
+ *    maçonnerie — une capitale seule plafonne vers 125 habitants ;
+ *  - une croissance qui suit les réserves, de 0,4 % à 2 % par tour, au lieu
+ *    d'un seuil tout ou rien toujours franchi ;
+ *  - des réserves qui se gâtent : au-delà de dix fois le besoin (quinze par
+ *    grenier), un cinquième de l'excédent se perd chaque tour.
+ */
+export const ECONOMY_V11 = {
+  housingPerCity: 110,
+  housingPerTile: 15,
+  masonry: 1.25,
+  growthFloor: 0.004,
+  growthCeiling: 0.02,
+  /** Réserves, en tours de besoin, où la croissance atteint son plafond. */
+  growthReserve: 6,
+  storagePerNeed: 10,
+  storagePerGranary: 5,
+  spoilage: 0.2,
+} as const;
+
+/** Le logement d'une civilisation, selon l'économie en vigueur. */
+export function housingCapacity(
+  civ: Pick<Civ, "territory" | "advances">,
+  cityCount: number,
+  economy: "classic" | "v11" = "classic",
+): number {
+  const masonry = civ.advances.includes("masonry");
+  if (economy === "v11")
+    return Math.floor(
+      (cityCount * ECONOMY_V11.housingPerCity +
+        civ.territory * ECONOMY_V11.housingPerTile) *
+        (masonry ? ECONOMY_V11.masonry : 1),
+    );
+  return (cityCount * 140 + civ.territory * 35) * (masonry ? 1.25 : 1);
+}
+
 /** Mutates only the new tick's private copy; all expenditure is paid up front. */
 export function develop(
   world: World,
@@ -72,6 +121,8 @@ export function develop(
     manual: boolean;
     production?: Stock;
     seasonTick?: number;
+    /** `v11` : logement, croissance et réserves de `spectator-11`. */
+    economy?: "classic" | "v11";
   },
 ): void {
   const cities = world.simulation!.cities.filter((c) => c.owner === civ.id);
@@ -136,10 +187,30 @@ export function develop(
     const lost = Math.min(civ.population, Math.ceil(-food / 2));
     civ.population -= lost;
     say("STARVED", `famine : ${lost} morts`);
+  } else if (options?.economy === "v11") {
+    const v = ECONOMY_V11;
+    // Les réserves au-delà de ce que l'on peut garder se gâtent.
+    const storage =
+      foodNeed * (v.storagePerNeed + has("granary") * v.storagePerGranary);
+    if (civ.stock.food > storage)
+      civ.stock.food = round(
+        civ.stock.food - (civ.stock.food - storage) * v.spoilage,
+      );
+    const housing = housingCapacity(civ, cities.length, "v11");
+    const reserve = foodNeed > 0 ? civ.stock.food / foodNeed : 0;
+    if (reserve > 1 && civ.population < housing) {
+      const rate =
+        v.growthFloor +
+        (v.growthCeiling - v.growthFloor) *
+          Math.min(1, (reserve - 1) / (v.growthReserve - 1));
+      civ.population += Math.min(
+        Math.floor(housing - civ.population),
+        Math.max(1, Math.floor(civ.population * rate)),
+      );
+      say("GREW", `population : ${civ.population}`);
+    }
   } else {
-    const housing =
-      (cities.length * 140 + civ.territory * 35) *
-      (civ.advances.includes("masonry") ? 1.25 : 1);
+    const housing = housingCapacity(civ, cities.length);
     if (civ.stock.food > foodNeed * 3 && civ.population < housing) {
       civ.population += Math.min(
         Math.floor(housing - civ.population),
