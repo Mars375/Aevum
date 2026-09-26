@@ -40,6 +40,7 @@ import {
   modelLabel,
 } from "./campaign-source";
 import { campaignSummary } from "../../../packages/world/src/campaign-summary";
+import { housingCapacity } from "../../../packages/world/src/development";
 
 interface Loaded {
   campaign: Campaign;
@@ -308,6 +309,19 @@ const deliveries = computed(() =>
     )
     .flatMap((ledger) => ledger.deliveries),
 );
+/**
+ * La population, et en spectator-11 son logement : « 387 / 390 habitants ».
+ * Le logement y borne la croissance ; qui l'a atteint doit fonder pour grandir,
+ * et le spectateur doit pouvoir le voir sans ouvrir la fiche.
+ */
+function populationLabel(c: SpectatorState["world"]["civs"][number]) {
+  if (!atLeast(state.value.rules, "spectator-11"))
+    return `${c.population} habitants`;
+  const cities = world.value.simulation!.cities.filter(
+    (city) => city.owner === c.id,
+  ).length;
+  return `${c.population} / ${housingCapacity(c, cities, "v11")} habitants`;
+}
 function cityName(id: string) {
   const city = world.value.simulation?.cities.find((c) => c.id === id);
   return city ? world.value.board[city.position]!.name : id;
@@ -1143,7 +1157,7 @@ onUnmounted(() => {
             ><strong>{{ names[c.id] }}</strong
             ><small>{{
               c.fellOnTick === null
-                ? `${c.population} habitants · ${c.territory} terres`
+                ? `${populationLabel(c)} · ${c.territory} terres`
                 : "Civilisation éteinte"
             }}</small
             ><small v-if="state.ages?.[c.id]">{{
