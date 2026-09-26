@@ -40,6 +40,7 @@
     "preflight": "tsx scripts/preflight.ts",
     "build-reports": "tsx scripts/build-reports.ts",
     "rank-eras": "tsx scripts/rank-eras.ts",
+    "rules-compare": "tsx scripts/rules-compare.ts",
     "board-fairness": "tsx scripts/board-fairness.ts",
     "narrate": "tsx scripts/narrate.ts",
     "learning-curve": "tsx scripts/learning-curve.ts",

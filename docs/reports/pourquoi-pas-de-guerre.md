@@ -103,7 +103,55 @@ Ce que cela ne dit pas encore : si les **modèles** s'étendent. Le dirigeant
 local s'étendait déjà. La mesure qui compte est une partie des modèles retenus
 sous `spectator-11`, sur le même monde que la partie de référence.
 
+## Mesuré avec les modèles : la contrainte mord, les modèles ne s'étendent pas
+
+Partie `696781ac` sous `spectator-11`, comparée à la partie de référence
+`5336c8d2` (`spectator-10`) : **même graine**, même plateau, coupées au même
+nombre d'actions — 975 — pour que la règle soit ce qui diffère
+(`scripts/rules-compare.ts`, `regles-10-11.json`). Chaque conseil des deux
+parties a été servi par le modèle demandé (100 % partout).
+
+| règles         | civilisation | modèle        | colons recrutés | villes | cases | population / logement |
+| -------------- | ------------ | ------------- | --------------: | -----: | ----: | --------------------: |
+| `spectator-10` | Ambre        | dots (Kilo)   |               0 |      2 |     5 |             568 / 569 |
+|                | Azur         | nex-n2.5-mini |               0 |      2 |     6 |             612 / 613 |
+|                | Pourpre      | codestral     |               0 |      2 |     6 |             612 / 613 |
+|                | Sylve        | dots (OR)     |               0 |      2 |     6 |             612 / 613 |
+| `spectator-11` | Ambre        | dots (Kilo)   |               0 |      2 |     6 |             387 / 387 |
+|                | Azur         | dots (Kilo)   |               1 |      3 |    10 |             600 / 600 |
+|                | Pourpre      | codestral     |               0 |      1 |     1 |             156 / 156 |
+|                | Sylve        | dots (OR)     |               0 |      2 |     6 |             387 / 387 |
+
+Dans les deux parties : 146 cases libres sur 169, aucune frontière commune,
+aucune guerre, aucun ordre d'attaque.
+
+- **La contrainte mord** : les quatre populations sont à leur logement exact.
+  Et elle sépare enfin les décisions : de 156 à 600 habitants, là où
+  `spectator-10` donnait 568 à 612 quoi qu'on fasse. Pourpre, qui n'a jamais
+  posé son colon de départ, reste à une ville et une case, et le paie.
+- **Les modèles ne s'étendent pas pour autant** : un colon recruté en 975
+  actions, contre zéro. Ils voient pourtant le plafond — 60 décisions
+  d'Ambre, d'Azur et de Sylve parlent de logement — mais y répondent par la recherche
+  (« poursuivre l'irrigation pour débloquer la croissance et l'amélioration du
+  logement »), pas par une ville.
+- **Ce que la mesure ne peut pas dire** : une paire de parties, sans plancher
+  de bruit ; et Azur a changé de modèle (`nex-n2.5-mini` a disparu entre les
+  deux), donc sa ligne ne compare pas une règle. Le recul de la diplomatie
+  (47 propositions en `spectator-10` sur 1 200 actions, aucune ici) n'est pas
+  attribuable : peu nombreuses, surtout d'Azur, dont le modèle a changé.
+
+C'est la leçon n° 7, dans une forme nouvelle : le prix manquait, il existe
+désormais, et il ne suffit pas. Le conseil ne présente pas le colon comme la
+réponse au plafond ; le lien entre « la population bute » et « fonder une
+ville » reste à faire par le modèle, qui ne le fait pas. La piste suivante,
+non appliquée : que l'observation dise, quand la population touche le
+logement, combien une ville nouvelle en ajouterait et ce que coûte un colon —
+une information, pas un ordre. À mesurer de la même façon.
+
 ## Données
+
+- `regles-10-11.json` : la comparaison appariée ci-dessus
+  (`npm run rules-compare -- <id-a> <id-b>`) ;
 
 - `settler-probe.json` : les 32 conseils de la mesure du modèle de réponse ;
 - `partie-modeles-stables-bilan.json` : le bilan par civilisation

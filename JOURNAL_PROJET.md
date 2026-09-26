@@ -698,3 +698,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 ### 2026-09-26 — Identité Microsoft Store
 
 - Compte développeur créé et nom réservé par l’utilisateur. Identité attribuée : `Egarian.Aevum`, éditeur `CN=88813437-8A56-46DC-9F9A-3ABCFE6139DD`, affiché « Egarian ». Écrite dans `package-msix.ts` (elle est publique, portée par le paquet) ; `dist-msix/Aevum.msix` reconstruit avec elle, 41 Mo, prêt à soumettre.
+
+### 2026-09-26 — spectator-11 face aux modèles : la contrainte mord, personne ne s’étend
+
+- Partie appariée (même graine que la partie de référence) coupée à 975 actions, servie à 100 % par les modèles demandés. Les quatre populations sont à leur logement exact, et s’étalent désormais de 156 à 600 au lieu de 568 à 612 : les décisions se paient.
+- Mais **un seul colon recruté**, contre zéro : les modèles voient le plafond et répondent par la recherche, pas par une ville. Toujours aucune frontière commune, aucune guerre. Écrit dans `pourquoi-pas-de-guerre.md`, avec ses limites (une paire, Azur a changé de modèle).
+- `scripts/rules-compare.ts` (`npm run rules-compare`) : deux parties d’une même graine, au même nombre d’actions, part servie en tête.
+- Store : soumission complétée dans l’espace partenaire (tarif, propriétés, classification PEGI 3 / ESRB E10+, paquet validé, fiche française, justification de `runFullTrust`). En attente du clic d’envoi en certification.
