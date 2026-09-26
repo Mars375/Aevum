@@ -694,3 +694,7 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - `docs/microsoft-store.md` : le guide de création du compte (vérifié sur la documentation de Microsoft), la fiche, la justification de `runFullTrust`, trois captures 1920 × 1080.
 - Mistral : les en-têtes de quota ne nomment pas l’offre ; quatre modèles fermés à la clé (0 requête par minute) indiquent l’offre gratuite, ce qui reste un indice et non une preuve.
 - Branche d’Astra : entièrement contenue dans `main`, 42 commits de retard ; ses trois fichiers non enregistrés sont des notes du 21 septembre, dépassées par leurs versions de `main`. Non modifiée.
+
+### 2026-09-26 — Identité Microsoft Store
+
+- Compte développeur créé et nom réservé par l’utilisateur. Identité attribuée : `Egarian.Aevum`, éditeur `CN=88813437-8A56-46DC-9F9A-3ABCFE6139DD`, affiché « Egarian ». Écrite dans `package-msix.ts` (elle est publique, portée par le paquet) ; `dist-msix/Aevum.msix` reconstruit avec elle, 41 Mo, prêt à soumettre.

@@ -61,13 +61,25 @@ const [major, minor, patch] = (
     version: string;
   }
 ).version.split(".");
+/**
+ * L'identité attribuée par l'espace partenaires le 26 septembre 2026, en
+ * réservant le nom. Publique — elle figure dans le paquet —, donc écrite ici :
+ * chaque reconstruction produit un paquet que le Store accepte. Les variables
+ * AEVUM_MSIX_* ne servent qu'à la remplacer.
+ */
+const STORE_IDENTITY = {
+  name: "Egarian.Aevum",
+  publisher: "CN=88813437-8A56-46DC-9F9A-3ABCFE6139DD",
+  publisherDisplay: "Egarian",
+};
 const identity = {
-  __NAME__: process.env.AEVUM_MSIX_NAME ?? "Aevum.Observatoire",
-  __PUBLISHER__: process.env.AEVUM_MSIX_PUBLISHER ?? "CN=Aevum",
-  __PUBLISHER_DISPLAY__: process.env.AEVUM_MSIX_PUBLISHER_DISPLAY ?? "Aevum",
+  __NAME__: process.env.AEVUM_MSIX_NAME ?? STORE_IDENTITY.name,
+  __PUBLISHER__: process.env.AEVUM_MSIX_PUBLISHER ?? STORE_IDENTITY.publisher,
+  __PUBLISHER_DISPLAY__:
+    process.env.AEVUM_MSIX_PUBLISHER_DISPLAY ?? STORE_IDENTITY.publisherDisplay,
   __VERSION__: `${major}.${minor}.${patch}.0`,
 };
-const provisional = !process.env.AEVUM_MSIX_PUBLISHER;
+const provisional = identity.__PUBLISHER__ !== STORE_IDENTITY.publisher;
 
 rmSync(STAGE, { recursive: true, force: true });
 mkdirSync(STAGE, { recursive: true });
@@ -97,7 +109,7 @@ console.log(
       provisionalIdentity: provisional,
       signed: false,
       note: provisional
-        ? "Identité provisoire : remplacer par celle de l'espace partenaires avant soumission."
+        ? "Identité remplacée par AEVUM_MSIX_* : ce paquet n'est pas celui du Store."
         : "Prêt à soumettre : le Store signe le paquet.",
     },
     null,
