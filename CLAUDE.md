@@ -238,6 +238,14 @@ Le palier gratuit est un **budget d'appels**, pas une limite de débit — mesur
 deux fois. Tout script long reprend là où il s'est arrêté ; s'arrêter est le
 mode normal.
 
+**Une partie de modèles à la fois, et aucun sondage pendant qu'elle tourne.**
+Le 27/09, deux parties en parallèle plus les sondages ont vidé le quota
+quotidien d'OpenRouter en une journée : les deux parties se sont arrêtées à 59
+actions sur 1 200, pour huit heures. Payer n'est pas une option. Mesurer
+d'abord à zéro dépense (dirigeant local, dirigeant passif sans ordres) : c'est
+ce qui a trouvé les deux défauts de `spectator-13` avant tout appel. Une partie
+arrêtée par un quota se relance seule avec `scripts/resume-live.ps1`.
+
 Ce n'est pourtant pas tout. Un modèle peut ne pas répondre **à une requête
 précise**, toujours la même, sans que le quota ni le compte y soient pour rien
 (point 10 ci-dessus) : relancer le même état redonne le même blocage. Un script
