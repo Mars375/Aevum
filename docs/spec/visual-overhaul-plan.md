@@ -93,3 +93,23 @@ donne un lancier de **530 triangles, 90 Ko**, squelette réel, clips `idle`
 vérifié en le chargeant avec le `GLTFLoader` de Three, pas seulement dans
 Blender. Deux passes : la première rendait le bronze trop sombre et le
 bouclier cachait le corps. Aperçu : `visual-overhaul-spearman.png`.
+
+**L'essai refait le 27 septembre, Astra joignable.** Le relais restait éteint
+parce que son script de démarrage ne se lançait que pour DeepSeek ; Astra est
+passée par la connexion OpenAI directe, raisonnement « high », la même consigne.
+
+|              | Astra (`gpt-6-astra`)                                                  | Claude                      |
+| ------------ | ---------------------------------------------------------------------- | --------------------------- |
+| triangles    | 2 026                                                                  | 530                         |
+| poids        | 422 Ko                                                                 | 90 Ko                       |
+| os           | 18, dont des os de prise (lance, bouclier)                             | 8                           |
+| clips        | durées exactes (2 / 1 / 0,8 s)                                         | 2,04 / 1,04 / 0,83 s        |
+| vérification | le script relit le `.glb` exporté : poids, boucles, vitesse au raccord | chargé dans Three à la main |
+| lisibilité   | visage, barbe, bouclier à ombilic, poses naturelles                    | silhouette simple           |
+
+**Astra l'emporte** sur le détail, les poses et la rigueur de la vérification ;
+Claude sur le poids, quatre à cinq fois moindre. Décision : Astra écrit
+`units.py`, sous un budget de poids à fixer à l'étape 2 (le chargement de la
+vue 3D se mesure), et Claude relit, intègre dans l'observatoire et mesure.
+Scripts : `scripts/blender/prototypes/spearman-astra.py` et `spearman.py` ;
+aperçu : `visual-overhaul-spearman-astra.png`.
