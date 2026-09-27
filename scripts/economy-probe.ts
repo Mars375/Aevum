@@ -87,9 +87,19 @@ for (const rules of RULES)
         .length,
       atHousingLimit: Number((housed / Math.max(1, samples)).toFixed(3)),
       events: Object.fromEntries(
-        ["GREW", "STARVED", "FOUNDED", "SEIZED", "WAR", "BUILT", "ADVANCE"].map(
-          (k) => [k, events.get(k) ?? 0],
-        ),
+        [
+          "GREW",
+          "STARVED",
+          "FOUNDED",
+          "SEIZED",
+          "WAR",
+          "BUILT",
+          "ADVANCE",
+          "RAIDED",
+          "REPELLED",
+          "DISASTER",
+          "HARD_YEAR",
+        ].map((k) => [k, events.get(k) ?? 0]),
       ),
       famineShare: Number(
         ((events.get("STARVED") ?? 0) / Math.max(1, total)).toFixed(3),
@@ -98,11 +108,11 @@ for (const rules of RULES)
     });
     const r = rows.at(-1)!;
     console.log(
-      `${rules} graine ${String(seed).padStart(3)} : pop ${r.populations.join("/")} (écart ${r.spread}) · villes ${r.cities.join("/")} · vivres ${r.foodReserves.join("/")} · au plafond ${Math.round(r.atHousingLimit * 100)} % · famines ${r.events.STARVED} (${Math.round(r.famineShare * 100)} % des faits) · fondations ${r.events.FOUNDED} · conquêtes ${r.events.SEIZED} · libres ${r.freeLand}`,
+      `${rules} graine ${String(seed).padStart(3)} : pop ${r.populations.join("/")} (écart ${r.spread}) · villes ${r.cities.join("/")} · vivres ${r.foodReserves.join("/")} · au plafond ${Math.round(r.atHousingLimit * 100)} % · famines ${r.events.STARVED} (${Math.round(r.famineShare * 100)} % des faits) · fondations ${r.events.FOUNDED} · conquêtes ${r.events.SEIZED} · libres ${r.freeLand} · pillés ${r.events.RAIDED} repoussés ${r.events.REPELLED} désastres ${r.events.DISASTER} sécheresses ${r.events.HARD_YEAR}`,
     );
   }
 writeFileSync(
-  "docs/reports/economy-probe.json",
+  flag("out", "docs/reports/economy-probe.json"),
   JSON.stringify(
     { checkedAt: new Date().toISOString(), rounds, seeds, rows },
     null,

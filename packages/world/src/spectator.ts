@@ -43,7 +43,7 @@ import {
 import { militaryProfile } from "./military.js";
 import { z } from "zod";
 import { CityLedgerSchema, deriveCityEconomy } from "./city-economy.js";
-import { FactionIdSchema } from "@abs/contracts";
+import { FactionIdSchema, type FactionId } from "@abs/contracts";
 import { census, neighbours, WorldSchema, type World } from "./state.js";
 import { newCivilizationWorld, cleanup } from "./civilization.js";
 import { BuildingSchema, FocusSchema } from "./civilization-state.js";
@@ -60,7 +60,9 @@ import {
   affordable,
   pay,
   round,
+  housingCapacity,
 } from "./development.js";
+import { applyShock, droughtMultiplier, shockFor } from "./shocks.js";
 import { initializeUnits, unitPath } from "./units.js";
 import type { TickEvent } from "./events.js";
 import {
@@ -155,6 +157,7 @@ export const SPECTATOR_RULES = [
   "spectator-9",
   "spectator-10",
   "spectator-11",
+  "spectator-12",
 ] as const;
 export type SpectatorRules = (typeof SPECTATOR_RULES)[number];
 export const atLeast = (rules: string, floor: SpectatorRules): boolean =>
@@ -1047,6 +1050,18 @@ export function resolveCouncil(
       };
     });
   }
+  // spectator-12 : un choc régional par bloc, qui frappe une civilisation
+  // (shocks.ts). Calculé une fois, avant le développement, sur les vivantes.
+  const shock =
+    atLeast(state.rules, "spectator-12") && sequential
+      ? shockFor(
+          world.seed,
+          roundNumber - 1,
+          world.civs
+            .filter((c) => c.fellOnTick === null)
+            .map((c) => c.id as FactionId),
+        )
+      : null;
   for (const civ of world.civs)
     if (civ.fellOnTick === null && (!sequential || civ.id === actor)) {
       let multiplier = incident?.foodMultiplier ?? 1;
@@ -1058,6 +1073,9 @@ export function resolveCouncil(
           ))
       )
         multiplier = (1 + multiplier) / 2;
+      const struck = shock?.target === civ.id ? shock : null;
+      if (struck?.kind === "drought")
+        multiplier *= droughtMultiplier(world, struck);
       develop(world, civ, events, {
         manual: true,
         foodMultiplier: multiplier,
@@ -1084,6 +1102,21 @@ export function resolveCouncil(
             }
           : {}),
       });
+      if (struck && struck.start === roundNumber - 1) {
+        if (struck.kind === "drought")
+          say(civ.id, "HARD_YEAR", "Sécheresse régionale : huit manches");
+        else {
+          const cities = world.simulation!.cities.filter(
+            (c) => c.owner === civ.id,
+          ).length;
+          const outcome = applyShock(
+            world,
+            struck,
+            housingCapacity(civ, cities, "v11"),
+          );
+          if (outcome) say(civ.id, outcome.kind, outcome.detail);
+        }
+      }
     }
   if (atLeast(state.rules, "spectator-9") && actor) {
     // The actor's queue advances once AFTER development: a site completed now

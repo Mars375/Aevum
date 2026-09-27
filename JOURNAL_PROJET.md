@@ -724,3 +724,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 
 - Partie identique `9a1443c8` : **aucun colon**, quatre civilisations à deux villes et 387 habitants. L’expansion d’Azur (6 villes) était un cas sur huit, pas un effet. La recopie des objectifs baisse toujours ; elle ne suffit pas à faire fonder.
 - Plan du chantier visuel écrit (`docs/spec/visual-overhaul-plan.md`) et premier personnage animé par Blender : un lancier, 530 triangles, trois clips, chargé et vérifié dans Three.
+
+### 2026-09-27 — spectator-12 : des chocs qui frappent une civilisation à la fois
+
+- Le seul choc du moteur était une météo commune à tous, ±35 % de récolte pendant trois manches, divisée par deux par l’irrigation ou un grenier : il ne coûtait rien, et les parties se figeaient à deux villes et 387 habitants.
+- `packages/world/src/shocks.ts` : un choc régional tous les huit manches, tiré de `(graine, bloc)`, annoncé à tous trois manches avant — sécheresse de huit manches (20 %, 60 % préparé), épidémie qui tue selon l’entassement (jusqu’au quart au plafond), pillards de force croissante (un tiers des réserves si les soldats manquent), incendie d’un bâtiment. Seulement en `spectator-12` : les parties jouées se rejouent à l’identique.
+- Mesuré au dirigeant local sur 300 manches et trois graines (`shocks-probe.json`) : environ 37 chocs par partie, **aucune famine** — les réserves traversent la sécheresse, la question unique de la leçon n° 8 n’apparaît pas.
+- Les dirigeants voient le choc en cours et le prochain (`regionalShocks`). Premier conseil réel : codestral écrit « préparer la défense contre les pillards ». Deux parties identiques lancées pour mesurer.

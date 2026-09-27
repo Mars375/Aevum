@@ -2,13 +2,14 @@ import { ageProgress } from "../../world/src/ages.js";
 import { planIssue } from "../../world/src/strategic-plans.js";
 import { councilOptions } from "./council-options.js";
 import { energyReport } from "../../world/src/infrastructure.js";
+import { shockFor, shockForecast } from "../../world/src/shocks.js";
 import {
   affordable,
   ECONOMY_V11,
   housingCapacity,
 } from "../../world/src/development.js";
 import { ZodError } from "zod";
-import type { GeneralConfig } from "@abs/contracts";
+import type { FactionId, GeneralConfig } from "@abs/contracts";
 import { agreementOptions, agreementView } from "../../world/src/agreements.js";
 import {
   atLeast,
@@ -112,6 +113,9 @@ export function expansionFacts(state: SpectatorState, civ: string) {
   };
 }
 
+export const SHOCK_INSTRUCTION =
+  " In spectator-12 regional shocks strike ONE civilization at a time and are announced to everyone three rounds ahead in regionalShocks.forecast (target, kind, start). drought: 8 rounds of harvests at 20%, 60% with irrigation or a granary. epidemic: kills up to a quarter of the population, scaled by (population / housing capacity) squared. raid: if the target has fewer soldiers than shock.strength, it loses a third of every stock; otherwise the raid is repelled. fire: the target's best-built city loses a building. Raid strength grows over time.";
+
 export const OBJECTIVE_INSTRUCTION =
   " previousObjective is the objective you gave on an earlier turn. Re-examine it against the current situation: keep it only if it still describes what you are doing; otherwise write a new one.";
 
@@ -157,6 +161,22 @@ export function councilObservation(state: SpectatorState, civ: string) {
           climatePreparation:
             "Forecast start/end are zero-based rounds; add 1 for displayed rounds. Forecasts appear three rounds before their start; remaining warning is forecast.start - (sequence.round - 1) own turns. Preserve food, consider growth focus, irrigation and granaries before poor harvests. Forecasts do not reduce production before their start. Stock changes also reflect trade, recruitment and consumption.",
         }
+      : {}),
+    // spectator-12 : le choc régional en cours et le prochain, publics. Qui
+    // sera frappé est connu de tous — s'y préparer, ou en profiter, est un choix.
+    ...(atLeast(state.rules, "spectator-12")
+      ? (() => {
+          const living = w.civs
+            .filter((c) => c.fellOnTick === null)
+            .map((c) => c.id as FactionId);
+          const round = state.sequence!.round - 1;
+          return {
+            regionalShocks: {
+              current: shockFor(w.seed, round, living),
+              forecast: shockForecast(w.seed, round, living),
+            },
+          };
+        })()
       : {}),
     ...(atLeast(state.rules, "spectator-4")
       ? {
@@ -419,6 +439,7 @@ export async function requestCouncil(
         EXPANSION_INSTRUCTION +
         OBJECTIVE_INSTRUCTION
       : "") +
+    (atLeast(state.rules, "spectator-12") ? SHOCK_INSTRUCTION : "") +
     (strategic
       ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."
       : "") +
