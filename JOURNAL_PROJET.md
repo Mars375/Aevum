@@ -731,3 +731,11 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - `packages/world/src/shocks.ts` : un choc régional tous les huit manches, tiré de `(graine, bloc)`, annoncé à tous trois manches avant — sécheresse de huit manches (20 %, 60 % préparé), épidémie qui tue selon l’entassement (jusqu’au quart au plafond), pillards de force croissante (un tiers des réserves si les soldats manquent), incendie d’un bâtiment. Seulement en `spectator-12` : les parties jouées se rejouent à l’identique.
 - Mesuré au dirigeant local sur 300 manches et trois graines (`shocks-probe.json`) : environ 37 chocs par partie, **aucune famine** — les réserves traversent la sécheresse, la question unique de la leçon n° 8 n’apparaît pas.
 - Les dirigeants voient le choc en cours et le prochain (`regionalShocks`). Premier conseil réel : codestral écrit « préparer la défense contre les pillards ». Deux parties identiques lancées pour mesurer.
+
+### 2026-09-27 — Les chocs mordent, le monde reste figé ; spectator-13 fait pousser les frontières
+
+- Deux parties `spectator-12` identiques (`chocs-regionaux.json`) : les dirigeants s’adaptent — trois civilisations passent de 5 à 8 ou 9 soldats et repoussent presque tous les pillards ; Pourpre (codestral) n’en recrute aucun, est pillée trois fois et perd son grenier dans un incendie. Mais aucune ville, aucune frontière commune, aucune guerre : deux villes et 387 habitants, comme avant.
+- Ce qui manquait : le territoire ne grandissait que par une ville fondée. Le monde continu (w8) laisse une population à l’étroit repousser sa frontière ; `spectator-13` le fait aussi (`frontier.ts`) — une case libre voisine par tour, à au plus 5 cases d’une ville, 60 vivres, la terre qui manque d’abord.
+- Le rayon mesuré, pas choisi : deux capitales voisines sont à 9 à 11 cases sur quatre graines ; à 3 les frontières ne se touchaient jamais, à 5 les quatre paires de voisins se touchent vers l’action 600 (dirigeant passif), populations de 156 à 625–812.
+- Au dirigeant local (`frontier-probe.json`) : plus aucune terre libre dans les trois mondes, destins plus écartés (une civilisation éliminée sur la graine 7, 31 villes pour Azur sur la graine 123), aucune famine.
+- « Plus de terre à portée » était dit à chaque tour — 757 fois en 1 200 actions ; il l’est désormais une fois, avec la dernière case prise.

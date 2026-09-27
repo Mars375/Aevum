@@ -3,6 +3,7 @@ import { planIssue } from "../../world/src/strategic-plans.js";
 import { councilOptions } from "./council-options.js";
 import { energyReport } from "../../world/src/infrastructure.js";
 import { shockFor, shockForecast } from "../../world/src/shocks.js";
+import { FRONTIER, frontierTarget } from "../../world/src/frontier.js";
 import {
   affordable,
   ECONOMY_V11,
@@ -112,6 +113,8 @@ export function expansionFacts(state: SpectatorState, civ: string) {
     settlersMax: 2,
   };
 }
+
+export const FRONTIER_INSTRUCTION = ` In spectator-13 borders grow by themselves: on each own turn where population is within ${FRONTIER.slack} of housing.capacity and food is at least ${FRONTIER.foodCost}, one free tile next to your land and within ${FRONTIER.radius} tiles (Manhattan) of one of your cities is claimed for ${FRONTIER.foodCost} food, land kinds you lack first. housing.frontierNextTile is that tile; null means no free land is in reach, and only a new city or conquest adds land. Free land runs out as neighbours grow.`;
 
 export const SHOCK_INSTRUCTION =
   " In spectator-12 regional shocks strike ONE civilization at a time and are announced to everyone three rounds ahead in regionalShocks.forecast (target, kind, start). drought: 8 rounds of harvests at 20%, 60% with irrigation or a granary. epidemic: kills up to a quarter of the population, scaled by (population / housing capacity) squared. raid: if the target has fewer soldiers than shock.strength, it loses a third of every stock; otherwise the raid is repelled. fire: the target's best-built city loses a building. Raid strength grows over time.";
@@ -250,6 +253,11 @@ export function councilObservation(state: SpectatorState, civ: string) {
               // ville ajoute, et de ce que coûte un colon, manquait au lien.
               ...(ruler.population >= capacity - 1
                 ? { expansion: expansionFacts(state, civ) }
+                : {}),
+              // spectator-13 : la case que la frontière prendra ensuite, ou
+              // null quand plus aucune terre libre n'est à portée d'une ville.
+              ...(atLeast(state.rules, "spectator-13")
+                ? { frontierNextTile: frontierTarget(w, civ) }
                 : {}),
             };
           })(),
@@ -440,6 +448,7 @@ export async function requestCouncil(
         OBJECTIVE_INSTRUCTION
       : "") +
     (atLeast(state.rules, "spectator-12") ? SHOCK_INSTRUCTION : "") +
+    (atLeast(state.rules, "spectator-13") ? FRONTIER_INSTRUCTION : "") +
     (strategic
       ? " In spectator-3 and spectator-4, maintain one concrete multi-turn plan. Return plan with kind settle/build/research/trade, targetTile, targetCity, targetTech, targetBuilding, rationale in French. Set irrelevant targets to null. Settle needs targetTile; build needs own targetCity and targetBuilding; research needs targetTech; trade needs own destination targetCity and is completed only by an actual caravan delivery. Repeat the current plan while pursuing it; do not replace it just because one turn passed. plan:null explicitly cancels it. The engine measures completion and stagnation; a plan does not execute orders: still issue the construction, research and unit orders needed. Revise a blocked plan using observed causes. Do not claim success before the engine confirms it. Choose achievable targets from options and maintain reserves."
       : "") +

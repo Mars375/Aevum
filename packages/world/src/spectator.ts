@@ -63,6 +63,8 @@ import {
   housingCapacity,
 } from "./development.js";
 import { applyShock, droughtMultiplier, shockFor } from "./shocks.js";
+import { FRONTIER, frontierTarget } from "./frontier.js";
+import { LAND_LABEL } from "./borders.js";
 import { initializeUnits, unitPath } from "./units.js";
 import type { TickEvent } from "./events.js";
 import {
@@ -158,6 +160,7 @@ export const SPECTATOR_RULES = [
   "spectator-10",
   "spectator-11",
   "spectator-12",
+  "spectator-13",
 ] as const;
 export type SpectatorRules = (typeof SPECTATOR_RULES)[number];
 export const atLeast = (rules: string, floor: SpectatorRules): boolean =>
@@ -1115,6 +1118,41 @@ export function resolveCouncil(
             housingCapacity(civ, cities, "v11"),
           );
           if (outcome) say(civ.id, outcome.kind, outcome.detail);
+        }
+      }
+      // spectator-13 : une population à l'étroit repousse sa frontière d'une
+      // case par manche, à portée d'une ville (frontier.ts).
+      if (atLeast(state.rules, "spectator-13")) {
+        const cities = world.simulation!.cities.filter(
+          (c) => c.owner === civ.id,
+        ).length;
+        const capacity = housingCapacity(civ, cities, "v11");
+        if (
+          civ.population >= capacity - FRONTIER.slack &&
+          civ.stock.food >= FRONTIER.foodCost
+        ) {
+          const target = frontierTarget(world, civ.id);
+          if (target !== null) {
+            const tile = world.board[target]!;
+            tile.owner = civ.id;
+            civ.stock.food -= FRONTIER.foodCost;
+            civ.lands = { ...civ.lands, [tile.kind]: civ.lands[tile.kind] + 1 };
+            civ.territory += 1;
+            say(
+              civ.id,
+              "EXPANDED",
+              `${tile.name} défrichée, ${LAND_LABEL[tile.kind]}`,
+            );
+            // Dit une fois, avec la dernière terre prise : répété à chaque
+            // tour où rien n'est à portée, il noyait la chronique (757 fois
+            // en 1 200 actions). L'observation, elle, le dit toujours.
+            if (frontierTarget(world, civ.id) === null)
+              say(
+                civ.id,
+                "LAND_FULL",
+                "Plus une terre libre à portée de nos villes",
+              );
+          }
         }
       }
     }
