@@ -719,3 +719,8 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Partie `1bd81384`, même monde et mêmes modèles, consigne nouvelle : **Azur fonde quatre villes** (6 au lieu de 3, 24 cases au lieu de 10, 1 270 habitants au lieu de 600) et touche Ambre — la première frontière commune de toutes les parties mesurées. Sa raison au premier colon : « soulager la surpopulation ». Toujours aucune guerre.
 - Sylve cesse de recopier son objectif (269 → 99 sur 300) sans rien fonder ; Ambre recopie encore, bloquée sans forêt sur un atelier qui demande du bois ; codestral n’est pas touché.
 - Une paire, pas une preuve : une partie identique est à rejouer pour savoir si l’écart d’Azur se reproduit.
+
+### 2026-09-27 — La seconde partie ne reproduit pas l’expansion
+
+- Partie identique `9a1443c8` : **aucun colon**, quatre civilisations à deux villes et 387 habitants. L’expansion d’Azur (6 villes) était un cas sur huit, pas un effet. La recopie des objectifs baisse toujours ; elle ne suffit pas à faire fonder.
+- Plan du chantier visuel écrit (`docs/spec/visual-overhaul-plan.md`) et premier personnage animé par Blender : un lancier, 530 triangles, trois clips, chargé et vérifié dans Three.

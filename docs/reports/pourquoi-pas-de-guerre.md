@@ -231,7 +231,36 @@ bruit. Azur est gouvernée par le même modèle dans les deux ; son écart est l
 seul qui compare la consigne, et il est net (3 → 6 villes). Qu'il se reproduise
 reste à mesurer — une seconde partie identique le dira.
 
+## La seconde partie identique : l'expansion ne se reproduit pas
+
+Partie `9a1443c8` : même graine, mêmes modèles, même consigne que
+`1bd81384`. 1 200 actions, servies à 100 % par les modèles demandés
+(`objectifs-reexamines-replique.json`).
+
+| partie                        | colons recrutés | villes (A / Az / P / S) | cases libres | frontière commune |
+| ----------------------------- | --------------: | ----------------------: | -----------: | ----------------- |
+| `spectator-10`                |               0 |           2 / 2 / 2 / 2 |      146/169 | non               |
+| `spectator-11`                |               1 |           2 / 3 / 1 / 2 |      146/169 | non               |
+| consigne nouvelle, 1ʳᵉ partie |               4 |       2 / **6** / 1 / 2 |      132/169 | **oui**           |
+| consigne nouvelle, 2ᵈᵉ partie |           **0** |           2 / 2 / 2 / 2 |      145/169 | non               |
+
+**L'expansion d'Azur ne se reproduit pas.** Dans la seconde partie, personne ne
+recrute un colon ; les quatre civilisations finissent à deux villes, six cases
+et 387 habitants — le même équilibre que les parties précédentes. La
+recopie des objectifs baisse encore (Azur 128/300, Sylve 142/300 au lieu de
+229 et 269 avant la consigne), donc la consigne fait ce qu'elle promettait ;
+mais ne plus recopier ne fait pas fonder.
+
+Conclusion honnête : **une civilisation sur huit** s'est étendue sous la
+consigne nouvelle. C'est un événement rare, pas un effet établi. La première
+partie montrait ce qui peut arriver ; la seconde, ce qui arrive le plus
+souvent. Écrire « la consigne fait s'étendre » serait refaire l'erreur que la
+leçon n° 2 de CLAUDE.md décrit : conclure sur une seule course.
+
 ## Données
+
+- `objectifs-reexamines-replique.json` : la seconde partie face à la
+  première ;
 
 - `objectifs-reexamines.json` : la partie avec la consigne nouvelle, face à
   la précédente (`npm run rules-compare`) ;
