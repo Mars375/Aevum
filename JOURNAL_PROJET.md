@@ -739,3 +739,10 @@ Industrie → Moderne → Futur, réseaux et énergie, pollution, crises annonc�
 - Le rayon mesuré, pas choisi : deux capitales voisines sont à 9 à 11 cases sur quatre graines ; à 3 les frontières ne se touchaient jamais, à 5 les quatre paires de voisins se touchent vers l’action 600 (dirigeant passif), populations de 156 à 625–812.
 - Au dirigeant local (`frontier-probe.json`) : plus aucune terre libre dans les trois mondes, destins plus écartés (une civilisation éliminée sur la graine 7, 31 villes pour Azur sur la graine 123), aucune famine.
 - « Plus de terre à portée » était dit à chaque tour — 757 fois en 1 200 actions ; il l’est désormais une fois, avec la dernière case prise.
+
+### 2026-09-28 — Une nuit, deux quotas : Pourpre change de modèle
+
+- Les deux parties `spectator-13` ont repris à 2 h quand OpenRouter a rendu son quota, puis se sont arrêtées vers 262 actions : Mistral répond `402 billing_api_budget_exhausted` — l’offre gratuite est désormais un budget mensuel d’environ 10 $ de crédits, épuisé par trois jours de parties. Codestral est hors jeu jusqu’au prochain cycle de facturation.
+- Déjà visible à 262 actions : dans les deux parties, **Pourpre fonde sa deuxième ville**, ce qu’elle n’avait fait dans aucune partie `spectator-12`. Les frontières commencent à pousser (6 à 8 cases) ; les populations n’ont pas encore atteint leur plafond.
+- La partie A (`47cd4906`) continue seule — une partie à la fois — avec Pourpre confiée à dots par Kilo **à partir de l’action 262** ; chaque décision garde le nom du modèle qui l’a prise. La partie B (`b3a3bdf7`) reste arrêtée à 266.
+- `resume-live.ps1` s’arrêtait à la première relance réussie et n’a donc pas vu le second arrêt : il veille désormais jusqu’à la fin de la partie.
